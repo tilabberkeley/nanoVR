@@ -3180,10 +3180,10 @@ GameObject:
   - component: {fileID: 713889225}
   - component: {fileID: 713889229}
   - component: {fileID: 713889230}
+  - component: {fileID: 713889233}
   - component: {fileID: 713889228}
   - component: {fileID: 713889232}
   - component: {fileID: 713889231}
-  - component: {fileID: 713889233}
   m_Layer: 0
   m_Name: RightHand Controller
   m_TagString: Untagged
@@ -3833,7 +3833,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cde0803e3a91f7c43843930a3c8d45cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _xrNode: 0
+  _xrNode: 5
   rightRayInteractor: {fileID: 713889222}
 --- !u!1 &728436289
 GameObject:

@@ -5,12 +5,14 @@ using UnityEngine;
 public class NucleotideComponent : MonoBehaviour
 {
     private int _id;
-    private GameObject _crossover = null;
+    private GameObject _crossoverGO = null;
+    private GameObject _crossoverBB = null;
 
     private GameObject _prevGO = null;
     private GameObject _nextGO = null;
     private GameObject _prevBB = null;
     private GameObject _nextBB = null;
+    private GameObject _complementGO = null;
 
     private bool _selected = false;
 
@@ -26,9 +28,9 @@ public class NucleotideComponent : MonoBehaviour
     public Vector3 GetPosition() {return transform.position;}
     public void SetPosition(Vector3 p) { transform.position = p;}
 
-    public bool HasCrossover() {return _crossover != null;}
-    public GameObject GetCrossover() {return _crossover;}
-    public void SetCrossover(GameObject c) {_crossover = c;}
+    public bool HasCrossover() {return _crossoverGO != null;}
+    public GameObject GetCrossover() {return _crossoverGO;}
+    public void SetCrossover(GameObject c) {_crossoverGO = c;}
 
     public GameObject GetPrevGO() {return _prevGO;}
     public void SetPrevGO(GameObject p) {_prevGO = p;}
@@ -41,6 +43,9 @@ public class NucleotideComponent : MonoBehaviour
 
     public GameObject GetNextBB() {return _nextBB;}
     public void SetNextBB(GameObject n) {_nextBB = n;}
+    
+    public GameObject GetComplementGO() {return _complementGO;}
+    public void SetComplementGO(GameObject c) {_complementGO = c;}
 
     public bool IsSelected() {return _selected;}
 

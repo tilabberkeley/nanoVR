@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using UnityEngine;
+using UnityEngine.XR;
+using UnityEngine.XR.Interaction.Toolkit;
 
 public class Grid
 {
@@ -15,7 +17,8 @@ public class Grid
     private int _numNodes;
 
 
-    public Grid(string plane, Vector3 startPos) {
+    public Grid(string plane, Vector3 startPos) 
+    {
         _plane = plane;
         _startPos = startPos;
         _nodes = new List<Vector3>();
@@ -31,7 +34,7 @@ public class Grid
     public Vector3 StartPos { get; }
 
     public List<Vector3> Nodes { get; }
-    public List<Line> Lines { get; }
+    public List<Line> GetLines() { return _lines; }
 
     public Line GetLine(int index) {return _lines[index];}
 
@@ -44,10 +47,12 @@ public class Grid
                 if (_plane.Equals("XY")) 
                 {
                     _nodes.Add(new Vector3(_startPos.x + firstDim/20f, _startPos.y + secDim/20f, _startPos.z));
-                } else if (this._plane.Equals("YZ")) 
+                } 
+                else if (this._plane.Equals("YZ")) 
                 {
                     _nodes.Add(new Vector3(_startPos.x, _startPos.y + firstDim/20f, _startPos.z + secDim/20f));
-                } else 
+                } 
+                else 
                 {
                     _nodes.Add(new Vector3(_startPos.x + firstDim/20f, _startPos.y, _startPos.z + secDim/20f));
                 }
@@ -63,20 +68,19 @@ public class Grid
 		}
 		for (int i = 0; i < _nodes.Count; i++) 
         {
-            GameObject circle = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            circle.AddComponent<NucleotideComponent>();
-            circle.name = "grid";
-            circle.transform.position = _nodes[i];
-            circle.transform.localScale = new Vector3(0.03f, 0.0001f, 0.03f);
-			circle.transform.Rotate(90f, 0f, 0f, 0);
-            // sphere.AddComponent<XRGrabInteractable>();
-            // var sphereXRGrab = sphere.GetComponent<XRGrabInteractable>();
-            // sphereXRGrab.throwOnDetach = false;
-            // var sphereRigidbody = sphere.GetComponent<Rigidbody>();
-            // sphereRigidbody.useGravity = false;
-            // sphereRigidbody.isKinematic = true;
-            var circleRenderer = circle.GetComponent<Renderer>();
-            circleRenderer.material.SetColor("_Color", Color.gray);
+            DrawPoint.MakeGrid(_nodes[i], "grid");
+            // GameObject circle = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            // circle.name = "grid";
+            // circle.transform.position = _nodes[i];
+            // circle.transform.localScale = new Vector3(0.03f, 0.0001f, 0.03f);
+			// circle.transform.Rotate(90f, 0f, 0f, 0);
+            // circle.AddComponent<XRSimpleInteractable>();
+            
+            // var circleRigidbody = circle.GetComponent<Rigidbody>();
+            // circleRigidbody.useGravity = false;
+            // circleRigidbody.isKinematic = true;
+            // var circleRenderer = circle.GetComponent<Renderer>();
+            // circleRenderer.material.SetColor("_Color", Color.gray);
         }
 	}
 

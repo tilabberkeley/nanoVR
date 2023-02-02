@@ -34,8 +34,8 @@ public class Helix
         HelixFormation();
         DrawBackbone(_ntAPos, _backbonesA);
         DrawBackbone(_ntBPos, _backbonesB);
-        SetNeighbors(_nucleotidesA, _backbonesA);
-        SetNeighbors(_nucleotidesB, _backbonesB);
+        SetNeighbors(_nucleotidesA, _nucleotidesB, _backbonesA);
+        SetNeighbors(_nucleotidesB, _nucleotidesA, _backbonesB);
     }
 
     public void HelixFormation() 
@@ -53,7 +53,7 @@ public class Helix
             _ntAPos.Add(targetPositionA);
             _nucleotidesA.Add(sphereA);
 
-  			string nameB = "nucleotideB" + i;
+            string nameB = "nucleotideB" + i;
             GameObject sphereB = DrawPoint.MakeNucleotide(targetPositionB, nameB);
             sphereB.GetComponent<Renderer>().enabled = false;
             _ntBPos.Add(targetPositionB);
@@ -99,7 +99,7 @@ public class Helix
         }
     }
 
-    public void SetNeighbors(List<GameObject> nucleotides, List<GameObject> backbones) 
+    public void SetNeighbors(List<GameObject> nucleotides, List<GameObject> complements, List<GameObject> backbones) 
     {
         for (int i = 0; i < nucleotides.Count; i++)
         {
@@ -113,8 +113,8 @@ public class Helix
                 ntc.SetPrevGO(nucleotides[i - 1]);
                 ntc.SetPrevBB(backbones[i - 1]);
             }
-        }
-        
+            ntc.SetComplementGO(complements[i]);
+        }        
     }
 
     public void ShowHelix() 
@@ -128,7 +128,6 @@ public class Helix
         }
         _nucleotidesA[_nucleotidesA.Count - 1].GetComponent<Renderer>().enabled = true;
         _nucleotidesB[_nucleotidesB.Count - 1].GetComponent<Renderer>().enabled = true;
-
     }
 
     public void HideHelix() 

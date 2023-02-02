@@ -77,7 +77,7 @@ public class DrawGrid : MonoBehaviour
                 Vector3 midpoint = s_hit.collider.bounds.center;
                 Vector3 startPos = CalculateStartPoint(midpoint);
                 Vector3 endPos = CalculateEndPoint(midpoint);
-                int id = _grid.Lines.Count;
+                int id = _grid.GetLines().Count;
 
                 _grid.AddLine(id, startPos, endPos);
                 _grid.AddHelix(id, startPos, endPos, plane);
@@ -97,36 +97,39 @@ public class DrawGrid : MonoBehaviour
                     && gripValue
                     && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
-            //gripReleased = false;
-            Vector3 spherePos = s_hit.collider.bounds.center;
-            Vector3 direction = transform.rotation * Vector3.forward;
-            Vector3 rayPos = transform.position + direction * 0.07f ;
-            Vector3 newPos;
-            if (plane.Equals("XY")) 
+            if (s_hit.collider.name.Contains("startPoint") || s_hit.collider.name.Contains("endPoint")) 
             {
-                newPos = new Vector3(spherePos.x, spherePos.y, rayPos.z);
-            } 
-            else if (plane.Equals("YZ")) 
-            {
-                newPos = new Vector3(rayPos.x, spherePos.y, spherePos.z);
-            } 
-            else 
-            {
-                newPos = new Vector3(spherePos.x, rayPos.y, spherePos.z);
-            }
+                //gripReleased = false;
+                Vector3 spherePos = s_hit.collider.bounds.center;
+                Vector3 direction = transform.rotation * Vector3.forward;
+                Vector3 rayPos = transform.position + direction * 0.07f ;
+                Vector3 newPos;
+                if (plane.Equals("XY")) 
+                {
+                    newPos = new Vector3(spherePos.x, spherePos.y, rayPos.z);
+                } 
+                else if (plane.Equals("YZ")) 
+                {
+                    newPos = new Vector3(rayPos.x, spherePos.y, spherePos.z);
+                } 
+                else 
+                {
+                    newPos = new Vector3(spherePos.x, rayPos.y, spherePos.z);
+                }
 
-            s_hit.collider.gameObject.transform.position = Vector3.MoveTowards(spherePos, newPos, 50f);
-            if (s_hit.collider.name.Contains("startPoint")) 
-            {
-                int index = Int32.Parse(s_hit.collider.name.Substring(s_hit.collider.name.Length - 1));
-                Line line = _grid.GetLine(index);
-                line.SetStart(newPos);
-            } 
-            else if (s_hit.collider.name.Contains("endPoint")) 
-            {
-                int index = Int32.Parse(s_hit.collider.name.Substring(s_hit.collider.name.Length - 1));
-                Line line = _grid.GetLine(index);
-                line.SetEnd(newPos);
+                s_hit.collider.gameObject.transform.position = Vector3.MoveTowards(spherePos, newPos, 50f);
+                if (s_hit.collider.name.Contains("startPoint")) 
+                {
+                    int index = Int32.Parse(s_hit.collider.name.Substring(s_hit.collider.name.Length - 1));
+                    Line line = _grid.GetLine(index);
+                    line.SetStart(newPos);
+                } 
+                else if (s_hit.collider.name.Contains("endPoint")) 
+                {
+                    int index = Int32.Parse(s_hit.collider.name.Substring(s_hit.collider.name.Length - 1));
+                    Line line = _grid.GetLine(index);
+                    line.SetEnd(newPos);
+                }
             }
         }
 

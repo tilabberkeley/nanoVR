@@ -33,7 +33,8 @@ public class DrawNucleotide : MonoBehaviour
         
     }
 
-    void Update() {
+    void Update() 
+    {
         if (!GlobalVariables.s_gridTogOn) 
         {
             return;
@@ -51,6 +52,7 @@ public class DrawNucleotide : MonoBehaviour
                 && triggerReleased
                 && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit)) 
         {
+
             if (s_hit.collider.name.Contains("nucleotide"))
 		    {
                 triggerReleased = false;
@@ -68,6 +70,7 @@ public class DrawNucleotide : MonoBehaviour
         {
             if (s_hit.collider.name.Contains("nucleotide"))
 		    {
+
                 GameObject nt = s_hit.collider.gameObject;
                 var ntc = nt.GetComponent<NucleotideComponent>();
                 ntc.Highlight();	
