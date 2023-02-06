@@ -3181,6 +3181,7 @@ GameObject:
   - component: {fileID: 713889229}
   - component: {fileID: 713889230}
   - component: {fileID: 713889233}
+  - component: {fileID: 713889234}
   - component: {fileID: 713889228}
   - component: {fileID: 713889232}
   - component: {fileID: 713889231}
@@ -3769,7 +3770,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcd8a87afd12b5948a479eae3fe4f880, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _xrNode: 0
+  _xrNode: 5
   rightRayInteractor: {fileID: 713889222}
   dropdown: {fileID: 249371458}
 --- !u!23 &713889231
@@ -3831,6 +3832,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cde0803e3a91f7c43843930a3c8d45cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _xrNode: 5
+  rightRayInteractor: {fileID: 713889222}
+--- !u!114 &713889234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 713889218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78afd7a242d5ae94993265c2b8365cea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _xrNode: 5

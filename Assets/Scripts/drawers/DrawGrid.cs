@@ -80,7 +80,7 @@ public class DrawGrid : MonoBehaviour
         int id = _grid.GetLines().Count;
 
         _grid.AddLine(id, startPos, endPos);
-        _grid.AddHelix(id, startPos, endPos, plane);
+        _grid.AddHelix(id, startPos, endPos, plane, midpoint);
       }
 
     }

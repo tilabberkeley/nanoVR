@@ -33,7 +33,7 @@ public class Grid
 
   public Vector3 StartPos { get; }
 
-  public List<Vector3> Nodes { get; }
+  public List<Vector3> GetNodes() { return _nodes; }
   public List<Line> GetLines() { return _lines; }
 
   public Line GetLine(int index) { return _lines[index]; }
@@ -90,9 +90,9 @@ public class Grid
     _lines.Add(line);
   }
 
-  public void AddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation)
+  public void AddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, Vector3 gridPoint)
   {
-    Helix helix = new Helix(id, startPoint, endPoint, orientation);
+    Helix helix = new Helix(id, startPoint, endPoint, orientation, gridPoint);
     _helices.Add(helix);
   }
 

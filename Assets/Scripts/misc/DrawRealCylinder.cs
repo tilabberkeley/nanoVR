@@ -46,7 +46,7 @@ public class DrawRealCylinder : MonoBehaviour
         cyl.transform.localScale = new Vector3(0.007f, dist/2, 0.007f);
 	}
 
-    public static void DrawReal(Vector3 startV, Vector3 endV) 
+    public static GameObject DrawReal(Vector3 startV, Vector3 endV) 
     {
         GameObject cyl2 = GameObject.CreatePrimitive(PrimitiveType.Cylinder); 
         cyl2.layer = LayerMask.NameToLayer ("Ignore Raycast");
@@ -66,6 +66,7 @@ public class DrawRealCylinder : MonoBehaviour
         // Scale        
         float dist2 = Vector3.Distance(endV, startV);
         cyl2.transform.localScale = new Vector3(0.02f, dist2/2, 0.02f);
+        return cyl2;
 	}
 
     public static void Clear() {

@@ -29,8 +29,11 @@ public class NucleotideComponent : MonoBehaviour
   public void SetPosition(Vector3 p) { transform.position = p; }
 
   public bool HasCrossover() { return _crossoverGO != null; }
-  public GameObject GetCrossover() { return _crossoverGO; }
-  public void SetCrossover(GameObject c) { _crossoverGO = c; }
+  public GameObject GetCrossoverGO() { return _crossoverGO; }
+  public void SetCrossoverGO(GameObject c) { _crossoverGO = c; }
+
+  public GameObject GetCrossoverBB() { return _crossoverBB; }
+  public void SetCrossoverBB(GameObject c) { _crossoverBB = c; }
 
   public GameObject GetPrevGO() { return _prevGO; }
   public void SetPrevGO(GameObject p) { _prevGO = p; }

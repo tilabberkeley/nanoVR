@@ -71,10 +71,6 @@ public class DrawNucleotide : MonoBehaviour
       if (s_hit.collider.name.Contains("nucleotide"))
       {
         GameObject nt = s_hit.collider.gameObject;
-        if (nt != highlightedGO)
-        {
-          highlightedGO.GetComponent<NucleotideComponent>().Unhighlight();
-        }
         var ntc = nt.GetComponent<NucleotideComponent>();
         ntc.Highlight();
         highlightedGO = nt;

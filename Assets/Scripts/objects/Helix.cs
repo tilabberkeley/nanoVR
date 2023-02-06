@@ -11,6 +11,8 @@ public class Helix
   private Vector3 _endPoint;
   private int _length;
   private string _orientation;
+
+  private Vector3 _gridPoint;
   private List<Vector3> _ntAPos;
   private List<GameObject> _nucleotidesA;
   private List<GameObject> _backbonesA;
@@ -18,13 +20,14 @@ public class Helix
   private List<GameObject> _nucleotidesB;
   private List<GameObject> _backbonesB;
 
-  public Helix(int id, Vector3 startPoint, Vector3 endPoint, string orientation)
+  public Helix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, Vector3 gridPoint)
   {
     _id = id;
     _startPoint = startPoint;
     _endPoint = endPoint;
     _length = (int)Math.Round(Vector3.Distance(startPoint, endPoint) * 30, 0);
     _orientation = orientation;
+    _gridPoint = gridPoint;
     _ntAPos = new List<Vector3>();
     _nucleotidesA = new List<GameObject>();
     _backbonesA = new List<GameObject>();
@@ -40,10 +43,10 @@ public class Helix
 
   public void HelixFormation()
   {
-    float OFFSET = 0.15f; // helical radius
+    //float OFFSET = 0.15f; // helical radius
     float RISE = 0.034f; // vertical rise per bp
-    Vector3 targetPositionA = new Vector3(_startPoint.x, _startPoint.y, _startPoint.z + OFFSET);
-    Vector3 targetPositionB = new Vector3(_startPoint.x, _startPoint.y, _startPoint.z);
+    Vector3 targetPositionA = new Vector3(_startPoint.x, _startPoint.y, _startPoint.z);
+    Vector3 targetPositionB = 2 * (targetPositionA - _gridPoint) + _gridPoint;
 
     for (int i = 0; i < _length; i++)
     {
@@ -66,7 +69,7 @@ public class Helix
       if (_orientation.Equals("XY"))
       {
         targetPositionA = new Vector3(targetPositionA.x + axisOneChange, targetPositionA.y + axisTwoChange, targetPositionA.z + RISE);
-        targetPositionB = new Vector3(targetPositionB.x + axisOneChange, targetPositionB.y + axisTwoChange, targetPositionB.z + RISE);
+        targetPositionB = 2 * (targetPositionA - _gridPoint) + _gridPoint;
       }
     }
   }

@@ -109,8 +109,8 @@ public class Honeycomb : MonoBehaviour
     }
 
     public void AddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation) {
-        Helix helix = new Helix(id, startPoint, endPoint, orientation);
-        helices.Add(helix);
+        //Helix helix = new Helix(id, startPoint, endPoint, orientation);
+       // helices.Add(helix);
     }
 
     public void ShowHelices() {
