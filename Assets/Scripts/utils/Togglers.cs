@@ -43,4 +43,16 @@ public class Togglers : MonoBehaviour
         GlobalVariables.s_gridTogOn = false;
         GlobalVariables.s_honeycombTogOn = true;
     }
+
+    public void DrawToggled()
+    {
+        GlobalVariables.s_drawTogOn = true;
+        GlobalVariables.s_eraseTogOn = false;
+    }
+
+    public void EraseToggled()
+    {
+        GlobalVariables.s_drawTogOn = false;
+        GlobalVariables.s_eraseTogOn = true;
+    }
 }
