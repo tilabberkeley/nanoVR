@@ -12,14 +12,14 @@ public class Strand : MonoBehaviour
     private GameObject _head;
     private GameObject _tail;
 
-    public Strand(List<GameObject> nucleotides, int strandId, int direction, GameObject startGO, GameObject endGO)
+    public Strand(List<GameObject> nucleotides, int strandId, int direction)
     {
         _nucleotides = nucleotides;
         _strandId = strandId;
         _direction = direction;
         _color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
-        _head = startGO;
-        _tail = endGO;
+        _head = nucleotides[0];
+        _tail = nucleotides.Last();
     }
 
     public List<GameObject> GetNucleotides() { return _nucleotides; }
@@ -29,18 +29,19 @@ public class Strand : MonoBehaviour
 
     public int GetDirection() { return _direction; }
 
-    public void AddToLeftHead(List<GameObject> newNucls) 
+    public void AddToHead(List<GameObject> newNucls) 
     {
         _nucleotides.InsertRange(0, newNucls);
         _head = _nucleotides[0];
     }
 
-    public void AddToRightTail(List<GameObject> newNucls)
+    public void AddToTail(List<GameObject> newNucls)
     {
         _nucleotides.AddRange(newNucls);
         _tail = _nucleotides.Last();
     }
 
+    /*
     public void AddToRightHead(List<GameObject> newNucls)
     {
         _nucleotides.AddRange(newNucls);
@@ -52,8 +53,9 @@ public class Strand : MonoBehaviour
         _nucleotides.InsertRange(0, newNucls);
         _tail = _nucleotides[0];
     }
+    */
 
-    public int RemoveFromLeftHead(List<GameObject> nucleotides)
+    public int RemoveFromHead(List<GameObject> nucleotides)
     {
         foreach (GameObject nucl in nucleotides)
         {
@@ -63,7 +65,7 @@ public class Strand : MonoBehaviour
         _head = _nucleotides[0];
         return _nucleotides.Count;
     }
-    public int RemoveFromRightTail(List<GameObject> nucleotides)
+    public int RemoveFromTail(List<GameObject> nucleotides)
     {
         foreach (GameObject nucl in nucleotides)
         {
@@ -73,6 +75,7 @@ public class Strand : MonoBehaviour
         return _nucleotides.Count;
     }
 
+    /*
     public int RemoveFromRightHead(List<GameObject> nucleotides)
     {
         foreach (GameObject nucl in nucleotides)
@@ -91,7 +94,7 @@ public class Strand : MonoBehaviour
         }
         _tail = _nucleotides[0];
         return _nucleotides.Count;
-    }
+    } */
 
     public void SetComponents()
     {

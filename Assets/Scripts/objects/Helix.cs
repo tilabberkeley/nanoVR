@@ -113,7 +113,9 @@ public class Helix
         }
         else 
         {
-            return _nucleotidesA.GetRange(sIndex, eIndex - sIndex + 1);
+            List<GameObject> temp = _nucleotidesA.GetRange(sIndex, eIndex - sIndex + 1);
+            temp.Reverse();
+            return temp;
         }
     }
 
