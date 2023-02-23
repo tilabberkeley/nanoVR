@@ -4,7 +4,7 @@ using UnityEngine;
  public class HelixComponent : MonoBehaviour
  {
 
-        
+    private int _id; // id of nucl within helix
     private int _helixId; // id of the helix itself
     private int _ssDirection; // 0 = 5' to 3', 1 = 3' to 5'single strand
 
@@ -20,7 +20,8 @@ using UnityEngine;
 
     private Renderer _ntRenderer;
 
-
+    public int GetId() { return _id; }
+    public void SetId(int id) { _id = id; }
     public int GetHelixId() { return _helixId; }
     public void SetHelixId(int id) { _helixId = id; }
     public int GetSSId() { return _ssDirection; }

@@ -25,7 +25,7 @@ public class Helix
         _id = id;
         _startPoint = startPoint;
         _endPoint = endPoint;
-        _length = (int)Math.Round(Vector3.Distance(startPoint, endPoint) * 30, 0);
+        _length = 32;
         _orientation = orientation;
         _gridPoint = gridPoint;
         _ntAPos = new List<Vector3>();
@@ -62,14 +62,17 @@ public class Helix
             _ntBPos.Add(targetPositionB);
             _nucleotidesB.Add(sphereB);
 
-            float angle = i * (2 * (float)(Math.PI) / 10); // rotation per bp in radians
-            float axisOneChange = Mathf.Cos(angle) * 0.02f;
-            float axisTwoChange = Mathf.Sin(angle) * 0.02f;
+            float angleA = i * (2 * (float)(Math.PI) / 10); // rotation per bp in radians
+            float angleB = (i + 5) * (2 * (float)(Math.PI) / 10);
+            float axisOneChangeA = Mathf.Cos(angleA) * 0.02f;
+            float axisTwoChangeA = Mathf.Sin(angleA) * 0.02f;
+            float axisOneChangeB = Mathf.Cos(angleB) * 0.02f;
+            float axisTwoChangeB = Mathf.Sin(angleB) * 0.02f;
 
             if (_orientation.Equals("XY"))
             {
-                targetPositionA = new Vector3(targetPositionA.x + axisOneChange, targetPositionA.y + axisTwoChange, targetPositionA.z + RISE);
-                targetPositionB = new Vector3(targetPositionB.x + axisOneChange, targetPositionB.y + axisTwoChange, targetPositionB.z + RISE);
+                targetPositionA = new Vector3(targetPositionA.x + axisOneChangeA, targetPositionA.y + axisTwoChangeA, targetPositionA.z + RISE);
+                targetPositionB = new Vector3(targetPositionB.x + axisOneChangeB, targetPositionB.y + axisTwoChangeB, targetPositionB.z + RISE);
             }
         }
     }
@@ -99,6 +102,18 @@ public class Helix
             cylinder.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
             cylinder.GetComponent<Renderer>().enabled = false;
             backbones.Add(cylinder);
+        }
+    }
+
+    public List<GameObject> GetHelixSub(int sIndex, int eIndex, int direction)
+    {
+        if (direction == 0)
+        {
+            return _nucleotidesB.GetRange(sIndex, eIndex - sIndex + 1);
+        }
+        else 
+        {
+            return _nucleotidesA.GetRange(sIndex, eIndex - sIndex + 1);
         }
     }
 

@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static GlobalVariables;
 
 public class NucleotideComponent : MonoBehaviour
 {
-    private int _id;
-    private int _helixId;
-    private int _strandId;
+    private int _id; // index of nucl in helix
+    private int _helixId; // id of helix
+    private int _strandId = - 1; //id of strand
+    private int _direction; // 0 = 5' to 3' right->left, 1 = left->right
     private GameObject _crossoverGO = null;
     private GameObject _crossoverBB = null;
 
@@ -18,8 +20,9 @@ public class NucleotideComponent : MonoBehaviour
 
     private bool _selected = false;
 
-    private Color _color = Color.green;
-    private Color _transGray = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+    private Color _color = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+    private static Color s_yellow = new Color(1, 0.92f, 0.016f, 0.5f);
+    private static Color s_grey = new Color(0.5f, 0.5f, 0.5f, 0.5f);
 
     private Renderer _ntRenderer;
 
@@ -30,7 +33,8 @@ public class NucleotideComponent : MonoBehaviour
     public void SetHelixId(int helixId) { _helixId = helixId; }
     public int GetStrandId() { return _strandId; }
     public void SetStrandId(int strandId) { _strandId = strandId; }
-
+    public int GetDirection() { return _direction; }
+    public void SetDirection(int direction) { _direction = direction; }
     public Vector3 GetPosition() { return transform.position; }
     public void SetPosition(Vector3 p) { transform.position = p; }
 
@@ -59,6 +63,13 @@ public class NucleotideComponent : MonoBehaviour
     public bool IsSelected() { return _selected; }
     public void SetSelected(bool selected) { _selected = selected; }
 
+    public Color GetColor() { return _color; }
+    public void SetColor(Color c) 
+    { 
+        _color = c; 
+        _ntRenderer.material.SetColor("_Color", c); 
+    }
+    public void ResetColor() { _color = s_grey; }
     public void FlipSelected()
     {
         _selected = !_selected;
@@ -76,16 +87,16 @@ public class NucleotideComponent : MonoBehaviour
         }
         else
         {
-            _ntRenderer.material.SetColor("_Color", _transGray);
-            _prevBB.GetComponent<Renderer>().material.SetColor("_Color", _transGray);
-            _nextBB.GetComponent<Renderer>().material.SetColor("_Color", _transGray);
+            _ntRenderer.material.SetColor("_Color", s_grey);
+            _prevBB.GetComponent<Renderer>().material.SetColor("_Color", s_grey);
+            _nextBB.GetComponent<Renderer>().material.SetColor("_Color", s_grey);
         }
     }
 
 
     public void Highlight()
     {
-        _ntRenderer.material.SetColor("_Color", Color.yellow);
+        _ntRenderer.material.SetColor("_Color", s_yellow);
     }
 
     public void Unhighlight()
@@ -96,16 +107,18 @@ public class NucleotideComponent : MonoBehaviour
         }
         else
         {
-            _ntRenderer.material.SetColor("_Color", _transGray);
+            _ntRenderer.material.SetColor("_Color", s_grey);
         }
     }
 
-    public void BreakStrand()
+    public void RemoveStrand(Strand s)
     {
-        
-        if (_prevGO.GetComponent<NucleotideComponent>().IsSelected() && _nextGO.GetComponent<NucleotideComponent>().IsSelected())
+        List<GameObject> nucleotides = s.GetNucleotides();
+        for (int i = 0; i < nucleotides.Count; i++)
         {
-           
+            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            ntc.SetStrandId(-1);
+            ntc.SetColor(s_grey);
         }
     }
 

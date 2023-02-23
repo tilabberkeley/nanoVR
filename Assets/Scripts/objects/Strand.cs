@@ -1,0 +1,117 @@
+using System.Collections;
+using System.Linq;
+using System.Collections.Generic;
+using UnityEngine;
+using static GlobalVariables;
+public class Strand : MonoBehaviour
+{
+    private List<GameObject> _nucleotides;
+    private int _strandId;
+    private int _direction;
+    private Color _color;
+    private GameObject _head;
+    private GameObject _tail;
+
+    public Strand(List<GameObject> nucleotides, int strandId, int direction, GameObject startGO, GameObject endGO)
+    {
+        _nucleotides = nucleotides;
+        _strandId = strandId;
+        _direction = direction;
+        _color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+        _head = startGO;
+        _tail = endGO;
+    }
+
+    public List<GameObject> GetNucleotides() { return _nucleotides; }
+
+    public GameObject GetHead() { return _head; }
+    public GameObject GetTail() { return _tail; }
+
+    public int GetDirection() { return _direction; }
+
+    public void AddToLeftHead(List<GameObject> newNucls) 
+    {
+        _nucleotides.InsertRange(0, newNucls);
+        _head = _nucleotides[0];
+    }
+
+    public void AddToRightTail(List<GameObject> newNucls)
+    {
+        _nucleotides.AddRange(newNucls);
+        _tail = _nucleotides.Last();
+    }
+
+    public void AddToRightHead(List<GameObject> newNucls)
+    {
+        _nucleotides.AddRange(newNucls);
+        _head = _nucleotides.Last();
+    }
+
+    public void AddToLeftTail(List<GameObject> newNucls)
+    {
+        _nucleotides.InsertRange(0, newNucls);
+        _tail = _nucleotides[0];
+    }
+
+    public int RemoveFromLeftHead(List<GameObject> nucleotides)
+    {
+        foreach (GameObject nucl in nucleotides)
+        {
+            _nucleotides.Remove(nucl);
+        }
+        
+        _head = _nucleotides[0];
+        return _nucleotides.Count;
+    }
+    public int RemoveFromRightTail(List<GameObject> nucleotides)
+    {
+        foreach (GameObject nucl in nucleotides)
+        {
+            _nucleotides.Remove(nucl);
+        }
+        _tail = _nucleotides.Last();
+        return _nucleotides.Count;
+    }
+
+    public int RemoveFromRightHead(List<GameObject> nucleotides)
+    {
+        foreach (GameObject nucl in nucleotides)
+        {
+            _nucleotides.Remove(nucl);
+        }
+        _head = _nucleotides.Last();
+        return _nucleotides.Count;
+    }
+
+    public int RemoveFromLeftTail(List<GameObject> nucleotides)
+    {
+        foreach (GameObject nucl in nucleotides)
+        {
+            _nucleotides.Remove(nucl);
+        }
+        _tail = _nucleotides[0];
+        return _nucleotides.Count;
+    }
+
+    public void SetComponents()
+    {
+        for (int i = 0; i < _nucleotides.Count; i++)
+        {
+            var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+            ntc.SetSelected(true);
+            ntc.SetStrandId(_strandId);
+            ntc.SetColor(_color);
+        }
+    }
+
+    public void ResetComponents(List<GameObject> nucleotides)
+    {
+        for (int i = 0; i < _nucleotides.Count; i++)
+        {
+            var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+            ntc.SetSelected(false);
+            ntc.SetStrandId(-1);
+            ntc.ResetColor();
+        }
+    }
+}

@@ -38,6 +38,9 @@ public class Grid
 
   public Line GetLine(int index) { return _lines[index]; }
 
+    public List<Helix> GetHelices() { return _helices; }
+    public Helix GetHelix(int index) { return _helices[index]; }
+
   private void Generate()
   {
     for (int i = 0, secDim = 0; secDim < 10; secDim++)

@@ -14,6 +14,7 @@ public static class GlobalVariables
     public static bool s_eraseTogOn = false;
     public static List<Object> s_origamis;
     public static List<Pointer> s_pointerList = new List<Pointer>();
-    public static List<Grid> s_GridList = new List<Grid>();
+    public static List<Grid> s_gridList = new List<Grid>();
+    public static Dictionary<int, Strand> s_strandDict = new Dictionary<int, Strand>();
     public static int s_numStrands = 0;
 }

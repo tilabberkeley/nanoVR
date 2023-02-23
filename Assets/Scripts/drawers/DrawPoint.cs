@@ -17,13 +17,11 @@ public class DrawPoint : MonoBehaviour
         // make sphere
         GameObject sphere = Instantiate(nucleotidePrefab, position, Quaternion.identity);
         sphere.name = "nucleotide" + id;
-       
 
         var ntc = sphere.GetComponent<NucleotideComponent>();
-        var helixC = sphere.GetComponent<HelixComponent>();
         ntc.SetId(id);
-        helixC.SetHelixId(helixId);
-        helixC.SetSSId(ssDirection);
+        ntc.SetHelixId(helixId);
+        ntc.SetDirection(ssDirection);
         // TEST THIS
         // Material mat = new Material(Shader.Find("Standard"));
         // mat.SetColor("_Color", new Color(0.5f, 0.5f, 0.5f, 0.5f));

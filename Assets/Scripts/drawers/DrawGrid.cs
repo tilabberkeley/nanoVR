@@ -61,7 +61,7 @@ public class DrawGrid : MonoBehaviour
             Vector3 direction = transform.rotation * Vector3.forward;
             Vector3 currPoint = transform.position + direction * 0.07f;
             _grid = new Grid(plane, currPoint);
-            s_GridList.Add(_grid);
+            s_gridList.Add(_grid);
         }
 
         else if (triggerReleased
@@ -79,7 +79,6 @@ public class DrawGrid : MonoBehaviour
                 Vector3 startPos = CalculateStartPoint(midpoint);
                 Vector3 endPos = CalculateEndPoint(midpoint);
                 int id = _grid.GetLines().Count;
-
                 _grid.AddLine(id, startPos, endPos);
                 _grid.AddHelix(id, startPos, endPos, plane, midpoint);
             }

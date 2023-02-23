@@ -7,10 +7,10 @@ using UnityEngine.XR;
 public class Flying : MonoBehaviour
 {
     [SerializeField]
-    private XRNode _xrNode = XRNode.LeftHand;
+    private XRNode _xrNode = XRNode.RightHand;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
-    private float _speed = 0.008f;
+    private static float s_speed = 0.008f;
 
     void GetDevice()
     {
@@ -36,9 +36,13 @@ public class Flying : MonoBehaviour
         Vector2 primary2DAxis;
         if (_device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out primary2DAxis))
         {
-            if (Math.Abs(primary2DAxis.y) > 0)
+            if (primary2DAxis.y > 0)
             {
-                transform.position += new Vector3(0, _speed, 0);
+                transform.position += new Vector3(0, s_speed, 0);
+            }
+            if (primary2DAxis.y < 0)
+            {
+                transform.position -= new Vector3(0, s_speed, 0);
             }
         }
     }

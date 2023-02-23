@@ -48,11 +48,14 @@ public class Togglers : MonoBehaviour
     {
         GlobalVariables.s_drawTogOn = true;
         GlobalVariables.s_eraseTogOn = false;
+        DrawNucleotide.ResetGameObject();
+
     }
 
     public void EraseToggled()
     {
         GlobalVariables.s_drawTogOn = false;
         GlobalVariables.s_eraseTogOn = true;
+        DrawNucleotide.ResetGameObject();
     }
 }

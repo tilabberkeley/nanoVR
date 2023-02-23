@@ -6,6 +6,7 @@ public class StrandComponent : MonoBehaviour
 {
 
     private int _strandId = -1;
+    private int _id;
     private GameObject _crossoverGO = null;
     private GameObject _crossoverBB = null;
 
@@ -16,10 +17,14 @@ public class StrandComponent : MonoBehaviour
 
     private bool _selected = false;
 
-    private Color _color;
+    private Color _color = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+    private static Color s_yellow = new Color(1, 0.92f, 0.016f, 0.5f);
+    private static Color s_grey = new Color(0.5f, 0.5f, 0.5f, 0.5f);
 
     private Renderer _ntRenderer;
 
+    public int GetId() { return _id; }
+    public void SetId(int id) { _id = id; }
     public int GetStrandId() { return _strandId; }
     public void SetStrandId(int strandId) { _strandId = strandId; }
 
@@ -46,11 +51,41 @@ public class StrandComponent : MonoBehaviour
     public void SetNextBB(GameObject n) { _nextBB = n; }
 
     public bool IsSelected() { return _selected; }
+    public void SetSelected(bool selected) { _selected = selected; }
 
     public Color GetStrandColor() { return _color; }
     public void SetStrandColor(Color c)
     {
         _color = c;
         GetComponent<Renderer>().material.SetColor("_Color", c);
+    }
+
+    public void Reset()
+    {
+        _prevBB.GetComponent<Renderer>().material.SetColor("_Color", s_grey);
+        _nextBB.GetComponent<Renderer>().material.SetColor("_Color", s_grey);
+        _nextGO.GetComponent<StrandComponent>().SetPrevGO(null);
+        _prevGO.GetComponent<StrandComponent>().SetNextGO(null);
+        _nextBB = null;
+        _nextGO = null;
+        _prevBB = null;
+        _prevGO = null;
+        _crossoverBB = null;
+        _crossoverGO = null;
+        _color = s_grey;
+        _strandId = -1;
+    }
+
+    public void Highlight()
+    {
+        _ntRenderer.material.SetColor("_Color", s_yellow);
+    }
+
+    public void Unhighlight()
+    {
+        if (_selected)
+        {
+            _ntRenderer.material.SetColor("_Color", _color);
+        }
     }
 }
