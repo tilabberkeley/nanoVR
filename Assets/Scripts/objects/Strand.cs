@@ -1,10 +1,13 @@
-using System.Collections;
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu>
+ */
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 
+/// Strand object keeps track of an individual strand of nucleotides.
 /// </summary>
 public class Strand
 {
@@ -14,22 +17,22 @@ public class Strand
     private Color _color;
     private GameObject _head;
     private GameObject _tail;
+    private static Color[] s_colors = { Color.blue, Color.magenta, Color.red, Color.green, Color.yellow, Color.cyan };
+    private System.Random random = new System.Random();
 
     public Strand(List<GameObject> nucleotides, int strandId, int direction)
     {
         _nucleotides = nucleotides;
         _strandId = strandId;
         _direction = direction;
-        _color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+        _color = s_colors[random.Next(0, s_colors.Length)];
         _head = nucleotides[0];
         _tail = nucleotides.Last();
     }
 
     public List<GameObject> GetNucleotides() { return _nucleotides; }
-
     public GameObject GetHead() { return _head; }
     public GameObject GetTail() { return _tail; }
-
     public int GetDirection() { return _direction; }
 
     public void AddToHead(List<GameObject> newNucls) 
@@ -64,10 +67,10 @@ public class Strand
         {
             _nucleotides.Remove(nucl);
         }
-        
         _head = _nucleotides[0];
         return _nucleotides.Count;
     }
+
     public int RemoveFromTail(List<GameObject> nucleotides)
     {
         foreach (GameObject nucl in nucleotides)
@@ -109,7 +112,6 @@ public class Strand
             ntc.SetColor(_color);
         }
     }
-
 
     public void ResetComponents(List<GameObject> nucleotides)
     {

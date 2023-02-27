@@ -1,9 +1,14 @@
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu>
+ */
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// Helix object keeps track of nucleotides in the helix.
+/// </summary>
 public class Helix
 {
     private int _id;

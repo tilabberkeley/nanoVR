@@ -1,13 +1,15 @@
-using System;
-using System.Collections;
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu>
+ */
 using System.Collections.Generic;
-
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
-using static GlobalVariables;
 
+/// <summary>
+/// Toggles menu visibility.
+/// </summary>
 public class Menu : MonoBehaviour
 {
     [SerializeField] private XRNode _xrNode;
@@ -47,7 +49,6 @@ public class Menu : MonoBehaviour
         {
             GetDevice();
         }
-
         
         bool secondaryValue;
         if (_device.TryGetFeatureValue(CommonUsages.secondaryButton, out secondaryValue))
@@ -55,6 +56,7 @@ public class Menu : MonoBehaviour
             ToggleMenu();
         }
     }
+
     public void ToggleMenu()
     {
         _menu.enabled = !_menu.enabled;

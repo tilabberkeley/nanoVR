@@ -1,5 +1,8 @@
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu>
+ */
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,6 +10,9 @@ using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
 
+/// <summary>
+/// Handles all the operations for creating and interacting with grid objects.
+/// </summary>
 public class DrawGrid : MonoBehaviour
 {
     [SerializeField] private XRNode _xrNode;
@@ -20,7 +26,6 @@ public class DrawGrid : MonoBehaviour
     string plane;
     private Grid _grid;
     bool gridExists = false;
-
 
     void GetDevice()
     {
@@ -73,7 +78,6 @@ public class DrawGrid : MonoBehaviour
             _grid = new Grid(plane, currPoint);
             s_gridList.Add(_grid);
         }
-
         else if (triggerReleased
             && _device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
             && triggerValue
@@ -94,7 +98,6 @@ public class DrawGrid : MonoBehaviour
             }
 
         }
-
         else if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
             && triggerValue))
         {
@@ -204,5 +207,4 @@ public class DrawGrid : MonoBehaviour
     //     uiText.text = "60";  
     //     uiText.color = Color.black;              
     // }
-
 }

@@ -1,4 +1,7 @@
-using System.Collections;
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu>
+ */
 using System.Collections.Generic;
 using UnityEngine;
 

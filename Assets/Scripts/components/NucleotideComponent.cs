@@ -1,8 +1,13 @@
-using System.Collections;
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu>
+ */
 using System.Collections.Generic;
 using UnityEngine;
-using static GlobalVariables;
 
+/// <summary>
+/// Component attached to each nucleotide gameobject. Handles direct Ray interactions and gameobject visuals.
+/// </summary>
 public class NucleotideComponent : MonoBehaviour
 {
     private int _id; // index of nucl in helix
@@ -26,7 +31,6 @@ public class NucleotideComponent : MonoBehaviour
 
     private Renderer _ntRenderer;
 
-
     public int GetId() { return _id; }
     public void SetId(int id) { _id = id; }
     public int GetHelixId() { return _helixId; }
@@ -37,29 +41,21 @@ public class NucleotideComponent : MonoBehaviour
     public void SetDirection(int direction) { _direction = direction; }
     public Vector3 GetPosition() { return transform.position; }
     public void SetPosition(Vector3 p) { transform.position = p; }
-
     public bool HasCrossover() { return _crossoverGO != null; }
     public GameObject GetCrossoverGO() { return _crossoverGO; }
     public void SetCrossoverGO(GameObject c) { _crossoverGO = c; }
-
     public GameObject GetCrossoverBB() { return _crossoverBB; }
     public void SetCrossoverBB(GameObject c) { _crossoverBB = c; }
-
     public GameObject GetPrevGO() { return _prevGO; }
     public void SetPrevGO(GameObject p) { _prevGO = p; }
-
     public GameObject GetPrevBB() { return _prevBB; }
     public void SetPrevBB(GameObject p) { _prevBB = p; }
-
     public GameObject GetNextGO() { return _nextGO; }
     public void SetNextGO(GameObject n) { _nextGO = n; }
-
     public GameObject GetNextBB() { return _nextBB; }
     public void SetNextBB(GameObject n) { _nextBB = n; }
-
     public GameObject GetComplementGO() { return _complementGO; }
     public void SetComplementGO(GameObject c) { _complementGO = c; }
-
     public bool IsSelected() { return _selected; }
     public void SetSelected(bool selected) { _selected = selected; }
 
@@ -69,10 +65,12 @@ public class NucleotideComponent : MonoBehaviour
         _color = c; 
         _ntRenderer.material.SetColor("_Color", c); 
     }
+
     public void ResetColor() { 
         _color = s_grey;
         _ntRenderer.material.SetColor("_Color", s_grey);
     }
+
     public void FlipSelected()
     {
         _selected = !_selected;
@@ -95,7 +93,6 @@ public class NucleotideComponent : MonoBehaviour
             _nextBB.GetComponent<Renderer>().material.SetColor("_Color", s_grey);
         }
     }
-
 
     public void Highlight()
     {
@@ -124,8 +121,6 @@ public class NucleotideComponent : MonoBehaviour
             ntc.SetColor(s_grey);
         }
     }
-
-
 
     // Start is called before the first frame update
     void Start()

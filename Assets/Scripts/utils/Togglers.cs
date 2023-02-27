@@ -1,7 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu>
+ */
 using UnityEngine;
-using UnityEngine.UI;
 using static GlobalVariables;
 
 public class Togglers : MonoBehaviour
@@ -48,7 +49,7 @@ public class Togglers : MonoBehaviour
     {
         s_drawTogOn = true;
         s_eraseTogOn = false;
-        DrawNucleotide.ResetGameObjects();
+        DrawNucleotide.ResetNucleotides();
 
     }
 
@@ -56,6 +57,6 @@ public class Togglers : MonoBehaviour
     {
         s_drawTogOn = false;
         s_eraseTogOn = true;
-        DrawNucleotide.ResetGameObjects();
+        DrawNucleotide.ResetNucleotides();
     }
 }

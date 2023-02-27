@@ -1,13 +1,17 @@
-using System;
-using System.Collections;
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu>
+ */
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
 
+/// <summary>
+/// Handles all interactions for strand creations, editing, and deletions.
+/// </summary>
 public class DrawNucleotide : MonoBehaviour
 {
     [SerializeField] private XRNode _xrNode;
@@ -19,8 +23,6 @@ public class DrawNucleotide : MonoBehaviour
     static GameObject s_startGO = null;
     static GameObject s_endGO = null;
     public static RaycastHit s_hit;
-
-
 
     void GetDevice()
     {
@@ -51,7 +53,7 @@ public class DrawNucleotide : MonoBehaviour
             GetDevice();
         }
 
-        // SELECT OR DESELECT NUCLEOTIDE
+        // Handles start and end nucleotide selection.
         bool triggerValue;
         if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
                 && triggerValue
@@ -76,12 +78,12 @@ public class DrawNucleotide : MonoBehaviour
                     {
                         EraseStrand();
                     }
-                    ResetGameObjects();
+                    ResetNucleotides();
                 }
             }
             else
             {
-                ResetGameObjects();
+                ResetNucleotides();
             }
         }
 
@@ -112,30 +114,34 @@ public class DrawNucleotide : MonoBehaviour
             }
         } */
 
-        // Resets triggers do avoid multiple selections.                                              
+        // Resets triggers to avoid multiple selections.                                              
         if ((_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
                 && !triggerValue))
         {
             triggerReleased = true;
         }
 
-        if ((_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue))
+        // Resets start and end nucleotide.
+        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
                 && triggerValue
                 && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
-            ResetGameObjects();
+            ResetNucleotides();
         }
     }
 
     /// <summary>
-    /// Resets the start and end GameObjects.
+    /// Resets the start and end nucleotides.
     /// </summary>
-    public static void ResetGameObjects()
+    public static void ResetNucleotides()
     {
         s_startGO = null;
         s_endGO = null;
     }
 
+    /// <summary>
+    /// Controls strand creation and editing.
+    /// </summary>
     public void BuildStrand()
     {
         List<GameObject> nucleotides = MakeNuclList(s_startGO, s_endGO);
@@ -152,7 +158,6 @@ public class DrawNucleotide : MonoBehaviour
         }
     }
     
-
     /// <summary>
     /// Returns a list of GameObjects that are in between the start and end GameObject
     /// selected by the user.
@@ -218,7 +223,7 @@ public class DrawNucleotide : MonoBehaviour
     /// <param name="newNucls">List of nucleotides to add to current strand.</param>
     public void EditStrand(List<GameObject> newNucls)
     {
-        var startNtc = newNucls[0].GetComponent<NucleotideComponent>();
+        var startNtc = s_startGO.GetComponent<NucleotideComponent>();
         int strandId = startNtc.GetStrandId();
         Strand strand = s_strandDict[strandId]; 
        
@@ -256,8 +261,9 @@ public class DrawNucleotide : MonoBehaviour
         s_strandDict[strandId] = strand;
     }    
 
-
-    // Erases nucleotide and resets variables
+    /// <summary>
+    /// Handles strand deletions.
+    /// </summary>
     public void EraseStrand()
     { 
         if (s_startGO.GetComponent<NucleotideComponent>().IsSelected()
@@ -268,6 +274,11 @@ public class DrawNucleotide : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Deletes selected nucleotides from the strand. If all nucleotides are deleted,
+    /// the strand itself is also deleted.
+    /// </summary>
+    /// <param name="nucleotides">List of nucleotides to delete from selected strand.</param>
     public void EraseStrand(List<GameObject> nucleotides)
     {
         var startNtc = nucleotides[0].GetComponent<NucleotideComponent>();
@@ -308,5 +319,4 @@ public class DrawNucleotide : MonoBehaviour
             s_strandDict.Remove(strandId);
         }
     }
-
 }

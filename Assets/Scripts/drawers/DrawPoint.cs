@@ -1,13 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System;
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu>
+ */
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
- 
+/// <summary>
+/// Creates needed gameobjects like nucleotides, grid circles, etc.
+/// </summary>
 public class DrawPoint : MonoBehaviour
 {
 
@@ -41,7 +41,6 @@ public class DrawPoint : MonoBehaviour
         // mat.EnableKeyword("_ALPHABLEND_ON");
         // mat.renderQueue = 3000;
         return sphere;
-
     }
 
     public static GameObject MakeSphere(Vector3 position, string name)
@@ -54,13 +53,10 @@ public class DrawPoint : MonoBehaviour
 
         sphere.AddComponent<XRGrabInteractable>();
 
-        sphere.AddComponent<Rigidbody>();
         var sphereRigidbody = sphere.GetComponent<Rigidbody>();
         sphereRigidbody.useGravity = false;
         sphereRigidbody.isKinematic = true;
 
-
-        sphere.AddComponent<Renderer>();
         var sphereRenderer = sphere.GetComponent<Renderer>();
         sphereRenderer.material.SetColor("_Color", Color.gray);
 
@@ -69,7 +65,6 @@ public class DrawPoint : MonoBehaviour
 
     public static GameObject MakeGrid(Vector3 position, string name)
     {
-
         GameObject circle = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         circle.name = name;
         circle.transform.position = position;
@@ -82,7 +77,6 @@ public class DrawPoint : MonoBehaviour
         var sphereRigidbody = circle.GetComponent<Rigidbody>();
         sphereRigidbody.useGravity = false;
         sphereRigidbody.isKinematic = true;
-
 
         circle.AddComponent<Renderer>();
         var sphereRenderer = circle.GetComponent<Renderer>();
