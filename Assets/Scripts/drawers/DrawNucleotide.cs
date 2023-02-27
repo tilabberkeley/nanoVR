@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
-
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR;
@@ -26,7 +25,10 @@ public class DrawNucleotide : MonoBehaviour
     void GetDevice()
     {
         InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
-        _device = _devices[0];
+        if (_devices.Count > 0)
+        {
+            _device = _devices[0];
+        }
     }
 
     void OnEnable()
@@ -39,7 +41,7 @@ public class DrawNucleotide : MonoBehaviour
 
     void Update()
     {
-        if (!GlobalVariables.s_gridTogOn)
+        if (!s_gridTogOn)
         {
             return;
         }
@@ -66,17 +68,25 @@ public class DrawNucleotide : MonoBehaviour
                 else
                 {
                     s_endGO = s_hit.collider.gameObject;
-                    if (GlobalVariables.s_drawTogOn)
+                    if (s_drawTogOn)
+                    {
                         BuildStrand();
-                    else if (GlobalVariables.s_eraseTogOn)
+                    }
+                    else if (s_eraseTogOn)
+                    {
                         EraseStrand();
+                    }
                     ResetGameObjects();
                 }
-                
+            }
+            else
+            {
+                ResetGameObjects();
             }
         }
 
         // HIGHLIGHT
+        /*
         if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
                 && !triggerValue
                 && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
@@ -84,12 +94,13 @@ public class DrawNucleotide : MonoBehaviour
             if (s_hit.collider.name.Contains("nucleotide"))
             {
                 GameObject nt = s_hit.collider.gameObject;
-                nt.GetComponent<StrandComponent>().Highlight();
+                nt.GetComponent<NucleotideComponent>().Highlight();
                 highlightedGO = nt;
             }
-        }
+        } */
 
         // UNHIGHLIGHT
+        /*
         if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
                 && !triggerValue
                 && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
@@ -99,23 +110,20 @@ public class DrawNucleotide : MonoBehaviour
                 highlightedGO.GetComponent<NucleotideComponent>().Unhighlight();
                 highlightedGO = null;
             }
-        }
+        } */
 
         // Resets triggers do avoid multiple selections.                                              
         if ((_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-                && triggerValue
-                && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
-                || (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
                 && !triggerValue))
         {
             triggerReleased = true;
-
         }
 
-        if ((_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-                && !triggerValue))
+        if ((_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue))
+                && triggerValue
+                && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
-
+            ResetGameObjects();
         }
     }
 
@@ -130,7 +138,6 @@ public class DrawNucleotide : MonoBehaviour
 
     public void BuildStrand()
     {
-       
         List<GameObject> nucleotides = MakeNuclList(s_startGO, s_endGO);
 
         if (!s_startGO.GetComponent<NucleotideComponent>().IsSelected()
@@ -265,7 +272,6 @@ public class DrawNucleotide : MonoBehaviour
     {
         var startNtc = nucleotides[0].GetComponent<NucleotideComponent>();
         int strandId = startNtc.GetStrandId();
-        Color strandColor = startNtc.GetColor();
         Strand strand = s_strandDict[strandId];
         int newStrandLength = -1;
 

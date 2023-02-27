@@ -49,15 +49,15 @@ public class Grid
       {
         if (_plane.Equals("XY"))
         {
-          _nodes.Add(new Vector3(_startPos.x + firstDim / 15f, _startPos.y + secDim / 15f, _startPos.z));
+          _nodes.Add(new Vector3(_startPos.x + firstDim / 10f, _startPos.y + secDim / 10f, _startPos.z));
         }
         else if (this._plane.Equals("YZ"))
         {
-          _nodes.Add(new Vector3(_startPos.x, _startPos.y + firstDim / 15f, _startPos.z + secDim / 15f));
+          _nodes.Add(new Vector3(_startPos.x, _startPos.y + firstDim / 10f, _startPos.z + secDim / 10f));
         }
         else
         {
-          _nodes.Add(new Vector3(_startPos.x + firstDim / 15f, _startPos.y, _startPos.z + secDim / 15f));
+          _nodes.Add(new Vector3(_startPos.x + firstDim / 10f, _startPos.y, _startPos.z + secDim / 10f));
         }
       }
     }

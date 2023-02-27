@@ -5,10 +5,10 @@ using UnityEngine;
 public static class GlobalVariables
 {
     public static string s_sequence;
-    public static bool s_lineTogOn = true;
+    public static bool s_lineTogOn = false;
     public static bool s_curveTogOn = false;
     public static bool s_loopTogOn = true;
-    public static bool s_gridTogOn = false;
+    public static bool s_gridTogOn = true;
     public static bool s_honeycombTogOn = false;
     public static bool s_drawTogOn = true;
     public static bool s_eraseTogOn = false;

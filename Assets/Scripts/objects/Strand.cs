@@ -2,8 +2,11 @@ using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using static GlobalVariables;
-public class Strand : MonoBehaviour
+
+/// <summary>
+/// 
+/// </summary>
+public class Strand
 {
     private List<GameObject> _nucleotides;
     private int _strandId;
@@ -106,6 +109,7 @@ public class Strand : MonoBehaviour
             ntc.SetColor(_color);
         }
     }
+
 
     public void ResetComponents(List<GameObject> nucleotides)
     {

@@ -11,11 +11,20 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class DrawPoint : MonoBehaviour
 {
 
-    [SerializeField] GameObject nucleotidePrefab;
+    public GameObject nucleotidePrefab;
+    /*
+    void Start()
+    {
+        nucleotidePrefab = Resources.Load("Nucleotide") as GameObject;
+    } */
     public GameObject MakeNucleotide(Vector3 position, int id, int helixId, int ssDirection)
     {
         // make sphere
-        GameObject sphere = Instantiate(nucleotidePrefab, position, Quaternion.identity);
+        GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        sphere.AddComponent<NucleotideComponent>();
+        sphere.AddComponent<XRSimpleInteractable>();
+        sphere.transform.position = position;
+        sphere.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);
         sphere.name = "nucleotide" + id;
 
         var ntc = sphere.GetComponent<NucleotideComponent>();
@@ -64,7 +73,7 @@ public class DrawPoint : MonoBehaviour
         GameObject circle = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         circle.name = name;
         circle.transform.position = position;
-        circle.transform.localScale = new Vector3(0.05f, 0.0001f, 0.05f);
+        circle.transform.localScale = new Vector3(0.1f, 0.0001f, 0.1f);
         circle.transform.Rotate(90f, 0f, 0f, 0);
 
         circle.AddComponent<XRSimpleInteractable>();

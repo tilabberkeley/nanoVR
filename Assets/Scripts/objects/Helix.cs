@@ -43,7 +43,7 @@ public class Helix
 
     public void HelixFormation()
     {
-        float OFFSET = 0.15f; // helical radius
+        float OFFSET = 0.028f; // helical radius
         float RISE = 0.034f; // vertical rise per bp
 
         // **CHECK THIS**
@@ -71,8 +71,8 @@ public class Helix
 
             if (_orientation.Equals("XY"))
             {
-                targetPositionA = new Vector3(targetPositionA.x + axisOneChangeA, targetPositionA.y + axisTwoChangeA, targetPositionA.z + RISE);
-                targetPositionB = new Vector3(targetPositionB.x + axisOneChangeB, targetPositionB.y + axisTwoChangeB, targetPositionB.z + RISE);
+                targetPositionA = new Vector3(targetPositionA.x + axisOneChangeA, targetPositionA.y + axisTwoChangeA, targetPositionA.z - RISE);
+                targetPositionB = new Vector3(targetPositionB.x + axisOneChangeB, targetPositionB.y + axisTwoChangeB, targetPositionB.z - RISE);
             }
         }
     }
@@ -83,9 +83,6 @@ public class Helix
         {
             GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             cylinder.layer = LayerMask.NameToLayer("Ignore Raycast");
-            var cylinderRenderer = cylinder.GetComponent<Renderer>();
-            Color transGray = new Color(0.5f, 0.5f, 0.5f, 0.5f);
-            cylinderRenderer.material.SetColor("_Color", transGray);
             Vector3 cylinderDefaultOrientation = new Vector3(0, 1, 0);
 
             // Position

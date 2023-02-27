@@ -1062,7 +1062,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  m_IsOn: 0
+  m_IsOn: 1
 --- !u!1 &196967789
 GameObject:
   m_ObjectHideFlags: 0
@@ -1585,8 +1585,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_LineWidth: 0.02
-  m_OverrideInteractorLineLength: 0
-  m_LineLength: 10
+  m_OverrideInteractorLineLength: 1
+  m_LineLength: 1
   m_WidthCurve:
     serializedVersion: 2
     m_Curve:
@@ -1642,8 +1642,8 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   m_InvalidColorGradient:
     serializedVersion: 2
-    key0: {r: 1, g: 1, b: 1, a: 0}
-    key1: {r: 1, g: 0, b: 0, a: 0}
+    key0: {r: 1, g: 0, b: 0, a: 1}
+    key1: {r: 1, g: 0, b: 0, a: 1}
     key2: {r: 1, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
@@ -1651,14 +1651,14 @@ MonoBehaviour:
     key6: {r: 0, g: 0, b: 0, a: 0}
     key7: {r: 0, g: 0, b: 0, a: 0}
     ctime0: 0
-    ctime1: 31611
+    ctime1: 65535
     ctime2: 65535
     ctime3: 0
     ctime4: 0
     ctime5: 0
     ctime6: 0
     ctime7: 0
-    atime0: 0
+    atime0: 14071
     atime1: 65535
     atime2: 0
     atime3: 0
@@ -1666,8 +1666,8 @@ MonoBehaviour:
     atime5: 0
     atime6: 0
     atime7: 0
-    m_Mode: 1
-    m_NumColorKeys: 3
+    m_Mode: 0
+    m_NumColorKeys: 2
     m_NumAlphaKeys: 2
   m_SmoothMovement: 0
   m_FollowTightness: 10
@@ -2059,7 +2059,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _xrNode: 4
   leftRayInteractor: {fileID: 337757920}
-  _menu: {fileID: 1010908918}
+  _menu: {fileID: 1010908914}
 --- !u!1 &379292752
 GameObject:
   m_ObjectHideFlags: 0
@@ -3390,8 +3390,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_LineWidth: 0.02
-  m_OverrideInteractorLineLength: 0
-  m_LineLength: 0.05
+  m_OverrideInteractorLineLength: 1
+  m_LineLength: 1
   m_WidthCurve:
     serializedVersion: 2
     m_Curve:
@@ -3447,8 +3447,8 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   m_InvalidColorGradient:
     serializedVersion: 2
-    key0: {r: 1, g: 1, b: 1, a: 0}
-    key1: {r: 1, g: 0, b: 0, a: 0}
+    key0: {r: 1, g: 0, b: 0, a: 1}
+    key1: {r: 1, g: 0, b: 0, a: 1}
     key2: {r: 0, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
@@ -3463,7 +3463,7 @@ MonoBehaviour:
     ctime5: 0
     ctime6: 0
     ctime7: 0
-    atime0: 0
+    atime0: 14071
     atime1: 65535
     atime2: 0
     atime3: 0
@@ -3471,7 +3471,7 @@ MonoBehaviour:
     atime5: 0
     atime6: 0
     atime7: 0
-    m_Mode: 1
+    m_Mode: 0
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
   m_SmoothMovement: 0
@@ -3862,7 +3862,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba0835cea15eff34eac63812025cc2f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _xrNode: 0
+  _xrNode: 5
 --- !u!114 &713889225
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3875,7 +3875,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc4258aa7163fb7469d6197dfdfef76d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _xrNode: 0
+  _xrNode: 5
   rightRayInteractor: {fileID: 713889222}
 --- !u!114 &713889226
 MonoBehaviour:
@@ -3927,7 +3927,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50a57ba1e7f4ef944bfae15129026b7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xrNode: 5
+  _xrNode: 5
   rightRayInteractor: {fileID: 713889222}
   dropdown: {fileID: 546608845}
 --- !u!114 &713889230
@@ -4642,22 +4642,10 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 48867892}
   toggleTransition: 1
   graphic: {fileID: 1574805359}
-  m_Group: {fileID: 2015226969}
+  m_Group: {fileID: 1498385681}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2015226970}
-        m_TargetAssemblyTypeName: Togglers, Assembly-CSharp
-        m_MethodName: EraseToggled
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   m_IsOn: 0
 --- !u!1 &942610235
 GameObject:
@@ -5242,7 +5230,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1010908914}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 2.5715804}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.0023791278, y: 0.0023584059, z: 0.010000003}
   m_Children:
   - {fileID: 1611607376}
@@ -5250,12 +5238,12 @@ RectTransform:
   - {fileID: 2015226968}
   - {fileID: 1626341574}
   - {fileID: 1498385679}
-  m_Father: {fileID: 1082566341}
-  m_RootOrder: 2
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0.022577845, y: -0.61268926}
+  m_AnchoredPosition: {x: 0, y: 1.285}
   m_SizeDelta: {x: 70, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1010908920
@@ -5477,7 +5465,6 @@ Transform:
   m_Children:
   - {fileID: 806718933}
   - {fileID: 1869318568}
-  - {fileID: 1010908919}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5747,22 +5734,10 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1044842835}
   toggleTransition: 1
   graphic: {fileID: 1298039204}
-  m_Group: {fileID: 2015226969}
+  m_Group: {fileID: 1498385681}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2015226970}
-        m_TargetAssemblyTypeName: Togglers, Assembly-CSharp
-        m_MethodName: DrawToggled
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   m_IsOn: 1
 --- !u!1 &1164600640
 GameObject:
@@ -6600,8 +6575,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1498385679}
-  - component: {fileID: 1498385681}
   - component: {fileID: 1498385680}
+  - component: {fileID: 1498385681}
   m_Layer: 0
   m_Name: EditGroup
   m_TagString: Untagged
@@ -6617,7 +6592,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1498385678}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 34, y: 73, z: -36.4}
+  m_LocalPosition: {x: 34, y: 73, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1129332495}
@@ -7094,8 +7069,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2015226970}
-        m_TargetAssemblyTypeName: DrawGroup, Assembly-CSharp
-        m_MethodName: loopToggled
+        m_TargetAssemblyTypeName: Togglers, Assembly-CSharp
+        m_MethodName: LoopToggled
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8577,7 +8552,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2015226967}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 34, y: 73, z: -36.4}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1797922563}

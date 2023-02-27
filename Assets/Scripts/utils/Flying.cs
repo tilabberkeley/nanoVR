@@ -34,7 +34,7 @@ public class Flying : MonoBehaviour
             GetDevice();
         }
         Vector2 primary2DAxis;
-        if (_device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out primary2DAxis))
+        if (_device.TryGetFeatureValue(CommonUsages.primary2DAxis, out primary2DAxis))
         {
             if (primary2DAxis.y > 0)
             {

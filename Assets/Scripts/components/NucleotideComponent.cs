@@ -7,7 +7,7 @@ public class NucleotideComponent : MonoBehaviour
 {
     private int _id; // index of nucl in helix
     private int _helixId; // id of helix
-    private int _strandId = - 1; //id of strand
+    private int _strandId = -1; // id of strand
     private int _direction; // 0 = 5' to 3' right->left, 1 = left->right
     private GameObject _crossoverGO = null;
     private GameObject _crossoverBB = null;
@@ -69,7 +69,10 @@ public class NucleotideComponent : MonoBehaviour
         _color = c; 
         _ntRenderer.material.SetColor("_Color", c); 
     }
-    public void ResetColor() { _color = s_grey; }
+    public void ResetColor() { 
+        _color = s_grey;
+        _ntRenderer.material.SetColor("_Color", s_grey);
+    }
     public void FlipSelected()
     {
         _selected = !_selected;

@@ -30,6 +30,11 @@ public class Menu : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        _menu = _menu.GetComponent<Canvas>();
+    }
+
     void Update()
     {
         /*

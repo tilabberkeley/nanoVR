@@ -89,24 +89,7 @@ public class DrawCrossover : MonoBehaviour
 
         if (secondNucleotide != null)
         {
-            DrawRealCylinder.Clear();
-            GameObject temp = DrawRealCylinder.DrawReal(firstNucleotide.transform.position, secondNucleotide.transform.position);
-            var firstNtc = firstNucleotide.GetComponent<NucleotideComponent>();
-            var secondNtc = secondNucleotide.GetComponent<NucleotideComponent>();
-            firstNtc.SetCrossoverGO(secondNucleotide);
-            firstNtc.SetCrossoverBB(temp);
-            firstNtc.SetNextGO(secondNucleotide);
-            firstNtc.SetNextBB(temp);
-            firstNtc.BreakStrand();
-
-            secondNtc.SetCrossoverGO(firstNucleotide);
-            secondNtc.SetCrossoverBB(temp);
-            secondNtc.SetNextGO(firstNucleotide);
-            secondNtc.SetNextBB(temp);
-            secondNtc.BreakStrand();
-
-            firstNucleotide = null;
-            secondNucleotide = null;
+            
         }
 
         // Resets grips do avoid multiple selections.                                              

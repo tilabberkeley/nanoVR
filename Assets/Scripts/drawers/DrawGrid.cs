@@ -9,7 +9,7 @@ using static GlobalVariables;
 
 public class DrawGrid : MonoBehaviour
 {
-    [SerializeField] private XRNode xrNode;
+    [SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] public XRRayInteractor rightRayInteractor;
@@ -24,8 +24,11 @@ public class DrawGrid : MonoBehaviour
 
     void GetDevice()
     {
-        InputDevices.GetDevicesAtXRNode(xrNode, _devices);
-        _device = _devices[0];
+        InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
+        if (_devices.Count > 0)
+        {
+            _device = _devices[0];
+        }
     }
 
     void OnEnable()
@@ -34,11 +37,18 @@ public class DrawGrid : MonoBehaviour
         {
             GetDevice();
         }
+        /*var leftHandDevices = new List<UnityEngine.XR.InputDevice>();
+        UnityEngine.XR.InputDevices.GetDevicesAtXRNode(UnityEngine.XR.XRNode.LeftHand, leftHandDevices);
+
+        if (leftHandDevices.Count == 1)
+        {
+            UnityEngine.XR.InputDevice device = leftHandDevices[0];
+        }*/
     }
 
     void Update()
     {
-        if (!GlobalVariables.s_gridTogOn)
+        if (!s_gridTogOn)
         {
             return;
         }
