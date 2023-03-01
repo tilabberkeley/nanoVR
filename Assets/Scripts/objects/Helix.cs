@@ -48,7 +48,7 @@ public class Helix
 
     public void HelixFormation()
     {
-        float OFFSET = 0.028f; // helical radius
+        float OFFSET = 0.034f; // helical radius
         float RISE = 0.034f; // vertical rise per bp
 
         // **CHECK THIS**
@@ -68,7 +68,7 @@ public class Helix
             _nucleotidesB.Add(sphereB);
 
             float angleA = i * (2 * (float)(Math.PI) / 10); // rotation per bp in radians
-            float angleB = (i + 5) * (2 * (float)(Math.PI) / 10);
+            float angleB = (float)(((float)(i) + 5.5) * (2 * (float)(Math.PI) / 10));
             float axisOneChangeA = Mathf.Cos(angleA) * 0.02f;
             float axisTwoChangeA = Mathf.Sin(angleA) * 0.02f;
             float axisOneChangeB = Mathf.Cos(angleB) * 0.02f;

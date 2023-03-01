@@ -172,7 +172,7 @@ public class DrawNucleotide : MonoBehaviour
         var endNtc = end.GetComponent<NucleotideComponent>();
         if (startNtc.GetHelixId() != endNtc.GetHelixId()
             || startNtc.GetDirection() != endNtc.GetDirection()
-            || startNtc.GetStrandId() != endNtc.GetStrandId())
+            || (startNtc.GetStrandId() != endNtc.GetStrandId() && endNtc.GetStrandId() != -1))
         {
             nucleotides.Add(start);
             return nucleotides;

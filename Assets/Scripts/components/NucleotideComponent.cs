@@ -25,9 +25,8 @@ public class NucleotideComponent : MonoBehaviour
 
     private bool _selected = false;
 
-    private Color _color = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+    private Color _color = Color.white;
     private static Color s_yellow = new Color(1, 0.92f, 0.016f, 0.5f);
-    private static Color s_grey = new Color(0.5f, 0.5f, 0.5f, 0.5f);
 
     private Renderer _ntRenderer;
 
@@ -67,10 +66,11 @@ public class NucleotideComponent : MonoBehaviour
     }
 
     public void ResetColor() { 
-        _color = s_grey;
-        _ntRenderer.material.SetColor("_Color", s_grey);
+        _color = Color.white;
+        _ntRenderer.material.SetColor("_Color", _color);
     }
 
+    /*
     public void FlipSelected()
     {
         _selected = !_selected;
@@ -92,13 +92,15 @@ public class NucleotideComponent : MonoBehaviour
             _prevBB.GetComponent<Renderer>().material.SetColor("_Color", s_grey);
             _nextBB.GetComponent<Renderer>().material.SetColor("_Color", s_grey);
         }
-    }
+    } */
 
+    /*
     public void Highlight()
     {
         _ntRenderer.material.SetColor("_Color", s_yellow);
-    }
+    } */
 
+    /*
     public void Unhighlight()
     {
         if (_selected)
@@ -109,8 +111,9 @@ public class NucleotideComponent : MonoBehaviour
         {
             _ntRenderer.material.SetColor("_Color", s_grey);
         }
-    }
+    } */
 
+    /*
     public void RemoveStrand(Strand s)
     {
         List<GameObject> nucleotides = s.GetNucleotides();
@@ -120,7 +123,7 @@ public class NucleotideComponent : MonoBehaviour
             ntc.SetStrandId(-1);
             ntc.SetColor(s_grey);
         }
-    }
+    } */
 
     // Start is called before the first frame update
     void Start()

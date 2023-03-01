@@ -5,6 +5,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using static GlobalVariables;
 
 /// <summary>
 /// Strand object keeps track of an individual strand of nucleotides.
@@ -17,15 +18,14 @@ public class Strand
     private Color _color;
     private GameObject _head;
     private GameObject _tail;
-    private static Color[] s_colors = { Color.blue, Color.magenta, Color.red, Color.green, Color.yellow, Color.cyan };
-    private System.Random random = new System.Random();
+    private static Color[] s_colors = { Color.blue, Color.magenta, Color.green, Color.red, Color.cyan, Color.yellow };
 
     public Strand(List<GameObject> nucleotides, int strandId, int direction)
     {
         _nucleotides = nucleotides;
         _strandId = strandId;
         _direction = direction;
-        _color = s_colors[random.Next(0, s_colors.Length)];
+        _color = s_colors[s_numStrands % 6];
         _head = nucleotides[0];
         _tail = nucleotides.Last();
     }
@@ -67,7 +67,10 @@ public class Strand
         {
             _nucleotides.Remove(nucl);
         }
-        _head = _nucleotides[0];
+        if (_nucleotides.Count > 0)
+        {
+            _head = _nucleotides[0];
+        }
         return _nucleotides.Count;
     }
 
@@ -77,7 +80,10 @@ public class Strand
         {
             _nucleotides.Remove(nucl);
         }
-        _tail = _nucleotides.Last();
+        if (_nucleotides.Count > 0)
+        {
+            _tail = _nucleotides.Last();
+        }
         return _nucleotides.Count;
     }
 
@@ -115,9 +121,9 @@ public class Strand
 
     public void ResetComponents(List<GameObject> nucleotides)
     {
-        for (int i = 0; i < _nucleotides.Count; i++)
+        for (int i = 0; i < nucleotides.Count; i++)
         {
-            var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
             ntc.SetSelected(false);
             ntc.SetStrandId(-1);
             ntc.ResetColor();

@@ -15,13 +15,15 @@ public class Menu : MonoBehaviour
     [SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
-    [SerializeField] public XRRayInteractor leftRayInteractor;
     [SerializeField] private Canvas _menu;
     
     void GetDevice()
     {
         InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
-        _device = _devices[0];
+        if (_devices.Count > 0)
+        {
+            _device = _devices[0];
+        }
     }
 
     void OnEnable()
@@ -50,8 +52,9 @@ public class Menu : MonoBehaviour
             GetDevice();
         }
         
-        bool secondaryValue;
-        if (_device.TryGetFeatureValue(CommonUsages.secondaryButton, out secondaryValue))
+        bool primaryValue;
+        if (_device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryValue)
+            && primaryValue)
         {
             ToggleMenu();
         }
