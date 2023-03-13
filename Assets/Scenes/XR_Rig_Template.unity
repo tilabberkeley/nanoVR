@@ -3431,6 +3431,7 @@ GameObject:
   - component: {fileID: 713889232}
   - component: {fileID: 713889231}
   - component: {fileID: 713889227}
+  - component: {fileID: 713889235}
   m_Layer: 0
   m_Name: RightHand Controller
   m_TagString: Untagged
@@ -3977,6 +3978,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nucleotidePrefab: {fileID: 4553772625660252668, guid: 167599c8bbddf454cb72ea53c8703b7a, type: 3}
+  conePrefab: {fileID: 6905921644042279154, guid: ab4f4b410614de448a9aea2bb06c4443, type: 3}
 --- !u!135 &713889228
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -4093,6 +4095,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 78afd7a242d5ae94993265c2b8365cea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _xrNode: 5
+  rightRayInteractor: {fileID: 713889222}
+--- !u!114 &713889235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 713889218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be0100cf6d3b57041b2346594d3ca4fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _xrNode: 5

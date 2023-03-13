@@ -12,6 +12,7 @@ public class DrawPoint : MonoBehaviour
 {
 
     public GameObject nucleotidePrefab;
+    public GameObject conePrefab;
     
    
     public GameObject MakeNucleotide(Vector3 position, int id, int helixId, int ssDirection)
@@ -44,6 +45,21 @@ public class DrawPoint : MonoBehaviour
         return sphere;
     }
 
+    public GameObject MakeCone(Vector3 position, int direction)
+    {
+        GameObject cone = Instantiate(Resources.Load("Cone"),
+                                    position,
+                                    Quaternion.identity) as GameObject;
+        if (direction == 0)
+        {
+            cone.transform.Rotate(90f, 0, 0, 0);
+        }
+        else
+        {
+            cone.transform.Rotate(-90f, 0, 0, 0);
+        }
+        return cone;
+    }
     public static GameObject MakeSphere(Vector3 position, string name)
     {
         // make sphere

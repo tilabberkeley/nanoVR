@@ -18,6 +18,7 @@ public class Strand
     private Color _color;
     private GameObject _head;
     private GameObject _tail;
+    private GameObject _cone;
     private static Color[] s_colors = { Color.blue, Color.magenta, Color.green, Color.red, Color.cyan, Color.yellow };
 
     public Strand(List<GameObject> nucleotides, int strandId, int direction)
@@ -28,6 +29,8 @@ public class Strand
         _color = s_colors[s_numStrands % 6];
         _head = nucleotides[0];
         _tail = nucleotides.Last();
+        DrawPoint d = new DrawPoint();
+        _cone = d.MakeCone(_head.transform.position, direction); 
     }
 
     public Strand(GameObject nucleotide, int strandId, int direction)
@@ -49,6 +52,7 @@ public class Strand
     {
         _nucleotides.InsertRange(0, newNucls);
         _head = _nucleotides[0];
+        _cone.transform.position = _head.transform.position;
     }
 
     public void AddToTail(List<GameObject> newNucls)
@@ -83,6 +87,7 @@ public class Strand
             nucleotides.Add(_nucleotides[0]);
             _nucleotides.RemoveAt(0);
             _head = _nucleotides[0];
+            _cone.transform.position = _head.transform.position;
         }
         RemoveStrand();
         return nucleotides;
@@ -109,6 +114,7 @@ public class Strand
     {
         if (_nucleotides.Count == 0)
         {
+            GameObject.Destroy(_cone);
             s_strandDict.Remove(_strandId);
         }
     }
@@ -162,6 +168,7 @@ public class Strand
                 _nucleotides[i].GetComponent<Renderer>().material.SetColor("_Color", _color);
             }
         }
+        _cone.GetComponent<Renderer>().material.SetColor("_color", _color);
     }
 
     public void ResetComponents(List<GameObject> nucleotides)
