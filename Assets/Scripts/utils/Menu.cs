@@ -16,6 +16,7 @@ public class Menu : MonoBehaviour
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private Canvas _menu;
+    bool primaryReleased = true;
     
     void GetDevice()
     {
@@ -54,10 +55,19 @@ public class Menu : MonoBehaviour
         
         bool primaryValue;
         if (_device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryValue)
-            && primaryValue)
+            && primaryValue && primaryReleased)
         {
+            primaryReleased = false;
             ToggleMenu();
         }
+
+        // Reset primary button
+        if (_device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryValue)
+            && !primaryValue)
+        {
+            primaryReleased = true;
+        }
+
     }
 
     public void ToggleMenu()

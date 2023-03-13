@@ -12,19 +12,20 @@ public class DrawPoint : MonoBehaviour
 {
 
     public GameObject nucleotidePrefab;
-    /*
-    void Start()
-    {
-        nucleotidePrefab = Resources.Load("Nucleotide") as GameObject;
-    } */
+    
+   
     public GameObject MakeNucleotide(Vector3 position, int id, int helixId, int ssDirection)
     {
         // make sphere
-        GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        sphere.AddComponent<NucleotideComponent>();
-        sphere.AddComponent<XRSimpleInteractable>();
-        sphere.transform.position = position;
-        sphere.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);
+        GameObject sphere =
+                    Instantiate(Resources.Load("Nucleotide"),
+                    position,
+                    Quaternion.identity) as GameObject;        
+        //GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        //sphere.AddComponent<NucleotideComponent>();
+        //sphere.AddComponent<XRSimpleInteractable>();
+        //sphere.transform.position = position;
+        //sphere.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);
         sphere.name = "nucleotide" + id;
 
         var ntc = sphere.GetComponent<NucleotideComponent>();

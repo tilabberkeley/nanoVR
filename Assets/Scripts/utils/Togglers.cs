@@ -49,6 +49,8 @@ public class Togglers : MonoBehaviour
     {
         s_drawTogOn = true;
         s_eraseTogOn = false;
+        s_splitTogOn = false;
+        s_mergeTogOn = false;
         DrawNucleotide.ResetNucleotides();
 
     }
@@ -57,6 +59,25 @@ public class Togglers : MonoBehaviour
     {
         s_drawTogOn = false;
         s_eraseTogOn = true;
+        s_splitTogOn = false;
+        s_mergeTogOn = false;
         DrawNucleotide.ResetNucleotides();
+    }
+
+    public void SplitToggled()
+    {
+        s_drawTogOn = false;
+        s_eraseTogOn = false;
+        s_splitTogOn = true;
+        s_mergeTogOn = false;
+
+    }
+
+    public void MergeToggled()
+    {
+        s_drawTogOn = false;
+        s_eraseTogOn = false;
+        s_splitTogOn = false;
+        s_mergeTogOn = true;
     }
 }

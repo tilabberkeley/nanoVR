@@ -1,10 +1,12 @@
-using System;
-using System.Collections;
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu>
+ */
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
+using static GlobalVariables;
 
 public class DrawCrossover : MonoBehaviour
 {
@@ -14,9 +16,8 @@ public class DrawCrossover : MonoBehaviour
     [SerializeField] public XRRayInteractor rightRayInteractor;
     bool gripReleased = true;
   
-    GameObject firstNucleotide = null;
-
-    GameObject secondNucleotide = null;
+    static GameObject s_startGO = null;
+    static GameObject s_endGO = null;
     public static RaycastHit s_hit;
     // public static GameObject s_crossover;
 
@@ -56,40 +57,26 @@ public class DrawCrossover : MonoBehaviour
             && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             gripReleased = false;
-            if (s_hit.collider.name.Contains("nucleotide")) {
-                GameObject nt = s_hit.collider.gameObject;
-                var ntc = nt.GetComponent<NucleotideComponent>();
-                if (firstNucleotide == null && ntc.IsSelected())
+            if (s_hit.collider.name.Contains("nucleotide"))
+            {
+                if (s_startGO == null)
                 {
-                    firstNucleotide = nt;
+                    s_startGO = s_hit.collider.gameObject;
                 }
-                else if (firstNucleotide != null 
-                    && secondNucleotide == null 
-                    && ntc.IsSelected())
+                else
                 {
-                    if (ntc.GetHelixId() != firstNucleotide.GetComponent<NucleotideComponent>().GetHelixId())
+                    s_endGO = s_hit.collider.gameObject;
+                    if (s_drawTogOn)
                     {
-                        secondNucleotide = nt;
+                        CreateXover();
                     }
+                    // ERASE XOVER
                 }
             }
             else
             {
-                firstNucleotide = null;
+                ResetNucleotides();
             }
-    
-        }
-
-        if (firstNucleotide != null) 
-        {
-            Vector3 direction = transform.rotation * Vector3.forward;
-            Vector3 currPoint = transform.position + direction * 0.07f;
-            DrawRealCylinder.Draw(firstNucleotide.transform.position, currPoint);
-        }
-
-        if (secondNucleotide != null)
-        {
-            
         }
 
         // Resets grips do avoid multiple selections.                                              
@@ -99,6 +86,42 @@ public class DrawCrossover : MonoBehaviour
             gripReleased = true;
         }
 
+    }
+
+    /// <summary>
+    /// Resets the start and end nucleotides.
+    /// </summary>
+    public static void ResetNucleotides()
+    {
+        s_startGO = null;
+        s_endGO = null;
+    }
+
+    public void CreateXover()
+    {
+        if (isValid())
+        {
+            // Create crossover
+
+            // Handle strand splitting
+        }
+    }
+
+    public bool isValid()
+    {
+        var startNtc = s_startGO.GetComponent<NucleotideComponent>();
+        int startDir = startNtc.GetDirection();
+        int startHelix = startNtc.GetHelixId();
+
+        var endNtc = s_endGO.GetComponent<NucleotideComponent>();
+        int endDir = endNtc.GetDirection();
+        int endHelix = endNtc.GetHelixId();
+
+        if (startDir != endDir && startHelix != endHelix)
+        {
+            return true;
+        }
+        return false;
     }
 
 }

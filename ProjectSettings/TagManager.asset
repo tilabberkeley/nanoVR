@@ -8,6 +8,7 @@ TagManager:
   - endPoint
   - grid
   - loop
+  - Nucleotide
   layers:
   - Default
   - TransparentFX

@@ -30,6 +30,16 @@ public class Strand
         _tail = nucleotides.Last();
     }
 
+    public Strand(GameObject nucleotide, int strandId, int direction)
+    {
+        _nucleotides.Add(nucleotide);
+        _strandId = strandId;
+        _direction = direction;
+        _color = s_colors[s_numStrands % 6];
+        _head = nucleotide;
+        _tail = nucleotide;
+    }
+
     public List<GameObject> GetNucleotides() { return _nucleotides; }
     public GameObject GetHead() { return _head; }
     public GameObject GetTail() { return _tail; }
@@ -61,30 +71,58 @@ public class Strand
     }
     */
 
-    public int RemoveFromHead(List<GameObject> nucleotides)
+    public List<GameObject> RemoveFromHead(List<GameObject> nucleotides)
     {
         foreach (GameObject nucl in nucleotides)
         {
             _nucleotides.Remove(nucl);
         }
+
         if (_nucleotides.Count > 0)
         {
+            nucleotides.Add(_nucleotides[0]);
+            _nucleotides.RemoveAt(0);
             _head = _nucleotides[0];
         }
-        return _nucleotides.Count;
+        RemoveStrand();
+        return nucleotides;
     }
 
-    public int RemoveFromTail(List<GameObject> nucleotides)
+    public List<GameObject> RemoveFromTail(List<GameObject> nucleotides)
     {
         foreach (GameObject nucl in nucleotides)
         {
             _nucleotides.Remove(nucl);
         }
+        
         if (_nucleotides.Count > 0)
         {
+            nucleotides.Add(_nucleotides.Last());
+            _nucleotides.Remove(_nucleotides.Last());
             _tail = _nucleotides.Last();
         }
-        return _nucleotides.Count;
+        RemoveStrand();
+        return nucleotides;
+    }
+
+    public void RemoveStrand()
+    {
+        if (_nucleotides.Count == 0)
+        {
+            s_strandDict.Remove(_strandId);
+        }
+    }
+
+    public List<GameObject> SplitAt(GameObject go)
+    {
+        List<GameObject> splitList = new List<GameObject>();
+        int splitIndex = _nucleotides.IndexOf(go);
+        int count = _nucleotides.Count - splitIndex - 1;
+        splitList.AddRange(_nucleotides.GetRange(splitIndex + 2, count - 1));
+        ResetComponents(_nucleotides.GetRange(splitIndex - 1, count));
+        _nucleotides.RemoveRange(splitIndex - 1, count);
+        _tail = _nucleotides.Last();
+        return splitList;
     }
 
     /*
@@ -112,10 +150,17 @@ public class Strand
     {
         for (int i = 0; i < _nucleotides.Count; i++)
         {
-            var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
-            ntc.SetSelected(true);
-            ntc.SetStrandId(_strandId);
-            ntc.SetColor(_color);
+            if (i % 2 == 0)
+            {
+                var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+                ntc.SetSelected(true);
+                ntc.SetStrandId(_strandId);
+                ntc.SetColor(_color);
+            }
+            else
+            {
+                _nucleotides[i].GetComponent<Renderer>().material.SetColor("_Color", _color);
+            }
         }
     }
 
@@ -123,10 +168,17 @@ public class Strand
     {
         for (int i = 0; i < nucleotides.Count; i++)
         {
-            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
-            ntc.SetSelected(false);
-            ntc.SetStrandId(-1);
-            ntc.ResetColor();
+            if (i % 2 == 0)
+            {
+                var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+                ntc.SetSelected(false);
+                ntc.SetStrandId(-1);
+                ntc.ResetColor();
+            }
+            else
+            {
+                nucleotides[i].GetComponent<Renderer>().material.SetColor("_Color", Color.white);
+            }
         }
     }
 }

@@ -109,15 +109,67 @@ public class Helix
 
     public List<GameObject> GetHelixSub(int sIndex, int eIndex, int direction)
     {
+        List<GameObject> temp = new List<GameObject>();
         if (direction == 0)
         {
-            return _nucleotidesB.GetRange(sIndex, eIndex - sIndex + 1);
+            for (int i = sIndex; i < eIndex; i++)
+            {
+                temp.Add(_nucleotidesB[i]);
+                temp.Add(_backbonesB[i]);
+            }
+            temp.Add(_nucleotidesB[eIndex]);
+            return temp;
         }
         else 
         {
-            List<GameObject> temp = _nucleotidesA.GetRange(sIndex, eIndex - sIndex + 1);
+            for (int i = sIndex; i < eIndex; i++)
+            {
+                temp.Add(_nucleotidesA[i]);
+                temp.Add(_backbonesA[i]);
+            }
+            temp.Add(_nucleotidesA[eIndex]);
             temp.Reverse();
             return temp;
+        }
+    }
+
+    /// <summary>
+    /// Return's neighbo in front of head nucleotide.
+    /// </summary>
+    /// <param name="go">GameObject to find neighbor of.</param>
+    /// <param name="direction">Direction of the helix, 0 or 1.</param>
+    /// <returns>Return's neighbor in front of head nucleotide.</returns>
+    public GameObject GetHeadNeighbor(GameObject go, int direction)
+    {
+        if (direction == 0)
+        {
+            int index = _nucleotidesB.IndexOf(go);
+            return _nucleotidesB[index - 1];
+        }
+        else
+        {
+            int index = _nucleotidesA.IndexOf(go);
+            return _nucleotidesA[index + 1];
+        }
+    }
+
+    /// <summary>
+    /// Return's neighbor behind tail nucleotide.
+    /// </summary>
+    /// <param name="go">GameObject to find neighbor of.</param>
+    /// <param name="direction">Direction of helix, 0 or 1.</param>
+    /// <returns>Return's neighbor behind tail nucleotide.</returns>
+    public GameObject GetTailNeighbor(GameObject go, int direction)
+    {
+        if (direction == 0)
+        {
+            int index = _nucleotidesB.IndexOf(go);
+            return _nucleotidesB[index + 1];
+        }
+        else
+        {
+            int index = _nucleotidesA.IndexOf(go);
+            return _nucleotidesA[index - 1];
         }
     }
 
