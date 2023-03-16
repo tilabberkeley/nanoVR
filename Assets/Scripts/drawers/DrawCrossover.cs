@@ -8,6 +8,9 @@ using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
 
+/// <summary>
+/// Handles crossovers and respective strand operations.
+/// </summary>
 public class DrawCrossover : MonoBehaviour
 {
     [SerializeField] private XRNode _xrNode;
@@ -19,9 +22,6 @@ public class DrawCrossover : MonoBehaviour
     static GameObject s_startGO = null;
     static GameObject s_endGO = null;
     public static RaycastHit s_hit;
-    // public static GameObject s_crossover;
-
-
 
     void GetDevice()
     {
@@ -39,7 +39,12 @@ public class DrawCrossover : MonoBehaviour
 
     void Update()
     {
-        if (!GlobalVariables.s_gridTogOn)
+        if (!s_gridTogOn)
+        {
+            return;
+        }
+
+        if (!s_drawTogOn)
         {
             return;
         }
@@ -97,17 +102,40 @@ public class DrawCrossover : MonoBehaviour
         s_endGO = null;
     }
 
+    /// <summary>
+    /// Creates crossover and splits strands as necessary.
+    /// </summary>
     public void CreateXover()
     {
-        if (isValid())
+        if (IsValid())
         {
-            // Create crossover
+            int strandId = s_startGO.GetComponent<NucleotideComponent>().GetStrandId();
+            Strand strand = s_strandDict[strandId];
 
-            // Handle strand splitting
+            // Create crossover.
+            GameObject xover = DrawPoint.MakeXover(s_startGO.transform.position, s_endGO.transform.position);
+            strand.SetXover(xover);
+
+            // Handle strand splitting.
+            List<GameObject> newStrand = DrawSplit.SplitStrand(s_startGO);
+            if (newStrand != null)
+            {
+                DrawSplit.CreateStrand(newStrand);
+            }
+
+            newStrand = DrawSplit.SplitStrand(s_endGO);
+            if (newStrand != null)
+            {
+                DrawSplit.CreateStrand(newStrand);
+            }
+
+            // Handle strand merging.
+            bool isHead = s_startGO == strand.GetHead();
+            DrawMerge.MergeStrand(s_startGO, s_endGO, xover, isHead);
         }
     }
 
-    public bool isValid()
+    public bool IsValid()
     {
         var startNtc = s_startGO.GetComponent<NucleotideComponent>();
         int startDir = startNtc.GetDirection();

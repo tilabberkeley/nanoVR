@@ -127,49 +127,47 @@ public class DrawMerge : MonoBehaviour
         Helix helix = s_gridList[0].GetHelix(helixId);
         int direction = ntc.GetDirection();
 
-        GameObject neighbor = null;
         if (strand.GetHead() == s_GO)
         {
-            neighbor = helix.GetHeadNeighbor(s_GO, direction);
+            GameObject neighbor = helix.GetHeadNeighbor(s_GO, direction);
+            GameObject backbone = helix.GetHeadBackbone(s_GO, s_GO.GetComponent<NucleotideComponent>().GetDirection());
+            MergeStrand(s_GO, neighbor, backbone, true);
+
         }
         if (strand.GetTail() == s_GO)
         {
-            neighbor = helix.GetTailNeighbor(s_GO, direction);
+            GameObject neighbor = helix.GetTailNeighbor(s_GO, direction);
+            GameObject backbone = helix.GetTailBackbone(s_GO, s_GO.GetComponent<NucleotideComponent>().GetDirection());
+            MergeStrand(s_GO, neighbor, backbone, false);
+
         }
-        MergeStrand(s_GO, neighbor);
     }
 
-    public void MergeStrand(GameObject firstGO, GameObject secondGO)
+    public static void MergeStrand(GameObject firstGO, GameObject secondGO, GameObject backbone, bool isHead)
     {
         if (secondGO == null)
         {
             return;
         }
+        var firstNtc = firstGO.GetComponent<NucleotideComponent>();
+        var secondNtc = secondGO.GetComponent<NucleotideComponent>();
+        Strand firstStrand = s_strandDict[firstNtc.GetStrandId()];
+        Strand secondStrand = s_strandDict[secondNtc.GetStrandId()];
+        Helix helix = s_gridList[0].GetHelix(firstNtc.GetHelixId());
 
-    }
-
-
-    /// <summary>
-    /// Creates a new strand with it's own id, color, and list of nucleotides.
-    /// Adds new strand to the global strand dictionary.
-    /// </summary>
-    /// <param name="nucleotides">List of nucleotides to use in new strand.</param>
-    public void CreateStrand(List<GameObject> nucleotides)
-    {
-        var startNtc = s_GO.GetComponent<NucleotideComponent>();
-        int direction = startNtc.GetDirection();
-
-        Strand strand;
-        if (direction == 0)
+        if (isHead)
         {
-            strand = new Strand(nucleotides, s_numStrands, direction);
+            firstStrand.AddToHead(backbone);
+            firstStrand.AddToHead(secondStrand.GetNucleotides());
+            // must add backbone between 2 strands
         }
         else
         {
-            strand = new Strand(nucleotides, s_numStrands, direction);
+            firstStrand.AddToTail(backbone);
+            firstStrand.AddToTail(secondStrand.GetNucleotides());
+            // must add backbone between 2 strands
         }
-        strand.SetComponents();
-        s_strandDict.Add(s_numStrands, strand);
-        s_numStrands++;
+        firstStrand.SetComponents();
+        secondStrand.RemoveStrand();
     }
 }

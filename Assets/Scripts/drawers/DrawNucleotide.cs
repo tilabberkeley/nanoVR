@@ -48,6 +48,11 @@ public class DrawNucleotide : MonoBehaviour
             return;
         }
 
+        if (!s_drawTogOn && !s_eraseTogOn)
+        {
+            return;
+        }
+
         if (!_device.isValid)
         {
             GetDevice();
@@ -206,15 +211,7 @@ public class DrawNucleotide : MonoBehaviour
         var startNtc = s_startGO.GetComponent<NucleotideComponent>();
         int direction = startNtc.GetDirection();
 
-        Strand strand;
-        if (direction == 0)
-        {
-            strand = new Strand(nucleotides, s_numStrands, direction);
-        }
-        else
-        {
-            strand = new Strand(nucleotides, s_numStrands, direction);
-        }
+        Strand strand = new Strand(nucleotides, s_numStrands, direction);
         strand.SetComponents();
         s_strandDict.Add(s_numStrands, strand);
         s_numStrands++;
@@ -262,7 +259,7 @@ public class DrawNucleotide : MonoBehaviour
         strand.SetComponents();
         
         // Update strand dictionary
-        s_strandDict[strandId] = strand;
+        //s_strandDict[strandId] = strand;
     }    
 
     /// <summary>

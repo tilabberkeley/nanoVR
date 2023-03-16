@@ -173,6 +173,34 @@ public class Helix
         }
     }
 
+    public GameObject GetHeadBackbone(GameObject go, int direction)
+    {
+        if (direction == 0)
+        {
+            int index = _nucleotidesB.IndexOf(go);
+            return _backbonesB[index - 1];
+        }
+        else
+        {
+            int index = _nucleotidesA.IndexOf(go);
+            return _backbonesA[index];
+        }
+    }
+
+    public GameObject GetTailBackbone(GameObject go, int direction)
+    {
+        if (direction == 0)
+        {
+            int index = _nucleotidesB.IndexOf(go);
+            return _backbonesB[index];
+        }
+        else
+        {
+            int index = _nucleotidesA.IndexOf(go);
+            return _backbonesA[index - 1];
+        }
+    }
+
     /*public void SetNeighbors(List<GameObject> nucleotides, List<GameObject> complements, List<GameObject> backbones)
     {
     for (int i = 0; i < nucleotides.Count; i++)

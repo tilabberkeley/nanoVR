@@ -19,6 +19,8 @@ public class Strand
     private GameObject _head;
     private GameObject _tail;
     private GameObject _cone;
+    private GameObject _xover;
+    private double _xoverLength;
     private static Color[] s_colors = { Color.blue, Color.magenta, Color.green, Color.red, Color.cyan, Color.yellow };
 
     public Strand(List<GameObject> nucleotides, int strandId, int direction)
@@ -29,30 +31,45 @@ public class Strand
         _color = s_colors[s_numStrands % 6];
         _head = nucleotides[0];
         _tail = nucleotides.Last();
+        _xover = null;
+        _xoverLength = 0;
         DrawPoint d = new DrawPoint();
         _cone = d.MakeCone(_head.transform.position, direction); 
-    }
-
-    public Strand(GameObject nucleotide, int strandId, int direction)
-    {
-        _nucleotides.Add(nucleotide);
-        _strandId = strandId;
-        _direction = direction;
-        _color = s_colors[s_numStrands % 6];
-        _head = nucleotide;
-        _tail = nucleotide;
     }
 
     public List<GameObject> GetNucleotides() { return _nucleotides; }
     public GameObject GetHead() { return _head; }
     public GameObject GetTail() { return _tail; }
-    public int GetDirection() { return _direction; }
+
+    public void SetXover(GameObject xover) 
+    { 
+        if (_xover != null)
+        {
+            GameObject.Destroy(_xover);
+        }
+        _xover = xover;
+        _xoverLength = xover.transform.position.y; 
+    }
+
+
+    public void AddToHead(GameObject newNucl)
+    {
+        _nucleotides.Insert(0, newNucl);
+        _head = _nucleotides[0];
+        _cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
+    }
 
     public void AddToHead(List<GameObject> newNucls) 
     {
         _nucleotides.InsertRange(0, newNucls);
         _head = _nucleotides[0];
-        _cone.transform.position = _head.transform.position;
+        _cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
+    }
+
+    public void AddToTail(GameObject newNucl)
+    {
+        _nucleotides.Add(newNucl);
+        _tail = _nucleotides.Last();
     }
 
     public void AddToTail(List<GameObject> newNucls)
@@ -61,19 +78,6 @@ public class Strand
         _tail = _nucleotides.Last();
     }
 
-    /*
-    public void AddToRightHead(List<GameObject> newNucls)
-    {
-        _nucleotides.AddRange(newNucls);
-        _head = _nucleotides.Last();
-    }
-
-    public void AddToLeftTail(List<GameObject> newNucls)
-    {
-        _nucleotides.InsertRange(0, newNucls);
-        _tail = _nucleotides[0];
-    }
-    */
 
     public List<GameObject> RemoveFromHead(List<GameObject> nucleotides)
     {
@@ -87,9 +91,12 @@ public class Strand
             nucleotides.Add(_nucleotides[0]);
             _nucleotides.RemoveAt(0);
             _head = _nucleotides[0];
-            _cone.transform.position = _head.transform.position;
+            _cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
         }
-        RemoveStrand();
+        else
+        {
+            RemoveStrand();
+        }
         return nucleotides;
     }
 
@@ -106,17 +113,17 @@ public class Strand
             _nucleotides.Remove(_nucleotides.Last());
             _tail = _nucleotides.Last();
         }
-        RemoveStrand();
+        else
+        {
+            RemoveStrand();
+        }
         return nucleotides;
     }
 
     public void RemoveStrand()
     {
-        if (_nucleotides.Count == 0)
-        {
-            GameObject.Destroy(_cone);
-            s_strandDict.Remove(_strandId);
-        }
+        GameObject.Destroy(_cone);
+        s_strandDict.Remove(_strandId);
     }
 
     public List<GameObject> SplitAt(GameObject go)
@@ -125,32 +132,12 @@ public class Strand
         int splitIndex = _nucleotides.IndexOf(go);
         int count = _nucleotides.Count - splitIndex - 1;
         splitList.AddRange(_nucleotides.GetRange(splitIndex + 2, count - 1));
-        ResetComponents(_nucleotides.GetRange(splitIndex - 1, count));
-        _nucleotides.RemoveRange(splitIndex - 1, count);
+        _nucleotides[splitIndex + 1].GetComponent<Renderer>().material.SetColor("_Color", Color.white);
+        _nucleotides.RemoveRange(splitIndex + 1, count);
         _tail = _nucleotides.Last();
         return splitList;
     }
 
-    /*
-    public int RemoveFromRightHead(List<GameObject> nucleotides)
-    {
-        foreach (GameObject nucl in nucleotides)
-        {
-            _nucleotides.Remove(nucl);
-        }
-        _head = _nucleotides.Last();
-        return _nucleotides.Count;
-    }
-
-    public int RemoveFromLeftTail(List<GameObject> nucleotides)
-    {
-        foreach (GameObject nucl in nucleotides)
-        {
-            _nucleotides.Remove(nucl);
-        }
-        _tail = _nucleotides[0];
-        return _nucleotides.Count;
-    } */
 
     public void SetComponents()
     {
@@ -168,7 +155,7 @@ public class Strand
                 _nucleotides[i].GetComponent<Renderer>().material.SetColor("_Color", _color);
             }
         }
-        _cone.GetComponent<Renderer>().material.SetColor("_color", _color);
+        _cone.GetComponent<Renderer>().material.SetColor("_Color", _color);
     }
 
     public void ResetComponents(List<GameObject> nucleotides)

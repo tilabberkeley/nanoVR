@@ -9,7 +9,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
 
 /// <summary>
-/// Splits strand into two strands.s
+/// Splits strand into two strands.
 /// </summary>
 public class DrawSplit : MonoBehaviour
 {
@@ -66,7 +66,7 @@ public class DrawSplit : MonoBehaviour
             if (s_hit.collider.name.Contains("nucleotide"))
             {
                 s_GO = s_hit.collider.gameObject;
-                List<GameObject> newStrand = SplitStrand();
+                List<GameObject> newStrand = SplitStrand(s_GO);
                 if (newStrand != null)
                 {
                     CreateStrand(newStrand);
@@ -87,9 +87,9 @@ public class DrawSplit : MonoBehaviour
     /// Splits a strand into two substrands at selected nucleotide.
     /// </summary>
     /// <returns>Returns split off strand.</returns>
-    public List<GameObject> SplitStrand()
+    public static List<GameObject> SplitStrand(GameObject go)
     {
-        var startNtc = s_GO.GetComponent<NucleotideComponent>();
+        var startNtc = go.GetComponent<NucleotideComponent>();
         if (!startNtc.IsSelected())
         {
             return null;
@@ -97,13 +97,12 @@ public class DrawSplit : MonoBehaviour
         int strandId = startNtc.GetStrandId();
         Strand strand = s_strandDict[strandId];
 
-        if (strand.GetHead() == s_GO || strand.GetTail() == s_GO)
+        if (strand.GetHead() == go || strand.GetTail() == go)
         {
             return null;
         }
 
-        List<GameObject> splitStrand = strand.SplitAt(s_GO);
-        return splitStrand;
+        return strand.SplitAt(go);
     }
 
 
@@ -112,20 +111,12 @@ public class DrawSplit : MonoBehaviour
     /// Adds new strand to the global strand dictionary.
     /// </summary>
     /// <param name="nucleotides">List of nucleotides to use in new strand.</param>
-    public void CreateStrand(List<GameObject> nucleotides)
+    public static void CreateStrand(List<GameObject> nucleotides)
     {
         var startNtc = s_GO.GetComponent<NucleotideComponent>();
         int direction = startNtc.GetDirection();
 
-        Strand strand;
-        if (direction == 0)
-        {
-            strand = new Strand(nucleotides, s_numStrands, direction);
-        }
-        else
-        {
-            strand = new Strand(nucleotides, s_numStrands, direction);
-        }
+        Strand strand = new Strand(nucleotides, s_numStrands, direction);
         strand.SetComponents();
         s_strandDict.Add(s_numStrands, strand);
         s_numStrands++;
