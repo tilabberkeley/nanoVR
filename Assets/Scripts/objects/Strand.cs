@@ -126,7 +126,19 @@ public class Strand
         s_strandDict.Remove(_strandId);
     }
 
-    public List<GameObject> SplitAt(GameObject go)
+    public List<GameObject> SplitBefore(GameObject go)
+    {
+        List<GameObject> splitList = new List<GameObject>();
+        int splitIndex = _nucleotides.IndexOf(go);
+        splitList.AddRange(_nucleotides.GetRange(0, splitIndex - 1));
+        _nucleotides[splitIndex - 1].GetComponent<Renderer>().material.SetColor("_Color", Color.white);
+        _nucleotides.RemoveRange(0, splitIndex);
+        _head = _nucleotides[0];
+        _cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
+        return splitList;
+    }
+
+    public List<GameObject> SplitAfter(GameObject go)
     {
         List<GameObject> splitList = new List<GameObject>();
         int splitIndex = _nucleotides.IndexOf(go);

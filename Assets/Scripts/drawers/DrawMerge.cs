@@ -16,10 +16,10 @@ public class DrawMerge : MonoBehaviour
     [SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
-    [SerializeField] public XRRayInteractor rightRayInteractor;
-    bool triggerReleased = true;
-    static GameObject s_GO = null;
-    public static RaycastHit s_hit;
+    [SerializeField] private XRRayInteractor rightRayInteractor;
+    private bool triggerReleased = true;
+    private static GameObject s_GO = null;
+    private static RaycastHit s_hit;
 
     void GetDevice()
     {
@@ -75,8 +75,8 @@ public class DrawMerge : MonoBehaviour
 
 
         // Resets triggers to avoid multiple selections.                                              
-        if ((_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-                && !triggerValue))
+        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
+                && !triggerValue)
         {
             triggerReleased = true;
         }

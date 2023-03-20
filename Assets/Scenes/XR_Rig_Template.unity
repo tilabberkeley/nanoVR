@@ -1818,7 +1818,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_ValidColorGradient:
     serializedVersion: 2
-    key0: {r: 1, g: 1, b: 1, a: 1}
+    key0: {r: 0.9333334, g: 0.9333334, b: 0.9333334, a: 1}
     key1: {r: 1, g: 1, b: 1, a: 1}
     key2: {r: 0, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
@@ -1863,7 +1863,7 @@ MonoBehaviour:
     ctime5: 0
     ctime6: 0
     ctime7: 0
-    atime0: 0
+    atime0: 14071
     atime1: 65535
     atime2: 0
     atime3: 0
@@ -3593,6 +3593,9 @@ GameObject:
   - component: {fileID: 713889222}
   - component: {fileID: 713889221}
   - component: {fileID: 713889220}
+  - component: {fileID: 713889228}
+  - component: {fileID: 713889232}
+  - component: {fileID: 713889231}
   - component: {fileID: 713889224}
   - component: {fileID: 713889226}
   - component: {fileID: 713889225}
@@ -3600,9 +3603,6 @@ GameObject:
   - component: {fileID: 713889230}
   - component: {fileID: 713889233}
   - component: {fileID: 713889234}
-  - component: {fileID: 713889228}
-  - component: {fileID: 713889232}
-  - component: {fileID: 713889231}
   - component: {fileID: 713889227}
   - component: {fileID: 713889235}
   - component: {fileID: 713889236}
@@ -5578,7 +5578,7 @@ Canvas:
   serializedVersion: 3
   m_RenderMode: 1
   m_Camera: {fileID: 1226115467}
-  m_PlaneDistance: 0.7
+  m_PlaneDistance: 0.4
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
@@ -9087,7 +9087,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2015226967}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -26.1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1797922563}

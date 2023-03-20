@@ -59,11 +59,40 @@ public class DrawPoint : MonoBehaviour
         return cone;
     }
 
-    public static GameObject MakeXover(Vector3 startPos, Vector3 endPos)
+    public GameObject MakeXover(GameObject prevGO, GameObject nextGO, int strandId)
     {
         GameObject xover = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        xover.name = "xover";
+        xover.AddComponent<XoverComponent>();
+        xover.AddComponent<XRGrabInteractable>();
 
+        var xoverComp = xover.GetComponent<XoverComponent>();
+        xoverComp.SetStrandId(strandId);
+        xoverComp.SetPrevGO(prevGO);
+        xoverComp.SetNextGO(nextGO);
 
+        var xoverRigidbody = xover.GetComponent<Rigidbody>();
+        xoverRigidbody.useGravity = false;
+        xoverRigidbody.isKinematic = true;
+
+        
+        Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
+
+        // Position
+        xover.transform.position = (nextGO.transform.position + prevGO.transform.position) / 2.0F;
+
+        // Rotation
+        Vector3 dirV = Vector3.Normalize(nextGO.transform.position - prevGO.transform.position);
+        Vector3 rotAxisV = dirV + cylDefaultOrientation;
+        rotAxisV = Vector3.Normalize(rotAxisV);
+        xover.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
+
+        // Scale        
+        float dist = Vector3.Distance(nextGO.transform.position, prevGO.transform.position);
+        xover.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
+        xoverComp.SetLength(dist);
+     
+        
         return xover;
     }
     public static GameObject MakeSphere(Vector3 position, string name)

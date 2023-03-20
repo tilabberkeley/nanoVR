@@ -17,12 +17,11 @@ public class DrawNucleotide : MonoBehaviour
     [SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
-    [SerializeField] public XRRayInteractor rightRayInteractor;
-    bool triggerReleased = true;
-    GameObject highlightedGO = null;
-    static GameObject s_startGO = null;
-    static GameObject s_endGO = null;
-    public static RaycastHit s_hit;
+    [SerializeField] private XRRayInteractor rightRayInteractor;
+    private bool triggerReleased = true;
+    private static GameObject s_startGO = null;
+    private static GameObject s_endGO = null;
+    private static RaycastHit s_hit;
 
     void GetDevice()
     {
@@ -69,12 +68,13 @@ public class DrawNucleotide : MonoBehaviour
             if (s_hit.collider.name.Contains("nucleotide"))
             {
                 if (s_startGO == null)
-                {
+                {   
                     s_startGO = s_hit.collider.gameObject;
                 }
                 else
                 {
                     s_endGO = s_hit.collider.gameObject;
+                    
                     if (s_drawTogOn)
                     {
                         BuildStrand();
@@ -92,44 +92,17 @@ public class DrawNucleotide : MonoBehaviour
             }
         }
 
-        // HIGHLIGHT
-        /*
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-                && !triggerValue
-                && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
-        {
-            if (s_hit.collider.name.Contains("nucleotide"))
-            {
-                GameObject nt = s_hit.collider.gameObject;
-                nt.GetComponent<NucleotideComponent>().Highlight();
-                highlightedGO = nt;
-            }
-        } */
-
-        // UNHIGHLIGHT
-        /*
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-                && !triggerValue
-                && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
-        {
-            if (highlightedGO != null)
-            {
-                highlightedGO.GetComponent<NucleotideComponent>().Unhighlight();
-                highlightedGO = null;
-            }
-        } */
-
         // Resets triggers to avoid multiple selections.                                              
-        if ((_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-                && !triggerValue))
+        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
+            && !triggerValue)
         {
             triggerReleased = true;
         }
 
         // Resets start and end nucleotide.
         if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-                && triggerValue
-                && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+            && triggerValue
+            && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             ResetNucleotides();
         }

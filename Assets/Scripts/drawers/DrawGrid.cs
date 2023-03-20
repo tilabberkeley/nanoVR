@@ -18,14 +18,14 @@ public class DrawGrid : MonoBehaviour
     [SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
-    [SerializeField] public XRRayInteractor rightRayInteractor;
+    [SerializeField] private XRRayInteractor rightRayInteractor;
     bool triggerReleased = true;
     bool gripReleased = true;
-    public static RaycastHit s_hit;
-    public Dropdown dropdown;
-    string plane;
+    private static RaycastHit s_hit;
+    [SerializeField] private Dropdown dropdown;
+    private string plane;
     private Grid _grid;
-    bool gridExists = false;
+    private bool gridExists = false;
 
     void GetDevice()
     {
@@ -96,7 +96,6 @@ public class DrawGrid : MonoBehaviour
                 _grid.AddLine(id, startPos, endPos);
                 _grid.AddHelix(id, startPos, endPos, plane, midpoint);
             }
-
         }
         else if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
             && triggerValue))

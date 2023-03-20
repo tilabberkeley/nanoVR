@@ -9,27 +9,29 @@ using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
 
 /// <summary>
-/// Handles crossovers and respective strand operations.
+/// Handles crossovers and necessary strand operations.
 /// </summary>
 public class DrawCrossover : MonoBehaviour
 {
     [SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
-    [SerializeField] public XRRayInteractor rightRayInteractor;
-    bool gripReleased = true;
-  
-    static GameObject s_startGO = null;
-    static GameObject s_endGO = null;
-    public static RaycastHit s_hit;
+    [SerializeField] private XRRayInteractor rightRayInteractor;
+    private bool triggerReleased = true;
+    private static GameObject s_startGO = null;
+    private static GameObject s_endGO = null;
+    private static RaycastHit s_hit;
 
-    void GetDevice()
+    private void GetDevice()
     {
         InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
-        _device = _devices[0];
+        if (_devices.Count > 0)
+        {
+            _device = _devices[0];
+        }
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         if (!_device.isValid)
         {
@@ -37,14 +39,14 @@ public class DrawCrossover : MonoBehaviour
         }
     }
 
-    void Update()
+    private void Update()
     {
         if (!s_gridTogOn)
         {
             return;
         }
 
-        if (!s_drawTogOn)
+        if (!s_drawTogOn && !s_eraseTogOn)
         {
             return;
         }
@@ -55,28 +57,33 @@ public class DrawCrossover : MonoBehaviour
         }
 
         // SELECT CROSSOVER NUCLEOTIDE
-        bool gripValue;
-        if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
-            && gripValue
-            && gripReleased
+        bool triggerValue;
+        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
+            && triggerValue
+            && triggerReleased
             && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
-            gripReleased = false;
+            triggerReleased = false;
             if (s_hit.collider.name.Contains("nucleotide"))
             {
                 if (s_startGO == null)
                 {
-                    s_startGO = s_hit.collider.gameObject;
+                   s_startGO = s_hit.collider.gameObject;
                 }
                 else
                 {
                     s_endGO = s_hit.collider.gameObject;
+
                     if (s_drawTogOn)
                     {
                         CreateXover();
+                        ResetNucleotides();
                     }
-                    // ERASE XOVER
                 }
+            }
+            else if (s_hit.collider.name.Equals("xover") && s_eraseTogOn)
+            {
+                EraseXover(s_hit.collider.gameObject);         
             }
             else
             {
@@ -84,13 +91,20 @@ public class DrawCrossover : MonoBehaviour
             }
         }
 
-        // Resets grips do avoid multiple selections.                                              
-        if ((_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
-                && !gripValue))
+        // Resets triggers do avoid multiple selections.                                              
+        if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
+            && triggerValue))
         {
-            gripReleased = true;
+            triggerReleased = true;
         }
 
+        // Resets start and end nucleotide.
+        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
+            && triggerValue 
+            && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        {
+            ResetNucleotides();
+        }
     }
 
     /// <summary>
@@ -113,26 +127,35 @@ public class DrawCrossover : MonoBehaviour
             Strand strand = s_strandDict[strandId];
 
             // Create crossover.
-            GameObject xover = DrawPoint.MakeXover(s_startGO.transform.position, s_endGO.transform.position);
+            DrawPoint d = new DrawPoint();
+            GameObject xover = d.MakeXover(s_startGO, s_endGO, strandId);
             strand.SetXover(xover);
 
             // Handle strand splitting.
-            List<GameObject> newStrand = DrawSplit.SplitStrand(s_startGO);
+            List<GameObject> newStrand = SplitStrand(s_startGO, true);
             if (newStrand != null)
             {
-                DrawSplit.CreateStrand(newStrand);
+                CreateStrand(newStrand);
             }
 
-            newStrand = DrawSplit.SplitStrand(s_endGO);
+            newStrand = SplitStrand(s_endGO, false);
             if (newStrand != null)
             {
-                DrawSplit.CreateStrand(newStrand);
+                CreateStrand(newStrand);
             }
 
             // Handle strand merging.
             bool isHead = s_startGO == strand.GetHead();
-            DrawMerge.MergeStrand(s_startGO, s_endGO, xover, isHead);
+            MergeStrand(s_startGO, s_endGO, xover, isHead);
         }
+    }
+
+    public void EraseXover(GameObject xover)
+    {
+        var xoverComp = xover.GetComponent<XoverComponent>();
+        GameObject nextGO = xoverComp.GetNextGO();
+        DrawSplit.SplitStrand(nextGO);
+        GameObject.Destroy(xover);
     }
 
     public bool IsValid()
@@ -152,4 +175,65 @@ public class DrawCrossover : MonoBehaviour
         return false;
     }
 
+    public static List<GameObject> SplitStrand(GameObject go, bool first)
+    {
+        var startNtc = go.GetComponent<NucleotideComponent>();
+        if (!startNtc.IsSelected())
+        {
+            return null;
+        }
+        int strandId = startNtc.GetStrandId();
+        Strand strand = s_strandDict[strandId];
+
+        if (strand.GetHead() == go || strand.GetTail() == go)
+        {
+            return null;
+        }
+        if (first)
+        {
+            return strand.SplitAfter(go);
+
+        }
+        return strand.SplitBefore(go);
+
+    }
+
+    public void CreateStrand(List<GameObject> nucleotides)
+    {
+        var startNtc = nucleotides[0].GetComponent<NucleotideComponent>();
+        int direction = startNtc.GetDirection();
+
+        Strand strand = new Strand(nucleotides, s_numStrands, direction);
+        strand.SetComponents();
+        s_strandDict.Add(s_numStrands, strand);
+        s_numStrands++;
+    }
+
+    public void MergeStrand(GameObject firstGO, GameObject secondGO, GameObject backbone, bool isHead)
+    {
+        if (secondGO == null)
+        {
+            return;
+        }
+        var firstNtc = firstGO.GetComponent<NucleotideComponent>();
+        var secondNtc = secondGO.GetComponent<NucleotideComponent>();
+        Strand firstStrand = s_strandDict[firstNtc.GetStrandId()];
+        Strand secondStrand = s_strandDict[secondNtc.GetStrandId()];
+        Helix helix = s_gridList[0].GetHelix(firstNtc.GetHelixId());
+
+        if (isHead)
+        {
+            firstStrand.AddToHead(backbone);
+            firstStrand.AddToHead(secondStrand.GetNucleotides());
+            // must add backbone between 2 strands
+        }
+        else
+        {
+            firstStrand.AddToTail(backbone);
+            firstStrand.AddToTail(secondStrand.GetNucleotides());
+            // must add backbone between 2 strands
+        }
+        firstStrand.SetComponents();
+        secondStrand.RemoveStrand();
+    }
 }
