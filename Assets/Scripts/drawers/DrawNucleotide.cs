@@ -70,10 +70,12 @@ public class DrawNucleotide : MonoBehaviour
                 if (s_startGO == null)
                 {   
                     s_startGO = s_hit.collider.gameObject;
+                    DrawCrossover.Highlight(s_startGO);
                 }
                 else
                 {
                     s_endGO = s_hit.collider.gameObject;
+                    DrawCrossover.Unhighlight(s_startGO);
                     
                     if (s_drawTogOn)
                     {
@@ -181,10 +183,7 @@ public class DrawNucleotide : MonoBehaviour
     /// <param name="nucleotides">List of nucleotides to use in new strand.</param>
     public void CreateStrand(List<GameObject> nucleotides)
     {
-        var startNtc = s_startGO.GetComponent<NucleotideComponent>();
-        int direction = startNtc.GetDirection();
-
-        Strand strand = new Strand(nucleotides, s_numStrands, direction);
+        Strand strand = new Strand(nucleotides, s_numStrands);
         strand.SetComponents();
         s_strandDict.Add(s_numStrands, strand);
         s_numStrands++;

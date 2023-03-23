@@ -113,10 +113,7 @@ public class DrawSplit : MonoBehaviour
     /// <param name="nucleotides">List of nucleotides to use in new strand.</param>
     public static void CreateStrand(List<GameObject> nucleotides)
     {
-        var startNtc = s_GO.GetComponent<NucleotideComponent>();
-        int direction = startNtc.GetDirection();
-
-        Strand strand = new Strand(nucleotides, s_numStrands, direction);
+        Strand strand = new Strand(nucleotides, s_numStrands);
         strand.SetComponents();
         s_strandDict.Add(s_numStrands, strand);
         s_numStrands++;

@@ -30,7 +30,7 @@ public class Helix
         _id = id;
         _startPoint = startPoint;
         _endPoint = endPoint;
-        _length = 32;
+        _length = 64;
         _orientation = orientation;
         _gridPoint = gridPoint;
         _ntAPos = new List<Vector3>();

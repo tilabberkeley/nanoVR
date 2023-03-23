@@ -68,11 +68,13 @@ public class DrawCrossover : MonoBehaviour
             {
                 if (s_startGO == null)
                 {
-                   s_startGO = s_hit.collider.gameObject;
+                    s_startGO = s_hit.collider.gameObject;
+                    Highlight(s_startGO);
                 }
                 else
                 {
                     s_endGO = s_hit.collider.gameObject;
+                    Unhighlight(s_startGO);
 
                     if (s_drawTogOn)
                     {
@@ -116,6 +118,18 @@ public class DrawCrossover : MonoBehaviour
         s_endGO = null;
     }
 
+    public static void Highlight(GameObject go)
+    {
+        var ntc = go.GetComponent<NucleotideComponent>();
+        ntc.Highlight();
+    }
+
+    public static void Unhighlight(GameObject go)
+    {
+        var ntc = go.GetComponent<NucleotideComponent>();
+        ntc.Unhighlight();
+    }
+
     /// <summary>
     /// Creates crossover and splits strands as necessary.
     /// </summary>
@@ -124,29 +138,30 @@ public class DrawCrossover : MonoBehaviour
         if (IsValid())
         {
             int strandId = s_startGO.GetComponent<NucleotideComponent>().GetStrandId();
-            Strand strand = s_strandDict[strandId];
+            Strand startStrand = s_strandDict[strandId];
+            int endStrandId = s_endGO.GetComponent<NucleotideComponent>().GetStrandId();
+            Strand endStrand = s_strandDict[endStrandId];
 
             // Create crossover.
             DrawPoint d = new DrawPoint();
             GameObject xover = d.MakeXover(s_startGO, s_endGO, strandId);
-            strand.SetXover(xover);
+            startStrand.AddXover(xover);
 
             // Handle strand splitting.
-            List<GameObject> newStrand = SplitStrand(s_startGO, true);
+            List<GameObject> newStrand = SplitStrand(s_startGO, false);
             if (newStrand != null)
             {
-                CreateStrand(newStrand);
+                CreateStrand(newStrand, startStrand.GetColor());
             }
 
-            newStrand = SplitStrand(s_endGO, false);
+            newStrand = SplitStrand(s_endGO, true);
             if (newStrand != null)
             {
-                CreateStrand(newStrand);
+                CreateStrand(newStrand, endStrand.GetColor());
             }
 
             // Handle strand merging.
-            bool isHead = s_startGO == strand.GetHead();
-            MergeStrand(s_startGO, s_endGO, xover, isHead);
+            MergeStrand(s_startGO, s_endGO, xover);
         }
     }
 
@@ -154,7 +169,11 @@ public class DrawCrossover : MonoBehaviour
     {
         var xoverComp = xover.GetComponent<XoverComponent>();
         GameObject nextGO = xoverComp.GetNextGO();
-        DrawSplit.SplitStrand(nextGO);
+        List<GameObject> newStrand = SplitStrand(nextGO, true);
+        if (newStrand != null)
+        {
+            CreateStrand(newStrand, nextGO.GetComponent<NucleotideComponent>().GetColor());
+        }
         GameObject.Destroy(xover);
     }
 
@@ -195,45 +214,69 @@ public class DrawCrossover : MonoBehaviour
 
         }
         return strand.SplitBefore(go);
-
     }
 
-    public void CreateStrand(List<GameObject> nucleotides)
+    public void CreateStrand(List<GameObject> nucleotides, Color color)
     {
-        var startNtc = nucleotides[0].GetComponent<NucleotideComponent>();
-        int direction = startNtc.GetDirection();
-
-        Strand strand = new Strand(nucleotides, s_numStrands, direction);
+        Strand strand = new Strand(nucleotides, s_numStrands, color);
         strand.SetComponents();
         s_strandDict.Add(s_numStrands, strand);
         s_numStrands++;
     }
 
-    public void MergeStrand(GameObject firstGO, GameObject secondGO, GameObject backbone, bool isHead)
+    public void MergeStrand(GameObject firstGO, GameObject secondGO, GameObject backbone)
     {
         if (secondGO == null)
         {
             return;
         }
+
         var firstNtc = firstGO.GetComponent<NucleotideComponent>();
         var secondNtc = secondGO.GetComponent<NucleotideComponent>();
-        Strand firstStrand = s_strandDict[firstNtc.GetStrandId()];
-        Strand secondStrand = s_strandDict[secondNtc.GetStrandId()];
-        Helix helix = s_gridList[0].GetHelix(firstNtc.GetHelixId());
+        var xoverComp = backbone.GetComponent<XoverComponent>();
+        int firstStrandId = firstNtc.GetStrandId();
+        int secondStrandId = secondNtc.GetStrandId();
+        Strand firstStrand = s_strandDict[firstStrandId];
+        Strand secondStrand = s_strandDict[secondStrandId];
 
-        if (isHead)
+        if (firstStrand.GetHead() == firstGO)
         {
+            // Must add backbone between 2 strands.
             firstStrand.AddToHead(backbone);
-            firstStrand.AddToHead(secondStrand.GetNucleotides());
-            // must add backbone between 2 strands
+            xoverComp.SetPrevGO(firstGO);
+            xoverComp.SetNextGO(secondGO);
+            HandleCycle(firstStrand, secondStrand, true);
         }
-        else
+        else if (firstStrand.GetTail() == firstGO)
         {
+            // Must add backbone between 2 strands.
             firstStrand.AddToTail(backbone);
-            firstStrand.AddToTail(secondStrand.GetNucleotides());
-            // must add backbone between 2 strands
+            xoverComp.SetPrevGO(secondGO);
+            xoverComp.SetNextGO(firstGO);
+            HandleCycle(firstStrand, secondStrand, false);
         }
         firstStrand.SetComponents();
         secondStrand.RemoveStrand();
+    }
+
+    public void HandleCycle(Strand firstStrand, Strand secondStrand, bool addToHead)
+    {
+        // Handles cycles in strand.
+        if (firstStrand.GetStrandId() != secondStrand.GetStrandId())
+        {
+            // Add second strand
+            if (addToHead)
+            {
+                firstStrand.AddToHead(secondStrand.GetNucleotides());
+            }
+            else
+            {
+                firstStrand.AddToTail(secondStrand.GetNucleotides());
+            }
+        }
+        else
+        {
+            firstStrand.HideCone();
+        }
     }
 }

@@ -43,19 +43,11 @@ public class DrawPoint : MonoBehaviour
         return sphere;
     }
 
-    public GameObject MakeCone(Vector3 position, int direction)
+    public GameObject MakeCone(Vector3 position)
     {
         GameObject cone = Instantiate(Resources.Load("Cone"),
                                     position + new Vector3(0.015f, 0, 0),
                                     Quaternion.identity) as GameObject;
-        if (direction == 0)
-        {
-            cone.transform.Rotate(90f, 0, 0, 0);
-        }
-        else
-        {
-            cone.transform.Rotate(-90f, 0, 0, 0);
-        }
         return cone;
     }
 
@@ -68,8 +60,7 @@ public class DrawPoint : MonoBehaviour
 
         var xoverComp = xover.GetComponent<XoverComponent>();
         xoverComp.SetStrandId(strandId);
-        xoverComp.SetPrevGO(prevGO);
-        xoverComp.SetNextGO(nextGO);
+        
 
         var xoverRigidbody = xover.GetComponent<Rigidbody>();
         xoverRigidbody.useGravity = false;

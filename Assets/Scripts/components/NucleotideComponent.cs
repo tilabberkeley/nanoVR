@@ -93,24 +93,19 @@ public class NucleotideComponent : MonoBehaviour
         }
     } */
 
-    /*
     public void Highlight()
     {
-        _ntRenderer.material.SetColor("_Color", s_yellow);
-    } */
+        _ntRenderer.material.EnableKeyword("_EMISSION");
+        _ntRenderer.material.SetColor("_EmissionColor", Color.green);
+    }
 
-    /*
+
     public void Unhighlight()
     {
-        if (_selected)
-        {
-            _ntRenderer.material.SetColor("_Color", _color);
-        }
-        else
-        {
-            _ntRenderer.material.SetColor("_Color", s_grey);
-        }
-    } */
+        _ntRenderer.material.DisableKeyword("_EMISSION");
+        //_ntRenderer.material.SetColor("_EmissionColor", Color.gray);
+    }
+
 
     /*
     public void RemoveStrand(Strand s)

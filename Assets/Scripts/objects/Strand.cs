@@ -14,41 +14,61 @@ public class Strand
 {
     private List<GameObject> _nucleotides;
     private int _strandId;
-    private int _direction;
     private Color _color;
     private GameObject _head;
     private GameObject _tail;
     private GameObject _cone;
-    private GameObject _xover;
-    private double _xoverLength;
+    private List<GameObject> _xovers;
+    private List<double> _xoverLengths;
     private static Color[] s_colors = { Color.blue, Color.magenta, Color.green, Color.red, Color.cyan, Color.yellow };
 
-    public Strand(List<GameObject> nucleotides, int strandId, int direction)
+    public Strand(List<GameObject> nucleotides, int strandId)
     {
         _nucleotides = nucleotides;
         _strandId = strandId;
-        _direction = direction;
         _color = s_colors[s_numStrands % 6];
         _head = nucleotides[0];
         _tail = nucleotides.Last();
-        _xover = null;
-        _xoverLength = 0;
+        _xovers = new List<GameObject>();
+        _xoverLengths = new List<double>();
         DrawPoint d = new DrawPoint();
-        _cone = d.MakeCone(_head.transform.position, direction); 
+        _cone = d.MakeCone(_head.transform.position); 
+    }
+
+    public Strand(List<GameObject> nucleotides, int strandId, Color color)
+    {
+        _nucleotides = nucleotides;
+        _strandId = strandId;
+        _color = color;
+        _head = nucleotides[0];
+        _tail = nucleotides.Last();
+        _xovers = new List<GameObject>();
+        _xoverLengths = new List<double>();
+        DrawPoint d = new DrawPoint();
+        _cone = d.MakeCone(_head.transform.position);
     }
 
     public List<GameObject> GetNucleotides() { return _nucleotides; }
     public GameObject GetHead() { return _head; }
     public GameObject GetTail() { return _tail; }
+    public Color GetColor() { return _color; }
 
-    public void SetXover(GameObject xover) 
+    public int GetStrandId() { return _strandId;}
+
+    public void ShowCone()
+    {
+        _cone.GetComponent<Renderer>().enabled = true;
+    }
+
+    public void HideCone()
+    {
+        _cone.GetComponent<Renderer>().enabled = false;
+    }
+
+    public void AddXover(GameObject xover) 
     { 
-        if (_xover != null)
-        {
-            GameObject.Destroy(_xover);
-        }
-        _xover = xover;
-        _xoverLength = xover.transform.position.y; 
+        _xovers.Add(xover);
+        _xoverLengths.Add(xover.transform.localScale.y); 
     }
 
 
@@ -56,7 +76,7 @@ public class Strand
     {
         _nucleotides.Insert(0, newNucl);
         _head = _nucleotides[0];
-        _cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
+        //_cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
     }
 
     public void AddToHead(List<GameObject> newNucls) 
@@ -135,6 +155,7 @@ public class Strand
         _nucleotides.RemoveRange(0, splitIndex);
         _head = _nucleotides[0];
         _cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
+        ShowCone();
         return splitList;
     }
 
@@ -147,6 +168,7 @@ public class Strand
         _nucleotides[splitIndex + 1].GetComponent<Renderer>().material.SetColor("_Color", Color.white);
         _nucleotides.RemoveRange(splitIndex + 1, count);
         _tail = _nucleotides.Last();
+        ShowCone();
         return splitList;
     }
 
@@ -155,32 +177,80 @@ public class Strand
     {
         for (int i = 0; i < _nucleotides.Count; i++)
         {
-            if (i % 2 == 0)
+            // Set nucleotide
+            if (_nucleotides[i].GetComponent<NucleotideComponent>() != null)
             {
                 var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
                 ntc.SetSelected(true);
                 ntc.SetStrandId(_strandId);
                 ntc.SetColor(_color);
             }
+            // Set Crossover
+            else if (_nucleotides[i].GetComponent<XoverComponent>() != null)
+            {
+                SetXoverColor(_nucleotides[i]);
+            }
+            // Set backbone
             else
             {
                 _nucleotides[i].GetComponent<Renderer>().material.SetColor("_Color", _color);
             }
         }
+        SetCone();
+    }
+
+    public void SetCone()
+    {
         _cone.GetComponent<Renderer>().material.SetColor("_Color", _color);
+        if (_nucleotides[0].GetComponent<NucleotideComponent>().GetDirection() == 0)
+        {
+            _cone.transform.eulerAngles = new Vector3(90, 0, 0);
+        }
+        else
+        {
+            _cone.transform.eulerAngles = new Vector3(-90, 0, 0);
+        }
+    }
+    public void SetXoverColor(GameObject xover)
+    {
+        double length = xover.transform.localScale.y;
+        if (length <= 0.02)
+        {
+            xover.GetComponent<Renderer>().material.SetColor("_Color", _color);
+        }
+        else if (length <= 0.03)
+        {
+            xover.GetComponent<Renderer>().material.SetColor("_Color", Color.gray);
+        }
+        else
+        {
+            xover.GetComponent<Renderer>().material.SetColor("_Color", Color.black);
+        }           
+    }
+
+    public void RemoveXover(GameObject xover)
+    {
+        GameObject.Destroy(xover);
     }
 
     public void ResetComponents(List<GameObject> nucleotides)
     {
         for (int i = 0; i < nucleotides.Count; i++)
         {
-            if (i % 2 == 0)
+            // Reset nucleotide
+            if (nucleotides[i].GetComponent<NucleotideComponent>() != null)
             {
                 var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
                 ntc.SetSelected(false);
                 ntc.SetStrandId(-1);
                 ntc.ResetColor();
             }
+            // Reset Crossover (remove it)
+            else if (nucleotides[i].GetComponent<XoverComponent>() != null)
+            {
+                RemoveXover(nucleotides[i]);
+            }
+            // Reset backbone
             else
             {
                 nucleotides[i].GetComponent<Renderer>().material.SetColor("_Color", Color.white);
