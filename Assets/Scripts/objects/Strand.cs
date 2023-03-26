@@ -53,6 +53,12 @@ public class Strand
     public GameObject GetTail() { return _tail; }
     public Color GetColor() { return _color; }
 
+    public GameObject GetNextGO(GameObject go)
+    {
+        int index = _nucleotides.IndexOf(go);
+        return _nucleotides[index + 1];
+    }
+
     public int GetStrandId() { return _strandId;}
 
     public void ShowCone()

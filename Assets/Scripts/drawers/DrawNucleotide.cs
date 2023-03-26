@@ -133,7 +133,7 @@ public class DrawNucleotide : MonoBehaviour
         if (!s_startGO.GetComponent<NucleotideComponent>().IsSelected()
             && !s_endGO.GetComponent<NucleotideComponent>().IsSelected())
         {
-            CreateStrand(nucleotides);
+            CreateStrand(nucleotides, s_numStrands);
         }
         else if (s_startGO.GetComponent<NucleotideComponent>().IsSelected()
             && !s_endGO.GetComponent<NucleotideComponent>().IsSelected())
@@ -181,9 +181,11 @@ public class DrawNucleotide : MonoBehaviour
     /// Adds new strand to the global strand dictionary.
     /// </summary>
     /// <param name="nucleotides">List of nucleotides to use in new strand.</param>
-    public void CreateStrand(List<GameObject> nucleotides)
+    public static void CreateStrand(List<GameObject> nucleotides, int strandId)
     {
-        Strand strand = new Strand(nucleotides, s_numStrands);
+        CreateCommand command = new CreateCommand(nucleotides, strandId);
+        CommandManager.AddCommand(command);
+        Strand strand = new Strand(nucleotides, strandId);
         strand.SetComponents();
         s_strandDict.Add(s_numStrands, strand);
         s_numStrands++;
@@ -194,7 +196,7 @@ public class DrawNucleotide : MonoBehaviour
     /// and strand id/color of each nucleotide component accordingly.
     /// </summary>
     /// <param name="newNucls">List of nucleotides to add to current strand.</param>
-    public void EditStrand(List<GameObject> newNucls)
+    public static void EditStrand(List<GameObject> newNucls)
     {
         var startNtc = s_startGO.GetComponent<NucleotideComponent>();
         int strandId = startNtc.GetStrandId();
@@ -225,7 +227,8 @@ public class DrawNucleotide : MonoBehaviour
             newNucls.Remove(newNucls[0]);
             strand.AddToRightHead(newNucls);
         } */
-        
+        ICommand command = new EditCommand(newNucls);
+        CommandManager.AddCommand(command);
 
         // Remember to adjust each component
         strand.SetComponents();
@@ -256,7 +259,7 @@ public class DrawNucleotide : MonoBehaviour
     /// the strand itself is also deleted.
     /// </summary>
     /// <param name="nucleotides">List of nucleotides to delete from selected strand.</param>
-    public void EraseStrand(List<GameObject> nucleotides)
+    public static void EraseStrand(List<GameObject> nucleotides)
     {
         // DEBUG THIS
         var startNtc = nucleotides[0].GetComponent<NucleotideComponent>();

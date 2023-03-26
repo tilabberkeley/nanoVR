@@ -87,22 +87,38 @@ public class DrawSplit : MonoBehaviour
     /// Splits a strand into two substrands at selected nucleotide.
     /// </summary>
     /// <returns>Returns split off strand.</returns>
-    public static List<GameObject> SplitStrand(GameObject go)
+    public List<GameObject> SplitStrand(GameObject go)
+    {
+        var startNtc = go.GetComponent<NucleotideComponent>();
+        int strandId = startNtc.GetStrandId();
+        Strand strand = s_strandDict[strandId];
+        if (IsValid(go))
+        {
+            return strand.SplitAfter(go);
+        }
+        return null;
+    }
+
+    public bool IsValid(GameObject go)
     {
         var startNtc = go.GetComponent<NucleotideComponent>();
         if (!startNtc.IsSelected())
         {
-            return null;
+            return false;
         }
         int strandId = startNtc.GetStrandId();
         Strand strand = s_strandDict[strandId];
 
         if (strand.GetHead() == go || strand.GetTail() == go)
         {
-            return null;
+            return false;
+        }
+        if (strand.GetNextGO(go).GetComponent<XoverComponent>() != null)
+        {
+            return false;
         }
 
-        return strand.SplitAfter(go);
+        return true;
     }
 
 
