@@ -19,7 +19,6 @@ public class Strand
     private GameObject _tail;
     private GameObject _cone;
     private List<GameObject> _xovers;
-    private List<double> _xoverLengths;
     private static Color[] s_colors = { Color.blue, Color.magenta, Color.green, Color.red, Color.cyan, Color.yellow };
 
     public Strand(List<GameObject> nucleotides, int strandId)
@@ -30,7 +29,6 @@ public class Strand
         _head = nucleotides[0];
         _tail = nucleotides.Last();
         _xovers = new List<GameObject>();
-        _xoverLengths = new List<double>();
         DrawPoint d = new DrawPoint();
         _cone = d.MakeCone(_head.transform.position); 
     }
@@ -43,7 +41,6 @@ public class Strand
         _head = nucleotides[0];
         _tail = nucleotides.Last();
         _xovers = new List<GameObject>();
-        _xoverLengths = new List<double>();
         DrawPoint d = new DrawPoint();
         _cone = d.MakeCone(_head.transform.position);
     }
@@ -74,7 +71,6 @@ public class Strand
     public void AddXover(GameObject xover) 
     { 
         _xovers.Add(xover);
-        _xoverLengths.Add(xover.transform.localScale.y); 
     }
 
 
@@ -105,17 +101,12 @@ public class Strand
     }
 
 
-    public List<GameObject> RemoveFromHead(List<GameObject> nucleotides)
+    public void RemoveFromHead(List<GameObject> nucleotides)
     {
-        foreach (GameObject nucl in nucleotides)
-        {
-            _nucleotides.Remove(nucl);
-        }
+        _nucleotides.RemoveAll(nucleotide => _nucleotides.Contains(nucleotide));
 
         if (_nucleotides.Count > 0)
         {
-            nucleotides.Add(_nucleotides[0]);
-            _nucleotides.RemoveAt(0);
             _head = _nucleotides[0];
             _cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
         }
@@ -123,27 +114,22 @@ public class Strand
         {
             RemoveStrand();
         }
-        return nucleotides;
+        ResetComponents(nucleotides);
     }
 
-    public List<GameObject> RemoveFromTail(List<GameObject> nucleotides)
+    public void RemoveFromTail(List<GameObject> nucleotides)
     {
-        foreach (GameObject nucl in nucleotides)
-        {
-            _nucleotides.Remove(nucl);
-        }
-        
+        _nucleotides.RemoveAll(nucleotide => _nucleotides.Contains(nucleotide));
+
         if (_nucleotides.Count > 0)
         {
-            nucleotides.Add(_nucleotides.Last());
-            _nucleotides.Remove(_nucleotides.Last());
             _tail = _nucleotides.Last();
         }
         else
         {
             RemoveStrand();
         }
-        return nucleotides;
+        ResetComponents(nucleotides);
     }
 
     public void RemoveStrand()
@@ -156,6 +142,7 @@ public class Strand
     {
         List<GameObject> splitList = new List<GameObject>();
         int splitIndex = _nucleotides.IndexOf(go);
+        RemoveXover(splitIndex - 1);
         splitList.AddRange(_nucleotides.GetRange(0, splitIndex - 1));
         _nucleotides[splitIndex - 1].GetComponent<Renderer>().material.SetColor("_Color", Color.white);
         _nucleotides.RemoveRange(0, splitIndex);
@@ -169,6 +156,7 @@ public class Strand
     {
         List<GameObject> splitList = new List<GameObject>();
         int splitIndex = _nucleotides.IndexOf(go);
+        RemoveXover(splitIndex + 1);
         int count = _nucleotides.Count - splitIndex - 1;
         splitList.AddRange(_nucleotides.GetRange(splitIndex + 2, count - 1));
         _nucleotides[splitIndex + 1].GetComponent<Renderer>().material.SetColor("_Color", Color.white);
@@ -176,6 +164,15 @@ public class Strand
         _tail = _nucleotides.Last();
         ShowCone();
         return splitList;
+    }
+
+    public void RemoveXover(int index)
+    {
+        GameObject backbone = _nucleotides[index];
+        if (backbone.GetComponent<XoverComponent>() != null)
+        {
+            RemoveXover(backbone);
+        }
     }
 
 
@@ -208,7 +205,7 @@ public class Strand
     public void SetCone()
     {
         _cone.GetComponent<Renderer>().material.SetColor("_Color", _color);
-        if (_nucleotides[0].GetComponent<NucleotideComponent>().GetDirection() == 0)
+        if (_head.GetComponent<NucleotideComponent>().GetDirection() == 0)
         {
             _cone.transform.eulerAngles = new Vector3(90, 0, 0);
         }
@@ -217,6 +214,7 @@ public class Strand
             _cone.transform.eulerAngles = new Vector3(-90, 0, 0);
         }
     }
+
     public void SetXoverColor(GameObject xover)
     {
         double length = xover.transform.localScale.y;
@@ -236,11 +234,13 @@ public class Strand
 
     public void RemoveXover(GameObject xover)
     {
+        _xovers.Remove(xover);
         GameObject.Destroy(xover);
     }
 
     public void ResetComponents(List<GameObject> nucleotides)
     {
+        if (nucleotides == null) { return; }
         for (int i = 0; i < nucleotides.Count; i++)
         {
             // Reset nucleotide

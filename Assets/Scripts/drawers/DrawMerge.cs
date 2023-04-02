@@ -66,10 +66,8 @@ public class DrawMerge : MonoBehaviour
             if (s_hit.collider.name.Contains("nucleotide"))
             {
                 s_GO = s_hit.collider.gameObject;
-                if (IsValid())
-                {
-                    MergeStrand();
-                }
+                DoMergeStrand(s_GO);
+                
             }
         }
 
@@ -86,10 +84,10 @@ public class DrawMerge : MonoBehaviour
     /// Splits a strand into two substrands at selected nucleotide.
     /// </summary>
     /// <returns>Returns split off strand.</returns>
-    public bool IsValid()
+    public static bool IsValid(GameObject go)
     {
         // Checks GameObject is part of strand.
-        var startNtc = s_GO.GetComponent<NucleotideComponent>();
+        var startNtc = go.GetComponent<NucleotideComponent>();
         if (!startNtc.IsSelected())
         {
             return false;
@@ -98,7 +96,7 @@ public class DrawMerge : MonoBehaviour
         // Check GameObject is a strand head or a strand tail.
         int strandId = startNtc.GetStrandId();
         Strand strand = s_strandDict[strandId];
-        if (strand.GetHead() != s_GO && strand.GetTail() != s_GO)
+        if (strand.GetHead() != go && strand.GetTail() != go)
         {
             return false;
         }
@@ -107,8 +105,8 @@ public class DrawMerge : MonoBehaviour
         int helixId = startNtc.GetHelixId();
         Helix helix = s_gridList[0].GetHelix(helixId);
         int direction = startNtc.GetDirection();
-        GameObject headNeighbor = helix.GetHeadNeighbor(s_GO, direction);
-        GameObject tailNeighbor = helix.GetTailNeighbor(s_GO, direction);
+        GameObject headNeighbor = helix.GetHeadNeighbor(go, direction);
+        GameObject tailNeighbor = helix.GetTailNeighbor(go, direction);
         if (!headNeighbor.GetComponent<NucleotideComponent>().IsSelected()
             && tailNeighbor.GetComponent<NucleotideComponent>().IsSelected())
         {
@@ -118,42 +116,78 @@ public class DrawMerge : MonoBehaviour
 
     }
 
-    public void MergeStrand()
+    public void DoMergeStrand(GameObject go)
     {
-        var ntc = s_GO.GetComponent<NucleotideComponent>();
+        if (!IsValid(go))
+        {
+            return;
+        }
+        var ntc = go.GetComponent<NucleotideComponent>();
         int helixId = ntc.GetHelixId();
         int strandId = ntc.GetStrandId();
         Strand strand = s_strandDict[strandId];
         Helix helix = s_gridList[0].GetHelix(helixId);
         int direction = ntc.GetDirection();
 
-        if (strand.GetHead() == s_GO)
+        if (strand.GetHead() == go)
         {
-            GameObject neighbor = helix.GetHeadNeighbor(s_GO, direction);
-            GameObject backbone = helix.GetHeadBackbone(s_GO, s_GO.GetComponent<NucleotideComponent>().GetDirection());
-            MergeStrand(s_GO, neighbor, backbone, true);
+            GameObject neighbor = helix.GetHeadNeighbor(go, direction);
+            Color color = neighbor.GetComponent<NucleotideComponent>().GetColor();
+            ICommand command = new MergeCommand(go, color, false);
+            CommandManager.AddCommand(command);
+            command.Do();
+        }
+        else if (strand.GetTail() == go)
+        {
+            GameObject neighbor = helix.GetTailNeighbor(go, direction);
+            Color color = neighbor.GetComponent<NucleotideComponent>().GetColor();
+            ICommand command = new MergeCommand(go, color, true);
+            CommandManager.AddCommand(command);
+            command.Do();
+        }
+    }
+
+    public static void MergeStrand(GameObject go)
+    {
+        if (!IsValid(go))
+        {
+            return;
+        }
+        var ntc = go.GetComponent<NucleotideComponent>();
+        int helixId = ntc.GetHelixId();
+        int strandId = ntc.GetStrandId();
+        Strand strand = s_strandDict[strandId];
+        Helix helix = s_gridList[0].GetHelix(helixId);
+        int direction = ntc.GetDirection();
+
+        if (strand.GetHead() == go)
+        {
+            GameObject neighbor = helix.GetHeadNeighbor(go, direction);
+            GameObject backbone = helix.GetHeadBackbone(go, go.GetComponent<NucleotideComponent>().GetDirection());
+            MergeStrand(go, neighbor, backbone, true);
 
         }
-        if (strand.GetTail() == s_GO)
+        if (strand.GetTail() == go)
         {
-            GameObject neighbor = helix.GetTailNeighbor(s_GO, direction);
-            GameObject backbone = helix.GetTailBackbone(s_GO, s_GO.GetComponent<NucleotideComponent>().GetDirection());
-            MergeStrand(s_GO, neighbor, backbone, false);
+            GameObject neighbor = helix.GetTailNeighbor(go, direction);
+            GameObject backbone = helix.GetTailBackbone(go, go.GetComponent<NucleotideComponent>().GetDirection());
+            MergeStrand(go, neighbor, backbone, false);
 
         }
     }
 
     public static void MergeStrand(GameObject firstGO, GameObject secondGO, GameObject backbone, bool isHead)
     {
-        if (secondGO == null)
-        {
-            return;
-        }
         var firstNtc = firstGO.GetComponent<NucleotideComponent>();
         var secondNtc = secondGO.GetComponent<NucleotideComponent>();
         Strand firstStrand = s_strandDict[firstNtc.GetStrandId()];
         Strand secondStrand = s_strandDict[secondNtc.GetStrandId()];
-        Helix helix = s_gridList[0].GetHelix(firstNtc.GetHelixId());
+
+        if (secondGO == null)
+        {
+            firstStrand.SetComponents();
+            return;
+        }
 
         if (isHead)
         {

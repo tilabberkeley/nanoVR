@@ -4,7 +4,7 @@
  */
 
 using System.Collections.Generic;
-
+using UnityEngine;
 public static class CommandManager
 {
     private static Stack<ICommand> s_undoStack = new Stack<ICommand>();
@@ -13,11 +13,12 @@ public static class CommandManager
     public static void AddCommand(ICommand command)
     {
         s_undoStack.Push(command);
+        s_redoStack.Clear();
     }
 
     public static void Undo()
     {
-        while (s_undoStack.Count > 0)
+        if (s_undoStack.Count > 0)
         {
             ICommand command = s_undoStack.Pop();
             if (command != null) { command.Undo(); }
@@ -27,7 +28,7 @@ public static class CommandManager
 
     public static void Redo()
     {
-        while (s_redoStack.Count > 0)
+        if (s_redoStack.Count > 0)
         {
             ICommand command = s_redoStack.Pop();
             if (command != null) { command.Redo(); }

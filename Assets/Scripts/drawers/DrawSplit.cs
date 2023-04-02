@@ -20,6 +20,7 @@ public class DrawSplit : MonoBehaviour
     private bool triggerReleased = true;
     private static GameObject s_GO = null;
     private static RaycastHit s_hit;
+    private static Color[] s_colors = { Color.blue, Color.magenta, Color.green, Color.red, Color.cyan, Color.yellow };
 
     void GetDevice()
     {
@@ -66,11 +67,8 @@ public class DrawSplit : MonoBehaviour
             if (s_hit.collider.name.Contains("nucleotide"))
             {
                 s_GO = s_hit.collider.gameObject;
-                List<GameObject> newStrand = SplitStrand(s_GO);
-                if (newStrand != null)
-                {
-                    CreateStrand(newStrand);
-                }
+                DoSplitStrand(s_GO);
+                
             }
         }
 
@@ -83,23 +81,37 @@ public class DrawSplit : MonoBehaviour
         }
     }
 
+    public void DoSplitStrand(GameObject go)
+    {
+        Color color = s_colors[s_numStrands % 6];
+        ICommand command = new SplitCommand(go, color);
+        CommandManager.AddCommand(command);
+        command.Do();
+    }
+
     /// <summary>
     /// Splits a strand into two substrands at selected nucleotide.
     /// </summary>
     /// <returns>Returns split off strand.</returns>
-    public List<GameObject> SplitStrand(GameObject go)
+    public static void SplitStrand(GameObject go, Color color, bool splitAfter)
     {
         var startNtc = go.GetComponent<NucleotideComponent>();
         int strandId = startNtc.GetStrandId();
         Strand strand = s_strandDict[strandId];
         if (IsValid(go))
         {
-            return strand.SplitAfter(go);
+            if (splitAfter)
+            {
+                CreateStrand(strand.SplitAfter(go), color);
+            }
+            else
+            {
+                CreateStrand(strand.SplitBefore(go), color);
+            }
         }
-        return null;
     }
 
-    public bool IsValid(GameObject go)
+    public static bool IsValid(GameObject go)
     {
         var startNtc = go.GetComponent<NucleotideComponent>();
         if (!startNtc.IsSelected())
@@ -127,9 +139,9 @@ public class DrawSplit : MonoBehaviour
     /// Adds new strand to the global strand dictionary.
     /// </summary>
     /// <param name="nucleotides">List of nucleotides to use in new strand.</param>
-    public static void CreateStrand(List<GameObject> nucleotides)
+    public static void CreateStrand(List<GameObject> nucleotides, Color color)
     {
-        Strand strand = new Strand(nucleotides, s_numStrands);
+        Strand strand = new Strand(nucleotides, s_numStrands, color);
         strand.SetComponents();
         s_strandDict.Add(s_numStrands, strand);
         s_numStrands++;

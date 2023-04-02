@@ -95,15 +95,13 @@ public class NucleotideComponent : MonoBehaviour
 
     public void Highlight()
     {
-        _ntRenderer.material.EnableKeyword("_EMISSION");
-        _ntRenderer.material.SetColor("_EmissionColor", Color.green);
+        gameObject.GetComponent<Renderer>().material.SetColor("_EmissionColor", Color.green);
     }
 
 
     public void Unhighlight()
     {
-        _ntRenderer.material.DisableKeyword("_EMISSION");
-        //_ntRenderer.material.SetColor("_EmissionColor", Color.gray);
+        _ntRenderer.material.SetColor("_EmissionColor", Color.black);
     }
 
 

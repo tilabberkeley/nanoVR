@@ -2,21 +2,19 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu>
  */
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
 
-/// <summary>
-/// Toggles menu visibility.
-/// </summary>
-public class Menu : MonoBehaviour
+public class UndoRedo : MonoBehaviour
 {
     [SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
-    [SerializeField] private Canvas _menu;
     bool primaryReleased = true;
-    
+    bool secondaryReleased = true;
+
     void GetDevice()
     {
         InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
@@ -34,30 +32,27 @@ public class Menu : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        _menu = _menu.GetComponent<Canvas>();
-    }
-
     void Update()
     {
-        /*
-        if (!GlobalVariables.s_gridTogOn)
-        {
-            return;
-        } */
-
         if (!_device.isValid)
         {
             GetDevice();
         }
-        
+
         bool primaryValue;
         if (_device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryValue)
             && primaryValue && primaryReleased)
         {
             primaryReleased = false;
-            ToggleMenu();
+            CommandManager.Undo();
+        }
+
+        bool secondaryValue;
+        if (_device.TryGetFeatureValue(CommonUsages.secondaryButton, out secondaryValue)
+            && secondaryValue && secondaryReleased)
+        {
+            secondaryReleased = false;
+            CommandManager.Redo();
         }
 
         // Reset primary button
@@ -67,10 +62,11 @@ public class Menu : MonoBehaviour
             primaryReleased = true;
         }
 
-    }
-
-    public void ToggleMenu()
-    {
-        _menu.enabled = !_menu.enabled;
+        // Reset secondary button
+        if (_device.TryGetFeatureValue(CommonUsages.secondaryButton, out secondaryValue)
+            && !secondaryValue)
+        {
+            secondaryReleased = true;
+        }
     }
 }

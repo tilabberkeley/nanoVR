@@ -83,7 +83,7 @@ public class DrawNucleotide : MonoBehaviour
                     }
                     else if (s_eraseTogOn)
                     {
-                        EraseStrand();
+                        DoEraseStrand();
                     }
                     ResetNucleotides();
                 }
@@ -106,6 +106,7 @@ public class DrawNucleotide : MonoBehaviour
             && triggerValue
             && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
+            triggerReleased = false;
             ResetNucleotides();
         }
     }
@@ -115,6 +116,7 @@ public class DrawNucleotide : MonoBehaviour
     /// </summary>
     public static void ResetNucleotides()
     {
+        DrawCrossover.Unhighlight(s_startGO);
         s_startGO = null;
         s_endGO = null;
     }
@@ -133,12 +135,12 @@ public class DrawNucleotide : MonoBehaviour
         if (!s_startGO.GetComponent<NucleotideComponent>().IsSelected()
             && !s_endGO.GetComponent<NucleotideComponent>().IsSelected())
         {
-            CreateStrand(nucleotides, s_numStrands);
+            DoCreateStrand(nucleotides, s_numStrands);
         }
         else if (s_startGO.GetComponent<NucleotideComponent>().IsSelected()
             && !s_endGO.GetComponent<NucleotideComponent>().IsSelected())
         {
-            EditStrand(nucleotides);
+            DoEditStrand(nucleotides);
         }
     }
     
@@ -155,7 +157,8 @@ public class DrawNucleotide : MonoBehaviour
         var endNtc = end.GetComponent<NucleotideComponent>();
         if (startNtc.GetHelixId() != endNtc.GetHelixId()
             || startNtc.GetDirection() != endNtc.GetDirection()
-            || (startNtc.GetStrandId() != endNtc.GetStrandId() && endNtc.GetStrandId() != -1))
+            || (startNtc.GetStrandId() != endNtc.GetStrandId() 
+            && endNtc.GetStrandId() != -1))
         {
             return null;
         }
@@ -174,7 +177,13 @@ public class DrawNucleotide : MonoBehaviour
         return helix.GetHelixSub(endId, startId, direction);
     }
 
-    
+    public void DoCreateStrand(List<GameObject> nucleotides, int strandId)
+    {
+        ICommand command = new CreateCommand(nucleotides, strandId);
+        // Don't put create command on stack yet because there is no matching undo function.
+        //CommandManager.AddCommand(command);
+        command.Do();
+    }
 
     /// <summary>
     /// Creates a new strand with it's own id, color, and list of nucleotides.
@@ -183,12 +192,17 @@ public class DrawNucleotide : MonoBehaviour
     /// <param name="nucleotides">List of nucleotides to use in new strand.</param>
     public static void CreateStrand(List<GameObject> nucleotides, int strandId)
     {
-        CreateCommand command = new CreateCommand(nucleotides, strandId);
-        CommandManager.AddCommand(command);
         Strand strand = new Strand(nucleotides, strandId);
         strand.SetComponents();
         s_strandDict.Add(s_numStrands, strand);
         s_numStrands++;
+    }
+
+    public void DoEditStrand(List<GameObject> newNucls)
+    {
+        ICommand command = new EditCommand(newNucls);
+        CommandManager.AddCommand(command);
+        command.Do();
     }
 
     /// <summary>
@@ -198,8 +212,12 @@ public class DrawNucleotide : MonoBehaviour
     /// <param name="newNucls">List of nucleotides to add to current strand.</param>
     public static void EditStrand(List<GameObject> newNucls)
     {
-        var startNtc = s_startGO.GetComponent<NucleotideComponent>();
+        var startNtc = newNucls[0].GetComponent<NucleotideComponent>();
         int strandId = startNtc.GetStrandId();
+        if (strandId == -1)
+        {
+            strandId = newNucls.Last().GetComponent<NucleotideComponent>().GetStrandId();
+        }
         Strand strand = s_strandDict[strandId]; 
        
         if (newNucls.Last() == strand.GetHead())
@@ -214,33 +232,17 @@ public class DrawNucleotide : MonoBehaviour
             //newNucls.Remove(newNucls[0]);
             strand.AddToTail(newNucls.GetRange(1, newNucls.Count - 1));
         }
-        /*
-        else if (newNucls.Last() == strand.GetTail())
-        {
-            // Add nucl to the end of 1 strand "beginning in indices"
-            newNucls.Remove(newNucls.Last());
-            strand.AddToLeftTail(newNucls);
-        }
-        else if (newNucls[0] == strand.GetHead())
-        {
-            // Add nucls to the beginning of 1 strand "end in indices"
-            newNucls.Remove(newNucls[0]);
-            strand.AddToRightHead(newNucls);
-        } */
-        ICommand command = new EditCommand(newNucls);
-        CommandManager.AddCommand(command);
-
         // Remember to adjust each component
         strand.SetComponents();
         
         // Update strand dictionary
-        //s_strandDict[strandId] = strand;
+        // s_strandDict[strandId] = strand;
     }    
 
     /// <summary>
     /// Handles strand deletions.
     /// </summary>
-    public void EraseStrand()
+    public void DoEraseStrand()
     { 
         if (s_startGO.GetComponent<NucleotideComponent>().IsSelected()
             && s_endGO.GetComponent<NucleotideComponent>().IsSelected())
@@ -250,7 +252,9 @@ public class DrawNucleotide : MonoBehaviour
             {
                 return;
             }
-            EraseStrand(nucleotides);
+            ICommand command = new EraseCommand(nucleotides);
+            CommandManager.AddCommand(command);
+            command.Do();
         }
     }
 
@@ -265,32 +269,16 @@ public class DrawNucleotide : MonoBehaviour
         var startNtc = nucleotides[0].GetComponent<NucleotideComponent>();
         int strandId = startNtc.GetStrandId();
         Strand strand = s_strandDict[strandId];
-        
 
-        if (nucleotides[0] == strand.GetHead())
-        {
-            // Remove nucls from head of strand with direction 0
-            nucleotides = strand.RemoveFromHead(nucleotides);
-        }
-        else if (nucleotides.Last() == strand.GetTail())
+        if (nucleotides.Last() == strand.GetTail())
         {
             // Remove nucls from tail of strand with direction 0
-            nucleotides = strand.RemoveFromTail(nucleotides);
+            strand.RemoveFromTail(nucleotides.GetRange(1, nucleotides.Count - 1));
         }
-
-        /*
-        else if (nucleotides[0] == strand.GetTail())
+        else if (nucleotides[0] == strand.GetHead())
         {
-            // Remove nucls from tail of strand with direction 1
-            newStrandLength = strand.RemoveFromRightHead(nucleotides);
-
+            // Remove nucls from head of strand with direction 0
+            strand.RemoveFromHead(nucleotides.GetRange(0, nucleotides.Count - 1));
         }
-        else if (nucleotides.Last() == strand.GetHead())
-        {
-            // Remove nucls from head of strand with direction 1
-            newStrandLength = strand.RemoveFromLeftTail(nucleotides);
-        } */
-
-        strand.ResetComponents(nucleotides);
     }
 }
