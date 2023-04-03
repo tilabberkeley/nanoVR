@@ -103,7 +103,7 @@ public class Strand
 
     public void RemoveFromHead(List<GameObject> nucleotides)
     {
-        _nucleotides.RemoveAll(nucleotide => _nucleotides.Contains(nucleotide));
+        _nucleotides.RemoveAll(nucleotide => nucleotides.Contains(nucleotide));
 
         if (_nucleotides.Count > 0)
         {
@@ -119,7 +119,7 @@ public class Strand
 
     public void RemoveFromTail(List<GameObject> nucleotides)
     {
-        _nucleotides.RemoveAll(nucleotide => _nucleotides.Contains(nucleotide));
+        _nucleotides.RemoveAll(nucleotide => nucleotides.Contains(nucleotide));
 
         if (_nucleotides.Count > 0)
         {
@@ -149,6 +149,7 @@ public class Strand
         _head = _nucleotides[0];
         _cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
         ShowCone();
+        SetCone();
         return splitList;
     }
 
@@ -163,6 +164,7 @@ public class Strand
         _nucleotides.RemoveRange(splitIndex + 1, count);
         _tail = _nucleotides.Last();
         ShowCone();
+        SetCone();
         return splitList;
     }
 

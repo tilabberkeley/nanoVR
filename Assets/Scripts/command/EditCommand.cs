@@ -22,9 +22,8 @@ public class EditCommand : MonoBehaviour, ICommand
 
     public void Undo()
     {
-        List<GameObject> reversedNucls = new List<GameObject>(_nucleotides);
-        reversedNucls.Reverse();
-        DrawNucleotide.EraseStrand(reversedNucls);
+       
+        DrawNucleotide.EraseStrand(_nucleotides);
     }
 
     public void Redo()

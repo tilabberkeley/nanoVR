@@ -134,6 +134,10 @@ public class DrawCrossover : MonoBehaviour
 
     public void DoCreateXover(GameObject startGO, GameObject endGO)
     {
+        if (!IsValid(startGO, endGO))
+        {
+            return;
+        }
         ICommand command = new XoverCommand(startGO, endGO);
         CommandManager.AddCommand(command);
         command.Do();
