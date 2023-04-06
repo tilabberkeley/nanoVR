@@ -165,14 +165,12 @@ public class DrawMerge : MonoBehaviour
             GameObject neighbor = helix.GetHeadNeighbor(go, direction);
             GameObject backbone = helix.GetHeadBackbone(go, go.GetComponent<NucleotideComponent>().GetDirection());
             MergeStrand(go, neighbor, backbone, true);
-
         }
         if (strand.GetTail() == go)
         {
             GameObject neighbor = helix.GetTailNeighbor(go, direction);
             GameObject backbone = helix.GetTailBackbone(go, go.GetComponent<NucleotideComponent>().GetDirection());
             MergeStrand(go, neighbor, backbone, false);
-
         }
     }
 

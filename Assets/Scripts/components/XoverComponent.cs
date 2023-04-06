@@ -50,6 +50,11 @@ public class XoverComponent : MonoBehaviour
         _ntRenderer.material.SetColor("_Color", _color);
     }
 
+    public void Highlight(Color color)
+    {
+        gameObject.GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
+    }
+
     void Start()
     {
         _ntRenderer = gameObject.GetComponent<Renderer>();

@@ -18,10 +18,8 @@ public class Helix
     private string _orientation;
 
     private Vector3 _gridPoint;
-    private List<Vector3> _ntAPos;
     private List<GameObject> _nucleotidesA;
     private List<GameObject> _backbonesA;
-    private List<Vector3> _ntBPos;
     private List<GameObject> _nucleotidesB;
     private List<GameObject> _backbonesB;
 
@@ -33,15 +31,13 @@ public class Helix
         _length = 64;
         _orientation = orientation;
         _gridPoint = gridPoint;
-        _ntAPos = new List<Vector3>();
         _nucleotidesA = new List<GameObject>();
         _backbonesA = new List<GameObject>();
-        _ntBPos = new List<Vector3>();
         _nucleotidesB = new List<GameObject>();
         _backbonesB = new List<GameObject>();
         HelixFormation();
-        DrawBackbone(_ntAPos, _backbonesA);
-        DrawBackbone(_ntBPos, _backbonesB);
+        DrawBackbone(_nucleotidesA, _backbonesA);
+        DrawBackbone(_nucleotidesB, _backbonesB);
         //SetNeighbors(_nucleotidesA, _nucleotidesB, _backbonesA);
         //SetNeighbors(_nucleotidesB, _nucleotidesA, _backbonesB);
     }
@@ -59,12 +55,10 @@ public class Helix
         {      
             GameObject sphereA = d.MakeNucleotide(targetPositionA, i, _id, 1);
             sphereA.GetComponent<Renderer>().enabled = false;
-            _ntAPos.Add(targetPositionA);
             _nucleotidesA.Add(sphereA);
 
             GameObject sphereB = d.MakeNucleotide(targetPositionB, i, _id, 0);
             sphereB.GetComponent<Renderer>().enabled = false;
-            _ntBPos.Add(targetPositionB);
             _nucleotidesB.Add(sphereB);
 
             float angleA = i * (2 * (float)(Math.PI) / 10); // rotation per bp in radians
@@ -82,26 +76,12 @@ public class Helix
         }
     }
 
-    public void DrawBackbone(List<Vector3> ntPos, List<GameObject> backbones)
+    public void DrawBackbone(List<GameObject> nucleotides, List<GameObject> backbones)
     {
-        for (int i = 1; i < ntPos.Count; i++)
+        for (int i = 1; i < nucleotides.Count; i++)
         {
-            GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            cylinder.layer = LayerMask.NameToLayer("Ignore Raycast");
-            Vector3 cylinderDefaultOrientation = new Vector3(0, 1, 0);
-
-            // Position
-            cylinder.transform.position = (ntPos[i] + ntPos[i - 1]) / 2.0F;
-
-            // Rotation
-            Vector3 dirV = Vector3.Normalize(ntPos[i] - ntPos[i - 1]);
-            Vector3 rotAxisV = dirV + cylinderDefaultOrientation;
-            rotAxisV = Vector3.Normalize(rotAxisV);
-            cylinder.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
-
-            // Scale        
-            float dist = Vector3.Distance(ntPos[i], ntPos[i - 1]);
-            cylinder.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
+            DrawPoint d = new DrawPoint();
+            GameObject cylinder = d.MakeBackbone(i - 1, nucleotides[i].transform.position, nucleotides[i - 1].transform.position);
             cylinder.GetComponent<Renderer>().enabled = false;
             backbones.Add(cylinder);
         }

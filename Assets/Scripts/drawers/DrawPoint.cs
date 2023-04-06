@@ -12,6 +12,8 @@ public class DrawPoint : MonoBehaviour
 {
     public GameObject nucleotidePrefab;
     public GameObject conePrefab;
+    public GameObject backbone;
+    public GameObject xover;
    
     public GameObject MakeNucleotide(Vector3 position, int id, int helixId, int ssDirection)
     {
@@ -51,20 +53,39 @@ public class DrawPoint : MonoBehaviour
         return cone;
     }
 
-    public GameObject MakeXover(GameObject prevGO, GameObject nextGO, int strandId)
+    public GameObject MakeBackbone(int id, Vector3 start, Vector3 end)
     {
-        GameObject xover = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        xover.name = "xover";
-        xover.AddComponent<XoverComponent>();
-        xover.AddComponent<XRGrabInteractable>();
+        GameObject cylinder = Instantiate(Resources.Load("Backbone"),
+                                    Vector3.zero,
+                                    Quaternion.identity) as GameObject;
+        cylinder.name = "Backbone" + id;
+        Vector3 cylinderDefaultOrientation = new Vector3(0, 1, 0);
 
+        // Position
+        cylinder.transform.position = (end + start) / 2.0F;
+
+        // Rotation
+        Vector3 dirV = Vector3.Normalize(end - start);
+        Vector3 rotAxisV = dirV + cylinderDefaultOrientation;
+        rotAxisV = Vector3.Normalize(rotAxisV);
+        cylinder.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
+
+        // Scale        
+        float dist = Vector3.Distance(end, start);
+        cylinder.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
+        return cylinder;
+    }
+
+        public GameObject MakeXover(GameObject prevGO, GameObject nextGO, int strandId)
+    {
+        GameObject xover =
+                   Instantiate(Resources.Load("Xover"),
+                   Vector3.zero,
+                   Quaternion.identity) as GameObject;
+        xover.name = "xover";
         var xoverComp = xover.GetComponent<XoverComponent>();
         xoverComp.SetStrandId(strandId);
         
-
-        var xoverRigidbody = xover.GetComponent<Rigidbody>();
-        xoverRigidbody.useGravity = false;
-        xoverRigidbody.isKinematic = true;
 
         
         Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);

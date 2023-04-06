@@ -194,8 +194,8 @@ public class DrawNucleotide : MonoBehaviour
     {
         Strand strand = new Strand(nucleotides, strandId);
         strand.SetComponents();
-        s_strandDict.Add(s_numStrands, strand);
-        s_numStrands++;
+        s_strandDict.Add(strandId, strand);
+        s_numStrands += 1;
     }
 
     public void DoEditStrand(List<GameObject> newNucls)

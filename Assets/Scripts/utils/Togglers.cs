@@ -13,7 +13,6 @@ public class Togglers : MonoBehaviour
         s_curveTogOn = false;
         s_gridTogOn = false;
         s_honeycombTogOn = false;
-
     }
 
     public void CurveToggled() 

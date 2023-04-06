@@ -93,15 +93,9 @@ public class NucleotideComponent : MonoBehaviour
         }
     } */
 
-    public void Highlight()
+    public void Highlight(Color color)
     {
-        gameObject.GetComponent<Renderer>().material.SetColor("_EmissionColor", Color.green);
-    }
-
-
-    public void Unhighlight()
-    {
-        _ntRenderer.material.SetColor("_EmissionColor", Color.black);
+        gameObject.GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
     }
 
 

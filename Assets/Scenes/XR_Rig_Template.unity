@@ -964,7 +964,7 @@ MonoBehaviour:
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 1524950368}
-  toggleTransition: 1
+  toggleTransition: 0
   graphic: {fileID: 357418054}
   m_Group: {fileID: 1498385681}
   onValueChanged:
@@ -3605,6 +3605,7 @@ GameObject:
   - component: {fileID: 713889227}
   - component: {fileID: 713889235}
   - component: {fileID: 713889236}
+  - component: {fileID: 713889237}
   m_Layer: 0
   m_Name: RightHand Controller
   m_TagString: Untagged
@@ -4152,6 +4153,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nucleotidePrefab: {fileID: 4553772625660252668, guid: 167599c8bbddf454cb72ea53c8703b7a, type: 3}
   conePrefab: {fileID: 6779014084964482527, guid: ab4f4b410614de448a9aea2bb06c4443, type: 3}
+  backbone: {fileID: 1396808662735978176, guid: 5b1573ea60b4c7c4fa1b102f47f64682, type: 3}
+  xover: {fileID: 6738283810033996249, guid: 1f1cf9289a49f4c47866b8a7cd573d72, type: 3}
 --- !u!135 &713889228
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -4296,6 +4299,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0455e67c8eb3b4d9eba1c9944fd8d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _xrNode: 5
+  rightRayInteractor: {fileID: 713889222}
+--- !u!114 &713889237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 713889218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 781434e724d4c374491ceaf3e2f46e3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _xrNode: 5
@@ -4918,7 +4935,7 @@ MonoBehaviour:
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 48867892}
-  toggleTransition: 1
+  toggleTransition: 0
   graphic: {fileID: 1574805359}
   m_Group: {fileID: 1498385681}
   onValueChanged:
@@ -4936,7 +4953,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  m_IsOn: 0
+  m_IsOn: 1
 --- !u!1 &947679464
 GameObject:
   m_ObjectHideFlags: 0
@@ -5987,7 +6004,7 @@ MonoBehaviour:
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 1044842835}
-  toggleTransition: 1
+  toggleTransition: 0
   graphic: {fileID: 1298039204}
   m_Group: {fileID: 1498385681}
   onValueChanged:
@@ -6005,7 +6022,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  m_IsOn: 1
+  m_IsOn: 0
 --- !u!1 &1164600640
 GameObject:
   m_ObjectHideFlags: 0
@@ -6938,7 +6955,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1498385678}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 34, y: 73, z: 0}
+  m_LocalPosition: {x: -54, y: -183, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1129332495}
@@ -8976,7 +8993,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2015226967}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -26.1, z: 0}
+  m_LocalPosition: {x: 0, y: -63, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1797922563}
@@ -9090,7 +9107,7 @@ MonoBehaviour:
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 436190675}
-  toggleTransition: 1
+  toggleTransition: 0
   graphic: {fileID: 1006504970}
   m_Group: {fileID: 1498385681}
   onValueChanged:

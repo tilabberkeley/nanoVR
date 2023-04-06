@@ -176,7 +176,31 @@ public class Strand
             RemoveXover(backbone);
         }
     }
-
+    
+    public void Highlight(Color color)
+    {
+        for (int i = 0; i < _nucleotides.Count; i++)
+        {
+            // Set nucleotide
+            if (_nucleotides[i].GetComponent<NucleotideComponent>() != null)
+            {
+                var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+                ntc.Highlight(color);
+            }
+            // Set Crossover
+            else if (_nucleotides[i].GetComponent<XoverComponent>() != null)
+            {
+                var xoverComp = _nucleotides[i].GetComponent<XoverComponent>();
+                xoverComp.Highlight(color);
+            }
+            // Set backbone
+            else
+            {
+                _nucleotides[i].GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
+            }
+        }
+        HighlightCone(color);
+    }
 
     public void SetComponents()
     {
@@ -202,6 +226,11 @@ public class Strand
             }
         }
         SetCone();
+    }
+
+    public void HighlightCone(Color color)
+    {
+        _cone.GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
     }
 
     public void SetCone()

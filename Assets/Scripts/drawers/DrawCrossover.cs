@@ -85,7 +85,11 @@ public class DrawCrossover : MonoBehaviour
             }
             else if (s_hit.collider.name.Equals("xover") && s_eraseTogOn)
             {
-                EraseXover(s_hit.collider.gameObject);         
+                Highlight(s_hit.collider.gameObject);
+                if (s_eraseTogOn)
+                {
+                    DoEraseXover(s_hit.collider.gameObject);
+                }
             }
             else
             {
@@ -122,14 +126,30 @@ public class DrawCrossover : MonoBehaviour
 
     public static void Highlight(GameObject go)
     {
-        var ntc = go.GetComponent<NucleotideComponent>();
-        ntc.Highlight();
+        if (go.GetComponent<NucleotideComponent>() != null)
+        {
+            var comp = go.GetComponent<NucleotideComponent>();
+            comp.Highlight(Color.green);
+        }
+        else
+        {
+            var comp = go.GetComponent<XoverComponent>();
+            comp.Highlight(Color.green);
+        }
     }
 
     public static void Unhighlight(GameObject go)
     {
-        var ntc = go.GetComponent<NucleotideComponent>();
-        ntc.Unhighlight();
+        if (go.GetComponent<NucleotideComponent>() != null)
+        {
+            var comp = go.GetComponent<NucleotideComponent>();
+            comp.Highlight(Color.black);
+        }
+        else
+        {
+            var comp = go.GetComponent<XoverComponent>();
+            comp.Highlight(Color.black);
+        }
     }
 
     public void DoCreateXover(GameObject startGO, GameObject endGO)
@@ -138,7 +158,11 @@ public class DrawCrossover : MonoBehaviour
         {
             return;
         }
-        ICommand command = new XoverCommand(startGO, endGO);
+        Strand startStrand = s_strandDict[startGO.GetComponent<NucleotideComponent>().GetStrandId()];
+        Strand endStrand = s_strandDict[endGO.GetComponent<NucleotideComponent>().GetStrandId()];
+        bool isFirstEnd = startGO == startStrand.GetHead() || startGO == startStrand.GetTail();
+        bool isSecondEnd = endGO == endStrand.GetHead() || endGO == endStrand.GetTail();
+        ICommand command = new XoverCommand(startGO, endGO, startGO == startStrand.GetTail(), isFirstEnd, isSecondEnd);
         CommandManager.AddCommand(command);
         command.Do();
     }
@@ -146,39 +170,49 @@ public class DrawCrossover : MonoBehaviour
     /// <summary>
     /// Creates crossover and splits strands as necessary.
     /// </summary>
-    public static void CreateXover(GameObject startGO, GameObject endGO)
+    public static GameObject CreateXover(GameObject startGO, GameObject endGO)
     {
-        if (IsValid(startGO, endGO))
+        if (!IsValid(startGO, endGO))
         {
-            int strandId = startGO.GetComponent<NucleotideComponent>().GetStrandId();
-            Strand startStrand = s_strandDict[strandId];
-            int endStrandId = endGO.GetComponent<NucleotideComponent>().GetStrandId();
-            Strand endStrand = s_strandDict[endStrandId];
-
-            // Create crossover.
-            DrawPoint d = new DrawPoint();
-            GameObject xover = d.MakeXover(startGO, endGO, strandId);
-            startStrand.AddXover(xover);
-
-            // Handle strand splitting.
-            List<GameObject> newStrand = SplitStrand(startGO, false);
-            if (newStrand != null)
-            {
-                CreateStrand(newStrand, s_numStrands, startStrand.GetColor());
-            }
-
-            newStrand = SplitStrand(endGO, true);
-            if (newStrand != null)
-            {
-                CreateStrand(newStrand, s_numStrands, endStrand.GetColor());
-            }
-
-            // Handle strand merging.
-            MergeStrand(startGO, endGO, xover);
+            return null;
         }
+
+        int strandId = startGO.GetComponent<NucleotideComponent>().GetStrandId();
+        Strand startStrand = s_strandDict[strandId];
+        int endStrandId = endGO.GetComponent<NucleotideComponent>().GetStrandId();
+        Strand endStrand = s_strandDict[endStrandId];
+
+        // Create crossover.
+        DrawPoint d = new DrawPoint();
+        GameObject xover = d.MakeXover(startGO, endGO, strandId);
+        startStrand.AddXover(xover);
+
+        // Handle strand splitting.
+        List<GameObject> newStrand = SplitStrand(startGO, false);
+        if (newStrand != null)
+        {
+            CreateStrand(newStrand, s_numStrands, startStrand.GetColor());
+        }
+
+        newStrand = SplitStrand(endGO, true);
+        if (newStrand != null)
+        {
+            CreateStrand(newStrand, s_numStrands, endStrand.GetColor());
+        }
+
+        // Handle strand merging.
+        MergeStrand(startGO, endGO, xover);
+        return xover;
+        
     }
 
-    public void EraseXover(GameObject xover)
+    public static void DoEraseXover(GameObject xover)
+    {
+        ICommand command = new EraseXoverCommand(xover);
+        CommandManager.AddCommand(command);
+        command.Do();
+    }
+    public static void EraseXover(GameObject xover)
     {
         var xoverComp = xover.GetComponent<XoverComponent>();
         GameObject nextGO = xoverComp.GetNextGO();
@@ -233,7 +267,7 @@ public class DrawCrossover : MonoBehaviour
     {
         Strand strand = new Strand(nucleotides, strandId, color);
         strand.SetComponents();
-        s_strandDict.Add(s_numStrands, strand);
+        s_strandDict.Add(strandId, strand);
         s_numStrands++;
     }
 
