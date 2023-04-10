@@ -16,8 +16,10 @@ public class SelectStrand : MonoBehaviour
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rightRayInteractor;
     private bool triggerReleased = true;
+    private bool axisReleased = true;
     private const float DOUBLE_CLICK_TIME = 1f;
     private float lastClickTime;
+    private bool strandSelected = false;
     private static GameObject s_startGO = null;
     private static RaycastHit s_hit;
 
@@ -75,7 +77,7 @@ public class SelectStrand : MonoBehaviour
                     if (timeSinceLastClick <= DOUBLE_CLICK_TIME)
                     {
                         // DOUBLE CLICK!
-                        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                        strandSelected = true;
                         HighlightStrand(s_startGO);
                     }
                 }
@@ -92,6 +94,25 @@ public class SelectStrand : MonoBehaviour
                 UnhighlightStrand(s_startGO);
                 ResetNucleotides();
             }
+        }
+
+        bool axisClick;
+        if ((_device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out axisClick)
+            && axisClick)
+            && axisReleased)
+        {
+            axisReleased = false;
+            if (strandSelected)
+            {
+                DoDeleteStrand(s_startGO);
+            }
+        }
+
+
+        if (!(_device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out axisClick)
+            && axisClick))
+        {
+            axisReleased = true;
         }
 
         // Resets triggers do avoid multiple selections.                                              
@@ -115,9 +136,10 @@ public class SelectStrand : MonoBehaviour
     /// <summary>
     /// Resets the start and end nucleotides.
     /// </summary>
-    public static void ResetNucleotides()
+    public void ResetNucleotides()
     {
         s_startGO = null;
+        strandSelected = false;
     }
 
     public void HighlightStrand(GameObject go)
@@ -133,5 +155,21 @@ public class SelectStrand : MonoBehaviour
         int strandId = go.GetComponent<NucleotideComponent>().GetStrandId();
         Strand strand = s_strandDict[strandId];
         strand.Highlight(Color.black);
+    }
+
+    public static void DoDeleteStrand(GameObject go)
+    {
+        int strandId = go.GetComponent<NucleotideComponent>().GetStrandId();
+        Strand strand = s_strandDict[strandId];
+        ICommand command = new DeleteCommand(strand.GetStrandId(), strand.GetNucleotides(), strand.GetColor());
+        CommandManager.AddCommand(command);
+        command.Do();
+    }
+
+    public static void DeleteStrand(GameObject go)
+    {
+        int strandId = go.GetComponent<NucleotideComponent>().GetStrandId();
+        Strand strand = s_strandDict[strandId];
+        strand.RemoveStrand();
     }
 }

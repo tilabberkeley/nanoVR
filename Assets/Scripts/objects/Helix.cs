@@ -78,9 +78,9 @@ public class Helix
 
     public void DrawBackbone(List<GameObject> nucleotides, List<GameObject> backbones)
     {
+        DrawPoint d = new DrawPoint();
         for (int i = 1; i < nucleotides.Count; i++)
         {
-            DrawPoint d = new DrawPoint();
             GameObject cylinder = d.MakeBackbone(i - 1, nucleotides[i].transform.position, nucleotides[i - 1].transform.position);
             cylinder.GetComponent<Renderer>().enabled = false;
             backbones.Add(cylinder);

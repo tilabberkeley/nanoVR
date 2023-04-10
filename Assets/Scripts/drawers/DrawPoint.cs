@@ -65,7 +65,7 @@ public class DrawPoint : MonoBehaviour
         cylinder.transform.position = (end + start) / 2.0F;
 
         // Rotation
-        Vector3 dirV = Vector3.Normalize(end - start);
+        Vector3 dirV = Vector3.Normalize(start - end);
         Vector3 rotAxisV = dirV + cylinderDefaultOrientation;
         rotAxisV = Vector3.Normalize(rotAxisV);
         cylinder.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);

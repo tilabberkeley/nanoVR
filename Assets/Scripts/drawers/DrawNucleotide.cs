@@ -180,8 +180,7 @@ public class DrawNucleotide : MonoBehaviour
     public void DoCreateStrand(List<GameObject> nucleotides, int strandId)
     {
         ICommand command = new CreateCommand(nucleotides, strandId);
-        // Don't put create command on stack yet because there is no matching undo function.
-        //CommandManager.AddCommand(command);
+        CommandManager.AddCommand(command);
         command.Do();
     }
 

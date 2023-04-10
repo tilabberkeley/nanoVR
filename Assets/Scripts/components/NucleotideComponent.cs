@@ -68,48 +68,12 @@ public class NucleotideComponent : MonoBehaviour
         _color = Color.white;
         _ntRenderer.material.SetColor("_Color", _color);
     }
-
-    /*
-    public void FlipSelected()
-    {
-        _selected = !_selected;
-        if (_selected)
-        {
-            _ntRenderer.material.SetColor("_Color", _color);
-            if (_prevGO.GetComponent<NucleotideComponent>().IsSelected())
-            {
-                _prevBB.GetComponent<Renderer>().material.SetColor("_Color", _color);
-            }
-            if (_nextGO.GetComponent<NucleotideComponent>().IsSelected())
-            {
-                _nextBB.GetComponent<Renderer>().material.SetColor("_Color", _color);
-            }
-        }
-        else
-        {
-            _ntRenderer.material.SetColor("_Color", s_grey);
-            _prevBB.GetComponent<Renderer>().material.SetColor("_Color", s_grey);
-            _nextBB.GetComponent<Renderer>().material.SetColor("_Color", s_grey);
-        }
-    } */
-
+    
     public void Highlight(Color color)
     {
+        GameObject cyl = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         gameObject.GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
     }
-
-
-    /*
-    public void RemoveStrand(Strand s)
-    {
-        List<GameObject> nucleotides = s.GetNucleotides();
-        for (int i = 0; i < nucleotides.Count; i++)
-        {
-            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
-            ntc.SetStrandId(-1);
-            ntc.SetColor(s_grey);
-        }
-    } */
 
     // Start is called before the first frame update
     void Start()

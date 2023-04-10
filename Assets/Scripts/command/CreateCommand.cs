@@ -11,6 +11,7 @@ public class CreateCommand : MonoBehaviour, ICommand
 {
     private List<GameObject> _nucleotides;
     private int _strandId;
+    private Color _color;
     public CreateCommand(List<GameObject> nucleotides, int strandId)
     {
         _nucleotides = nucleotides;
@@ -20,16 +21,17 @@ public class CreateCommand : MonoBehaviour, ICommand
     public void Do()
     {
         DrawNucleotide.CreateStrand(_nucleotides, _strandId);
+        _color = s_strandDict[_strandId].GetColor();
     }
 
     public void Undo()
     {
         // Delete entire strand.
-        return;
+        SelectStrand.DeleteStrand(_nucleotides[0]);
     }
 
     public void Redo()
     {
-        DrawCrossover.CreateStrand(_nucleotides, _strandId, s_strandDict[_strandId].GetColor());
+        DrawCrossover.CreateStrand(_nucleotides, _strandId, _color);
     }
 }

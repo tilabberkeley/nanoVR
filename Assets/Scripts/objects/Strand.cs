@@ -134,6 +134,7 @@ public class Strand
 
     public void RemoveStrand()
     {
+        ResetComponents(_nucleotides);
         GameObject.Destroy(_cone);
         s_strandDict.Remove(_strandId);
     }
@@ -281,6 +282,7 @@ public class Strand
                 ntc.SetSelected(false);
                 ntc.SetStrandId(-1);
                 ntc.ResetColor();
+                ntc.Highlight(Color.black);
             }
             // Reset Crossover (remove it)
             else if (nucleotides[i].GetComponent<XoverComponent>() != null)
@@ -291,6 +293,7 @@ public class Strand
             else
             {
                 nucleotides[i].GetComponent<Renderer>().material.SetColor("_Color", Color.white);
+                nucleotides[i].GetComponent<Renderer>().material.SetColor("_EmissionColor", Color.black);
             }
         }
     }
