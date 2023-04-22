@@ -80,6 +80,11 @@ public class SelectStrand : MonoBehaviour
                         strandSelected = true;
                         HighlightStrand(s_startGO);
                     }
+                    else
+                    {
+                        UnhighlightStrand(s_startGO);
+                        ResetNucleotides();
+                    }
                 }
                 else
                 {

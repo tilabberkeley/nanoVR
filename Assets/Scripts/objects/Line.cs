@@ -61,7 +61,7 @@ public class Line
 
     // Scale        
     float dist = Vector3.Distance(_endPoint, _startPoint);
-    _cyl.transform.localScale = new Vector3(0.02f, dist / 2, 0.02f);
+    _cyl.transform.localScale = new Vector3(0.034f, dist / 2, 0.034f);
 
     _startSphere = DrawPoint.MakeSphere(_startPoint, "startPoint" + _id);
     _endSphere = DrawPoint.MakeSphere(_endPoint, "endPoint" + _id);

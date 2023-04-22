@@ -13,6 +13,7 @@ public class Togglers : MonoBehaviour
         s_curveTogOn = false;
         s_gridTogOn = false;
         s_honeycombTogOn = false;
+        s_cameraTogOn = false;
     }
 
     public void CurveToggled() 
@@ -21,6 +22,7 @@ public class Togglers : MonoBehaviour
         s_curveTogOn = true;
         s_gridTogOn = false;
         s_honeycombTogOn = false;
+        s_cameraTogOn = false;
     }
 
     public void LoopToggled() 
@@ -34,6 +36,7 @@ public class Togglers : MonoBehaviour
         s_curveTogOn = false;
         s_gridTogOn = true;
         s_honeycombTogOn = false;
+        s_cameraTogOn = false;
     }
 
     public void HoneycombToggled() 
@@ -42,6 +45,16 @@ public class Togglers : MonoBehaviour
         s_curveTogOn = false;
         s_gridTogOn = false;
         s_honeycombTogOn = true;
+        s_cameraTogOn = false;
+    }
+
+    public void CameraToggled()
+    {
+        s_lineTogOn = false;
+        s_curveTogOn = false;
+        s_gridTogOn = false;
+        s_honeycombTogOn = false;
+        s_cameraTogOn = true;
     }
 
     public void DrawToggled()

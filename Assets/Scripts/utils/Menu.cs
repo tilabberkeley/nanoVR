@@ -53,7 +53,7 @@ public class Menu : MonoBehaviour
         }
         
         bool primaryValue;
-        if (_device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryValue)
+        if (_device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out primaryValue)
             && primaryValue && primaryReleased)
         {
             primaryReleased = false;
@@ -61,7 +61,7 @@ public class Menu : MonoBehaviour
         }
 
         // Reset primary button
-        if (_device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryValue)
+        if (_device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out primaryValue)
             && !primaryValue)
         {
             primaryReleased = true;

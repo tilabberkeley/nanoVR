@@ -17,6 +17,7 @@ public static class GlobalVariables
     public static bool s_loopTogOn = true;
     public static bool s_gridTogOn = true;
     public static bool s_honeycombTogOn = false;
+    public static bool s_cameraTogOn = false;
 
     public static bool s_drawTogOn = true;
     public static bool s_eraseTogOn = false;

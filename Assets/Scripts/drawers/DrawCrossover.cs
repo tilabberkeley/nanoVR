@@ -85,7 +85,7 @@ public class DrawCrossover : MonoBehaviour
             }
             else if (s_hit.collider.name.Equals("xover") && s_eraseTogOn)
             {
-                Highlight(s_hit.collider.gameObject);
+                //Highlight(s_hit.collider.gameObject);
                 if (s_eraseTogOn)
                 {
                     DoEraseXover(s_hit.collider.gameObject);
@@ -119,37 +119,25 @@ public class DrawCrossover : MonoBehaviour
     /// </summary>
     public static void ResetNucleotides()
     {
-        Unhighlight(s_startGO);
+        //Unhighlight(s_startGO);
         s_startGO = null;
         s_endGO = null;
     }
 
     public static void Highlight(GameObject go)
     {
-        if (go.GetComponent<NucleotideComponent>() != null)
-        {
-            var comp = go.GetComponent<NucleotideComponent>();
-            comp.Highlight(Color.green);
-        }
-        else
-        {
-            var comp = go.GetComponent<XoverComponent>();
-            comp.Highlight(Color.green);
-        }
+        
+        var comp = go.GetComponent<NucleotideComponent>();
+        comp.Highlight(Color.green);
+        
     }
 
     public static void Unhighlight(GameObject go)
     {
-        if (go.GetComponent<NucleotideComponent>() != null)
-        {
-            var comp = go.GetComponent<NucleotideComponent>();
-            comp.Highlight(Color.black);
-        }
-        else
-        {
-            var comp = go.GetComponent<XoverComponent>();
-            comp.Highlight(Color.black);
-        }
+        
+        var comp = go.GetComponent<NucleotideComponent>();
+        comp.Highlight(Color.black);
+      
     }
 
     public void DoCreateXover(GameObject startGO, GameObject endGO)
@@ -303,8 +291,8 @@ public class DrawCrossover : MonoBehaviour
             xoverComp.SetNextGO(firstGO);
             HandleCycle(firstStrand, secondStrand, false);
         }
-        firstStrand.SetComponents();
         secondStrand.RemoveStrand();
+        firstStrand.SetComponents();
     }
 
     public static void HandleCycle(Strand firstStrand, Strand secondStrand, bool addToHead)

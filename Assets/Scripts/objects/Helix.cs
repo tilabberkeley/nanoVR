@@ -68,11 +68,10 @@ public class Helix
             float axisOneChangeB = Mathf.Cos(angleB) * 0.02f;
             float axisTwoChangeB = Mathf.Sin(angleB) * 0.02f;
 
-            if (_orientation.Equals("XY"))
-            {
-                targetPositionA = new Vector3(targetPositionA.x + axisOneChangeA, targetPositionA.y + axisTwoChangeA, targetPositionA.z - RISE);
-                targetPositionB = new Vector3(targetPositionB.x + axisOneChangeB, targetPositionB.y + axisTwoChangeB, targetPositionB.z - RISE);
-            }
+            
+            targetPositionA += new Vector3(axisOneChangeA, axisTwoChangeA, -RISE);
+            targetPositionB += new Vector3(axisOneChangeB, axisTwoChangeB, -RISE);
+            
         }
     }
 

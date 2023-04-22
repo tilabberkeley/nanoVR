@@ -89,12 +89,11 @@ public class DrawGrid : MonoBehaviour
             // clicking grid sphere
             if (s_hit.collider.name.Equals("grid"))
             {
-                Vector3 midpoint = s_hit.collider.bounds.center;
-                Vector3 startPos = CalculateStartPoint(midpoint);
-                Vector3 endPos = CalculateEndPoint(midpoint);
+                Vector3 startPos = s_hit.collider.bounds.center;
+                Vector3 endPos = startPos - new Vector3(0, 0, 64 * 0.034f);
                 int id = _grid.GetLines().Count;
                 _grid.AddLine(id, startPos, endPos);
-                _grid.AddHelix(id, startPos, endPos, plane, midpoint);
+                _grid.AddHelix(id, startPos, endPos, plane, startPos);
             }
         }
         else if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
@@ -161,38 +160,6 @@ public class DrawGrid : MonoBehaviour
             gripReleased = true;
         }
 
-    }
-
-    public Vector3 CalculateStartPoint(Vector3 midpoint)
-    {
-        if (plane.Equals("XY"))
-        {
-            return new Vector3(midpoint.x, midpoint.y, midpoint.z - 1);
-        }
-        else if (plane.Equals("YZ"))
-        {
-            return new Vector3(midpoint.x - 1, midpoint.y, midpoint.z);
-        }
-        else
-        {
-            return new Vector3(midpoint.x, midpoint.y - 1, midpoint.z);
-        }
-    }
-
-    public Vector3 CalculateEndPoint(Vector3 midpoint)
-    {
-        if (plane.Equals("XY"))
-        {
-            return new Vector3(midpoint.x, midpoint.y, midpoint.z + 1);
-        }
-        else if (plane.Equals("YZ"))
-        {
-            return new Vector3(midpoint.x + 1, midpoint.y, midpoint.z);
-        }
-        else
-        {
-            return new Vector3(midpoint.x, midpoint.y + 1, midpoint.z);
-        }
     }
 
 
