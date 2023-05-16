@@ -71,7 +71,8 @@ public class NucleotideComponent : MonoBehaviour
     
     public void Highlight(Color color)
     {
-        GameObject cyl = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        gameObject.GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
         gameObject.GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
     }
 

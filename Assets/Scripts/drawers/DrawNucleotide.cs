@@ -70,7 +70,7 @@ public class DrawNucleotide : MonoBehaviour
                 if (s_startGO == null)
                 {   
                     s_startGO = s_hit.collider.gameObject;
-                    DrawCrossover.Highlight(s_startGO);
+                    DrawCrossover.Highlight(s_startGO, Color.green);
                 }
                 else
                 {
@@ -116,7 +116,10 @@ public class DrawNucleotide : MonoBehaviour
     /// </summary>
     public static void ResetNucleotides()
     {
-        DrawCrossover.Unhighlight(s_startGO);
+        if (s_startGO != null)
+        {
+            DrawCrossover.Unhighlight(s_startGO);
+        }
         s_startGO = null;
         s_endGO = null;
     }

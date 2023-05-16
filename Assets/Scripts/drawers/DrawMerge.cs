@@ -199,7 +199,7 @@ public class DrawMerge : MonoBehaviour
             firstStrand.AddToTail(secondStrand.GetNucleotides());
             // must add backbone between 2 strands
         }
-        firstStrand.SetComponents();
         secondStrand.RemoveStrand();
+        firstStrand.SetComponents();
     }
 }

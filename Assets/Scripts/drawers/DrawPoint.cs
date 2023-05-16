@@ -146,6 +146,9 @@ public class DrawPoint : MonoBehaviour
         var sphereRenderer = circle.GetComponent<Renderer>();
         sphereRenderer.material.SetColor("_Color", Color.gray);
 
+        var collider = circle.GetComponent<CapsuleCollider>();
+        collider.height = 0.1f;
+
         return circle;
     }
 }

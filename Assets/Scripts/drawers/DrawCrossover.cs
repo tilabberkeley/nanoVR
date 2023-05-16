@@ -124,11 +124,11 @@ public class DrawCrossover : MonoBehaviour
         s_endGO = null;
     }
 
-    public static void Highlight(GameObject go)
+    public static void Highlight(GameObject go, Color color)
     {
         
         var comp = go.GetComponent<NucleotideComponent>();
-        comp.Highlight(Color.green);
+        comp.Highlight(color);
         
     }
 

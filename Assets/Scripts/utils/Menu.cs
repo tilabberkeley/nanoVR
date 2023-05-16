@@ -4,6 +4,7 @@
  */
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.XR;
 
 /// <summary>
@@ -15,6 +16,8 @@ public class Menu : MonoBehaviour
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private Canvas _menu;
+    public Button[] tabButtons;
+    public GameObject[] panels;
     bool primaryReleased = true;
     
     void GetDevice()
@@ -26,17 +29,39 @@ public class Menu : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        _menu = _menu.GetComponent<Canvas>();
+        // Initialize the menu by setting up the button click events
+        for (int i = 0; i < tabButtons.Length; i++)
+        {
+            int buttonIndex = i; // Store the index in a separate variable to avoid closure issues
+            tabButtons[i].onClick.AddListener(() => SelectTab(buttonIndex));
+        }
+    }
+
+    public void SelectTab(int selectedButtonIndex)
+    {
+        // Disable all other buttons
+        for (int i = 0; i < panels.Length; i++)
+        {
+            if (i != selectedButtonIndex)
+            {
+                panels[i].SetActive(false);
+            }
+        }
+
+        panels[selectedButtonIndex].SetActive(true);
+
+    }
+
+
     void OnEnable()
     {
         if (!_device.isValid)
         {
             GetDevice();
         }
-    }
-
-    private void Start()
-    {
-        _menu = _menu.GetComponent<Canvas>();
     }
 
     void Update()

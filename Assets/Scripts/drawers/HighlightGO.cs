@@ -6,7 +6,7 @@ public class HighlightGO : MonoBehaviour
 {
     public void Highlight()
     {
-        DrawCrossover.Highlight(gameObject);
+        DrawCrossover.Highlight(gameObject, Color.yellow);
     }
 
     public void Unhighlight()
