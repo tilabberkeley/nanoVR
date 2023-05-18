@@ -35,6 +35,10 @@ public class Menu : MonoBehaviour
         // Initialize the menu by setting up the button click events
         for (int i = 0; i < tabButtons.Length; i++)
         {
+            if (i != 1)
+            {
+                panels[i].SetActive(false);
+            }
             int buttonIndex = i; // Store the index in a separate variable to avoid closure issues
             tabButtons[i].onClick.AddListener(() => SelectTab(buttonIndex));
         }

@@ -197,6 +197,8 @@ public class DrawNucleotide : MonoBehaviour
         Strand strand = new Strand(nucleotides, strandId);
         strand.SetComponents();
         s_strandDict.Add(strandId, strand);
+        ObjectListManager olm = new ObjectListManager();
+        olm.CreateButton(strandId);
         s_numStrands += 1;
     }
 
