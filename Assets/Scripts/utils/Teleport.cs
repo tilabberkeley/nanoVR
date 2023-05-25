@@ -8,7 +8,9 @@ using UnityEngine.XR;
 using static GlobalVariables;
 
 /// <summary>
-/// Teleports user around.
+/// Handles Teleporting. When camera toggle is on, the user can use the right trigger to set their position as the camera (will create red cube in game). 
+/// This is their saved position where they can then teleport to with both triggers when camera toggle is off. The next time both triggers are 
+/// pressed (when camera toggle is off), the user is teleported back to the saved position.
 /// </summary>
 public class Teleport : MonoBehaviour
 {
@@ -21,6 +23,8 @@ public class Teleport : MonoBehaviour
     private bool rightTriggerReleased = true;
     Vector3? lastPosition = null;
     Vector3? cameraPosition = null;
+    private GameObject camera = null;
+    //not implemented yet
     List<Vector3> cameraPositions = new List<Vector3>();
 
     private void GetDevice()
@@ -60,36 +64,48 @@ public class Teleport : MonoBehaviour
 
         if (s_cameraTogOn)
         {
-            // Setting camera position.
-            if (!leftTriggerValue && rightTriggerValue && rightTriggerReleased)
+            // Setting camera position. Only when camera toggle is enabled.
+            if (rightTriggerValue && rightTriggerReleased)
             {
                 rightTriggerReleased = false;
                 cameraPosition = transform.position;
-                GameObject camera = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                camera.transform.position = transform.position;
-                camera.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
-            }
-        }
-
-        // Teleporting.
-        if (leftTriggerValue && rightTriggerValue && leftTriggerReleased && rightTriggerReleased)
-        {
-            leftTriggerReleased = false;
-            rightTriggerReleased = false;
-            if (cameraPosition != null)
-            {
-                if (lastPosition == null)
+                if (camera == null)
                 {
-                    lastPosition = transform.position;
-                    transform.position = (Vector3) cameraPosition;
+                    //create camera
+                    camera = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    camera.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+                    camera.transform.position = transform.position;
                 }
                 else
                 {
-                    transform.position = (Vector3) lastPosition;
-                    lastPosition = null;
+                    //move camera to new position
+                    camera.transform.position = transform.position;
                 }
+
             }
-            
+        }
+        else
+        {
+            // Teleporting. Only when camera toggle is not enabled
+            if (leftTriggerValue && rightTriggerValue && leftTriggerReleased && rightTriggerReleased)
+            {
+                leftTriggerReleased = false;
+                rightTriggerReleased = false;
+                if (cameraPosition != null)
+                {
+                    if (lastPosition == null)
+                    {
+                        lastPosition = transform.position;
+                        transform.position = (Vector3)cameraPosition;
+                    }
+                    else
+                    {
+                        transform.position = (Vector3)lastPosition;
+                        lastPosition = null;
+                    }
+                }
+
+            }
         }
 
         if (!leftTriggerValue)
