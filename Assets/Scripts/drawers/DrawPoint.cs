@@ -15,7 +15,7 @@ public class DrawPoint : MonoBehaviour
     public GameObject backbonePrefab;
     public GameObject xoverPrefab;
    
-    public GameObject MakeNucleotide(Vector3 position, int id, int helixId, int ssDirection)
+    public static GameObject MakeNucleotide(Vector3 position, int id, int helixId, int ssDirection)
     {
         // make sphere
         GameObject sphere =

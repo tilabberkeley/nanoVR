@@ -102,6 +102,7 @@ public class DrawGrid : MonoBehaviour
             triggerReleased = true;
         }
 
+        /*
         bool gripValue;
         if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
             && gripValue
@@ -142,6 +143,7 @@ public class DrawGrid : MonoBehaviour
                 }
             }
         }
+        */
 
         bool primaryValue;
         if ((_device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryValue) && primaryValue))
@@ -155,11 +157,12 @@ public class DrawGrid : MonoBehaviour
             _grid.ShowLines();
         }
 
+        /*
         if (!(_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue) && gripValue))
         {
             gripReleased = true;
         }
-
+        */
     }
 
 

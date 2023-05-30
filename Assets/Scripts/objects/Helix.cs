@@ -53,15 +53,15 @@ public class Helix
         // **CHECK THIS**
         Vector3 targetPositionA = _gridPoint - new Vector3(0, OFFSET, 0);
         Vector3 targetPositionB = _gridPoint + new Vector3(0, OFFSET, 0);
-        DrawPoint d = new DrawPoint();
+        //DrawPoint d = new DrawPoint();
         for (int i = 0; i < _length; i++)
         {      
-            GameObject sphereA = d.MakeNucleotide(targetPositionA, i, _id, 1);
-            sphereA.GetComponent<Renderer>().enabled = false;
+            GameObject sphereA = DrawPoint.MakeNucleotide(targetPositionA, i, _id, 1);
+            sphereA.SetActive(false);
             _nucleotidesA.Add(sphereA);
 
-            GameObject sphereB = d.MakeNucleotide(targetPositionB, i, _id, 0);
-            sphereB.GetComponent<Renderer>().enabled = false;
+            GameObject sphereB = DrawPoint.MakeNucleotide(targetPositionB, i, _id, 0);
+            sphereB.SetActive(false);
             _nucleotidesB.Add(sphereB);
 
             float angleA = i * (2 * (float)(Math.PI) / 10); // rotation per bp in radians
@@ -84,7 +84,7 @@ public class Helix
         for (int i = 1; i < nucleotides.Count; i++)
         {
             GameObject cylinder = d.MakeBackbone(i - 1, nucleotides[i].transform.position, nucleotides[i - 1].transform.position);
-            cylinder.GetComponent<Renderer>().enabled = false;
+            cylinder.SetActive(false);
             backbones.Add(cylinder);
         }
     }
@@ -188,6 +188,11 @@ public class Helix
         _strandIds.Add(strandId);
     }
 
+    public void DeleteStrandId(int strandId)
+    {
+        _strandIds.Remove(strandId);
+    }
+
     /*public void SetNeighbors(List<GameObject> nucleotides, List<GameObject> complements, List<GameObject> backbones)
     {
     for (int i = 0; i < nucleotides.Count; i++)
@@ -216,13 +221,13 @@ public class Helix
     {
         for (int i = 0; i < _backbonesA.Count; i++)
         {
-            _nucleotidesA[i].GetComponent<Renderer>().enabled = enabled;
-            _backbonesA[i].GetComponent<Renderer>().enabled = enabled;
-            _nucleotidesB[i].GetComponent<Renderer>().enabled = enabled;
-            _backbonesB[i].GetComponent<Renderer>().enabled = enabled;
+            _nucleotidesA[i].SetActive(enabled);
+            _backbonesA[i].SetActive(enabled);
+            _nucleotidesB[i].SetActive(enabled);
+            _backbonesB[i].SetActive(enabled);
         }
-        _nucleotidesA[_nucleotidesA.Count - 1].GetComponent<Renderer>().enabled = enabled;
-        _nucleotidesB[_nucleotidesB.Count - 1].GetComponent<Renderer>().enabled = enabled;
+        _nucleotidesA[_nucleotidesA.Count - 1].SetActive(enabled);
+        _nucleotidesB[_nucleotidesB.Count - 1].SetActive(enabled);
 
         for (int i = 0; i < _strandIds.Count; i++)
         {
