@@ -76,7 +76,7 @@ public class DrawPoint : MonoBehaviour
         return cylinder;
     }
 
-        public GameObject MakeXover(GameObject prevGO, GameObject nextGO, int strandId)
+    public GameObject MakeXover(GameObject prevGO, GameObject nextGO, int strandId)
     {
         GameObject xover =
                    Instantiate(Resources.Load("Xover"),
@@ -146,8 +146,8 @@ public class DrawPoint : MonoBehaviour
         var sphereRenderer = circle.GetComponent<Renderer>();
         sphereRenderer.material.SetColor("_Color", Color.gray);
 
-        var collider = circle.GetComponent<CapsuleCollider>();
-        collider.height = 0.1f;
+        //var collider = circle.GetComponent<SphereCollider>();
+        //collider.radius = 0.3f;
 
         return circle;
     }

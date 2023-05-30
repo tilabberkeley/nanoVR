@@ -58,14 +58,9 @@ public class Strand
 
     public int GetStrandId() { return _strandId;}
 
-    public void ShowCone()
+    public void ShowHideCone(bool enabled)
     {
-        _cone.GetComponent<Renderer>().enabled = true;
-    }
-
-    public void HideCone()
-    {
-        _cone.GetComponent<Renderer>().enabled = false;
+        _cone.GetComponent<Renderer>().enabled = enabled;
     }
 
     public void AddXover(GameObject xover) 
@@ -149,7 +144,7 @@ public class Strand
         _nucleotides.RemoveRange(0, splitIndex);
         _head = _nucleotides[0];
         _cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
-        ShowCone();
+        ShowHideCone(true);
         SetCone();
         return splitList;
     }
@@ -164,7 +159,7 @@ public class Strand
         _nucleotides[splitIndex + 1].GetComponent<Renderer>().material.SetColor("_Color", Color.white);
         _nucleotides.RemoveRange(splitIndex + 1, count);
         _tail = _nucleotides.Last();
-        ShowCone();
+        ShowHideCone(true);
         SetCone();
         return splitList;
     }

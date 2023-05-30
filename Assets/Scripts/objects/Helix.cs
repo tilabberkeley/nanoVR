@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static GlobalVariables;
 
 /// <summary>
 /// Helix object keeps track of nucleotides in the helix.
@@ -22,6 +23,7 @@ public class Helix
     private List<GameObject> _backbonesA;
     private List<GameObject> _nucleotidesB;
     private List<GameObject> _backbonesB;
+    private List<int> _strandIds;
 
     public Helix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, Vector3 gridPoint)
     {
@@ -35,6 +37,7 @@ public class Helix
         _backbonesA = new List<GameObject>();
         _nucleotidesB = new List<GameObject>();
         _backbonesB = new List<GameObject>();
+        _strandIds = new List<int>();
         HelixFormation();
         DrawBackbone(_nucleotidesA, _backbonesA);
         DrawBackbone(_nucleotidesB, _backbonesB);
@@ -180,6 +183,11 @@ public class Helix
         }
     }
 
+    public void AddStrandId(int strandId)
+    {
+        _strandIds.Add(strandId);
+    }
+
     /*public void SetNeighbors(List<GameObject> nucleotides, List<GameObject> complements, List<GameObject> backbones)
     {
     for (int i = 0; i < nucleotides.Count; i++)
@@ -199,30 +207,28 @@ public class Helix
     }
     }*/
 
-    public void ShowHelix()
-    {
-        for (int i = 0; i < _backbonesA.Count; i++)
-        {
-            _nucleotidesA[i].GetComponent<Renderer>().enabled = true;
-            _backbonesA[i].GetComponent<Renderer>().enabled = true;
-            _nucleotidesB[i].GetComponent<Renderer>().enabled = true;
-            _backbonesB[i].GetComponent<Renderer>().enabled = true;
-        }
-        _nucleotidesA[_nucleotidesA.Count - 1].GetComponent<Renderer>().enabled = true;
-        _nucleotidesB[_nucleotidesB.Count - 1].GetComponent<Renderer>().enabled = true;
-    }
 
-    public void HideHelix()
+    /// <summary>
+    /// Shows and hides helix and its components (cones).
+    /// </summary>
+    /// <param name="enabled">Boolean for whether gameobjects are hidden or not.</param>
+    public void ShowHideHelix(bool enabled)
     {
         for (int i = 0; i < _backbonesA.Count; i++)
         {
-            _nucleotidesA[i].GetComponent<Renderer>().enabled = false;
-            _backbonesA[i].GetComponent<Renderer>().enabled = false;
-            _nucleotidesB[i].GetComponent<Renderer>().enabled = false;
-            _backbonesB[i].GetComponent<Renderer>().enabled = false;
+            _nucleotidesA[i].GetComponent<Renderer>().enabled = enabled;
+            _backbonesA[i].GetComponent<Renderer>().enabled = enabled;
+            _nucleotidesB[i].GetComponent<Renderer>().enabled = enabled;
+            _backbonesB[i].GetComponent<Renderer>().enabled = enabled;
         }
-        _nucleotidesA[_nucleotidesA.Count - 1].GetComponent<Renderer>().enabled = false;
-        _nucleotidesB[_nucleotidesB.Count - 1].GetComponent<Renderer>().enabled = false;
+        _nucleotidesA[_nucleotidesA.Count - 1].GetComponent<Renderer>().enabled = enabled;
+        _nucleotidesB[_nucleotidesB.Count - 1].GetComponent<Renderer>().enabled = enabled;
+
+        for (int i = 0; i < _strandIds.Count; i++)
+        {
+            Strand strand = s_strandDict[_strandIds[i]];
+            strand.ShowHideCone(enabled);
+        }
     }
 }
 

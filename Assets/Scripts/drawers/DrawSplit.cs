@@ -144,8 +144,10 @@ public class DrawSplit : MonoBehaviour
         Strand strand = new Strand(nucleotides, s_numStrands, color);
         strand.SetComponents();
         s_strandDict.Add(s_numStrands, strand);
-        ObjectListManager olm = new ObjectListManager();
-        olm.CreateButton(s_numStrands);
+
+        DrawNucleotide.CreateButton(s_numStrands);
+        DrawNucleotide.AddStrandToHelix(nucleotides[0]);
+
         s_numStrands++;
     }
 }

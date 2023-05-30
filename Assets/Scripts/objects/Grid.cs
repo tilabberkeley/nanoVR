@@ -102,7 +102,7 @@ public class Grid
         for (int i = 0; i < _lines.Count; i++)
         {
             _lines[i].HideLine();
-            _helices[i].ShowHelix();
+            _helices[i].ShowHideHelix(true);
         }
     }
 
@@ -111,7 +111,7 @@ public class Grid
         for (int i = 0; i < _lines.Count; i++)
         {
             _lines[i].ShowLine();
-            _helices[i].HideHelix();
+            _helices[i].ShowHideHelix(false);
         }
     }
 }

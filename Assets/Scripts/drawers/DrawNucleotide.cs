@@ -18,6 +18,7 @@ public class DrawNucleotide : MonoBehaviour
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rightRayInteractor;
+    [SerializeField] private GameObject canvas;
     private bool triggerReleased = true;
     private static GameObject s_startGO = null;
     private static GameObject s_endGO = null;
@@ -197,9 +198,31 @@ public class DrawNucleotide : MonoBehaviour
         Strand strand = new Strand(nucleotides, strandId);
         strand.SetComponents();
         s_strandDict.Add(strandId, strand);
+        CreateButton(strandId);
+        AddStrandToHelix(nucleotides[0]);
+        s_numStrands += 1;
+    }
+
+    /// <summary>
+    /// Adds strandId to corresponding helix object.
+    /// </summary>
+    /// <param name="go">Gameobject in strand.</param>
+    public static void AddStrandToHelix(GameObject go)
+    {
+        var ntc = go.GetComponent<NucleotideComponent>();
+        int helixId = ntc.GetHelixId();
+        Helix helix = s_gridList[0].GetHelix(helixId);
+        helix.AddStrandId(ntc.GetStrandId());
+    }
+
+    /// <summary>
+    /// Creates strand button in UI corresponding to each strand object.
+    /// </summary>
+    /// <param name="strandId">Strand's id.</param>
+    public static void CreateButton(int strandId)
+    {
         ObjectListManager olm = new ObjectListManager();
         olm.CreateButton(strandId);
-        s_numStrands += 1;
     }
 
     public void DoEditStrand(List<GameObject> newNucls)

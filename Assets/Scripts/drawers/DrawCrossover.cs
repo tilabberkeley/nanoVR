@@ -256,8 +256,8 @@ public class DrawCrossover : MonoBehaviour
         Strand strand = new Strand(nucleotides, strandId, color);
         strand.SetComponents();
         s_strandDict.Add(strandId, strand);
-        ObjectListManager olm = new ObjectListManager();
-        olm.CreateButton(strandId);
+        DrawNucleotide.CreateButton(strandId);
+        DrawNucleotide.AddStrandToHelix(nucleotides[0]);
         s_numStrands++;
     }
 
@@ -314,7 +314,7 @@ public class DrawCrossover : MonoBehaviour
         }
         else
         {
-            firstStrand.HideCone();
+            firstStrand.ShowHideCone(false);
         }
     }
 }

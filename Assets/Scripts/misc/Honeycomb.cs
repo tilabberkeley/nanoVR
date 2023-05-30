@@ -116,7 +116,7 @@ public class Honeycomb : MonoBehaviour
     public void ShowHelices() {
         for (int i = 0; i < lines.Count; i++) {
             lines[i].HideLine();
-            helices[i].ShowHelix();
+            helices[i].ShowHideHelix(true);
         }
     }
 }

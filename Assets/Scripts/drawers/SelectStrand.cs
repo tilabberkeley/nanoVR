@@ -150,14 +150,25 @@ public class SelectStrand : MonoBehaviour
     public void HighlightStrand(GameObject go)
     {
         int strandId = go.GetComponent<NucleotideComponent>().GetStrandId();
+        if (strandId == -1) { return; }
+        HighlightStrand(strandId);
+    }
+
+    // TEST
+    public void HighlightStrand(int strandId)
+    {
+        strandSelected = true;
         Strand strand = s_strandDict[strandId];
         strand.Highlight(Color.red);
+        s_startGO = strand.GetHead();
     }
 
     public void UnhighlightStrand(GameObject go)
     {
         if (go == null) { return; }
         int strandId = go.GetComponent<NucleotideComponent>().GetStrandId();
+
+        if (strandId == -1) { return; }
         Strand strand = s_strandDict[strandId];
         strand.Highlight(Color.black);
     }
@@ -176,5 +187,8 @@ public class SelectStrand : MonoBehaviour
         int strandId = go.GetComponent<NucleotideComponent>().GetStrandId();
         Strand strand = s_strandDict[strandId];
         strand.RemoveStrand();
+
+        ObjectListManager olm = new ObjectListManager();
+        olm.DeleteButton(strandId);
     }
 }

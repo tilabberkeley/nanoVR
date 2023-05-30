@@ -73,6 +73,7 @@ public class Teleport : MonoBehaviour
                 {
                     //create camera
                     camera = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    camera.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
                     camera.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
                     camera.transform.position = transform.position;
                 }

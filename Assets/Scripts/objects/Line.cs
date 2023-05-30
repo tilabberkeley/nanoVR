@@ -61,11 +61,14 @@ public class Line
 
     // Scale        
     float dist = Vector3.Distance(_endPoint, _startPoint);
-    _cyl.transform.localScale = new Vector3(0.034f, dist / 2, 0.034f);
+    _cyl.transform.localScale = new Vector3(0.068f, dist / 2, 0.068f);
 
+
+    /*
     _startSphere = DrawPoint.MakeSphere(_startPoint, "startPoint" + _id);
     _endSphere = DrawPoint.MakeSphere(_endPoint, "endPoint" + _id);
 
+    
     _text = new GameObject();
     TextMesh uiText = _text.AddComponent<TextMesh>();
     _text.transform.localScale = new Vector3(0.0015f, 0.0015f, 0.0015f);
@@ -74,6 +77,7 @@ public class Line
     uiText.font = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
     uiText.text = _length.ToString();
     uiText.color = Color.black;
+    */
   }
 
   public void EditLine()
