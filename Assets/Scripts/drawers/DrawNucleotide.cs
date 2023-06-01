@@ -88,6 +88,7 @@ public class DrawNucleotide : MonoBehaviour
                     }
                     ResetNucleotides();
                 }
+                ExtendIfLastNucleotide(s_hit);
             }
             else
             {
@@ -306,6 +307,18 @@ public class DrawNucleotide : MonoBehaviour
         {
             // Remove nucls from head of strand with direction 0
             strand.RemoveFromHead(nucleotides.GetRange(0, nucleotides.Count - 1));
+        }
+    }
+
+    private void ExtendIfLastNucleotide(RaycastHit hit)
+    {
+        NucleotideComponent nucComp = hit.transform.GetComponent<NucleotideComponent>();
+        if (nucComp.isEndNuclueotide())
+        {
+            int helixId = nucComp.GetHelixId();
+            s_helixDict.TryGetValue(helixId, out Helix helix);
+            // helix.Extend();
+            Debug.Log("This is the last nucleotide with id" + helixId);
         }
     }
 }

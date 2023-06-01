@@ -41,6 +41,7 @@ public class Helix
         HelixFormation();
         DrawBackbone(_nucleotidesA, _backbonesA);
         DrawBackbone(_nucleotidesB, _backbonesB);
+        s_helixDict.Add(id, this);
         //SetNeighbors(_nucleotidesA, _nucleotidesB, _backbonesA);
         //SetNeighbors(_nucleotidesB, _nucleotidesA, _backbonesB);
     }
@@ -186,6 +187,15 @@ public class Helix
     public void AddStrandId(int strandId)
     {
         _strandIds.Add(strandId);
+    }
+
+    /// <summary>
+    /// Returns the length of the helix.
+    /// </summary>
+    /// <returns>Lenght of the helix</returns>
+    public int GetLength()
+    {
+        return _length;
     }
 
     /*public void SetNeighbors(List<GameObject> nucleotides, List<GameObject> complements, List<GameObject> backbones)

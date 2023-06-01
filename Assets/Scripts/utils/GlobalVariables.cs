@@ -27,6 +27,7 @@ public static class GlobalVariables
     public static List<Object> s_origamis;
     public static List<Pointer> s_pointerList = new List<Pointer>();
     public static List<Grid> s_gridList = new List<Grid>();
+    public static Dictionary<int, Helix> s_helixDict = new Dictionary<int, Helix>();
     public static Dictionary<int, Strand> s_strandDict = new Dictionary<int, Strand>();
     public static int s_numStrands = 0;
 }

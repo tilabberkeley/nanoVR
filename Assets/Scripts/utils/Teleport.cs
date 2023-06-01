@@ -23,7 +23,7 @@ public class Teleport : MonoBehaviour
     private bool rightTriggerReleased = true;
     Vector3? lastPosition = null;
     Vector3? cameraPosition = null;
-    private GameObject camera = null;
+    private new GameObject camera = null;
     //not implemented yet
     List<Vector3> cameraPositions = new List<Vector3>();
 
