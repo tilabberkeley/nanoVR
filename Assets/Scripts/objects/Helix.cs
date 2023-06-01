@@ -12,19 +12,34 @@ using static GlobalVariables;
 /// </summary>
 public class Helix
 {
+    // Helix id.
     private int _id;
     private Vector3 _startPoint;
     private Vector3 _endPoint;
+
+    // Number of nucleotides in helix (default 64).
     private int _length;
     private string _orientation;
 
+    // 3D position of grid circle.
     private Vector3 _gridPoint;
+
+    // List containing all nucleotides in spiral going in direction 1.
     private List<GameObject> _nucleotidesA;
+
+    // List containing all backbones in spiral going in direction 1.
     private List<GameObject> _backbonesA;
+
+    // List containing all nucleotides in spiral going in direction 0.
     private List<GameObject> _nucleotidesB;
+
+    // List containing all backbones in spiral going in direction 0.
     private List<GameObject> _backbonesB;
+
+    // List of strand ids created on helix.
     private List<int> _strandIds;
 
+    // Helix constructor.
     public Helix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, Vector3 gridPoint)
     {
         _id = id;
@@ -45,6 +60,7 @@ public class Helix
         //SetNeighbors(_nucleotidesB, _nucleotidesA, _backbonesB);
     }
 
+    // Draws nucleotides of helix.
     public void HelixFormation()
     {
         float OFFSET = 0.034f; // helical radius
@@ -78,6 +94,7 @@ public class Helix
         }
     }
 
+    // Draws backbones of helix.
     public void DrawBackbone(List<GameObject> nucleotides, List<GameObject> backbones)
     {
         DrawPoint d = new DrawPoint();
@@ -89,6 +106,13 @@ public class Helix
         }
     }
 
+    /// <summary>
+    /// Returns sublist of nucleotides from helix spiral.
+    /// </summary>
+    /// <param name="sIndex">Start index of sublist.</param>
+    /// <param name="eIndex">End index of sublist.</param>
+    /// <param name="direction">Spiral direction (determines nucleotidesA or nucleotidesB).</param>
+    /// <returns>Returns sublist of nucleotides from helix spiral.</returns>
     public List<GameObject> GetHelixSub(int sIndex, int eIndex, int direction)
     {
         List<GameObject> temp = new List<GameObject>();
@@ -116,11 +140,11 @@ public class Helix
     }
 
     /// <summary>
-    /// Return's neighbo in front of head nucleotide.
+    /// Returns nucleotide in front of head nucleotide.
     /// </summary>
     /// <param name="go">GameObject to find neighbor of.</param>
     /// <param name="direction">Direction of the helix, 0 or 1.</param>
-    /// <returns>Return's neighbor in front of head nucleotide.</returns>
+    /// <returns>Returns nucleotide in front of head nucleotide.</returns>
     public GameObject GetHeadNeighbor(GameObject go, int direction)
     {
         if (direction == 0)
@@ -136,11 +160,11 @@ public class Helix
     }
 
     /// <summary>
-    /// Return's neighbor behind tail nucleotide.
+    /// Returns nucleotide behind tail nucleotide.
     /// </summary>
     /// <param name="go">GameObject to find neighbor of.</param>
     /// <param name="direction">Direction of helix, 0 or 1.</param>
-    /// <returns>Return's neighbor behind tail nucleotide.</returns>
+    /// <returns>Returns nucleotide behind tail nucleotide.</returns>
     public GameObject GetTailNeighbor(GameObject go, int direction)
     {
         if (direction == 0)
@@ -155,6 +179,12 @@ public class Helix
         }
     }
 
+    /// <summary>
+    /// Returns backbone in front of head nucleotide.
+    /// </summary>
+    /// <param name="go">GameObject to find neighbor of.</param>
+    /// <param name="direction">Direction of helix, 0 or 1.</param>
+    /// <returns>Returns backbone in front of head nucleotide.</returns>
     public GameObject GetHeadBackbone(GameObject go, int direction)
     {
         if (direction == 0)
@@ -169,6 +199,12 @@ public class Helix
         }
     }
 
+    /// <summary>
+    /// Returns backbone in behind tail nucleotide.
+    /// </summary>
+    /// <param name="go">GameObject to find neighbor of.</param>
+    /// <param name="direction">Direction of helix, 0 or 1.</param>
+    /// <returns>Returns backbone in behind tail nucleotide.</returns>
     public GameObject GetTailBackbone(GameObject go, int direction)
     {
         if (direction == 0)
@@ -183,11 +219,13 @@ public class Helix
         }
     }
 
+    // Adds strandId to strand id list.
     public void AddStrandId(int strandId)
     {
         _strandIds.Add(strandId);
     }
 
+    // Removes strandId from strand id list.
     public void DeleteStrandId(int strandId)
     {
         _strandIds.Remove(strandId);
