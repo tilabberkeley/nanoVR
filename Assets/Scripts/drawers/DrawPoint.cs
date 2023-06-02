@@ -129,27 +129,17 @@ public class DrawPoint : MonoBehaviour
 
     public static GameObject MakeGrid(Vector3 position, string name)
     {
-        GameObject circle = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        circle.name = name;
-        circle.transform.position = position;
-        circle.transform.localScale = new Vector3(0.1f, 0.0001f, 0.1f);
-        circle.transform.Rotate(90f, 0f, 0f, 0);
+        GameObject gridCircle = Instantiate(Resources.Load("GridCircle"),
+                   position,
+                   Quaternion.identity) as GameObject;
+        gridCircle.name = name;
+        gridCircle.transform.Rotate(90f, 0f, 0f, 0);
 
-        circle.AddComponent<XRSimpleInteractable>();
-
-        circle.AddComponent<Rigidbody>();
-        var sphereRigidbody = circle.GetComponent<Rigidbody>();
-        sphereRigidbody.useGravity = false;
-        sphereRigidbody.isKinematic = true;
-
-        circle.AddComponent<Renderer>();
-        var sphereRenderer = circle.GetComponent<Renderer>();
-        sphereRenderer.material.SetColor("_Color", Color.gray);
 
         //var collider = circle.GetComponent<SphereCollider>();
         //collider.radius = 0.3f;
 
-        return circle;
+        return gridCircle;
     }
 }
 
