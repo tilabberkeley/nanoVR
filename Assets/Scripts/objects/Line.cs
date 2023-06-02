@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Line
@@ -9,17 +7,17 @@ public class Line
   private Vector3 _startPoint;
   private Vector3 _endPoint;
   private int _length;
-  private GameObject _startSphere;
-  private GameObject _endSphere;
+  //private GameObject _startSphere;
+  //private GameObject _endSphere;
   private GameObject _cyl;
-  private GameObject _text;
+  // private GameObject _text;
 
   public Line(int id, Vector3 startPoint, Vector3 endPoint)
   {
     _id = id;
     _startPoint = startPoint;
     _endPoint = endPoint;
-    _length = (int)Math.Round(Vector3.Distance(startPoint, endPoint) * 30, 0);
+    _length = 64;
     DrawLine();
   }
 
@@ -31,7 +29,7 @@ public class Line
   {
     _startPoint = p;
     _length = (int)Math.Round(Vector3.Distance(_startPoint, _endPoint) * 30, 0);
-    EditLine();
+    //EditLine();
   }
 
   public Vector3 End { get; }
@@ -39,7 +37,7 @@ public class Line
   {
     _endPoint = p;
     _length = (int)Math.Round(Vector3.Distance(_startPoint, _endPoint) * 30, 0);
-    EditLine();
+    //EditLine();
   }
 
   public void DrawLine()
@@ -80,6 +78,7 @@ public class Line
     */
   }
 
+  /*
   public void EditLine()
   {
     var cylRenderer = _cyl.GetComponent<Renderer>();
@@ -99,6 +98,7 @@ public class Line
     float dist = Vector3.Distance(_endPoint, _startPoint);
     _cyl.transform.localScale = new Vector3(0.02f, dist / 2, 0.02f);
 
+
     TextMesh uiText = _text.GetComponent<TextMesh>();
     _text.transform.localScale = new Vector3(0.0015f, 0.0015f, 0.0015f);
     _text.transform.position = new Vector3(_startPoint.x, _startPoint.y, _startPoint.z - 0.05f);
@@ -107,20 +107,21 @@ public class Line
     uiText.text = _length.ToString();
     uiText.color = Color.black;
   }
+  */
 
   public void HideLine()
   {
-    _startSphere.GetComponent<Renderer>().enabled = false;
-    _endSphere.GetComponent<Renderer>().enabled = false;
-    _cyl.GetComponent<Renderer>().enabled = false;
-    _text.GetComponent<Renderer>().enabled = false;
+    //_startSphere.GetComponent<Renderer>().enabled = false;
+    //_endSphere.GetComponent<Renderer>().enabled = false;
+    _cyl.SetActive(false);
+    //_text.GetComponent<Renderer>().enabled = false;
   }
 
   public void ShowLine()
   {
-    _startSphere.GetComponent<Renderer>().enabled = true;
-    _endSphere.GetComponent<Renderer>().enabled = true;
-    _cyl.GetComponent<Renderer>().enabled = true;
-    _text.GetComponent<Renderer>().enabled = true;
+    //_startSphere.GetComponent<Renderer>().enabled = true;
+    //_endSphere.GetComponent<Renderer>().enabled = true;
+    _cyl.SetActive(true);
+    //_text.GetComponent<Renderer>().enabled = true;
   }
 }

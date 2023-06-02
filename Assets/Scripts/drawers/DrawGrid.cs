@@ -87,13 +87,24 @@ public class DrawGrid : MonoBehaviour
             triggerReleased = false;
 
             // clicking grid sphere
-            if (s_hit.collider.name.Equals("grid"))
+            if (s_hit.collider.GetComponent<GridComponent>())
             {
-                Vector3 startPos = s_hit.collider.bounds.center;
-                Vector3 endPos = startPos - new Vector3(0, 0, 64 * 0.034f);
-                int id = _grid.GetLines().Count;
-                _grid.AddLine(id, startPos, endPos);
-                _grid.AddHelix(id, startPos, endPos, plane, startPos);
+                var gc = s_hit.collider.GetComponent<GridComponent>();
+                if (!gc.Selected)
+                {
+                    gc.Selected = true;
+                    Vector3 startPos = s_hit.collider.bounds.center;
+                    Vector3 endPos = startPos - new Vector3(0, 0, 64 * 0.034f);
+                    int id = _grid.GetLines().Count;
+                    _grid.AddLine(id, startPos, endPos);
+                    _grid.AddHelix(id, startPos, endPos, plane, startPos);
+                    gc.Line = _grid.GetLine(id);
+                    gc.Helix = _grid.GetHelix(id);
+                }
+                else
+                {
+                    // HIGHLIGHT HELIX!
+                }
             }
         }
         else if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
@@ -102,6 +113,7 @@ public class DrawGrid : MonoBehaviour
             triggerReleased = true;
         }
 
+        /*
         bool gripValue;
         if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
             && gripValue
@@ -142,6 +154,7 @@ public class DrawGrid : MonoBehaviour
                 }
             }
         }
+        */
 
         bool primaryValue;
         if ((_device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryValue) && primaryValue))
@@ -155,11 +168,12 @@ public class DrawGrid : MonoBehaviour
             _grid.ShowLines();
         }
 
+        /*
         if (!(_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue) && gripValue))
         {
             gripReleased = true;
         }
-
+        */
     }
 
 
