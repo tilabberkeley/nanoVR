@@ -88,7 +88,7 @@ public class DrawNucleotide : MonoBehaviour
                     }
                     ResetNucleotides();
                 }
-                ExtendIfLastNucleotide(s_hit);
+                ExtendIfLastNucleotide(s_hit.transform.GetComponent<NucleotideComponent>());
             }
             else
             {
@@ -310,15 +310,17 @@ public class DrawNucleotide : MonoBehaviour
         }
     }
 
-    private void ExtendIfLastNucleotide(RaycastHit hit)
+    /// <summary>
+    /// Extends the helix of given nucleoltide if the nucleotide is last in the helix.
+    /// </summary>
+    /// <param name="nucComp">Nucleotide Component of the nucleotide game object.</param>
+    private void ExtendIfLastNucleotide(NucleotideComponent nucComp)
     {
-        NucleotideComponent nucComp = hit.transform.GetComponent<NucleotideComponent>();
         if (nucComp.isEndNuclueotide())
         {
             int helixId = nucComp.GetHelixId();
             s_helixDict.TryGetValue(helixId, out Helix helix);
-            // helix.Extend();
-            Debug.Log("This is the last nucleotide with id" + helixId);
+            helix.Extend();
         }
     }
 }
