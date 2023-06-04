@@ -88,6 +88,7 @@ public class DrawNucleotide : MonoBehaviour
                     }
                     ResetNucleotides();
                 }
+                ExtendIfLastNucleotide(s_hit.transform.GetComponent<NucleotideComponent>());
             }
             else
             {
@@ -306,6 +307,20 @@ public class DrawNucleotide : MonoBehaviour
         {
             // Remove nucls from head of strand with direction 0
             strand.RemoveFromHead(nucleotides.GetRange(0, nucleotides.Count - 1));
+        }
+    }
+
+    /// <summary>
+    /// Extends the helix of given nucleoltide if the nucleotide is last in the helix.
+    /// </summary>
+    /// <param name="nucComp">Nucleotide Component of the nucleotide game object.</param>
+    private void ExtendIfLastNucleotide(NucleotideComponent nucComp)
+    {
+        if (nucComp.isEndNuclueotide())
+        {
+            int helixId = nucComp.GetHelixId();
+            s_helixDict.TryGetValue(helixId, out Helix helix);
+            helix.Extend();
         }
     }
 }

@@ -3,6 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu>
  */
 using UnityEngine;
+using static GlobalVariables;
 
 /// <summary>
 /// Component attached to each nucleotide gameobject. Handles direct Ray interactions and gameobject visuals.
@@ -81,4 +82,14 @@ public class NucleotideComponent : MonoBehaviour
         _ntRenderer = gameObject.GetComponent<Renderer>();
     }
 
+    /// <summary>
+    /// Returns whether this nucleotide is the last nucleotide in its helix.
+    /// </summary>
+    /// <returns>True if the nucleotide is last. False otherwise</returns>
+    public bool isEndNuclueotide()
+    {
+        s_helixDict.TryGetValue(_helixId, out Helix helix);
+        // This nucleotide is the last nucleotide if its id is equal to the length of its helix - 1
+        return _id == helix.GetLength() - 1;
+    }
 }

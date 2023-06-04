@@ -12,12 +12,17 @@ using static GlobalVariables;
 /// </summary>
 public class Helix
 {
+    //constants
+    private const float OFFSET = 0.034f;
+    private const float RISE = 0.034f;
+    private const int LENGTH = 64;
+
     // Helix id.
     private int _id;
     private Vector3 _startPoint;
     private Vector3 _endPoint;
 
-    // Number of nucleotides in helix (default 64).
+    // Number of nucleotides in helix.
     private int _length;
     private string _orientation;
 
@@ -39,13 +44,17 @@ public class Helix
     // List of strand ids created on helix.
     private List<int> _strandIds;
 
+    // Positions of last nucleotides in helix
+    private Vector3 lastPositionA;
+    private Vector3 lastPositionB;
+
     // Helix constructor.
     public Helix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, Vector3 gridPoint)
     {
         _id = id;
         _startPoint = startPoint;
         _endPoint = endPoint;
-        _length = 64;
+        _length = 0;
         _orientation = orientation;
         _gridPoint = gridPoint;
         _nucleotidesA = new List<GameObject>();
@@ -53,30 +62,26 @@ public class Helix
         _nucleotidesB = new List<GameObject>();
         _backbonesB = new List<GameObject>();
         _strandIds = new List<int>();
-        HelixFormation();
-        DrawBackbone(_nucleotidesA, _backbonesA);
-        DrawBackbone(_nucleotidesB, _backbonesB);
-        //SetNeighbors(_nucleotidesA, _nucleotidesB, _backbonesA);
-        //SetNeighbors(_nucleotidesB, _nucleotidesA, _backbonesB);
+        lastPositionA = _gridPoint - new Vector3(0, OFFSET, 0);
+        lastPositionB = _gridPoint + new Vector3(0, OFFSET, 0);
+        Extend();
+        s_helixDict.Add(id, this);
     }
 
-    // Draws nucleotides of helix.
-    public void HelixFormation()
+    /// <summary>
+    /// Draws the nucleotides of the helix.
+    /// </summary>
+    public void Extend()
     {
-        float OFFSET = 0.034f; // helical radius
-        float RISE = 0.034f; // vertical rise per bp
-
-        // **CHECK THIS**
-        Vector3 targetPositionA = _gridPoint - new Vector3(0, OFFSET, 0);
-        Vector3 targetPositionB = _gridPoint + new Vector3(0, OFFSET, 0);
-        //DrawPoint d = new DrawPoint();
-        for (int i = 0; i < _length; i++)
-        {      
-            GameObject sphereA = DrawPoint.MakeNucleotide(targetPositionA, i, _id, 1);
+        int prevLength = _length;
+        _length += LENGTH;
+        for (int i = prevLength; i < _length; i++)
+        {
+            GameObject sphereA = DrawPoint.MakeNucleotide(lastPositionA, i, _id, 1);
             sphereA.SetActive(false);
             _nucleotidesA.Add(sphereA);
 
-            GameObject sphereB = DrawPoint.MakeNucleotide(targetPositionB, i, _id, 0);
+            GameObject sphereB = DrawPoint.MakeNucleotide(lastPositionB, i, _id, 0);
             sphereB.SetActive(false);
             _nucleotidesB.Add(sphereB);
 
@@ -87,22 +92,41 @@ public class Helix
             float axisOneChangeB = Mathf.Cos(angleB) * 0.02f;
             float axisTwoChangeB = Mathf.Sin(angleB) * 0.02f;
 
-            
-            targetPositionA += new Vector3(axisOneChangeA, axisTwoChangeA, -RISE);
-            targetPositionB += new Vector3(axisOneChangeB, axisTwoChangeB, -RISE);
-            
+            lastPositionA += new Vector3(axisOneChangeA, axisTwoChangeA, -RISE);
+            lastPositionB += new Vector3(axisOneChangeB, axisTwoChangeB, -RISE);
+        }
+
+        if (prevLength == 0) 
+        { 
+            DrawBackbones(prevLength + 1); 
+        }
+        else
+        {
+            // Needs to add backbone to connect previous set of nucleotides
+            DrawBackbones(prevLength);
         }
     }
 
-    // Draws backbones of helix.
-    public void DrawBackbone(List<GameObject> nucleotides, List<GameObject> backbones)
+    /// <summary>
+    /// Draws the backbones between the nucleotides in the helix.
+    /// </summary>
+    /// <param name="start">Start index of nucleotide to begin drawing backbones.</param>
+    private void DrawBackbones(int start)
     {
-        DrawPoint d = new DrawPoint();
-        for (int i = 1; i < nucleotides.Count; i++)
+        // Backbones for A nucleotides
+        for (int i = start; i < _nucleotidesA.Count; i++)
         {
-            GameObject cylinder = d.MakeBackbone(i - 1, nucleotides[i].transform.position, nucleotides[i - 1].transform.position);
+            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, _nucleotidesA[i].transform.position, _nucleotidesA[i - 1].transform.position);
             cylinder.SetActive(false);
-            backbones.Add(cylinder);
+            _backbonesA.Add(cylinder);
+        }
+
+        // Backbones for B nucleotides
+        for (int i = start; i < _nucleotidesB.Count; i++)
+        {
+            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, _nucleotidesB[i].transform.position, _nucleotidesB[i - 1].transform.position);
+            cylinder.SetActive(false);
+            _backbonesB.Add(cylinder);
         }
     }
 
@@ -225,11 +249,21 @@ public class Helix
         _strandIds.Add(strandId);
     }
 
+    /// <summary>
+    /// Returns the length of the helix.
+    /// </summary>
+    /// <returns>Lenght of the helix</returns>
+    public int GetLength()
+    {
+        return _length;
+    }
+
     // Removes strandId from strand id list.
     public void DeleteStrandId(int strandId)
     {
         _strandIds.Remove(strandId);
     }
+
 
     public void Highlight(Color color)
     {
@@ -267,6 +301,7 @@ public class Helix
             ntc.SetComplementGO(complements[i]);
         }
     }*/
+
 
 
     /// <summary>

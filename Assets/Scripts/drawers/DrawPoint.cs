@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 /// <summary>
-/// Creates needed gameobjects like nucleotides, grid circles, etc.
+/// Creates needed gameobjects like nucleotides, backbones, cones, Xovers, spheres, and grids.
 /// </summary>
 public class DrawPoint : MonoBehaviour
 {
@@ -15,6 +15,14 @@ public class DrawPoint : MonoBehaviour
     public GameObject backbonePrefab;
     public GameObject xoverPrefab;
    
+    /// <summary>
+    /// Creates nucleotide at given position.
+    /// </summary>
+    /// <param name="position">Position of nucleotide.</param>
+    /// <param name="id">Id of nuecleotide.</param>
+    /// <param name="helixId">Id of helix nucleotide is in.</param>
+    /// <param name="ssDirection">Direction of nucleotide.</param>
+    /// <returns>GameObject of Nucleotide.</returns>
     public static GameObject MakeNucleotide(Vector3 position, int id, int helixId, int ssDirection)
     {
         // make sphere
@@ -53,7 +61,14 @@ public class DrawPoint : MonoBehaviour
         return cone;
     }
 
-    public GameObject MakeBackbone(int id, Vector3 start, Vector3 end)
+    /// <summary>
+    /// Creates a backbone between given two nucleotides.
+    /// </summary>
+    /// <param name="id">id of backbone.</param>
+    /// <param name="start">Position of start nucleotide.</param>
+    /// <param name="end">Position of end nucleotide.</param>
+    /// <returns>GameObject of backbone.</returns>
+    public static GameObject MakeBackbone(int id, Vector3 start, Vector3 end)
     {
         GameObject cylinder = Instantiate(Resources.Load("Backbone"),
                                     Vector3.zero,
