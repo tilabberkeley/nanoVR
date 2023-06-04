@@ -231,23 +231,41 @@ public class Helix
         _strandIds.Remove(strandId);
     }
 
+    public void Highlight(Color color)
+    {
+        for (int i = 0; i < _nucleotidesA.Count; i++)
+        {
+            _nucleotidesA[i].GetComponent<NucleotideComponent>().Highlight(color);
+            _nucleotidesB[i].GetComponent<NucleotideComponent>().Highlight(color);
+        }
+        for (int i = 0; i < _backbonesA.Count; i++)
+        {
+            _backbonesA[i].GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
+            _backbonesB[i].GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
+        }
+        for (int i = 0; i < _strandIds.Count; i++)
+        {
+            s_strandDict[i].HighlightCone(color);
+        }
+    }
+
     /*public void SetNeighbors(List<GameObject> nucleotides, List<GameObject> complements, List<GameObject> backbones)
     {
-    for (int i = 0; i < nucleotides.Count; i++)
-    {
-        var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
-        if (i < nucleotides.Count - 1)
+        for (int i = 0; i < nucleotides.Count; i++)
         {
-        ntc.SetNextGO(nucleotides[i + 1]);
-        ntc.SetNextBB(backbones[i]);
+            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            if (i < nucleotides.Count - 1)
+            {
+            ntc.SetNextGO(nucleotides[i + 1]);
+            ntc.SetNextBB(backbones[i]);
+            }
+            if (i > 0)
+            {
+            ntc.SetPrevGO(nucleotides[i - 1]);
+            ntc.SetPrevBB(backbones[i - 1]);
+            }
+            ntc.SetComplementGO(complements[i]);
         }
-        if (i > 0)
-        {
-        ntc.SetPrevGO(nucleotides[i - 1]);
-        ntc.SetPrevBB(backbones[i - 1]);
-        }
-        ntc.SetComplementGO(complements[i]);
-    }
     }*/
 
 

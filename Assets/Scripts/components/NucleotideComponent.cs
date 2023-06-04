@@ -29,7 +29,7 @@ public class NucleotideComponent : MonoBehaviour
 
     private Renderer _ntRenderer;
 
-    public int GetId() { return _id; }
+    public int Id { get; set; }
     public void SetId(int id) { _id = id; }
     public int GetHelixId() { return _helixId; }
     public void SetHelixId(int helixId) { _helixId = helixId; }

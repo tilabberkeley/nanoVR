@@ -167,8 +167,8 @@ public class DrawNucleotide : MonoBehaviour
             return null;
         }
        
-        int startId = startNtc.GetId();
-        int endId = endNtc.GetId();
+        int startId = startNtc.Id;
+        int endId = endNtc.Id;
         int helixId = startNtc.GetHelixId();
         int direction = startNtc.GetDirection();
 
