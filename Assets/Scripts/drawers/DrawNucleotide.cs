@@ -132,6 +132,8 @@ public class DrawNucleotide : MonoBehaviour
     public void BuildStrand()
     {
         List<GameObject> nucleotides = MakeNuclList(s_startGO, s_endGO);
+        Debug.Log(s_startGO);
+        Debug.Log(s_endGO);
         if (nucleotides == null)
         {
             return;
@@ -222,8 +224,7 @@ public class DrawNucleotide : MonoBehaviour
     /// <param name="strandId">Strand's id.</param>
     public static void CreateButton(int strandId)
     {
-        ObjectListManager olm = new ObjectListManager();
-        olm.CreateButton(strandId);
+        ObjectListManager.CreateButton(strandId);
     }
 
     public void DoEditStrand(List<GameObject> newNucls)

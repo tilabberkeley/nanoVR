@@ -19,7 +19,7 @@ public class SelectStrand : MonoBehaviour
     private bool axisReleased = true;
     private const float DOUBLE_CLICK_TIME = 1f;
     private float lastClickTime;
-    private bool strandSelected = false;
+    private static bool strandSelected = false;
     private static GameObject s_startGO = null;
     private static RaycastHit s_hit;
 
@@ -127,7 +127,7 @@ public class SelectStrand : MonoBehaviour
             triggerReleased = true;
         }
 
-        // Resets start and end nucleotide.
+        // Resets nucleotide.
         if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
             && triggerValue
             && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
@@ -147,7 +147,7 @@ public class SelectStrand : MonoBehaviour
         strandSelected = false;
     }
 
-    public void HighlightStrand(GameObject go)
+    public static void HighlightStrand(GameObject go)
     {
         int strandId = go.GetComponent<NucleotideComponent>().GetStrandId();
         if (strandId == -1) { return; }
@@ -155,7 +155,7 @@ public class SelectStrand : MonoBehaviour
     }
 
     // TEST
-    public void HighlightStrand(int strandId)
+    public static void HighlightStrand(int strandId)
     {
         strandSelected = true;
         Strand strand = s_strandDict[strandId];
@@ -187,8 +187,7 @@ public class SelectStrand : MonoBehaviour
         int strandId = go.GetComponent<NucleotideComponent>().GetStrandId();
         Strand strand = s_strandDict[strandId];
         DeleteStrandFromHelix(go);
-        ObjectListManager olm = new ObjectListManager();
-        olm.DeleteButton(strandId);
+        ObjectListManager.DeleteButton(strandId);
         strand.RemoveStrand();
     }
 

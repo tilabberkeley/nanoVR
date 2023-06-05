@@ -38,7 +38,7 @@ public class DrawPoint : MonoBehaviour
         sphere.name = "nucleotide" + id;
 
         var ntc = sphere.GetComponent<NucleotideComponent>();
-        ntc.SetId(id);
+        ntc.Id = id;
         ntc.SetHelixId(helixId);
         ntc.SetDirection(ssDirection);
         // TEST THIS

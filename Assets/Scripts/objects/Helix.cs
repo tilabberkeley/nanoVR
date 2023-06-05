@@ -264,7 +264,6 @@ public class Helix
         _strandIds.Remove(strandId);
     }
 
-
     public void Highlight(Color color)
     {
         for (int i = 0; i < _nucleotidesA.Count; i++)
@@ -282,27 +281,6 @@ public class Helix
             s_strandDict[i].HighlightCone(color);
         }
     }
-
-    /*public void SetNeighbors(List<GameObject> nucleotides, List<GameObject> complements, List<GameObject> backbones)
-    {
-        for (int i = 0; i < nucleotides.Count; i++)
-        {
-            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
-            if (i < nucleotides.Count - 1)
-            {
-            ntc.SetNextGO(nucleotides[i + 1]);
-            ntc.SetNextBB(backbones[i]);
-            }
-            if (i > 0)
-            {
-            ntc.SetPrevGO(nucleotides[i - 1]);
-            ntc.SetPrevBB(backbones[i - 1]);
-            }
-            ntc.SetComplementGO(complements[i]);
-        }
-    }*/
-
-
 
     /// <summary>
     /// Shows and hides helix and its components (cones).

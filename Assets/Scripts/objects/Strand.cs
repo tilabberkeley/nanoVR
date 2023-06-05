@@ -269,6 +269,7 @@ public class Strand
     {
         for (int i = 0; i < _nucleotides.Count; i++)
         {
+            Debug.Log(_nucleotides[i]);
             // Set nucleotide
             if (_nucleotides[i].GetComponent<NucleotideComponent>() != null)
             {

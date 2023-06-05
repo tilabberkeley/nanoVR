@@ -9,33 +9,42 @@ using UnityEngine.UI;
 public class ObjectListManager : MonoBehaviour
 {
 
-    public GameObject content;
+    // public GameObject content;
 
     /// <summary>
     /// Creates button in Strand List UI whenever new strand is created. Button and Strand
     /// are linked by the strand Id.
     /// </summary>
     /// <param name="strandId">Id of strand which is also id of corresponding button.</param>
-    public void CreateButton(int strandId)
+    public static void CreateButton(int strandId)
     {
         GameObject button = Instantiate(Resources.Load("Button")) as GameObject;
+        try
+        {
+            button.transform.SetParent(GameObject.FindWithTag("StrandList").transform, false);
+        }
+        catch (Exception e)
+        {
+
+            Debug.Log(e.Message);
+
+        }
+        
         //button.transform.SetParent(content.transform, false);
-        GameObject cyl = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         button.GetComponentInChildren<Text>().text = "Strand " + strandId;
         button.name = "StrandButton" + strandId;
-        button.GetComponent<Button>().onClick.AddListener(() => SelectStrand(Int32.Parse(button.name.Substring(12))));
+        button.GetComponent<Button>().onClick.AddListener(() => SelStrand(strandId));
         //cyl.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
     }
 
     // TEST
-    public static void SelectStrand(int strandId)
+    public static void SelStrand(int strandId)
     {
-        SelectStrand ss = new SelectStrand();
-        ss.HighlightStrand(strandId);
+        SelectStrand.HighlightStrand(strandId);
     }
 
     // TEST
-    public void DeleteButton(int strandId)
+    public static void DeleteButton(int strandId)
     {
         string name = "StrandButton" + strandId;
         GameObject button = GameObject.Find(name);
