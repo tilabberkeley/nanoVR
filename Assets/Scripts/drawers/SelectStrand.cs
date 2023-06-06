@@ -149,7 +149,7 @@ public class SelectStrand : MonoBehaviour
 
     public static void HighlightStrand(GameObject go)
     {
-        int strandId = go.GetComponent<NucleotideComponent>().GetStrandId();
+        int strandId = go.GetComponent<NucleotideComponent>().StrandId;
         if (strandId == -1) { return; }
         HighlightStrand(strandId);
     }
@@ -166,7 +166,7 @@ public class SelectStrand : MonoBehaviour
     public void UnhighlightStrand(GameObject go)
     {
         if (go == null) { return; }
-        int strandId = go.GetComponent<NucleotideComponent>().GetStrandId();
+        int strandId = go.GetComponent<NucleotideComponent>().StrandId;
 
         if (strandId == -1) { return; }
         Strand strand = s_strandDict[strandId];
@@ -175,7 +175,7 @@ public class SelectStrand : MonoBehaviour
 
     public static void DoDeleteStrand(GameObject go)
     {
-        int strandId = go.GetComponent<NucleotideComponent>().GetStrandId();
+        int strandId = go.GetComponent<NucleotideComponent>().StrandId;
         Strand strand = s_strandDict[strandId];
         ICommand command = new DeleteCommand(strand.GetStrandId(), strand.GetNucleotides(), strand.GetColor());
         CommandManager.AddCommand(command);
@@ -184,7 +184,7 @@ public class SelectStrand : MonoBehaviour
 
     public static void DeleteStrand(GameObject go)
     {
-        int strandId = go.GetComponent<NucleotideComponent>().GetStrandId();
+        int strandId = go.GetComponent<NucleotideComponent>().StrandId;
         Strand strand = s_strandDict[strandId];
         DeleteStrandFromHelix(go);
         ObjectListManager.DeleteButton(strandId);
@@ -194,8 +194,8 @@ public class SelectStrand : MonoBehaviour
     public static void DeleteStrandFromHelix(GameObject go)
     {
         var ntc = go.GetComponent<NucleotideComponent>();
-        int helixId = ntc.GetHelixId();
+        int helixId = ntc.HelixId;
         Helix helix = s_gridList[0].GetHelix(helixId);
-        helix.DeleteStrandId(ntc.GetStrandId());
+        helix.DeleteStrandId(ntc.StrandId);
     }
 }

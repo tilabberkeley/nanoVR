@@ -274,8 +274,8 @@ public class Strand
             if (_nucleotides[i].GetComponent<NucleotideComponent>() != null)
             {
                 var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
-                ntc.SetSelected(true);
-                ntc.SetStrandId(_strandId);
+                ntc.Selected = true;
+                ntc.StrandId = _strandId;
                 ntc.SetColor(_color);
             }
             // Set Crossover
@@ -296,7 +296,7 @@ public class Strand
     public void SetCone()
     {
         _cone.GetComponent<Renderer>().material.SetColor("_Color", _color);
-        if (_head.GetComponent<NucleotideComponent>().GetDirection() == 0)
+        if (_head.GetComponent<NucleotideComponent>().Direction == 0)
         {
             _cone.transform.eulerAngles = new Vector3(90, 0, 0);
         }
@@ -334,8 +334,8 @@ public class Strand
             if (nucleotides[i].GetComponent<NucleotideComponent>() != null)
             {
                 var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
-                ntc.SetSelected(false);
-                ntc.SetStrandId(-1);
+                ntc.Selected = false;
+                ntc.StrandId = -1;
                 ntc.ResetColor();
                 ntc.Highlight(Color.black);
             }

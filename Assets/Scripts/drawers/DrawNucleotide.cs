@@ -139,13 +139,13 @@ public class DrawNucleotide : MonoBehaviour
             return;
         }
 
-        if (!s_startGO.GetComponent<NucleotideComponent>().IsSelected()
-            && !s_endGO.GetComponent<NucleotideComponent>().IsSelected())
+        if (!s_startGO.GetComponent<NucleotideComponent>().Selected
+            && !s_endGO.GetComponent<NucleotideComponent>().Selected)
         {
             DoCreateStrand(nucleotides, s_numStrands);
         }
-        else if (s_startGO.GetComponent<NucleotideComponent>().IsSelected()
-            && !s_endGO.GetComponent<NucleotideComponent>().IsSelected())
+        else if (s_startGO.GetComponent<NucleotideComponent>().Selected
+            && !s_endGO.GetComponent<NucleotideComponent>().Selected)
         {
             DoEditStrand(nucleotides);
         }
@@ -162,18 +162,18 @@ public class DrawNucleotide : MonoBehaviour
     {
         var startNtc = start.GetComponent<NucleotideComponent>();
         var endNtc = end.GetComponent<NucleotideComponent>();
-        if (startNtc.GetHelixId() != endNtc.GetHelixId()
-            || startNtc.GetDirection() != endNtc.GetDirection()
-            || (startNtc.GetStrandId() != endNtc.GetStrandId() 
-            && endNtc.GetStrandId() != -1))
+        if (startNtc.HelixId != endNtc.HelixId
+            || startNtc.Direction != endNtc.Direction
+            || (startNtc.StrandId != endNtc.StrandId
+            && endNtc.StrandId != -1))
         {
             return null;
         }
        
         int startId = startNtc.Id;
         int endId = endNtc.Id;
-        int helixId = startNtc.GetHelixId();
-        int direction = startNtc.GetDirection();
+        int helixId = startNtc.HelixId;
+        int direction = startNtc.Direction;
 
         // CHANGE THIS SINCE HELICES CAN BE DELETED
         Helix helix = s_gridList[0].GetHelix(helixId);
@@ -213,9 +213,9 @@ public class DrawNucleotide : MonoBehaviour
     public static void AddStrandToHelix(GameObject go)
     {
         var ntc = go.GetComponent<NucleotideComponent>();
-        int helixId = ntc.GetHelixId();
+        int helixId = ntc.HelixId;
         Helix helix = s_gridList[0].GetHelix(helixId);
-        helix.AddStrandId(ntc.GetStrandId());
+        helix.AddStrandId(ntc.Id);
     }
 
     /// <summary>
@@ -242,10 +242,10 @@ public class DrawNucleotide : MonoBehaviour
     public static void EditStrand(List<GameObject> newNucls)
     {
         var startNtc = newNucls[0].GetComponent<NucleotideComponent>();
-        int strandId = startNtc.GetStrandId();
+        int strandId = startNtc.Id;
         if (strandId == -1)
         {
-            strandId = newNucls.Last().GetComponent<NucleotideComponent>().GetStrandId();
+            strandId = newNucls.Last().GetComponent<NucleotideComponent>().Id;
         }
         Strand strand = s_strandDict[strandId]; 
        
@@ -273,8 +273,8 @@ public class DrawNucleotide : MonoBehaviour
     /// </summary>
     public void DoEraseStrand()
     { 
-        if (s_startGO.GetComponent<NucleotideComponent>().IsSelected()
-            && s_endGO.GetComponent<NucleotideComponent>().IsSelected())
+        if (s_startGO.GetComponent<NucleotideComponent>().Selected
+            && s_endGO.GetComponent<NucleotideComponent>().Selected)
         {
             List<GameObject> nucleotides = MakeNuclList(s_startGO, s_endGO);
             if (nucleotides == null)
@@ -296,7 +296,7 @@ public class DrawNucleotide : MonoBehaviour
     {
         // DEBUG THIS
         var startNtc = nucleotides[0].GetComponent<NucleotideComponent>();
-        int strandId = startNtc.GetStrandId();
+        int strandId = startNtc.Id;
         Strand strand = s_strandDict[strandId];
 
         if (nucleotides.Last() == strand.GetTail())
@@ -319,7 +319,7 @@ public class DrawNucleotide : MonoBehaviour
     {
         if (nucComp.isEndNuclueotide())
         {
-            int helixId = nucComp.GetHelixId();
+            int helixId = nucComp.Id;
             s_helixDict.TryGetValue(helixId, out Helix helix);
             helix.Extend();
         }

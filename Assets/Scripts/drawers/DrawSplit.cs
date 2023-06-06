@@ -96,7 +96,7 @@ public class DrawSplit : MonoBehaviour
     public static void SplitStrand(GameObject go, Color color, bool splitAfter)
     {
         var startNtc = go.GetComponent<NucleotideComponent>();
-        int strandId = startNtc.GetStrandId();
+        int strandId = startNtc.StrandId;
         Strand strand = s_strandDict[strandId];
         if (IsValid(go))
         {
@@ -114,11 +114,11 @@ public class DrawSplit : MonoBehaviour
     public static bool IsValid(GameObject go)
     {
         var startNtc = go.GetComponent<NucleotideComponent>();
-        if (!startNtc.IsSelected())
+        if (!startNtc.Selected)
         {
             return false;
         }
-        int strandId = startNtc.GetStrandId();
+        int strandId = startNtc.StrandId;
         Strand strand = s_strandDict[strandId];
 
         if (strand.GetHead() == go || strand.GetTail() == go)

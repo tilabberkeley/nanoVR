@@ -123,10 +123,14 @@ public class SelectHelix : MonoBehaviour
     public void HighlightHelix(GameObject go)
     {
         var gc = go.GetComponent<GridComponent>();
+        if (gc.Helix == null)
+        {
+            return;
+        }
         gc.Helix.Highlight(Color.red);
     }
 
-    public void UnhighlightHelix(GameObject go)
+    public static void UnhighlightHelix(GameObject go)
     {
         if (go == null) { return; }
         var gc = go.GetComponent<GridComponent>();

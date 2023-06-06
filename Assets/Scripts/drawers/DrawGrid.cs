@@ -92,7 +92,6 @@ public class DrawGrid : MonoBehaviour
                 var gc = s_hit.collider.GetComponent<GridComponent>();
                 if (!gc.Selected)
                 {
-                    gc.Selected = true;
                     Vector3 startPos = s_hit.collider.bounds.center;
                     Vector3 endPos = startPos - new Vector3(0, 0, 64 * 0.034f);
                     int id = _grid.GetLines().Count;
@@ -100,10 +99,8 @@ public class DrawGrid : MonoBehaviour
                     _grid.AddHelix(id, startPos, endPos, plane, startPos);
                     gc.Line = _grid.GetLine(id);
                     gc.Helix = _grid.GetHelix(id);
-                }
-                else
-                {
-                    // HIGHLIGHT HELIX!
+                    gc.Selected = true;
+
                 }
             }
         }

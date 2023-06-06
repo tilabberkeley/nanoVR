@@ -31,13 +31,9 @@ public class NucleotideComponent : MonoBehaviour
     private Renderer _ntRenderer;
 
     public int Id { get; set; }
-    public void SetId(int id) { _id = id; }
-    public int GetHelixId() { return _helixId; }
-    public void SetHelixId(int helixId) { _helixId = helixId; }
-    public int GetStrandId() { return _strandId; }
-    public void SetStrandId(int strandId) { _strandId = strandId; }
-    public int GetDirection() { return _direction; }
-    public void SetDirection(int direction) { _direction = direction; }
+    public int HelixId { get; set; }
+    public int StrandId { get; set; }
+    public int Direction { get; set; }
     public Vector3 GetPosition() { return transform.position; }
     public void SetPosition(Vector3 p) { transform.position = p; }
     public bool HasCrossover() { return _crossoverGO != null; }
@@ -55,8 +51,7 @@ public class NucleotideComponent : MonoBehaviour
     public void SetNextBB(GameObject n) { _nextBB = n; }
     public GameObject GetComplementGO() { return _complementGO; }
     public void SetComplementGO(GameObject c) { _complementGO = c; }
-    public bool IsSelected() { return _selected; }
-    public void SetSelected(bool selected) { _selected = selected; }
+    public bool Selected { get; set; }
 
     public Color GetColor() { return _color; }
     public void SetColor(Color c) 

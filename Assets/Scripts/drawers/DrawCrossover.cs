@@ -146,8 +146,8 @@ public class DrawCrossover : MonoBehaviour
         {
             return;
         }
-        Strand startStrand = s_strandDict[startGO.GetComponent<NucleotideComponent>().GetStrandId()];
-        Strand endStrand = s_strandDict[endGO.GetComponent<NucleotideComponent>().GetStrandId()];
+        Strand startStrand = s_strandDict[startGO.GetComponent<NucleotideComponent>().StrandId];
+        Strand endStrand = s_strandDict[endGO.GetComponent<NucleotideComponent>().StrandId];
         bool isFirstEnd = startGO == startStrand.GetHead() || startGO == startStrand.GetTail();
         bool isSecondEnd = endGO == endStrand.GetHead() || endGO == endStrand.GetTail();
         ICommand command = new XoverCommand(startGO, endGO, startGO == startStrand.GetTail(), isFirstEnd, isSecondEnd);
@@ -165,9 +165,9 @@ public class DrawCrossover : MonoBehaviour
             return null;
         }
 
-        int strandId = startGO.GetComponent<NucleotideComponent>().GetStrandId();
+        int strandId = startGO.GetComponent<NucleotideComponent>().StrandId;
         Strand startStrand = s_strandDict[strandId];
-        int endStrandId = endGO.GetComponent<NucleotideComponent>().GetStrandId();
+        int endStrandId = endGO.GetComponent<NucleotideComponent>().StrandId;
         Strand endStrand = s_strandDict[endStrandId];
 
         // Create crossover.
@@ -215,12 +215,12 @@ public class DrawCrossover : MonoBehaviour
     public static bool IsValid(GameObject startGO, GameObject endGO)
     {
         var startNtc = startGO.GetComponent<NucleotideComponent>();
-        int startDir = startNtc.GetDirection();
-        int startHelix = startNtc.GetHelixId();
+        int startDir = startNtc.Direction;
+        int startHelix = startNtc.HelixId;
 
         var endNtc = endGO.GetComponent<NucleotideComponent>();
-        int endDir = endNtc.GetDirection();
-        int endHelix = endNtc.GetHelixId();
+        int endDir = endNtc.Direction;
+        int endHelix = endNtc.HelixId;
 
         if (startDir != endDir && startHelix != endHelix)
         {
@@ -232,11 +232,11 @@ public class DrawCrossover : MonoBehaviour
     public static List<GameObject> SplitStrand(GameObject go, bool first)
     {
         var startNtc = go.GetComponent<NucleotideComponent>();
-        if (!startNtc.IsSelected())
+        if (!startNtc.Selected)
         {
             return null;
         }
-        int strandId = startNtc.GetStrandId();
+        int strandId = startNtc.StrandId;
         Strand strand = s_strandDict[strandId];
 
         if (strand.GetHead() == go || strand.GetTail() == go)
@@ -266,8 +266,8 @@ public class DrawCrossover : MonoBehaviour
         var firstNtc = firstGO.GetComponent<NucleotideComponent>();
         var secondNtc = secondGO.GetComponent<NucleotideComponent>();
         var xoverComp = backbone.GetComponent<XoverComponent>();
-        int firstStrandId = firstNtc.GetStrandId();
-        int secondStrandId = secondNtc.GetStrandId();
+        int firstStrandId = firstNtc.StrandId;
+        int secondStrandId = secondNtc.StrandId;
         Strand firstStrand = s_strandDict[firstStrandId];
         Strand secondStrand = s_strandDict[secondStrandId];
 

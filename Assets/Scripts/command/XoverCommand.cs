@@ -19,7 +19,7 @@ public class XoverCommand : MonoBehaviour, ICommand
     {
         _startGO = startGO;
         _endGO = endGO;
-        _endId = endGO.GetComponent<NucleotideComponent>().GetStrandId();
+        _endId = endGO.GetComponent<NucleotideComponent>().StrandId;
         _endColor = endGO.GetComponent<NucleotideComponent>().GetColor();
         _isHead = isHead;
         _isFirstEnd = isFirstEnd;

@@ -39,8 +39,8 @@ public class DrawPoint : MonoBehaviour
 
         var ntc = sphere.GetComponent<NucleotideComponent>();
         ntc.Id = id;
-        ntc.SetHelixId(helixId);
-        ntc.SetDirection(ssDirection);
+        ntc.HelixId = helixId;
+        ntc.Direction = ssDirection;
         // TEST THIS
         // Material mat = new Material(Shader.Find("Standard"));
         // mat.SetColor("_Color", new Color(0.5f, 0.5f, 0.5f, 0.5f));
