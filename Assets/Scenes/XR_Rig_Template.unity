@@ -4684,7 +4684,6 @@ GameObject:
   - component: {fileID: 713889231}
   - component: {fileID: 713889233}
   - component: {fileID: 713889234}
-  - component: {fileID: 713889227}
   - component: {fileID: 713889235}
   - component: {fileID: 713889236}
   - component: {fileID: 713889237}
@@ -5240,22 +5239,6 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 875253871413052681, guid: c348712bda248c246b8c49b3db54643f, type: 3}
   m_ButtonPressPoint: 0.5
---- !u!114 &713889227
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 713889218}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 73a5f197c4866af4bbaaf63c02cfc9a1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  nucleotidePrefab: {fileID: 4553772625660252668, guid: 167599c8bbddf454cb72ea53c8703b7a, type: 3}
-  conePrefab: {fileID: 6779014084964482527, guid: ab4f4b410614de448a9aea2bb06c4443, type: 3}
-  backbonePrefab: {fileID: 1396808662735978176, guid: 5b1573ea60b4c7c4fa1b102f47f64682, type: 3}
-  xoverPrefab: {fileID: 6738283810033996249, guid: 1f1cf9289a49f4c47866b8a7cd573d72, type: 3}
 --- !u!135 &713889228
 SphereCollider:
   m_ObjectHideFlags: 0

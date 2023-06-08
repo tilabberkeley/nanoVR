@@ -45,8 +45,7 @@ public class Strand
         _head = nucleotides[0];
         _tail = nucleotides.Last();
         _xovers = new List<GameObject>();
-        DrawPoint d = new DrawPoint();
-        _cone = d.MakeCone(_head.transform.position); 
+        _cone = DrawPoint.MakeCone(_head.transform.position); 
     }
 
     // Strand constructor with Color parameter.
@@ -58,8 +57,7 @@ public class Strand
         _head = nucleotides[0];
         _tail = nucleotides.Last();
         _xovers = new List<GameObject>();
-        DrawPoint d = new DrawPoint();
-        _cone = d.MakeCone(_head.transform.position);
+        _cone = DrawPoint.MakeCone(_head.transform.position);
     }
 
     // Returns strand id.

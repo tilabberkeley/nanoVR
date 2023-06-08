@@ -4,17 +4,13 @@
  */
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using static UnityEngine.Object;
 
 /// <summary>
 /// Creates needed gameobjects like nucleotides, backbones, cones, Xovers, spheres, and grids.
 /// </summary>
-public class DrawPoint : MonoBehaviour
+public static class DrawPoint
 {
-    public GameObject nucleotidePrefab;
-    public GameObject conePrefab;
-    public GameObject backbonePrefab;
-    public GameObject xoverPrefab;
-   
     /// <summary>
     /// Creates nucleotide at given position.
     /// </summary>
@@ -25,35 +21,20 @@ public class DrawPoint : MonoBehaviour
     /// <returns>GameObject of Nucleotide.</returns>
     public static GameObject MakeNucleotide(Vector3 position, int id, int helixId, int ssDirection)
     {
-        // make sphere
         GameObject sphere =
                     Instantiate(Resources.Load("Nucleotide"),
                     position,
                     Quaternion.identity) as GameObject;        
-        //GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        //sphere.AddComponent<NucleotideComponent>();
-        //sphere.AddComponent<XRSimpleInteractable>();
-        //sphere.transform.position = position;
-        //sphere.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);
         sphere.name = "nucleotide" + id;
 
         var ntc = sphere.GetComponent<NucleotideComponent>();
         ntc.Id = id;
         ntc.HelixId = helixId;
         ntc.Direction = ssDirection;
-        // TEST THIS
-        // Material mat = new Material(Shader.Find("Standard"));
-        // mat.SetColor("_Color", new Color(0.5f, 0.5f, 0.5f, 0.5f));
-        // mat.SetFloat("_Mode", 3);
-        // mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        // mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        // mat.SetInt("_ZWrite", 0);
-        // mat.EnableKeyword("_ALPHABLEND_ON");
-        // mat.renderQueue = 3000;
         return sphere;
     }
 
-    public GameObject MakeCone(Vector3 position)
+    public static GameObject MakeCone(Vector3 position)
     {
         GameObject cone = Instantiate(Resources.Load("Cone"),
                                     position + new Vector3(0.015f, 0, 0),
@@ -118,7 +99,6 @@ public class DrawPoint : MonoBehaviour
         float dist = Vector3.Distance(nextGO.transform.position, prevGO.transform.position);
         xover.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
         xoverComp.SetLength(dist);
-     
         
         return xover;
     }
