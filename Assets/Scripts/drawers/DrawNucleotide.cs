@@ -215,7 +215,7 @@ public class DrawNucleotide : MonoBehaviour
         var ntc = go.GetComponent<NucleotideComponent>();
         int helixId = ntc.HelixId;
         Helix helix = s_gridList[0].GetHelix(helixId);
-        helix.AddStrandId(ntc.Id);
+        helix.AddStrandId(ntc.StrandId);
     }
 
     /// <summary>
@@ -242,10 +242,10 @@ public class DrawNucleotide : MonoBehaviour
     public static void EditStrand(List<GameObject> newNucls)
     {
         var startNtc = newNucls[0].GetComponent<NucleotideComponent>();
-        int strandId = startNtc.Id;
+        int strandId = startNtc.StrandId;
         if (strandId == -1)
         {
-            strandId = newNucls.Last().GetComponent<NucleotideComponent>().Id;
+            strandId = newNucls.Last().GetComponent<NucleotideComponent>().StrandId;
         }
         Strand strand = s_strandDict[strandId]; 
        
@@ -296,7 +296,7 @@ public class DrawNucleotide : MonoBehaviour
     {
         // DEBUG THIS
         var startNtc = nucleotides[0].GetComponent<NucleotideComponent>();
-        int strandId = startNtc.Id;
+        int strandId = startNtc.StrandId;
         Strand strand = s_strandDict[strandId];
 
         if (nucleotides.Last() == strand.GetTail())
@@ -319,7 +319,7 @@ public class DrawNucleotide : MonoBehaviour
     {
         if (nucComp.isEndNuclueotide())
         {
-            int helixId = nucComp.Id;
+            int helixId = nucComp.HelixId;
             s_helixDict.TryGetValue(helixId, out Helix helix);
             helix.Extend();
         }

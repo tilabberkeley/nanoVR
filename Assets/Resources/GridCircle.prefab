@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 4289800104734842985}
   - component: {fileID: 4289800104734842984}
   - component: {fileID: 4289800104734842999}
-  - component: {fileID: 4289800104734842998}
   - component: {fileID: 4289800104734842986}
   - component: {fileID: 4289800104734842997}
   - component: {fileID: 4289800104734842987}
+  - component: {fileID: 2959280174853223391}
   m_Layer: 0
   m_Name: GridCircle
   m_TagString: Untagged
@@ -85,20 +85,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &4289800104734842998
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4289800104734842996}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.5000001
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!54 &4289800104734842986
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -216,3 +202,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e2e95dba00366d4fa69982e53c7c799, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!65 &2959280174853223391
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4289800104734842996}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1.0000001, y: 1, z: 1.0000002}
+  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}

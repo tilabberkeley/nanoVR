@@ -243,10 +243,21 @@ public class Helix
         }
     }
 
+    public List<int> GetStrandIds()
+    {
+        return _strandIds;
+    }
+
     // Adds strandId to strand id list.
     public void AddStrandId(int strandId)
     {
         _strandIds.Add(strandId);
+    }
+
+    // Removes strandId from strand id list.
+    public void DeleteStrandId(int strandId)
+    {
+        _strandIds.Remove(strandId);
     }
 
     /// <summary>
@@ -256,12 +267,6 @@ public class Helix
     public int GetLength()
     {
         return _length;
-    }
-
-    // Removes strandId from strand id list.
-    public void DeleteStrandId(int strandId)
-    {
-        _strandIds.Remove(strandId);
     }
 
     public void Highlight(Color color)

@@ -91,6 +91,13 @@ public class Grid
         _lines.Add(line);
     }
 
+    public void DoAddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, Vector3 gridPoint)
+    {
+        ICommand command = new CreateHelixCommand(this, id, startPoint, endPoint, orientation, gridPoint);
+        CommandManager.AddCommand(command);
+        command.Do();
+    }
+
     public void AddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, Vector3 gridPoint)
     {
         Helix helix = new Helix(id, startPoint, endPoint, orientation, gridPoint);

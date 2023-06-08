@@ -171,8 +171,7 @@ public class DrawCrossover : MonoBehaviour
         Strand endStrand = s_strandDict[endStrandId];
 
         // Create crossover.
-        DrawPoint d = new DrawPoint();
-        GameObject xover = d.MakeXover(startGO, endGO, strandId);
+        GameObject xover = DrawPoint.MakeXover(startGO, endGO, strandId);
         startStrand.AddXover(xover);
 
         // Handle strand splitting.

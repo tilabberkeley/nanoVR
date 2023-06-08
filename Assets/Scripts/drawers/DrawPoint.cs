@@ -91,7 +91,7 @@ public class DrawPoint : MonoBehaviour
         return cylinder;
     }
 
-    public GameObject MakeXover(GameObject prevGO, GameObject nextGO, int strandId)
+    public static GameObject MakeXover(GameObject prevGO, GameObject nextGO, int strandId)
     {
         GameObject xover =
                    Instantiate(Resources.Load("Xover"),

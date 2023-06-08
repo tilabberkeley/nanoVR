@@ -32,7 +32,7 @@ public class NucleotideComponent : MonoBehaviour
 
     public int Id { get; set; }
     public int HelixId { get; set; }
-    public int StrandId { get; set; }
+    public int StrandId { get; set; } = -1;
     public int Direction { get; set; }
     public Vector3 GetPosition() { return transform.position; }
     public void SetPosition(Vector3 p) { transform.position = p; }
@@ -83,8 +83,8 @@ public class NucleotideComponent : MonoBehaviour
     /// <returns>True if the nucleotide is last. False otherwise</returns>
     public bool isEndNuclueotide()
     {
-        s_helixDict.TryGetValue(_helixId, out Helix helix);
+        s_helixDict.TryGetValue(HelixId, out Helix helix);
         // This nucleotide is the last nucleotide if its id is equal to the length of its helix - 1
-        return _id == helix.GetLength() - 1;
+        return Id == helix.GetLength() - 1;
     }
 }
