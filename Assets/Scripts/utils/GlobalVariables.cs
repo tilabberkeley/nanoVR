@@ -3,6 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu>
  */
 using System.Collections.Generic;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 
 /// <summary>
@@ -23,6 +24,9 @@ public static class GlobalVariables
     public static bool s_eraseTogOn = false;
     public static bool s_splitTogOn = false;
     public static bool s_mergeTogOn = false;
+
+    // adjust/add varaibles when add helix view.
+    public static bool s_nucleotideView = true;
 
     public static List<Object> s_origamis;
     public static List<Pointer> s_pointerList = new List<Pointer>();

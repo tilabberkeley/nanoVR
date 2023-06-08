@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using static GlobalVariables;
 
 /// <summary>
 /// Grid object keeps track of its helices.
@@ -104,21 +105,18 @@ public class Grid
         _helices.Add(helix);
     }
 
-    public void ShowHelices()
+    /// <summary>
+    /// Changes rendering of the lines and helixes in grid.
+    /// 
+    /// Note: Only method that changes value of s_nucleotideView.
+    /// </summary>
+    public void ChangeRendering()
     {
+        s_nucleotideView = !s_nucleotideView;
         for (int i = 0; i < _lines.Count; i++)
         {
-            _lines[i].HideLine();
-            _helices[i].ShowHideHelix(true);
-        }
-    }
-
-    public void ShowLines()
-    {
-        for (int i = 0; i < _lines.Count; i++)
-        {
-            _lines[i].ShowLine();
-            _helices[i].ShowHideHelix(false);
+            _lines[i].ChangeRendering();
+            _helices[i].ChangeRendering();
         }
     }
 }
