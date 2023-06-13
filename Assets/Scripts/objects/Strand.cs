@@ -186,6 +186,7 @@ public class Strand
         int splitIndex = _nucleotides.IndexOf(go);
         RemoveXover(splitIndex - 1);
         splitList.AddRange(_nucleotides.GetRange(0, splitIndex - 1));
+        // next line will error if xover gets removed
         _nucleotides[splitIndex - 1].GetComponent<Renderer>().material.SetColor("_Color", Color.white);
         _nucleotides.RemoveRange(0, splitIndex);
         _head = _nucleotides[0];
@@ -219,7 +220,7 @@ public class Strand
     public void RemoveXover(int index)
     {
         GameObject backbone = _nucleotides[index];
-        if (backbone.GetComponent<XoverComponent>() != null)
+        if (backbone.GetComponent<XoverComponent>())
         {
             RemoveXover(backbone);
         }
@@ -269,7 +270,6 @@ public class Strand
     {
         for (int i = 0; i < _nucleotides.Count; i++)
         {
-            Debug.Log(_nucleotides[i]);
             // Set nucleotide
             if (_nucleotides[i].GetComponent<NucleotideComponent>() != null)
             {

@@ -19,22 +19,10 @@ public class ObjectListManager : MonoBehaviour
     public static void CreateButton(int strandId)
     {
         GameObject button = Instantiate(Resources.Load("Button")) as GameObject;
-        try
-        {
-            button.transform.SetParent(GameObject.FindWithTag("StrandList").transform, false);
-        }
-        catch (Exception e)
-        {
-
-            Debug.Log(e.Message);
-
-        }
-        
-        //button.transform.SetParent(content.transform, false);
+        button.transform.SetParent(GameObject.FindWithTag("StrandList").transform, false);
         button.GetComponentInChildren<Text>().text = "Strand " + strandId;
         button.name = "StrandButton" + strandId;
         button.GetComponent<Button>().onClick.AddListener(() => SelStrand(strandId));
-        //cyl.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
     }
 
     // TEST

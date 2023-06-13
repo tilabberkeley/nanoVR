@@ -8,10 +8,12 @@ using UnityEngine;
 
 public class EditCommand : MonoBehaviour, ICommand
 {
+    private GameObject _startGO;
     private List<GameObject> _nucleotides;
 
-    public EditCommand(List<GameObject> nucleotides)
+    public EditCommand(GameObject startGO, List<GameObject> nucleotides)
     {
+        _startGO = startGO;
         _nucleotides = nucleotides;
     }
 
@@ -23,7 +25,7 @@ public class EditCommand : MonoBehaviour, ICommand
     public void Undo()
     {
        
-        DrawNucleotide.EraseStrand(_nucleotides);
+        DrawNucleotide.EraseStrand(_startGO, _nucleotides);
     }
 
     public void Redo()

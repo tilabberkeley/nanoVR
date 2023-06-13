@@ -107,12 +107,15 @@ public class DrawMerge : MonoBehaviour
         int direction = startNtc.Direction;
         GameObject headNeighbor = helix.GetHeadNeighbor(go, direction);
         GameObject tailNeighbor = helix.GetTailNeighbor(go, direction);
-        if (!headNeighbor.GetComponent<NucleotideComponent>().Selected
-            && tailNeighbor.GetComponent<NucleotideComponent>().Selected)
+        if (strand.GetHead() == go && headNeighbor.GetComponent<NucleotideComponent>().Selected)
         {
-            return false;
+            return true;
         }
-        return true;
+        if (strand.GetTail() == go && tailNeighbor.GetComponent<NucleotideComponent>().Selected)
+        {
+            return true;
+        }
+        return false;
 
     }
 
@@ -149,10 +152,12 @@ public class DrawMerge : MonoBehaviour
 
     public static void MergeStrand(GameObject go)
     {
+        /*
         if (!IsValid(go))
         {
             return;
         }
+        */
         var ntc = go.GetComponent<NucleotideComponent>();
         int helixId = ntc.HelixId;
         int strandId = ntc.StrandId;
@@ -163,13 +168,13 @@ public class DrawMerge : MonoBehaviour
         if (strand.GetHead() == go)
         {
             GameObject neighbor = helix.GetHeadNeighbor(go, direction);
-            GameObject backbone = helix.GetHeadBackbone(go, go.GetComponent<NucleotideComponent>().Direction);
+            GameObject backbone = helix.GetHeadBackbone(go, direction);
             MergeStrand(go, neighbor, backbone, true);
         }
-        if (strand.GetTail() == go)
+        else if (strand.GetTail() == go)
         {
             GameObject neighbor = helix.GetTailNeighbor(go, direction);
-            GameObject backbone = helix.GetTailBackbone(go, go.GetComponent<NucleotideComponent>().Direction);
+            GameObject backbone = helix.GetTailBackbone(go, direction);
             MergeStrand(go, neighbor, backbone, false);
         }
     }
@@ -181,11 +186,13 @@ public class DrawMerge : MonoBehaviour
         Strand firstStrand = s_strandDict[firstNtc.StrandId];
         Strand secondStrand = s_strandDict[secondNtc.StrandId];
 
+        /*
         if (secondGO == null)
         {
             firstStrand.SetComponents();
             return;
         }
+        */
 
         if (isHead)
         {
@@ -199,7 +206,7 @@ public class DrawMerge : MonoBehaviour
             firstStrand.AddToTail(secondStrand.GetNucleotides());
             // must add backbone between 2 strands
         }
-        secondStrand.RemoveStrand();
+        SelectStrand.DeleteStrand(secondGO);
         firstStrand.SetComponents();
     }
 }

@@ -17,7 +17,7 @@ public class SplitCommand : MonoBehaviour, ICommand
 
     public void Do()
     {
-        DrawSplit.SplitStrand(_go, _color, true);
+        DrawSplit.SplitStrand(_go, _color, false);
     }
     public void Undo()
     {
@@ -26,6 +26,6 @@ public class SplitCommand : MonoBehaviour, ICommand
 
     public void Redo()
     {
-        DrawSplit.SplitStrand(_go, _color, true);
+        DrawSplit.SplitStrand(_go, _color, false);
     }
 }

@@ -83,6 +83,7 @@ public class DrawSplit : MonoBehaviour
 
     public void DoSplitStrand(GameObject go)
     {
+        if (!IsValid(go)) { return; }
         Color color = s_colors[s_numStrands % 6];
         ICommand command = new SplitCommand(go, color);
         CommandManager.AddCommand(command);
@@ -98,16 +99,14 @@ public class DrawSplit : MonoBehaviour
         var startNtc = go.GetComponent<NucleotideComponent>();
         int strandId = startNtc.StrandId;
         Strand strand = s_strandDict[strandId];
-        if (IsValid(go))
+
+        if (splitAfter)
         {
-            if (splitAfter)
-            {
-                CreateStrand(strand.SplitAfter(go), color);
-            }
-            else
-            {
-                CreateStrand(strand.SplitBefore(go), color);
-            }
+            CreateStrand(strand.SplitAfter(go), color);
+        }
+        else
+        {
+            CreateStrand(strand.SplitBefore(go), color);
         }
     }
 
@@ -121,14 +120,15 @@ public class DrawSplit : MonoBehaviour
         int strandId = startNtc.StrandId;
         Strand strand = s_strandDict[strandId];
 
-        if (strand.GetHead() == go || strand.GetTail() == go)
+        if (strand.GetHead() == go)
         {
             return false;
         }
-        if (strand.GetNextGO(go).GetComponent<XoverComponent>() != null)
+        /*
+        if (strand.GetNextGO(go).GetComponent<XoverComponent>())
         {
             return false;
-        }
+        }*/
 
         return true;
     }

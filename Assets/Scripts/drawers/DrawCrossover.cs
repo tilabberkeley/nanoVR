@@ -221,7 +221,8 @@ public class DrawCrossover : MonoBehaviour
         int endDir = endNtc.Direction;
         int endHelix = endNtc.HelixId;
 
-        if (startDir != endDir && startHelix != endHelix)
+        //if (startDir != endDir && startHelix != endHelix)
+        if (startDir != endDir)
         {
             return true;
         }
@@ -292,7 +293,7 @@ public class DrawCrossover : MonoBehaviour
             xoverComp.SetNextGO(firstGO);
             HandleCycle(firstStrand, secondStrand, false);
         }
-        secondStrand.RemoveStrand();
+        SelectStrand.DeleteStrand(secondGO);
         firstStrand.SetComponents();
     }
 

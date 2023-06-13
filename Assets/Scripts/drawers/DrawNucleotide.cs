@@ -132,8 +132,6 @@ public class DrawNucleotide : MonoBehaviour
     public void BuildStrand()
     {
         List<GameObject> nucleotides = MakeNuclList(s_startGO, s_endGO);
-        Debug.Log(s_startGO);
-        Debug.Log(s_endGO);
         if (nucleotides == null)
         {
             return;
@@ -147,7 +145,7 @@ public class DrawNucleotide : MonoBehaviour
         else if (s_startGO.GetComponent<NucleotideComponent>().Selected
             && !s_endGO.GetComponent<NucleotideComponent>().Selected)
         {
-            DoEditStrand(nucleotides);
+            DoEditStrand(s_startGO, nucleotides);
         }
     }
     
@@ -227,9 +225,9 @@ public class DrawNucleotide : MonoBehaviour
         ObjectListManager.CreateButton(strandId);
     }
 
-    public void DoEditStrand(List<GameObject> newNucls)
+    public void DoEditStrand(GameObject startGO, List<GameObject> newNucls)
     {
-        ICommand command = new EditCommand(newNucls);
+        ICommand command = new EditCommand(startGO, newNucls);
         CommandManager.AddCommand(command);
         command.Do();
     }
@@ -281,7 +279,7 @@ public class DrawNucleotide : MonoBehaviour
             {
                 return;
             }
-            ICommand command = new EraseCommand(nucleotides);
+            ICommand command = new EraseCommand(s_startGO, nucleotides);
             CommandManager.AddCommand(command);
             command.Do();
         }
@@ -292,14 +290,26 @@ public class DrawNucleotide : MonoBehaviour
     /// the strand itself is also deleted.
     /// </summary>
     /// <param name="nucleotides">List of nucleotides to delete from selected strand.</param>
-    public static void EraseStrand(List<GameObject> nucleotides)
+    public static void EraseStrand(GameObject startGO, List<GameObject> nucleotides)
     {
         // DEBUG THIS
         var startNtc = nucleotides[0].GetComponent<NucleotideComponent>();
         int strandId = startNtc.StrandId;
         Strand strand = s_strandDict[strandId];
 
-        if (nucleotides.Last() == strand.GetTail())
+        if (nucleotides.Last() == strand.GetTail() && nucleotides[0] == strand.GetHead())
+        {
+            if (startGO == strand.GetHead())
+            {
+                strand.RemoveFromHead(nucleotides.GetRange(0, nucleotides.Count - 1));
+            }
+            else if (startGO == strand.GetTail())
+            {
+                strand.RemoveFromTail(nucleotides.GetRange(1, nucleotides.Count - 1));
+            }
+        }
+
+        else if (nucleotides.Last() == strand.GetTail())
         {
             // Remove nucls from tail of strand with direction 0
             strand.RemoveFromTail(nucleotides.GetRange(1, nucleotides.Count - 1));
@@ -317,7 +327,7 @@ public class DrawNucleotide : MonoBehaviour
     /// <param name="nucComp">Nucleotide Component of the nucleotide game object.</param>
     private void ExtendIfLastNucleotide(NucleotideComponent nucComp)
     {
-        if (nucComp.isEndNuclueotide())
+        if (nucComp.IsEndNucleotide())
         {
             int helixId = nucComp.HelixId;
             s_helixDict.TryGetValue(helixId, out Helix helix);

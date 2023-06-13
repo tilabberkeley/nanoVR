@@ -7,16 +7,18 @@ using UnityEngine;
 
 public class EraseCommand : MonoBehaviour, ICommand
 {
+    private GameObject _startGO;
     private List<GameObject> _nucleotides;
 
-    public EraseCommand(List<GameObject> nucleotides)
+    public EraseCommand(GameObject startGO, List<GameObject> nucleotides)
     {
+        _startGO = startGO;
         _nucleotides = nucleotides;
     }
 
     public void Do()
     {
-        DrawNucleotide.EraseStrand(_nucleotides);
+        DrawNucleotide.EraseStrand(_startGO, _nucleotides);
     }
 
     public void Undo()
@@ -26,6 +28,6 @@ public class EraseCommand : MonoBehaviour, ICommand
 
     public void Redo()
     {
-        DrawNucleotide.EraseStrand(_nucleotides);
+        DrawNucleotide.EraseStrand(_startGO, _nucleotides);
     }
 }

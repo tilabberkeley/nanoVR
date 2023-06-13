@@ -81,7 +81,7 @@ public class NucleotideComponent : MonoBehaviour
     /// Returns whether this nucleotide is the last nucleotide in its helix.
     /// </summary>
     /// <returns>True if the nucleotide is last. False otherwise</returns>
-    public bool isEndNuclueotide()
+    public bool IsEndNucleotide()
     {
         s_helixDict.TryGetValue(HelixId, out Helix helix);
         // This nucleotide is the last nucleotide if its id is equal to the length of its helix - 1
