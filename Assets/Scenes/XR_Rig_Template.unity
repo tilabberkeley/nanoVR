@@ -4689,6 +4689,7 @@ GameObject:
   - component: {fileID: 713889237}
   - component: {fileID: 713889238}
   - component: {fileID: 713889229}
+  - component: {fileID: 713889224}
   m_Layer: 0
   m_Name: RightHand Controller
   m_TagString: Untagged
@@ -5239,6 +5240,21 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 875253871413052681, guid: c348712bda248c246b8c49b3db54643f, type: 3}
   m_ButtonPressPoint: 0.5
+--- !u!114 &713889224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 713889218}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21a9aabf718ab7d438312ed620e81787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _xrNode: 5
+  rightRayInteractor: {fileID: 713889222}
+  canvas: {fileID: 546608843}
 --- !u!135 &713889228
 SphereCollider:
   m_ObjectHideFlags: 0
