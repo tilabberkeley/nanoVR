@@ -65,6 +65,7 @@ public class Helix
         lastPositionA = _gridPoint - new Vector3(0, OFFSET, 0);
         lastPositionB = _gridPoint + new Vector3(0, OFFSET, 0);
         Extend();
+        ChangeRendering();
         s_helixDict.Add(id, this);
     }
 
@@ -78,11 +79,11 @@ public class Helix
         for (int i = prevLength; i < _length; i++)
         {
             GameObject sphereA = DrawPoint.MakeNucleotide(lastPositionA, i, _id, 1);
-            sphereA.SetActive(false);
+            //sphereA.SetActive(false);
             _nucleotidesA.Add(sphereA);
 
             GameObject sphereB = DrawPoint.MakeNucleotide(lastPositionB, i, _id, 0);
-            sphereB.SetActive(false);
+            //sphereB.SetActive(false);
             _nucleotidesB.Add(sphereB);
 
             float angleA = i * (2 * (float)(Math.PI) / 10); // rotation per bp in radians
@@ -117,7 +118,7 @@ public class Helix
         for (int i = start; i < _nucleotidesA.Count; i++)
         {
             GameObject cylinder = DrawPoint.MakeBackbone(i - 1, _nucleotidesA[i].transform.position, _nucleotidesA[i - 1].transform.position);
-            cylinder.SetActive(false);
+            //cylinder.SetActive(false);
             _backbonesA.Add(cylinder);
         }
 
@@ -125,7 +126,7 @@ public class Helix
         for (int i = start; i < _nucleotidesB.Count; i++)
         {
             GameObject cylinder = DrawPoint.MakeBackbone(i - 1, _nucleotidesB[i].transform.position, _nucleotidesB[i - 1].transform.position);
-            cylinder.SetActive(false);
+            //cylinder.SetActive(false);
             _backbonesB.Add(cylinder);
         }
     }
@@ -288,26 +289,25 @@ public class Helix
     }
 
     /// <summary>
-    /// Shows and hides helix and its components (cones).
+    /// Changes rendering of helix and its components (cones).
     /// </summary>
-    /// <param name="enabled">Boolean for whether gameobjects are hidden or not.</param>
-    public void ShowHideHelix(bool enabled)
+    public void ChangeRendering()
     {
         for (int i = 0; i < _backbonesA.Count; i++)
         {
-            _nucleotidesA[i].SetActive(enabled);
-            _backbonesA[i].SetActive(enabled);
-            _nucleotidesB[i].SetActive(enabled);
-            _backbonesB[i].SetActive(enabled);
+            _nucleotidesA[i].SetActive(s_nucleotideView);
+            _backbonesA[i].SetActive(s_nucleotideView);
+            _nucleotidesB[i].SetActive(s_nucleotideView);
+            _backbonesB[i].SetActive(s_nucleotideView);
         }
-        _nucleotidesA[_nucleotidesA.Count - 1].SetActive(enabled);
-        _nucleotidesB[_nucleotidesB.Count - 1].SetActive(enabled);
+        _nucleotidesA[_nucleotidesA.Count - 1].SetActive(s_nucleotideView);
+        _nucleotidesB[_nucleotidesB.Count - 1].SetActive(s_nucleotideView);
 
         for (int i = 0; i < _strandIds.Count; i++)
         {
             Strand strand = s_strandDict[_strandIds[i]];
-            strand.ShowHideCone(enabled);
-        }
+            strand.ShowHideCone(s_nucleotideView);
+        }   
     }
 }
 

@@ -2,6 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu>
  */
+using Newtonsoft.Json.Bson;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,6 +21,8 @@ public class DrawGrid : MonoBehaviour
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rightRayInteractor;
     bool triggerReleased = true;
+    bool primaryButtonReleased = true;
+    bool secondaryButtonReleased = true;
     bool gripReleased = true;
     private static RaycastHit s_hit;
     [SerializeField] private Dropdown dropdown;
@@ -153,16 +156,17 @@ public class DrawGrid : MonoBehaviour
         }
         */
 
-        bool primaryValue;
-        if ((_device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryValue) && primaryValue))
+        bool primaryButton;
+        if (primaryButtonReleased 
+            && _device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryButton) 
+            && primaryButton)
         {
-            _grid.ShowHelices();
+            primaryButtonReleased = false;
+            _grid.ChangeRendering();
         }
-
-        bool secondaryValue;
-        if ((_device.TryGetFeatureValue(CommonUsages.secondaryButton, out secondaryValue) && secondaryValue))
+        else if (!(_device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryButton) && primaryButton))
         {
-            _grid.ShowLines();
+            primaryButtonReleased = true;
         }
 
         /*
