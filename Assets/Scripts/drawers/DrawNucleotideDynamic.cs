@@ -9,17 +9,20 @@ using static Highlight;
 
 public class DrawNucleotideDynamic : MonoBehaviour
 {
+    // Input controller variables
     [SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rightRayInteractor;
     [SerializeField] private GameObject canvas;
     private bool triggerReleased = true;
+    bool triggerValue;
+
+    // Helper variables
     private static GameObject s_startGO = null;
     private static GameObject s_endGO = null;
     private static RaycastHit s_hit;
     private static List<GameObject> s_currentNucleotides;
-    bool triggerValue;
 
     void GetDevice()
     {
@@ -37,6 +40,14 @@ public class DrawNucleotideDynamic : MonoBehaviour
             GetDevice();
         }
     }
+
+    // Declare update variables
+    bool creatingStrand = false;
+    NucleotideComponent nucComp;
+    bool hitIsNucleotide;
+    GameObject hitGO;
+    bool isStartNucleotide;
+    bool isPrevNucleotide;
 
     void Update()
     {
@@ -57,24 +68,20 @@ public class DrawNucleotideDynamic : MonoBehaviour
 
         bool gotTriggerValue = _device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue);
         bool hitFound = rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit);
-
-        bool hitIsNucleotide = false;
-        bool isStartNucleotide = false;
-        bool isPrevNucleotide = false;
-        GameObject hitGO = null;
-
-        // Set helper variables
-        if (hitFound)
+        if (!hitFound)
         {
-            NucleotideComponent nucComp = s_hit.transform.GetComponent<NucleotideComponent>();
-            hitIsNucleotide = nucComp != null;
-            if (hitIsNucleotide)
-            {
-                ExtendIfLastNucleotide(nucComp);
-                hitGO = s_hit.collider.gameObject;
-                isStartNucleotide = ReferenceEquals(hitGO, s_startGO);
-                isPrevNucleotide = ReferenceEquals(hitGO, s_endGO);
-            }
+            return;
+        }
+
+        nucComp = s_hit.transform.GetComponent<NucleotideComponent>();
+        hitIsNucleotide = nucComp != null;
+        hitGO = s_hit.collider.gameObject;
+        isStartNucleotide = ReferenceEquals(hitGO, s_startGO);
+        isPrevNucleotide = ReferenceEquals(hitGO, s_endGO);
+
+        if(hitIsNucleotide)
+        {
+            ExtendIfLastNucleotide(nucComp);
         }
 
         // Handles first nucleotide selection
@@ -83,6 +90,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
             triggerReleased = false;
             if (s_startGO == null && hitFound && hitIsNucleotide)
             {
+                creatingStrand = true;
                 s_startGO = hitGO;
                 s_currentNucleotides = MakeNuclList(s_startGO, s_startGO);
                 HighlightNucleotideSelection(s_currentNucleotides);
@@ -91,7 +99,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
         // Holding down trigger, highlight current strand                                             
         else if (gotTriggerValue && triggerValue && !triggerReleased)
         {
-            if (hitFound && hitIsNucleotide && !isStartNucleotide && !isPrevNucleotide && isValidNucleotideSelection(s_startGO, hitGO))
+            if (hitFound && hitIsNucleotide && !isStartNucleotide && !isPrevNucleotide && creatingStrand && isValidNucleotideSelection(s_startGO, hitGO))
             {
                 s_endGO = hitGO;
                 UnhighlightNucleotideSelection(s_currentNucleotides);
@@ -103,9 +111,13 @@ public class DrawNucleotideDynamic : MonoBehaviour
         else if (!triggerReleased && !triggerValue)
         {
             triggerReleased = true;
-            UnhighlightNucleotideSelection(s_currentNucleotides);
-            BuildStrand();
-            ResetNucleotides();
+            if (creatingStrand)
+            {
+                UnhighlightNucleotideSelection(s_currentNucleotides);
+                BuildStrand();
+                ResetNucleotides();
+                creatingStrand = false;
+            }
         }
     }
 
