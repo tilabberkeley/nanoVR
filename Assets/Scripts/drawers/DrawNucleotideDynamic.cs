@@ -23,6 +23,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
     private static GameObject s_endGO = null;
     private static RaycastHit s_hit;
     private static List<GameObject> s_currentNucleotides;
+    bool creatingStrand = false;
 
     void GetDevice()
     {
@@ -40,14 +41,6 @@ public class DrawNucleotideDynamic : MonoBehaviour
             GetDevice();
         }
     }
-
-    // Declare update variables
-    bool creatingStrand = false;
-    NucleotideComponent nucComp;
-    bool hitIsNucleotide;
-    GameObject hitGO;
-    bool isStartNucleotide;
-    bool isPrevNucleotide;
 
     void Update()
     {
@@ -73,11 +66,12 @@ public class DrawNucleotideDynamic : MonoBehaviour
             return;
         }
 
-        nucComp = s_hit.transform.GetComponent<NucleotideComponent>();
-        hitIsNucleotide = nucComp != null;
-        hitGO = s_hit.collider.gameObject;
-        isStartNucleotide = ReferenceEquals(hitGO, s_startGO);
-        isPrevNucleotide = ReferenceEquals(hitGO, s_endGO);
+        // Set helper variables
+        NucleotideComponent nucComp = s_hit.transform.GetComponent<NucleotideComponent>();
+        bool hitIsNucleotide = nucComp != null;
+        GameObject hitGO = s_hit.collider.gameObject;
+        bool isStartNucleotide = ReferenceEquals(hitGO, s_startGO);
+        bool isPrevNucleotide = ReferenceEquals(hitGO, s_endGO);
 
         if(hitIsNucleotide)
         {
@@ -114,7 +108,14 @@ public class DrawNucleotideDynamic : MonoBehaviour
             if (creatingStrand)
             {
                 UnhighlightNucleotideSelection(s_currentNucleotides);
-                BuildStrand();
+                if (s_drawTogOn)
+                {
+                    BuildStrand();
+                }
+                else if (s_eraseTogOn)
+                {
+                    DoEraseStrand();
+                }
                 ResetNucleotides();
                 creatingStrand = false;
             }
@@ -146,8 +147,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
         {
             DoCreateStrand(nucleotides, s_numStrands);
         }
-        else if (s_startGO.GetComponent<NucleotideComponent>().Selected
-            && !s_endGO.GetComponent<NucleotideComponent>().Selected)
+        else
         {
             DoEditStrand(nucleotides);
         }
@@ -159,7 +159,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
     /// <param name="start">Nucleotide GameObject</param>
     /// <param name="end">Nucleotide GameObject</param>
     /// <returns></returns>
-    private bool isValidNucleotideSelection(GameObject start, GameObject end)
+    private static bool isValidNucleotideSelection(GameObject start, GameObject end)
     {
         NucleotideComponent startNtc = start.GetComponent<NucleotideComponent>();
         NucleotideComponent endNtc = end.GetComponent<NucleotideComponent>();
@@ -175,12 +175,9 @@ public class DrawNucleotideDynamic : MonoBehaviour
     /// <returns>Returns a list of GameObjects.</returns>
     private static List<GameObject> MakeNuclList(GameObject start, GameObject end)
     {
-        var startNtc = start.GetComponent<NucleotideComponent>();
-        var endNtc = end.GetComponent<NucleotideComponent>();
-        if (startNtc.HelixId != endNtc.HelixId
-            || startNtc.Direction != endNtc.Direction
-            || (startNtc.StrandId != endNtc.StrandId
-            && endNtc.StrandId != -1))
+        NucleotideComponent startNtc = start.GetComponent<NucleotideComponent>();
+        NucleotideComponent endNtc = end.GetComponent<NucleotideComponent>();
+        if (!isValidNucleotideSelection(start, end))
         {
             return null;
         }
