@@ -4,7 +4,7 @@
  */
 using UnityEngine;
 
-public class SplitCommand : MonoBehaviour, ICommand
+public class SplitCommand : ICommand
 {
     private GameObject _go;
     private Color _color;

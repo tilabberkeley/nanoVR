@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class XoverCommand : MonoBehaviour, ICommand
+public class XoverCommand : ICommand
 {
     private GameObject _startGO;
     private GameObject _endGO;

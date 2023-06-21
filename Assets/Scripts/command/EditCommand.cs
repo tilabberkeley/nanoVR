@@ -6,7 +6,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EditCommand : MonoBehaviour, ICommand
+public class EditCommand : ICommand
 {
     private List<GameObject> _nucleotides;
 

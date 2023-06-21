@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EraseCommand : MonoBehaviour, ICommand
+public class EraseCommand : ICommand
 {
     private List<GameObject> _nucleotides;
 
