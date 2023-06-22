@@ -61,19 +61,23 @@ public class DrawNucleotideDynamic : MonoBehaviour
 
         bool gotTriggerValue = _device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue);
         bool hitFound = rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit);
-        if (!hitFound)
-        {
-            return;
-        }
 
         // Set helper variables
-        NucleotideComponent nucComp = s_hit.transform.GetComponent<NucleotideComponent>();
-        bool hitIsNucleotide = nucComp != null;
-        GameObject hitGO = s_hit.collider.gameObject;
-        bool isStartNucleotide = ReferenceEquals(hitGO, s_startGO);
-        bool isPrevNucleotide = ReferenceEquals(hitGO, s_endGO);
-
-        if(hitIsNucleotide)
+        NucleotideComponent nucComp = null;
+        bool hitIsNucleotide = false;
+        GameObject hitGO = null;
+        bool isStartNucleotide = false;
+        bool isPrevNucleotide = false;
+        if (hitFound)
+        {
+            nucComp = s_hit.transform.GetComponent<NucleotideComponent>();
+            hitIsNucleotide = nucComp != null;
+            hitGO = s_hit.collider.gameObject;
+            isStartNucleotide = ReferenceEquals(hitGO, s_startGO);
+            isPrevNucleotide = ReferenceEquals(hitGO, s_endGO);
+        }
+        
+        if(hitIsNucleotide && creatingStrand)
         {
             ExtendIfLastNucleotide(nucComp);
         }
@@ -108,13 +112,17 @@ public class DrawNucleotideDynamic : MonoBehaviour
             if (creatingStrand)
             {
                 UnhighlightNucleotideSelection(s_currentNucleotides);
-                if (s_drawTogOn)
+                // Null if didn't select any other valid nucleotides
+                if (s_endGO != null)
                 {
-                    BuildStrand();
-                }
-                else if (s_eraseTogOn)
-                {
-                    DoEraseStrand();
+                    if (s_drawTogOn)
+                    {
+                        BuildStrand();
+                    }
+                    else if (s_eraseTogOn)
+                    {
+                        DoEraseStrand();
+                    }
                 }
                 ResetNucleotides();
                 creatingStrand = false;
@@ -250,7 +258,8 @@ public class DrawNucleotideDynamic : MonoBehaviour
     /// Adds list of nucleotides to beginning or end of strand. Adjusts head/tail of strand
     /// and strand id/color of each nucleotide component accordingly.
     /// </summary>
-    /// <param name="newNucls">List of nucleotides to add to current strand.</param>
+    /// <param name="newNucls">List of nucleotides to add to strand. A nucleotide, either the 
+    /// first or last GameObject in the list, is apart of a strand.</param>
     public static void EditStrand(List<GameObject> newNucls)
     {
         var startNtc = newNucls[0].GetComponent<NucleotideComponent>();
