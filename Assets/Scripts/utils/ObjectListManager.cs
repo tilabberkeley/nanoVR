@@ -5,6 +5,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using static GlobalVariables;
 
 public class ObjectListManager : MonoBehaviour
 {
@@ -23,6 +24,15 @@ public class ObjectListManager : MonoBehaviour
         button.GetComponentInChildren<Text>().text = "Strand " + strandId;
         button.name = "StrandButton" + strandId;
         button.GetComponent<Button>().onClick.AddListener(() => SelStrand(strandId));
+        button.transform.SetSiblingIndex(strandId);
+    }
+
+    public static void SelectAll()
+    {
+        foreach (int i in s_strandDict.Keys)
+        {
+            SelStrand(i);
+        }
     }
 
     // TEST

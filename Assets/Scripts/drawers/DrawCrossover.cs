@@ -3,6 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu>
  */
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -190,7 +191,7 @@ public class DrawCrossover : MonoBehaviour
         // Handle strand merging.
         MergeStrand(startGO, endGO, xover);
         return xover;
-        
+
     }
 
     public static void DoEraseXover(GameObject xover)
@@ -215,11 +216,9 @@ public class DrawCrossover : MonoBehaviour
     {
         var startNtc = startGO.GetComponent<NucleotideComponent>();
         int startDir = startNtc.Direction;
-        int startHelix = startNtc.HelixId;
 
         var endNtc = endGO.GetComponent<NucleotideComponent>();
         int endDir = endNtc.Direction;
-        int endHelix = endNtc.HelixId;
 
         //if (startDir != endDir && startHelix != endHelix)
         if (startDir != endDir)
@@ -293,7 +292,7 @@ public class DrawCrossover : MonoBehaviour
             xoverComp.SetNextGO(firstGO);
             HandleCycle(firstStrand, secondStrand, false);
         }
-        SelectStrand.DeleteStrand(secondGO);
+        //secondStrand.RemoveStrand();
         firstStrand.SetComponents();
     }
 
@@ -302,14 +301,16 @@ public class DrawCrossover : MonoBehaviour
         // Handles cycles in strand.
         if (firstStrand.GetStrandId() != secondStrand.GetStrandId())
         {
+            List<GameObject> nucleotides = secondStrand.GetNucleotides();
+            SelectStrand.DeleteStrand(nucleotides[0]);
             // Add second strand
             if (addToHead)
             {
-                firstStrand.AddToHead(secondStrand.GetNucleotides());
+                firstStrand.AddToHead(nucleotides);
             }
             else
             {
-                firstStrand.AddToTail(secondStrand.GetNucleotides());
+                firstStrand.AddToTail(nucleotides);
             }
         }
         else

@@ -156,7 +156,7 @@ public class DrawNucleotide : MonoBehaviour
     /// <param name="start">GameObject that marks the beginning of nucleotide list.</param>
     /// <param name="end">GameObject that marks the end of nucleotide list.</param>
     /// <returns>Returns a list of GameObjects.</returns>
-    public List<GameObject> MakeNuclList(GameObject start, GameObject end)
+    public static List<GameObject> MakeNuclList(GameObject start, GameObject end)
     {
         var startNtc = start.GetComponent<NucleotideComponent>();
         var endNtc = end.GetComponent<NucleotideComponent>();

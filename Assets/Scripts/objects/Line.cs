@@ -61,7 +61,7 @@ public class Line
 
         // Scale        
         float dist = Vector3.Distance(_endPoint, _startPoint);
-        _cyl.transform.localScale = new Vector3(0.068f, dist / 2, 0.068f);
+        _cyl.transform.localScale = new Vector3(0.07f, dist / 2, 0.07f);
 
 
         /*

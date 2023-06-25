@@ -6,6 +6,7 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using static GlobalVariables;
+using System;
 
 /// <summary>
 /// Strand object keeps track of an individual strand of nucleotides.
@@ -66,6 +67,12 @@ public class Strand
     // Returns nucleotide list.
     public List<GameObject> GetNucleotides() { return _nucleotides; }
 
+    public List<GameObject> GetNucleotides(int startIndex, int endIndex) 
+    {
+        int count = Math.Abs(endIndex - startIndex) + 1;
+        return _nucleotides.GetRange(startIndex, count); 
+    }
+
     // Returns head GameObject.
     public GameObject GetHead() { return _head; }
 
@@ -76,10 +83,9 @@ public class Strand
     public Color GetColor() { return _color; }
 
     // Returns next GameObject in nucleotide list.
-    public GameObject GetNextGO(GameObject go)
-    {
-        int index = _nucleotides.IndexOf(go);
-        return _nucleotides[index + 1];
+    public int GetIndex(GameObject go)
+    {     
+        return _nucleotides.IndexOf(go);
     }
 
     // Shows or hides cone based on input parameter.

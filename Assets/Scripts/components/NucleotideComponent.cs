@@ -30,6 +30,7 @@ public class NucleotideComponent : MonoBehaviour
 
     private Renderer _ntRenderer;
 
+    public bool Selected { get; set; } = false;
     public int Id { get; set; }
     public int HelixId { get; set; }
     public int StrandId { get; set; } = -1;
@@ -51,7 +52,6 @@ public class NucleotideComponent : MonoBehaviour
     public void SetNextBB(GameObject n) { _nextBB = n; }
     public GameObject GetComplementGO() { return _complementGO; }
     public void SetComplementGO(GameObject c) { _complementGO = c; }
-    public bool Selected { get; set; }
 
     public Color GetColor() { return _color; }
     public void SetColor(Color c) 

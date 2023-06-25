@@ -105,6 +105,11 @@ public class DrawGrid : MonoBehaviour
                     gc.Selected = true;
 
                 }
+                else
+                {
+                    SelectHelix.UnhighlightHelix();
+                    SelectHelix.HighlightHelix(s_hit.collider.gameObject);
+                }
             }
         }
         else if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)

@@ -16,7 +16,7 @@ public class SelectHelix : MonoBehaviour
     [SerializeField] private XRRayInteractor rightRayInteractor;
     private bool triggerReleased = true;
     private bool axisReleased = true;
-    private bool helixSelected = false;
+    private static bool helixSelected = false;
     private static GameObject s_gridGO = null;
     private static RaycastHit s_hit;
 
@@ -55,6 +55,8 @@ public class SelectHelix : MonoBehaviour
         }
 
         bool triggerValue;
+
+        /*
         if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
             && triggerValue
             && triggerReleased
@@ -73,6 +75,7 @@ public class SelectHelix : MonoBehaviour
                 ResetNucleotides();
             }
         }
+        */
 
         if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
            && triggerValue
@@ -120,14 +123,22 @@ public class SelectHelix : MonoBehaviour
         helixSelected = false;
     }
 
-    public void HighlightHelix(GameObject go)
+    public static void HighlightHelix(GameObject go)
     {
+        helixSelected = true;
         var gc = go.GetComponent<GridComponent>();
-        if (gc.Helix == null)
-        {
-            return;
-        }
+        s_gridGO = go;
         gc.Helix.Highlight(Color.red);
+        foreach (int id in gc.Helix.GetStrandIds())
+        {
+            Debug.Log("Strand" + id);
+        }
+        Debug.Log("Helix id: " + gc.Helix);
+    }
+
+    public static void UnhighlightHelix()
+    {
+        UnhighlightHelix(s_gridGO);
     }
 
     public static void UnhighlightHelix(GameObject go)

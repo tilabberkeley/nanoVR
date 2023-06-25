@@ -284,7 +284,7 @@ public class Helix
         }
         for (int i = 0; i < _strandIds.Count; i++)
         {
-            s_strandDict[i].HighlightCone(color);
+            s_strandDict[_strandIds[i]].HighlightCone(color);
         }
     }
 
