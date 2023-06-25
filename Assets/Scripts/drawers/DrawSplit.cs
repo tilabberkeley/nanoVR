@@ -145,8 +145,8 @@ public class DrawSplit : MonoBehaviour
         strand.SetComponents();
         s_strandDict.Add(s_numStrands, strand);
 
-        DrawNucleotide.CreateButton(s_numStrands);
-        DrawNucleotide.AddStrandToHelix(nucleotides[0]);
+        DrawNucleotideDynamic.CreateButton(s_numStrands);
+        DrawNucleotideDynamic.AddStrandToHelix(nucleotides[0]);
 
         s_numStrands++;
     }

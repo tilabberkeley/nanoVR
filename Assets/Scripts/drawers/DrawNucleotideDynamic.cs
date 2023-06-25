@@ -14,7 +14,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rightRayInteractor;
-    [SerializeField] private GameObject canvas;
+    //[SerializeField] private GameObject canvas;
     private bool triggerReleased = true;
     bool triggerValue;
 
@@ -76,8 +76,8 @@ public class DrawNucleotideDynamic : MonoBehaviour
             isStartNucleotide = ReferenceEquals(hitGO, s_startGO);
             isPrevNucleotide = ReferenceEquals(hitGO, s_endGO);
         }
-        
-        if(hitIsNucleotide && creatingStrand)
+
+        if (hitIsNucleotide && creatingStrand)
         {
             ExtendIfLastNucleotide(nucComp);
         }
@@ -97,7 +97,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
         // Holding down trigger, highlight current strand                                             
         else if (gotTriggerValue && triggerValue && !triggerReleased)
         {
-            if (hitFound && hitIsNucleotide && !isStartNucleotide && !isPrevNucleotide && creatingStrand && isValidNucleotideSelection(s_startGO, hitGO))
+            if (hitFound && hitIsNucleotide && !isStartNucleotide && !isPrevNucleotide && creatingStrand && IsValidNucleotideSelection(s_startGO, hitGO))
             {
                 s_endGO = hitGO;
                 UnhighlightNucleotideSelection(s_currentNucleotides);
@@ -133,7 +133,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
     /// <summary>
     /// Resets the start and end nucleotides.
     /// </summary>
-    private static void ResetNucleotides()
+    public static void ResetNucleotides()
     {
         s_startGO = null;
         s_endGO = null;
@@ -157,7 +157,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
         }
         else
         {
-            DoEditStrand(nucleotides);
+            DoEditStrand(s_startGO, nucleotides);
         }
     }
 
@@ -167,7 +167,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
     /// <param name="start">Nucleotide GameObject</param>
     /// <param name="end">Nucleotide GameObject</param>
     /// <returns></returns>
-    private static bool isValidNucleotideSelection(GameObject start, GameObject end)
+    private static bool IsValidNucleotideSelection(GameObject start, GameObject end)
     {
         NucleotideComponent startNtc = start.GetComponent<NucleotideComponent>();
         NucleotideComponent endNtc = end.GetComponent<NucleotideComponent>();
@@ -185,7 +185,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
     {
         NucleotideComponent startNtc = start.GetComponent<NucleotideComponent>();
         NucleotideComponent endNtc = end.GetComponent<NucleotideComponent>();
-        if (!isValidNucleotideSelection(start, end))
+        if (!IsValidNucleotideSelection(start, end))
         {
             return null;
         }
@@ -247,9 +247,9 @@ public class DrawNucleotideDynamic : MonoBehaviour
         ObjectListManager.CreateButton(strandId);
     }
 
-    public void DoEditStrand(List<GameObject> newNucls)
+    public void DoEditStrand(GameObject startGO, List<GameObject> newNucls)
     {
-        ICommand command = new EditCommand(newNucls);
+        ICommand command = new EditCommand(startGO, newNucls);
         CommandManager.AddCommand(command);
         command.Do();
     }
@@ -302,7 +302,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
             {
                 return;
             }
-            ICommand command = new EraseCommand(nucleotides);
+            ICommand command = new EraseCommand(s_startGO, nucleotides);
             CommandManager.AddCommand(command);
             command.Do();
         }
@@ -313,14 +313,26 @@ public class DrawNucleotideDynamic : MonoBehaviour
     /// the strand itself is also deleted.
     /// </summary>
     /// <param name="nucleotides">List of nucleotides to delete from selected strand.</param>
-    public static void EraseStrand(List<GameObject> nucleotides)
+    public static void EraseStrand(GameObject startGO, List<GameObject> nucleotides)
     {
         // DEBUG THIS
         var startNtc = nucleotides[0].GetComponent<NucleotideComponent>();
         int strandId = startNtc.StrandId;
         Strand strand = s_strandDict[strandId];
 
-        if (nucleotides.Last() == strand.GetTail())
+        if (nucleotides.Last() == strand.GetTail() && nucleotides[0] == strand.GetHead())
+        {
+            if (startGO == strand.GetHead())
+            {
+                strand.RemoveFromHead(nucleotides.GetRange(0, nucleotides.Count - 1));
+            }
+            else if (startGO == strand.GetTail())
+            {
+                strand.RemoveFromTail(nucleotides.GetRange(1, nucleotides.Count - 1));
+            }
+        }
+
+        else if (nucleotides.Last() == strand.GetTail())
         {
             // Remove nucls from tail of strand with direction 0
             strand.RemoveFromTail(nucleotides.GetRange(1, nucleotides.Count - 1));
@@ -332,13 +344,14 @@ public class DrawNucleotideDynamic : MonoBehaviour
         }
     }
 
+
     /// <summary>
     /// Extends the helix of given nucleoltide if the nucleotide is last in the helix.
     /// </summary>
     /// <param name="nucComp">Nucleotide Component of the nucleotide game object.</param>
     private void ExtendIfLastNucleotide(NucleotideComponent nucComp)
     {
-        if (nucComp.isEndNuclueotide())
+        if (nucComp.IsEndNucleotide())
         {
             int helixId = nucComp.HelixId;
             s_helixDict.TryGetValue(helixId, out Helix helix);

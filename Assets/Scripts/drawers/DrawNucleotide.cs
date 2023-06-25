@@ -2,6 +2,8 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu>
  */
+
+/*
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -336,3 +338,4 @@ public class DrawNucleotide : MonoBehaviour
         }
     }
 }
+*/

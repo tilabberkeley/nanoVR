@@ -6,7 +6,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EditCommand : ICommand
+public class EditCommand : MonoBehaviour, ICommand
 {
     private GameObject _startGO;
     private List<GameObject> _nucleotides;
@@ -19,17 +19,16 @@ public class EditCommand : ICommand
 
     public void Do()
     {
-        DrawNucleotide.EditStrand(_nucleotides);
+        DrawNucleotideDynamic.EditStrand(_nucleotides);
     }
 
     public void Undo()
     {
-       
-        DrawNucleotide.EraseStrand(_startGO, _nucleotides);
+        DrawNucleotideDynamic.EraseStrand(_startGO, _nucleotides);
     }
 
     public void Redo()
     {
-        DrawNucleotide.EditStrand(_nucleotides);
+        DrawNucleotideDynamic.EditStrand(_nucleotides);
     }
 }

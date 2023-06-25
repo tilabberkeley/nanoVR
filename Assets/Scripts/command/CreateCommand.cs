@@ -20,7 +20,7 @@ public class CreateCommand : ICommand
 
     public void Do()
     {
-        DrawNucleotide.CreateStrand(_nucleotides, _strandId);
+        DrawNucleotideDynamic.CreateStrand(_nucleotides, _strandId);
         _color = s_strandDict[_strandId].GetColor();
     }
 

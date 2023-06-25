@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EraseCommand : ICommand
+public class EraseCommand : MonoBehaviour, ICommand
 {
     private GameObject _startGO;
     private List<GameObject> _nucleotides;
@@ -18,16 +18,16 @@ public class EraseCommand : ICommand
 
     public void Do()
     {
-        DrawNucleotide.EraseStrand(_startGO, _nucleotides);
+        DrawNucleotideDynamic.EraseStrand(_startGO, _nucleotides);
     }
 
     public void Undo()
     {
-        DrawNucleotide.EditStrand(_nucleotides);
+        DrawNucleotideDynamic.EditStrand(_nucleotides);
     }
 
     public void Redo()
     {
-        DrawNucleotide.EraseStrand(_startGO, _nucleotides);
+        DrawNucleotideDynamic.EraseStrand(_startGO, _nucleotides);
     }
 }

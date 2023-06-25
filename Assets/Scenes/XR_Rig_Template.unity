@@ -4682,7 +4682,6 @@ GameObject:
   - component: {fileID: 713889228}
   - component: {fileID: 713889232}
   - component: {fileID: 713889231}
-  - component: {fileID: 713889233}
   - component: {fileID: 713889234}
   - component: {fileID: 713889235}
   - component: {fileID: 713889236}
@@ -5254,7 +5253,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _xrNode: 5
   rightRayInteractor: {fileID: 713889222}
-  canvas: {fileID: 546608843}
 --- !u!114 &713889225
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5332,21 +5330,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 713889218}
   m_Mesh: {fileID: 0}
---- !u!114 &713889233
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 713889218}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cde0803e3a91f7c43843930a3c8d45cd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _xrNode: 5
-  rightRayInteractor: {fileID: 713889222}
-  canvas: {fileID: 1010908914}
 --- !u!114 &713889234
 MonoBehaviour:
   m_ObjectHideFlags: 0

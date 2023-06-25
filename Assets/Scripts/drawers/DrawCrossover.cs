@@ -255,8 +255,8 @@ public class DrawCrossover : MonoBehaviour
         Strand strand = new Strand(nucleotides, strandId, color);
         strand.SetComponents();
         s_strandDict.Add(strandId, strand);
-        DrawNucleotide.CreateButton(strandId);
-        DrawNucleotide.AddStrandToHelix(nucleotides[0]);
+        DrawNucleotideDynamic.CreateButton(strandId);
+        DrawNucleotideDynamic.AddStrandToHelix(nucleotides[0]);
         s_numStrands++;
     }
 
