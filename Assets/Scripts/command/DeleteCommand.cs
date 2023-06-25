@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DeleteCommand : MonoBehaviour, ICommand
+public class DeleteCommand : ICommand
 {
     private int _strandId;
     private List<GameObject> _nucleotides;

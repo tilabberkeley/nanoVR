@@ -4,7 +4,7 @@
  */
 using UnityEngine;
 
-public class EraseXoverCommand : MonoBehaviour, ICommand
+public class EraseXoverCommand : ICommand
 {
     private GameObject _xover;
     private GameObject _startGO;

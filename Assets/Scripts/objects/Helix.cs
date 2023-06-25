@@ -132,7 +132,7 @@ public class Helix
     }
 
     /// <summary>
-    /// Returns sublist of nucleotides from helix spiral.
+    /// Returns sublist of nucleotides and backbones from helix spiral.
     /// </summary>
     /// <param name="sIndex">Start index of sublist.</param>
     /// <param name="eIndex">End index of sublist.</param>

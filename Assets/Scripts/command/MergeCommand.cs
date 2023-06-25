@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MergeCommand : MonoBehaviour, ICommand
+public class MergeCommand : ICommand
 {
     private GameObject _go;
     private Color _color;

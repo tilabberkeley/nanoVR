@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static GlobalVariables;
 
-public class CreateHelixCommand : MonoBehaviour, ICommand
+public class CreateHelixCommand : ICommand
 {
     private const float OFFSET = 0.034f;
 

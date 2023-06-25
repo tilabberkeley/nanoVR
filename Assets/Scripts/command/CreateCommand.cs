@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static GlobalVariables;
 
-public class CreateCommand : MonoBehaviour, ICommand
+public class CreateCommand : ICommand
 {
     private List<GameObject> _nucleotides;
     private int _strandId;
