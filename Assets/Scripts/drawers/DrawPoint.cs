@@ -122,18 +122,16 @@ public static class DrawPoint
         return sphere;
     }
 
-    public static GameObject MakeGrid(Vector3 position, string name)
+    public static GameObject MakeGridPoint(Vector3 position, int X, int Y, string name)
     {
         GameObject gridCircle = Instantiate(Resources.Load("GridCircle"),
                    position,
                    Quaternion.identity) as GameObject;
         gridCircle.name = name;
         gridCircle.transform.Rotate(90f, 0f, 0f, 0);
-
-
-        //var collider = circle.GetComponent<SphereCollider>();
-        //collider.radius = 0.3f;
-
+        GridComponent gridComponent = gridCircle.GetComponent<GridComponent>();
+        gridComponent.X = X;
+        gridComponent.Y = Y;
         return gridCircle;
     }
 }

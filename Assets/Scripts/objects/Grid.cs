@@ -6,57 +6,67 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using static GlobalVariables;
+using JetBrains.Annotations;
 
 /// <summary>
 /// Grid object keeps track of its helices.
 /// </summary>
 public class Grid
 {
+    private const int s_startLength = 9;
+    private const int s_startWidth = 9;
+
     private int _id;
     private string _plane;
     private Vector3 _startPos;
-    private List<Vector3> _nodes;
+    private List<Vector3> _positions;
+    private List<GameObject> _gridPoints;
     private List<Line> _lines;
     private List<Helix> _helices;
+    private int _length;
+    private int _width;
     private int _numNodes;
 
     public Grid(string plane, Vector3 startPos)
     {
         _plane = plane;
         _startPos = startPos;
-        _nodes = new List<Vector3>();
+        _positions = new List<Vector3>();
         _lines = new List<Line>();
         _helices = new List<Helix>();
-        _numNodes = 100;
-        Generate();
+        _gridPoints = new List<GameObject>();
+        _numNodes = 0;
+        _length = s_startLength;
+        _width = s_startWidth;
+        GeneratePositions();
         DrawGrid();
     }
 
     public String Plane { get; }
     public Vector3 StartPos { get; }
-    public List<Vector3> GetNodes() { return _nodes; }
+    public List<Vector3> GetNodes() { return _positions; }
     public List<Line> GetLines() { return _lines; }
     public Line GetLine(int index) { return _lines[index]; }
     public List<Helix> GetHelices() { return _helices; }
     public Helix GetHelix(int index) { return _helices[index]; }
 
-    private void Generate()
+    private void GeneratePositions()
     {
-        for (int i = 0, secDim = 0; secDim < 10; secDim++)
+        for (int i = 0, secDim = 0; secDim < _length; secDim++)
         {
-            for (int firstDim = 0; firstDim < 10; firstDim++, i++)
+            for (int firstDim = 0; firstDim < _width; firstDim++, i++)
             {
                 if (_plane.Equals("XY"))
                 {
-                    _nodes.Add(new Vector3(_startPos.x + firstDim / 10f, _startPos.y + secDim / 10f, _startPos.z));
+                    _positions.Add(new Vector3(_startPos.x + firstDim / 10f, _startPos.y + secDim / 10f, _startPos.z));
                 }
                 else if (this._plane.Equals("YZ"))
                 {
-                    _nodes.Add(new Vector3(_startPos.x, _startPos.y + firstDim / 10f, _startPos.z + secDim / 10f));
+                    _positions.Add(new Vector3(_startPos.x, _startPos.y + firstDim / 10f, _startPos.z + secDim / 10f));
                 }
                 else
                 {
-                    _nodes.Add(new Vector3(_startPos.x + firstDim / 10f, _startPos.y, _startPos.z + secDim / 10f));
+                    _positions.Add(new Vector3(_startPos.x + firstDim / 10f, _startPos.y, _startPos.z + secDim / 10f));
                 }
             }
         }
@@ -64,25 +74,23 @@ public class Grid
 
     private void DrawGrid()
     {
-        if (_nodes.Count == 0)
+        if (_positions.Count == 0)
         {
             return;
         }
-        for (int i = 0; i < _nodes.Count; i++)
+        int positionIndex = 0;
+        int startX = -_length / 2;
+        int endX = _length / 2;
+        int startY = _width / 2;
+        int endY = -_width / 2;
+        for (int i = startX; i <= endX; i++)
         {
-            DrawPoint.MakeGrid(_nodes[i], "grid");
-            // GameObject circle = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            // circle.name = "grid";
-            // circle.transform.position = _nodes[i];
-            // circle.transform.localScale = new Vector3(0.03f, 0.0001f, 0.03f);
-            // circle.transform.Rotate(90f, 0f, 0f, 0);
-            // circle.AddComponent<XRSimpleInteractable>();
-
-            // var circleRigidbody = circle.GetComponent<Rigidbody>();
-            // circleRigidbody.useGravity = false;
-            // circleRigidbody.isKinematic = true;
-            // var circleRenderer = circle.GetComponent<Renderer>();
-            // circleRenderer.material.SetColor("_Color", Color.gray);
+            for (int j = startY; j >= endY; j--)
+            {
+                _gridPoints.Add(DrawPoint.MakeGridPoint(_positions[positionIndex], i, j, "gridPoint"));
+                _numNodes++;
+                positionIndex++;
+            }
         }
     }
 
