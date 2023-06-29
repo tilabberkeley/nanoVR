@@ -20,7 +20,7 @@ public class CreateHelixCommand : ICommand
     private string _orientation;
 
     // 3D position of grid circle.
-    private Vector3 _gridPoint;
+    private GridComponent _gridComp;
 
     // List containing all nucleotides in spiral going in direction 1.
     private List<GameObject> _nucleotidesA;
@@ -43,14 +43,14 @@ public class CreateHelixCommand : ICommand
     private Vector3 lastPositionA;
     private Vector3 lastPositionB;
 
-    public CreateHelixCommand(Grid grid, int id, Vector3 startPoint, Vector3 endPoint, string orientation, Vector3 gridPoint)
+    public CreateHelixCommand(Grid grid, int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent)
     {
         _id = id;
         _startPoint = startPoint;
         _endPoint = endPoint;
         _length = 0;
         _orientation = orientation;
-        _gridPoint = gridPoint;
+        _gridComp = gridComponent;
         _strandIds = new List<int>();
         _deletedStrands = new List<(int, List<GameObject>, Color)>();
 
@@ -66,12 +66,12 @@ public class CreateHelixCommand : ICommand
 
     public void Do()
     {
-        _grid.AddHelix(_id, _startPoint, _endPoint, _orientation, _gridPoint);
+        _grid.AddHelix(_id, _startPoint, _endPoint, _orientation, _gridComp);
     }
 
     public void Redo()
     {
-        _grid.AddHelix(_id, _startPoint, _endPoint, _orientation, _gridPoint);
+        _grid.AddHelix(_id, _startPoint, _endPoint, _orientation, _gridComp);
         for (int i = 0; i < _deletedStrands.Count; i++)
         {
             DrawCrossover.CreateStrand(_deletedStrands[i].Item2, _deletedStrands[i].Item1, _deletedStrands[i].Item3);

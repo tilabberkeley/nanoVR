@@ -2,6 +2,8 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu>
  */
+using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using static GlobalVariables;
 
@@ -10,21 +12,6 @@ using static GlobalVariables;
 /// </summary>
 public class NucleotideComponent : MonoBehaviour
 {
-    private int _id; // index of nucl in helix
-    private int _helixId; // id of helix
-    private int _strandId = -1; // id of strand
-    private int _direction; // 0 = 5' to 3' right->left, 1 = left->right
-    private GameObject _crossoverGO = null;
-    private GameObject _crossoverBB = null;
-
-    private GameObject _prevGO = null;
-    private GameObject _nextGO = null;
-    private GameObject _prevBB = null;
-    private GameObject _nextBB = null;
-    private GameObject _complementGO = null;
-
-    private bool _selected = false;
-
     private Color _color = Color.white;
     private static Color s_yellow = new Color(1, 0.92f, 0.016f, 0.5f);
 
@@ -35,23 +22,6 @@ public class NucleotideComponent : MonoBehaviour
     public int HelixId { get; set; }
     public int StrandId { get; set; } = -1;
     public int Direction { get; set; }
-    public Vector3 GetPosition() { return transform.position; }
-    public void SetPosition(Vector3 p) { transform.position = p; }
-    public bool HasCrossover() { return _crossoverGO != null; }
-    public GameObject GetCrossoverGO() { return _crossoverGO; }
-    public void SetCrossoverGO(GameObject c) { _crossoverGO = c; }
-    public GameObject GetCrossoverBB() { return _crossoverBB; }
-    public void SetCrossoverBB(GameObject c) { _crossoverBB = c; }
-    public GameObject GetPrevGO() { return _prevGO; }
-    public void SetPrevGO(GameObject p) { _prevGO = p; }
-    public GameObject GetPrevBB() { return _prevBB; }
-    public void SetPrevBB(GameObject p) { _prevBB = p; }
-    public GameObject GetNextGO() { return _nextGO; }
-    public void SetNextGO(GameObject n) { _nextGO = n; }
-    public GameObject GetNextBB() { return _nextBB; }
-    public void SetNextBB(GameObject n) { _nextBB = n; }
-    public GameObject GetComplementGO() { return _complementGO; }
-    public void SetComplementGO(GameObject c) { _complementGO = c; }
 
     public Color GetColor() { return _color; }
     public void SetColor(Color c) 
@@ -86,5 +56,43 @@ public class NucleotideComponent : MonoBehaviour
         s_helixDict.TryGetValue(HelixId, out Helix helix);
         // This nucleotide is the last nucleotide if its id is equal to the length of its helix - 1
         return Id == helix.GetLength() - 1;
+    }
+
+    /// <summary>
+    /// Returns whether this nucleotide is the head or tail of a strand.
+    /// </summary>
+    /// <returns>True if nucleotide is the head or tail of a strand. False otherwise.</returns>
+    public bool IsEndStrand()
+    {
+        if (!Selected)
+        {
+            return false;
+        }
+        s_strandDict.TryGetValue(StrandId, out Strand strand);
+        return ReferenceEquals(gameObject, strand.GetTail()) || ReferenceEquals(gameObject, strand.GetHead());
+    }
+
+    /// <summary>
+    /// Returns the neighbor nucleotides that are in the oppositite direction and same index of this
+    /// nucleotide.
+    /// </summary>
+    /// <returns>List of neighboring nucleotides.</returns>
+    private List<NucleotideComponent> getNeighborNucleotides()
+    {
+        s_helixDict.TryGetValue(HelixId, out Helix thisHelix);
+        List<NucleotideComponent> nucleotideComponents = new List<NucleotideComponent>();
+        int oppositeDirection = (Direction + 1) % 2;
+        foreach (Helix helix in thisHelix.getNeighborHelices())
+        {
+            if (oppositeDirection == 1)
+            {
+                nucleotideComponents.Add(helix.NucleotidesA[Id].GetComponent<NucleotideComponent>());
+            }
+            else
+            {
+                nucleotideComponents.Add(helix.NucleotidesB[Id].GetComponent<NucleotideComponent>());
+            }
+        }
+        return nucleotideComponents;
     }
 }

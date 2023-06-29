@@ -92,18 +92,18 @@ public class DrawGrid : MonoBehaviour
             // clicking grid sphere
             if (s_hit.collider.GetComponent<GridComponent>())
             {
-                var gc = s_hit.collider.GetComponent<GridComponent>();
+                GridComponent gc = s_hit.collider.GetComponent<GridComponent>();
                 if (!gc.Selected)
                 {
                     Vector3 startPos = s_hit.collider.bounds.center;
                     Vector3 endPos = startPos - new Vector3(0, 0, 64 * 0.034f);
                     int id = _grid.GetLines().Count;
                     _grid.AddLine(id, startPos, endPos);
-                    _grid.AddHelix(id, startPos, endPos, plane, startPos);
+                    _grid.AddHelix(id, startPos, endPos, plane, gc);
                     gc.Line = _grid.GetLine(id);
                     gc.Helix = _grid.GetHelix(id);
                     gc.Selected = true;
-
+                    //Debug.Log("X: " + gc.GridPoint.X + ", Y:" + gc.GridPoint.Y);
                 }
                 else
                 {

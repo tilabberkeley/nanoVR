@@ -122,7 +122,7 @@ public static class DrawPoint
         return sphere;
     }
 
-    public static GameObject MakeGridPoint(Vector3 position, int X, int Y, string name)
+    public static GameObject MakeGridGO(Vector3 position, GridPoint gridPoint, string name)
     {
         GameObject gridCircle = Instantiate(Resources.Load("GridCircle"),
                    position,
@@ -130,8 +130,8 @@ public static class DrawPoint
         gridCircle.name = name;
         gridCircle.transform.Rotate(90f, 0f, 0f, 0);
         GridComponent gridComponent = gridCircle.GetComponent<GridComponent>();
-        gridComponent.X = X;
-        gridComponent.Y = Y;
+        gridComponent.GridPoint = gridPoint;
+        gridComponent.Position = position;
         return gridCircle;
     }
 }

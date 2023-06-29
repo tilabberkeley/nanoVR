@@ -20,12 +20,13 @@ public class Grid
     private string _plane;
     private Vector3 _startPos;
     private List<Vector3> _positions;
-    private List<GameObject> _gridPoints;
+    //public Dictionary<GridPoint, GameObject> GridPointDict { get; set; }
+    private GridComponent[,] Grid2D { get; set; }
     private List<Line> _lines;
     private List<Helix> _helices;
     private int _length;
     private int _width;
-    private int _numNodes;
+    private int _numGridComponents;
 
     public Grid(string plane, Vector3 startPos)
     {
@@ -34,10 +35,12 @@ public class Grid
         _positions = new List<Vector3>();
         _lines = new List<Line>();
         _helices = new List<Helix>();
-        _gridPoints = new List<GameObject>();
-        _numNodes = 0;
+        //GridPointDict = new Dictionary<GridPoint, GameObject>();
+        _numGridComponents = 0;
         _length = s_startLength;
         _width = s_startWidth;
+        // 2D array with _length rows and _width columns
+        Grid2D = new GridComponent[_length, _width];
         GeneratePositions();
         DrawGrid();
     }
@@ -79,19 +82,93 @@ public class Grid
             return;
         }
         int positionIndex = 0;
+        /*
         int startX = -_length / 2;
         int endX = _length / 2;
         int startY = _width / 2;
         int endY = -_width / 2;
-        for (int i = startX; i <= endX; i++)
+        */
+        for (int i = 0; i < _length; i++)
         {
-            for (int j = startY; j >= endY; j--)
+            for (int j = 0; j < _width; j++)
             {
-                _gridPoints.Add(DrawPoint.MakeGridPoint(_positions[positionIndex], i, j, "gridPoint"));
-                _numNodes++;
+                int x = indexToGridX(i);
+                int y = indexToGridY(j);
+                GridPoint gridPoint = new GridPoint(x, y);
+                // Create game object and assign it to gridGO
+                GameObject gridGO = DrawPoint.MakeGridGO(_positions[positionIndex], gridPoint, "gridPoint");
+                GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
+                gridComponent.Grid = this;
+                Grid2D[i, j] = gridComponent;
+                //GridPointDict.Add(gridPoint, gridGO);
+                _numGridComponents++;  
                 positionIndex++;
             }
         }
+    }
+
+    /// <summary>
+    /// Converts 2D array row index to grid point x value.
+    /// </summary>
+    /// <param name="i">2D array row index.</param>
+    /// <returns>grid point x value.</returns>
+    private int indexToGridX(int i)
+    {
+        return i - _length / 2;
+    }
+
+    /// <summary>
+    /// Converts 2D array column index to grid point y value.
+    /// </summary>
+    /// <param name="j">2D array column index.</param>
+    /// <returns>grid point y value.</returns>
+    private int indexToGridY(int j)
+    {
+        return j - _width / 2;
+    }
+
+    /// <summary>
+    /// Converts grid point x value to 2D array row index.
+    /// </summary>
+    /// <param name="x">grid point x value.</param>
+    /// <returns>2D array row index.</returns>
+    private int gridXToIndex(int x)
+    {
+        return x + _length / 2;
+    }
+
+    /// <summary>
+    /// Converts grid point y value to 2D array column index.
+    /// </summary>
+    /// <param name="y">grid point y value.</param>
+    /// <returns>2D array column index.</returns>
+    private int gridYToIndex(int y)
+    {
+        return y + _width / 2;
+    }
+
+    /// <summary>
+    /// Returns neighboring grid components of provided grid component.
+    /// </summary>
+    /// <param name="gridPoint">Location of grid component.</param>
+    /// <returns>List of neighboring grid components.</returns>
+    public List<GridComponent> getNeighborGridComponents(GridPoint gridPoint)
+    {
+        List<GridComponent> gridComponents = new List<GridComponent>();
+        // COME BACK AND FIX EDGE CASES
+        int i = gridXToIndex(gridPoint.X);
+        int j = gridYToIndex(gridPoint.Y);
+        for (int k = i - 1; k <= i + 1; k++)
+        {
+            for (int l = j - 1; l <= j + 1; l++)
+            {
+                if (!(k == 0 && l == 0))
+                {
+                    gridComponents.Add(Grid2D[k, l]);
+                }
+            }
+        }
+        return gridComponents;
     }
 
     public void AddLine(int id, Vector3 startPoint, Vector3 endPoint)
@@ -100,16 +177,16 @@ public class Grid
         _lines.Add(line);
     }
 
-    public void DoAddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, Vector3 gridPoint)
+    public void DoAddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent)
     {
-        ICommand command = new CreateHelixCommand(this, id, startPoint, endPoint, orientation, gridPoint);
+        ICommand command = new CreateHelixCommand(this, id, startPoint, endPoint, orientation, gridComponent);
         CommandManager.AddCommand(command);
         command.Do();
     }
 
-    public void AddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, Vector3 gridPoint)
+    public void AddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent)
     {
-        Helix helix = new Helix(id, startPoint, endPoint, orientation, gridPoint);
+        Helix helix = new Helix(id, startPoint, endPoint, orientation, gridComponent);
         _helices.Add(helix);
     }
 
