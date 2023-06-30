@@ -7,6 +7,7 @@ using UnityEngine;
 
 public class GridComponent : MonoBehaviour
 { 
+    // Whether or not this grid component has been clicked on before.
     public bool Selected { get; set; }
     // Line on grid component.
     public Line Line { get; set; }

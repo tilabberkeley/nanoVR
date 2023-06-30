@@ -103,7 +103,8 @@ public class DrawGrid : MonoBehaviour
                     gc.Line = _grid.GetLine(id);
                     gc.Helix = _grid.GetHelix(id);
                     gc.Selected = true;
-                    //Debug.Log("X: " + gc.GridPoint.X + ", Y:" + gc.GridPoint.Y);
+                    Debug.Log("X: " + gc.GridPoint.X + ", Y:" + gc.GridPoint.Y);
+                    _grid.checkExpansion(gc);
                 }
                 else
                 {

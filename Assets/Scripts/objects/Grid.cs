@@ -7,26 +7,30 @@ using System;
 using UnityEngine;
 using static GlobalVariables;
 using JetBrains.Annotations;
+using static UnityEditor.MaterialProperty;
+using Newtonsoft.Json.Bson;
 
 /// <summary>
 /// Grid object keeps track of its helices.
 /// </summary>
 public class Grid
 {
-    private const int s_startLength = 9;
-    private const int s_startWidth = 9;
+    private const int STARTLENGTH = 9;
+    private const int STARTWIDTH = 9;
+    private const float GRIDCIRCLESIZEFACTOR = 10.0f;
 
     private int _id;
     private string _plane;
     private Vector3 _startPos;
     private List<Vector3> _positions;
-    //public Dictionary<GridPoint, GameObject> GridPointDict { get; set; }
-    private GridComponent[,] Grid2D { get; set; }
+    private GridComponent[,] _grid2D;
     private List<Line> _lines;
     private List<Helix> _helices;
     private int _length;
     private int _width;
-    private int _numGridComponents;
+    private int _size;
+    private GridPoint _minimumBound;
+    private GridPoint _maximumBound;
 
     public Grid(string plane, Vector3 startPos)
     {
@@ -35,14 +39,20 @@ public class Grid
         _positions = new List<Vector3>();
         _lines = new List<Line>();
         _helices = new List<Helix>();
-        //GridPointDict = new Dictionary<GridPoint, GameObject>();
-        _numGridComponents = 0;
-        _length = s_startLength;
-        _width = s_startWidth;
+        _size = 0;
+        setBounds();
         // 2D array with _length rows and _width columns
-        Grid2D = new GridComponent[_length, _width];
-        GeneratePositions();
+        _grid2D = new GridComponent[_length, _width];
+        //GeneratePositions();
         DrawGrid();
+    }
+
+    private void setBounds()
+    {
+        _length = STARTLENGTH;
+        _width = STARTWIDTH;
+        _minimumBound = new GridPoint(-_length / 2, -_width / 2);
+        _maximumBound = new GridPoint(_length / 2, _width / 2);
     }
 
     public String Plane { get; }
@@ -61,15 +71,15 @@ public class Grid
             {
                 if (_plane.Equals("XY"))
                 {
-                    _positions.Add(new Vector3(_startPos.x + firstDim / 10f, _startPos.y + secDim / 10f, _startPos.z));
+                    _positions.Add(new Vector3(_startPos.x + secDim / GRIDCIRCLESIZEFACTOR, _startPos.y + firstDim / GRIDCIRCLESIZEFACTOR, _startPos.z));
                 }
                 else if (this._plane.Equals("YZ"))
                 {
-                    _positions.Add(new Vector3(_startPos.x, _startPos.y + firstDim / 10f, _startPos.z + secDim / 10f));
+                    _positions.Add(new Vector3(_startPos.x, _startPos.y + firstDim / GRIDCIRCLESIZEFACTOR, _startPos.z + secDim / GRIDCIRCLESIZEFACTOR));
                 }
                 else
                 {
-                    _positions.Add(new Vector3(_startPos.x + firstDim / 10f, _startPos.y, _startPos.z + secDim / 10f));
+                    _positions.Add(new Vector3(_startPos.x + firstDim / GRIDCIRCLESIZEFACTOR, _startPos.y, _startPos.z + secDim / GRIDCIRCLESIZEFACTOR));
                 }
             }
         }
@@ -77,17 +87,22 @@ public class Grid
 
     private void DrawGrid()
     {
-        if (_positions.Count == 0)
+        if (_plane.Equals("XY"))
         {
-            return;
+            DrawGridXY();
         }
-        int positionIndex = 0;
-        /*
-        int startX = -_length / 2;
-        int endX = _length / 2;
-        int startY = _width / 2;
-        int endY = -_width / 2;
-        */
+        else if (_plane.Equals("YZ"))
+        {
+            DrawGridYZ();
+        }
+        else
+        {
+            DrawGridXZ();
+        }
+    }
+
+    private void DrawGridXY()
+    {
         for (int i = 0; i < _length; i++)
         {
             for (int j = 0; j < _width; j++)
@@ -95,16 +110,24 @@ public class Grid
                 int x = indexToGridX(i);
                 int y = indexToGridY(j);
                 GridPoint gridPoint = new GridPoint(x, y);
-                // Create game object and assign it to gridGO
-                GameObject gridGO = DrawPoint.MakeGridGO(_positions[positionIndex], gridPoint, "gridPoint");
+                Vector3 gamePosition = new Vector3(_startPos.x + i / GRIDCIRCLESIZEFACTOR, _startPos.y + j / GRIDCIRCLESIZEFACTOR, _startPos.z);
+                GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
                 GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
                 gridComponent.Grid = this;
-                Grid2D[i, j] = gridComponent;
-                //GridPointDict.Add(gridPoint, gridGO);
-                _numGridComponents++;  
-                positionIndex++;
+                _grid2D[i, j] = gridComponent;
+                _size++;
             }
         }
+    }
+
+    private void DrawGridYZ()
+    {
+
+    }
+
+    private void DrawGridXZ() 
+    { 
+
     }
 
     /// <summary>
@@ -114,7 +137,7 @@ public class Grid
     /// <returns>grid point x value.</returns>
     private int indexToGridX(int i)
     {
-        return i - _length / 2;
+        return i + _minimumBound.X;
     }
 
     /// <summary>
@@ -124,7 +147,7 @@ public class Grid
     /// <returns>grid point y value.</returns>
     private int indexToGridY(int j)
     {
-        return j - _width / 2;
+        return j + _minimumBound.Y; // j - _width / 2;
     }
 
     /// <summary>
@@ -134,7 +157,7 @@ public class Grid
     /// <returns>2D array row index.</returns>
     private int gridXToIndex(int x)
     {
-        return x + _length / 2;
+        return x - _minimumBound.X; // x + _length / 2;
     }
 
     /// <summary>
@@ -144,7 +167,84 @@ public class Grid
     /// <returns>2D array column index.</returns>
     private int gridYToIndex(int y)
     {
-        return y + _width / 2;
+        return y - _minimumBound.Y; // y + _width / 2;
+    }
+
+    public void checkExpansion(GridComponent gridComponent)
+    {
+        int x = gridComponent.GridPoint.X;
+        int y = gridComponent.GridPoint.Y;
+        int maxX = _maximumBound.X;
+        int maxY = _maximumBound.Y;
+        int minX = _minimumBound.X;
+        int minY = _minimumBound.Y;
+        if (x == maxX)
+        {
+            expandEast();
+        }
+        else if (x == minX)
+        {
+            expandWest();
+        }
+        if (y == maxY)
+        {
+            expandNorth();
+        }
+        else if(y == minY)
+        {
+            expandSouth();
+        }
+    }
+
+    private void expandNorth()
+    {
+        // increase maximum y bound
+        _width++;
+        _maximumBound.Y++; //= new GridPoint(_maximumBound.X, _maximumBound.Y + 1);
+        GridComponent[,] newGrid2D = new GridComponent[_length, _width];
+        copyNorth(newGrid2D);
+        _grid2D = newGrid2D;
+
+        // create new grid components
+        for (int i = 0; i < _length; i++)
+        {
+            int upperY = _width - 1;
+            int x = indexToGridX(i);
+            int y = indexToGridY(upperY);
+            GridPoint gridPoint = new GridPoint(x, y);
+            Vector3 gamePosition = new Vector3(_startPos.x + i / GRIDCIRCLESIZEFACTOR, _startPos.y + upperY / GRIDCIRCLESIZEFACTOR, _startPos.z);
+            GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
+            GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
+            gridComponent.Grid = this;
+            _grid2D[i, upperY] = gridComponent;
+            _size++;
+        }
+    }
+
+    private void copyNorth(GridComponent[,] newGrid2D)
+    {
+        for (int i = 0; i < _length; i++)
+        {
+            for (int j = 0; j < _width - 1; j++)
+            {
+                newGrid2D[i, j] = _grid2D[i, j];
+            }
+        }
+    }
+
+    private void expandEast()
+    {
+
+    }
+
+    private void expandSouth()
+    {
+
+    }
+
+    private void expandWest()
+    {
+
     }
 
     /// <summary>
@@ -164,7 +264,7 @@ public class Grid
             {
                 if (!(k == 0 && l == 0))
                 {
-                    gridComponents.Add(Grid2D[k, l]);
+                    gridComponents.Add(_grid2D[k, l]);
                 }
             }
         }
