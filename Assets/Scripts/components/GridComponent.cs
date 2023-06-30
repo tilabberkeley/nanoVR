@@ -26,6 +26,6 @@ public class GridComponent : MonoBehaviour
     /// <returns>List of neighboring grid components.</returns>
     public List<GridComponent> getNeighborGridComponents()
     {
-        return Grid.getNeighborGridComponents(GridPoint);
+        return Grid.GetNeighborGridComponents(GridPoint);
     }
 }

@@ -51,7 +51,7 @@ public class NucleotideComponent : MonoBehaviour
     /// Returns whether this nucleotide is the last nucleotide in its helix.
     /// </summary>
     /// <returns>True if the nucleotide is last. False otherwise</returns>
-    public bool IsEndNucleotide()
+    public bool IsEndHelix()
     {
         s_helixDict.TryGetValue(HelixId, out Helix helix);
         // This nucleotide is the last nucleotide if its id is equal to the length of its helix - 1
@@ -68,6 +68,7 @@ public class NucleotideComponent : MonoBehaviour
         {
             return false;
         }
+        Debug.Log("selected");
         s_strandDict.TryGetValue(StrandId, out Strand strand);
         return ReferenceEquals(gameObject, strand.GetTail()) || ReferenceEquals(gameObject, strand.GetHead());
     }
@@ -77,7 +78,7 @@ public class NucleotideComponent : MonoBehaviour
     /// nucleotide.
     /// </summary>
     /// <returns>List of neighboring nucleotides.</returns>
-    private List<NucleotideComponent> getNeighborNucleotides()
+    public List<NucleotideComponent> getNeighborNucleotides()
     {
         s_helixDict.TryGetValue(HelixId, out Helix thisHelix);
         List<NucleotideComponent> nucleotideComponents = new List<NucleotideComponent>();
