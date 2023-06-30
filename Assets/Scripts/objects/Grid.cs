@@ -32,6 +32,14 @@ public class Grid
     private GridPoint _minimumBound;
     private GridPoint _maximumBound;
 
+    /* Need to keep track of the number of south and west positions because they are used to
+     * calculate the offset from the _startPos to generate the grid circles in the scene. 
+     * For example, if expandWest was called multiple times, expandNorth needs to know how 
+     * many times that happened to correctly offset its new grid circle generations. */
+    private int _numSouthExpansions;
+    private int _numWestExpansions;
+
+
     public Grid(string plane, Vector3 startPos)
     {
         _plane = plane;
@@ -53,6 +61,8 @@ public class Grid
         _width = STARTWIDTH;
         _minimumBound = new GridPoint(-_length / 2, -_width / 2);
         _maximumBound = new GridPoint(_length / 2, _width / 2);
+        _numWestExpansions = 0;
+        _numSouthExpansions = 0;
     }
 
     public String Plane { get; }
@@ -85,6 +95,9 @@ public class Grid
         }
     }
 
+    /// <summary>
+    /// Draws the grid in the scene uppon instantiation.
+    /// </summary>
     private void DrawGrid()
     {
         if (_plane.Equals("XY"))
@@ -101,6 +114,9 @@ public class Grid
         }
     }
 
+    /// <summary>
+    /// Draws the grid in the XY direction.
+    /// </summary>
     private void DrawGridXY()
     {
         for (int i = 0; i < _length; i++)
@@ -120,11 +136,17 @@ public class Grid
         }
     }
 
+    /// <summary>
+    /// Draws the grid in the YZ direction.
+    /// </summary>
     private void DrawGridYZ()
     {
 
     }
 
+    /// <summary>
+    /// Draws the grid in the XZ direction.
+    /// </summary>
     private void DrawGridXZ() 
     { 
 
@@ -147,7 +169,7 @@ public class Grid
     /// <returns>grid point y value.</returns>
     private int indexToGridY(int j)
     {
-        return j + _minimumBound.Y; // j - _width / 2;
+        return j + _minimumBound.Y; 
     }
 
     /// <summary>
@@ -157,7 +179,7 @@ public class Grid
     /// <returns>2D array row index.</returns>
     private int gridXToIndex(int x)
     {
-        return x - _minimumBound.X; // x + _length / 2;
+        return x - _minimumBound.X; 
     }
 
     /// <summary>
@@ -167,9 +189,13 @@ public class Grid
     /// <returns>2D array column index.</returns>
     private int gridYToIndex(int y)
     {
-        return y - _minimumBound.Y; // y + _width / 2;
+        return y - _minimumBound.Y; 
     }
 
+    /// <summary>
+    /// Expands the grid if the position of the grid component is on the edge of the grid.
+    /// </summary>
+    /// <param name="gridComponent">Grid component to check if on the edge.</param>
     public void checkExpansion(GridComponent gridComponent)
     {
         int x = gridComponent.GridPoint.X;
@@ -190,17 +216,20 @@ public class Grid
         {
             expandNorth();
         }
-        else if(y == minY)
+        else if (y == minY)
         {
             expandSouth();
         }
     }
 
+    /// <summary>
+    /// Expands this grid north.
+    /// </summary>
     private void expandNorth()
     {
         // increase maximum y bound
         _width++;
-        _maximumBound.Y++; //= new GridPoint(_maximumBound.X, _maximumBound.Y + 1);
+        _maximumBound.Y++; 
         GridComponent[,] newGrid2D = new GridComponent[_length, _width];
         copyNorth(newGrid2D);
         _grid2D = newGrid2D;
@@ -208,19 +237,26 @@ public class Grid
         // create new grid components
         for (int i = 0; i < _length; i++)
         {
-            int upperY = _width - 1;
+            int newJ = _width - 1;
+            int xCreationOffset = i - _numWestExpansions;
+            int yCreationOffset = newJ - _numSouthExpansions;
             int x = indexToGridX(i);
-            int y = indexToGridY(upperY);
+            int y = indexToGridY(newJ);
             GridPoint gridPoint = new GridPoint(x, y);
-            Vector3 gamePosition = new Vector3(_startPos.x + i / GRIDCIRCLESIZEFACTOR, _startPos.y + upperY / GRIDCIRCLESIZEFACTOR, _startPos.z);
+            Vector3 gamePosition = new Vector3(_startPos.x + xCreationOffset / GRIDCIRCLESIZEFACTOR, _startPos.y + yCreationOffset / GRIDCIRCLESIZEFACTOR, _startPos.z);
             GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
             GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
             gridComponent.Grid = this;
-            _grid2D[i, upperY] = gridComponent;
+            _grid2D[i, newJ] = gridComponent;
             _size++;
         }
     }
 
+    /// <summary>
+    /// Helper method for expandNorth. Copies _grid2D in the bottom part of the given 2D array,
+    /// leaving a row on the top empty.
+    /// </summary>
+    /// <param name="newGrid2D">2D array with the same length as _grid2D but with its width + 1.</param>
     private void copyNorth(GridComponent[,] newGrid2D)
     {
         for (int i = 0; i < _length; i++)
@@ -232,19 +268,144 @@ public class Grid
         }
     }
 
+    /// <summary>
+    /// Expands this grid east.
+    /// </summary>
     private void expandEast()
     {
+        // increase maximum x bound
+        _length++;
+        _maximumBound.X++;
+        GridComponent[,] newGrid2D = new GridComponent[_length, _width];
+        copyEast(newGrid2D);
+        _grid2D = newGrid2D;
 
+        // create new grid components
+        for (int j = 0; j < _width; j++)
+        {
+            int newI = _length - 1;
+            int xCreationOffset = newI - _numWestExpansions;
+            int yCreationOffset = j - _numSouthExpansions;
+            int x = indexToGridX(newI);
+            int y = indexToGridY(j);
+            GridPoint gridPoint = new GridPoint(x, y);
+            Vector3 gamePosition = new Vector3(_startPos.x + xCreationOffset / GRIDCIRCLESIZEFACTOR, _startPos.y + yCreationOffset / GRIDCIRCLESIZEFACTOR, _startPos.z);
+            GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
+            GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
+            gridComponent.Grid = this;
+            _grid2D[newI, j] = gridComponent;
+            _size++;
+        }
     }
 
+    /// <summary>
+    /// Helper method for expandEast. Copies _grid2D in the left part of the given 2D array,
+    /// leaving a column on the right empty.
+    /// </summary>
+    /// <param name="newGrid2D">2D array with the same width as _grid2D but with its length + 1.</param>
+    private void copyEast(GridComponent[,] newGrid2D)
+    {
+        for (int i = 0; i < _length - 1; i++)
+        {
+            for (int j = 0; j < _width; j++)
+            {
+                newGrid2D[i, j] = _grid2D[i, j];
+            }
+        }
+    }
+
+    /// <summary>
+    /// Expands this grid south.
+    /// </summary>
     private void expandSouth()
     {
+        // decrease minimum y bound
+        _width++;
+        _minimumBound.Y--;
+        GridComponent[,] newGrid2D = new GridComponent[_length, _width];
+        copySouth(newGrid2D);
+        _grid2D = newGrid2D;
 
+        // create new grid components
+        for (int i = 0; i < _length; i++)
+        {
+            int newY = 0;
+            int xCreationOffset = i - _numWestExpansions;
+            int yCreationOffset = newY - _numSouthExpansions - 1;
+            int x = indexToGridX(i);
+            int y = indexToGridY(newY);
+            GridPoint gridPoint = new GridPoint(x, y);
+            Vector3 gamePosition = new Vector3(_startPos.x + xCreationOffset / GRIDCIRCLESIZEFACTOR, _startPos.y + yCreationOffset / GRIDCIRCLESIZEFACTOR, _startPos.z);
+            GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
+            GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
+            gridComponent.Grid = this;
+            _grid2D[i, newY] = gridComponent;
+            _size++;
+        }
+        _numSouthExpansions++;
     }
 
+    /// <summary>
+    /// Helper method for expandSouth. Copies _grid2D in the top part of the given 2D array,
+    /// leaving a row on the bottom empty.
+    /// </summary>
+    /// <param name="newGrid2D">2D array with the same length as _grid2D but with its width + 1.</param>
+    private void copySouth(GridComponent[,] newGrid2D)
+    {
+        for (int i = 0; i < _length; i++)
+        {
+            for (int j = 0; j < _width - 1; j++)
+            {
+                newGrid2D[i, j + 1] = _grid2D[i, j];
+            }
+        }
+    }
+
+    /// <summary>
+    /// Expands this grid west.
+    /// </summary>
     private void expandWest()
     {
+        // increase minimum x bound
+        _length++;
+        _minimumBound.X--;
+        GridComponent[,] newGrid2D = new GridComponent[_length, _width];
+        copyWest(newGrid2D);
+        _grid2D = newGrid2D;
 
+        // create new grid components
+        for (int j = 0; j < _width; j++)
+        {
+            int newI = 0;
+            int xCreationOffset = newI - _numWestExpansions - 1;
+            int yCreationOffset = j - _numSouthExpansions;
+            int x = indexToGridX(newI);
+            int y = indexToGridY(j);
+            GridPoint gridPoint = new GridPoint(x, y);
+            Vector3 gamePosition = new Vector3(_startPos.x + xCreationOffset / GRIDCIRCLESIZEFACTOR, _startPos.y + yCreationOffset / GRIDCIRCLESIZEFACTOR, _startPos.z);
+            GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
+            GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
+            gridComponent.Grid = this;
+            _grid2D[newI, j] = gridComponent;
+            _size++;
+        }
+        _numWestExpansions++;
+    }
+
+    /// <summary>
+    /// Helper method for expandWest. Copies _grid2D in the right part of the given 2D array,
+    /// leaving a column on the left empty.
+    /// </summary>
+    /// <param name="newGrid2D">2D array with the same width as _grid2D but with its length + 1.</param>
+    private void copyWest(GridComponent[,] newGrid2D)
+    {
+        for (int i = 0; i < _length - 1; i++)
+        {
+            for (int j = 0; j < _width; j++)
+            {
+                newGrid2D[i + 1, j] = _grid2D[i, j];
+            }
+        }
     }
 
     /// <summary>
