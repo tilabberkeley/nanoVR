@@ -106,7 +106,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
             }
         }
         // Trigger is released, create strand                                       
-        else if (!triggerReleased && !triggerValue)
+        else if (gotTriggerValue && !triggerReleased && !triggerValue)
         {
             triggerReleased = true;
             if (creatingStrand)

@@ -68,7 +68,6 @@ public class NucleotideComponent : MonoBehaviour
         {
             return false;
         }
-        Debug.Log("selected");
         s_strandDict.TryGetValue(StrandId, out Strand strand);
         return ReferenceEquals(gameObject, strand.GetTail()) || ReferenceEquals(gameObject, strand.GetHead());
     }
