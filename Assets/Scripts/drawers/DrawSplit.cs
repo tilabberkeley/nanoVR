@@ -100,13 +100,19 @@ public class DrawSplit : MonoBehaviour
         int strandId = startNtc.StrandId;
         Strand strand = s_strandDict[strandId];
 
+
+        int goIndex = strand.GetIndex(go);
         if (splitAfter)
         {
-            CreateStrand(strand.SplitAfter(go), color);
+            List<GameObject> xovers = strand.GetXoversAfterIndex(goIndex);
+            strand.RemoveXovers(xovers);
+            CreateStrand(strand.SplitAfter(go), xovers, color);
         }
         else
         {
-            CreateStrand(strand.SplitBefore(go), color);
+            List<GameObject> xovers = strand.GetXoversBeforeIndex(goIndex);
+            strand.RemoveXovers(xovers);
+            CreateStrand(strand.SplitBefore(go), xovers, color);
         }
     }
 
@@ -124,11 +130,14 @@ public class DrawSplit : MonoBehaviour
         {
             return false;
         }
-        /*
-        if (strand.GetNextGO(go).GetComponent<XoverComponent>())
+       
+        for (int i = 0; i < strand.GetXovers().Count; i++)
         {
-            return false;
-        }*/
+            if (go == strand.GetXovers()[i].GetComponent<XoverComponent>().GetNextGO())
+            {
+                return false;
+            }
+        }
 
         return true;
     }
@@ -139,15 +148,15 @@ public class DrawSplit : MonoBehaviour
     /// Adds new strand to the global strand dictionary.
     /// </summary>
     /// <param name="nucleotides">List of nucleotides to use in new strand.</param>
-    public static void CreateStrand(List<GameObject> nucleotides, Color color)
+    public static void CreateStrand(List<GameObject> nucleotides, List<GameObject> xovers, Color color)
     {
-        Strand strand = new Strand(nucleotides, s_numStrands, color);
+        Strand strand = new Strand(nucleotides, xovers, s_numStrands, color);
         strand.SetComponents();
         s_strandDict.Add(s_numStrands, strand);
 
         DrawNucleotideDynamic.CreateButton(s_numStrands);
         DrawNucleotideDynamic.AddStrandToHelix(nucleotides[0]);
 
-        s_numStrands++;
+        s_numStrands += 1;
     }
 }

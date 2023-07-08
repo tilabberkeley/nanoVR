@@ -2,6 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu>
  */
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ public class XoverCommand : ICommand
 {
     private GameObject _startGO;
     private GameObject _endGO;
+    private GameObject _xover;
     private bool _isHead;
     private bool _isFirstEnd;
     private bool _isSecondEnd;
@@ -19,11 +21,11 @@ public class XoverCommand : ICommand
     {
         _startGO = startGO;
         _endGO = endGO;
-        _endId = endGO.GetComponent<NucleotideComponent>().StrandId;
-        _endColor = endGO.GetComponent<NucleotideComponent>().GetColor();
-        _isHead = isHead;
-        _isFirstEnd = isFirstEnd;
-        _isSecondEnd = isSecondEnd;
+        //_endId = endGO.GetComponent<NucleotideComponent>().StrandId;
+        //_endColor = endGO.GetComponent<NucleotideComponent>().GetColor();
+        //_isHead = isHead;
+       // _isFirstEnd = isFirstEnd;
+       // _isSecondEnd = isSecondEnd;
     }
 
     public void Do()
@@ -34,16 +36,10 @@ public class XoverCommand : ICommand
     public void Undo()
     {
         //DrawSplit.SplitStrand(_startGO, _endColor, _isHead);
-        List<GameObject> splitNucls = DrawCrossover.SplitStrand(_startGO, _isHead);
-        DrawCrossover.CreateStrand(splitNucls, _endId, _endColor);
-        if (!_isFirstEnd)
-        {
-            DrawMerge.MergeStrand(_startGO);
-        }
-        if (!_isSecondEnd)
-        {
-            DrawMerge.MergeStrand(_endGO);
-        }
+        _xover = _startGO.GetComponent<NucleotideComponent>().GetXover();
+        DrawCrossover.EraseXover(_xover);
+        
+       
     }
 
     public void Redo()

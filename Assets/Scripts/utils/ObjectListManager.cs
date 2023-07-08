@@ -21,7 +21,7 @@ public class ObjectListManager : MonoBehaviour
     {
         GameObject button = Instantiate(Resources.Load("Button")) as GameObject;
         button.transform.SetParent(GameObject.FindWithTag("StrandList").transform, false);
-        button.GetComponentInChildren<Text>().text = "Strand " + strandId;
+        button.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Strand " + strandId;
         button.name = "StrandButton" + strandId;
         button.GetComponent<Button>().onClick.AddListener(() => SelStrand(strandId));
         button.transform.SetSiblingIndex(strandId);

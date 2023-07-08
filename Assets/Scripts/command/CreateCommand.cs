@@ -11,10 +11,13 @@ public class CreateCommand : ICommand
 {
     private List<GameObject> _nucleotides;
     private int _strandId;
+    private List<GameObject> _xovers;
     private Color _color;
+
     public CreateCommand(List<GameObject> nucleotides, int strandId)
     {
         _nucleotides = nucleotides;
+        _xovers = new List<GameObject>();
         _strandId = strandId;
     }
 
@@ -32,6 +35,6 @@ public class CreateCommand : ICommand
 
     public void Redo()
     {
-        DrawCrossover.CreateStrand(_nucleotides, _strandId, _color);
+        DrawCrossover.CreateStrand(_nucleotides, _xovers, _strandId, _color);
     }
 }

@@ -74,7 +74,7 @@ public class CreateHelixCommand : ICommand
         _grid.AddHelix(_id, _startPoint, _endPoint, _orientation, _gridPoint);
         for (int i = 0; i < _deletedStrands.Count; i++)
         {
-            DrawCrossover.CreateStrand(_deletedStrands[i].Item2, _deletedStrands[i].Item1, _deletedStrands[i].Item3);
+            //DrawCrossover.CreateStrand(_deletedStrands[i].Item2, _deletedStrands[i].Item1, _deletedStrands[i].Item3);
         }
     }
 

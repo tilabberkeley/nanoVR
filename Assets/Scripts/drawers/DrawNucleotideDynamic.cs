@@ -145,10 +145,22 @@ public class DrawNucleotideDynamic : MonoBehaviour
     private void BuildStrand()
     {
         List<GameObject> nucleotides = MakeNuclList(s_startGO, s_endGO);
+        //Debug.Log("Test");
         if (nucleotides == null)
         {
             return;
         }
+        //Debug.Log(nucleotides);
+        // Checks that we are not drawing over another strand.
+        /*foreach(GameObject nucleotide in nucleotides)
+        {
+            var ntc = nucleotide.GetComponent<NucleotideComponent>();
+            Debug.Log(ntc.Selected);
+            if (ntc.Selected)
+            {
+                return;
+            }
+        }*/
 
         if (!s_startGO.GetComponent<NucleotideComponent>().Selected
             && !s_endGO.GetComponent<NucleotideComponent>().Selected)
@@ -222,7 +234,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
         strand.SetComponents();
         s_strandDict.Add(strandId, strand);
         CreateButton(strandId);
-        AddStrandToHelix(nucleotides[0]);
+        //AddStrandToHelix(nucleotides[0]);
         s_numStrands += 1;
     }
 

@@ -2,6 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu>
  */
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -46,11 +47,11 @@ public class SelectStrand : MonoBehaviour
         {
             return;
         }
-
+        /*
         if (!s_drawTogOn && !s_eraseTogOn)
         {
             return;
-        }
+        }*/
 
         if (!_device.isValid)
         {
@@ -177,7 +178,7 @@ public class SelectStrand : MonoBehaviour
     {
         int strandId = go.GetComponent<NucleotideComponent>().StrandId;
         Strand strand = s_strandDict[strandId];
-        ICommand command = new DeleteCommand(strand.GetStrandId(), strand.GetNucleotides(), strand.GetColor());
+        ICommand command = new DeleteCommand(strand.GetStrandId(), strand.GetNucleotides(), strand.GetXovers(), strand.GetColor());
         CommandManager.AddCommand(command);
         command.Do();
     }
@@ -185,8 +186,30 @@ public class SelectStrand : MonoBehaviour
     public static void DeleteStrand(GameObject go)
     {
         int strandId = go.GetComponent<NucleotideComponent>().StrandId;
+        Debug.Log("Strand Id of deleted strand: " + strandId);
+        Debug.Log("Nucleotide head being deleted: " + go);
         Strand strand = s_strandDict[strandId];
-        DeleteStrandFromHelix(go);
+
+     
+        //DeleteStrandFromHelix(go);
+        ObjectListManager.DeleteButton(strandId);
+
+        try
+        {
+            strand.DeleteStrand();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e.StackTrace);
+            Debug.LogError(e.Message);
+        }
+    }
+
+    public static void RemoveStrand(GameObject go)
+    {
+        int strandId = go.GetComponent<NucleotideComponent>().StrandId;
+        Strand strand = s_strandDict[strandId];
+        //DeleteStrandFromHelix(go);
         ObjectListManager.DeleteButton(strandId);
         strand.RemoveStrand();
     }

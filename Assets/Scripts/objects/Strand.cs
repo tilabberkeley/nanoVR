@@ -2,11 +2,11 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu>
  */
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using static GlobalVariables;
-using System;
 
 /// <summary>
 /// Strand object keeps track of an individual strand of nucleotides.
@@ -40,11 +40,11 @@ public class Strand
     // Strand constructor.
     public Strand(List<GameObject> nucleotides, int strandId)
     {
-        _nucleotides = nucleotides;
+        _nucleotides = new List<GameObject>(nucleotides);
         _strandId = strandId;
         _color = s_colors[s_numStrands % 6];
-        _head = nucleotides[0];
-        _tail = nucleotides.Last();
+        _head = _nucleotides[0];
+        _tail = _nucleotides.Last();
         _xovers = new List<GameObject>();
         _cone = DrawPoint.MakeCone(_head.transform.position); 
     }
@@ -52,12 +52,34 @@ public class Strand
     // Strand constructor with Color parameter.
     public Strand(List<GameObject> nucleotides, int strandId, Color color)
     {
-        _nucleotides = nucleotides;
+        _nucleotides = new List<GameObject>(nucleotides);
         _strandId = strandId;
         _color = color;
-        _head = nucleotides[0];
-        _tail = nucleotides.Last();
+        _head = _nucleotides[0];
+        _tail = _nucleotides.Last();
         _xovers = new List<GameObject>();
+        _cone = DrawPoint.MakeCone(_head.transform.position);
+    }
+
+    public Strand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId, Color color)
+    {
+        _nucleotides = new List<GameObject>(nucleotides);
+        _xovers = xovers;
+        _strandId = strandId;
+        _color = color;
+        _head = _nucleotides[0];
+        _tail = _nucleotides.Last();
+        _cone = DrawPoint.MakeCone(_head.transform.position);
+    }
+
+    public Strand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId)
+    {
+        _nucleotides = new List<GameObject>(nucleotides);
+        _xovers = xovers;
+        _strandId = strandId;
+        _color = s_colors[s_numStrands % 6];
+        _head = _nucleotides[0];
+        _tail = _nucleotides.Last();
         _cone = DrawPoint.MakeCone(_head.transform.position);
     }
 
@@ -66,6 +88,8 @@ public class Strand
 
     // Returns nucleotide list.
     public List<GameObject> GetNucleotides() { return _nucleotides; }
+
+    public List<GameObject> GetXovers() { return _xovers; }
 
     public List<GameObject> GetNucleotides(int startIndex, int endIndex) 
     {
@@ -82,7 +106,14 @@ public class Strand
     // Returns strand color.
     public Color GetColor() { return _color; }
 
-    // Returns next GameObject in nucleotide list.
+    // Returns the next GameObject in nucleotide list.
+    public GameObject GetPrevGO(GameObject go)
+    {
+        int index = GetIndex(go);
+        return _nucleotides[index - 1];
+    }
+
+    // Returns index of GameObject in nucleotide list.
     public int GetIndex(GameObject go)
     {     
         return _nucleotides.IndexOf(go);
@@ -98,6 +129,21 @@ public class Strand
     public void AddXover(GameObject xover) 
     { 
         _xovers.Add(xover);
+    }
+
+    public void AddXovers(List<GameObject> xovers)
+    {
+        _xovers.AddRange(xovers);
+    }
+
+    public void RemoveXovers(List<GameObject> xovers)
+    {
+        _xovers.RemoveAll(xover => xovers.Contains(xover));
+    }
+
+    public bool HasXover()
+    {
+        return _xovers.Count > 0;
     }
 
     // Adds GameObject to front of nucleotide list.
@@ -143,10 +189,7 @@ public class Strand
             _head = _nucleotides[0];
             _cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
         }
-        else
-        {
-            RemoveStrand();
-        }
+        
         ResetComponents(nucleotides);
     }
 
@@ -162,10 +205,7 @@ public class Strand
         {
             _tail = _nucleotides.Last();
         }
-        else
-        {
-            RemoveStrand();
-        }
+ 
         ResetComponents(nucleotides);
     }
 
@@ -174,9 +214,20 @@ public class Strand
     /// </summary>
     public void RemoveStrand()
     {
-        ResetComponents(_nucleotides);
+        // ResetComponents(_nucleotides);
         GameObject.Destroy(_cone);
         s_strandDict.Remove(_strandId);
+        // s_numStrands -= 1;
+    }
+
+    public void DeleteStrand()
+    {
+        ResetComponents(_nucleotides);
+        foreach (GameObject xover in _xovers.ToList()) 
+        {
+            DeleteXover(xover);
+        }
+        RemoveStrand();
     }
 
     /// <summary>
@@ -188,11 +239,19 @@ public class Strand
     {
         List<GameObject> splitList = new List<GameObject>();
         int splitIndex = _nucleotides.IndexOf(go);
-        RemoveXover(splitIndex - 1);
-        splitList.AddRange(_nucleotides.GetRange(0, splitIndex - 1));
-        // next line will error if xover gets removed
-        _nucleotides[splitIndex - 1].GetComponent<Renderer>().material.SetColor("_Color", Color.white);
-        _nucleotides.RemoveRange(0, splitIndex);
+        //DeleteXover(splitIndex - 1);
+        if (!_nucleotides[splitIndex - 1].GetComponent<NucleotideComponent>())
+        {
+            splitList.AddRange(_nucleotides.GetRange(0, splitIndex - 1));
+            _nucleotides[splitIndex - 1].GetComponent<Renderer>().material.SetColor("_Color", Color.white);
+            _nucleotides.RemoveRange(0, splitIndex);
+
+        }
+        else 
+        {
+            splitList.AddRange(_nucleotides.GetRange(0, splitIndex));
+            _nucleotides.RemoveRange(0, splitIndex);
+        }
         _head = _nucleotides[0];
         _cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
         ShowHideCone(true);
@@ -209,31 +268,70 @@ public class Strand
     {
         List<GameObject> splitList = new List<GameObject>();
         int splitIndex = _nucleotides.IndexOf(go);
-        RemoveXover(splitIndex + 1);
+        //DeleteXover(splitIndex + 1);
         int count = _nucleotides.Count - splitIndex - 1;
-        splitList.AddRange(_nucleotides.GetRange(splitIndex + 2, count - 1));
-        _nucleotides[splitIndex + 1].GetComponent<Renderer>().material.SetColor("_Color", Color.white);
-        _nucleotides.RemoveRange(splitIndex + 1, count);
+        if (!_nucleotides[splitIndex + 1].GetComponent<NucleotideComponent>())
+        {
+            splitList.AddRange(_nucleotides.GetRange(splitIndex + 2, count - 1));
+            _nucleotides[splitIndex + 1].GetComponent<Renderer>().material.SetColor("_Color", Color.white);
+            _nucleotides.RemoveRange(splitIndex + 1, count);
+
+        }
+        else
+        {
+            splitList.AddRange(_nucleotides.GetRange(splitIndex + 1, count));
+            _nucleotides.RemoveRange(splitIndex + 1, count);
+
+        }
         _tail = _nucleotides.Last();
         ShowHideCone(true);
         SetCone();
         return splitList;
     }
 
+    public List<GameObject> GetXoversBeforeIndex(int index)
+    {
+        List<GameObject> xovers = new List<GameObject>();
+        foreach (GameObject xover in _xovers)
+        {
+            var xoverComp = xover.GetComponent<XoverComponent>();
+            if (GetIndex(xoverComp.GetNextGO()) < index)
+            {
+                xovers.Add(xover);
+            }
+        }
+        return xovers;
+    }
+    public List<GameObject> GetXoversAfterIndex(int index)
+    {
+        List<GameObject> xovers = new List<GameObject>();
+        foreach (GameObject xover in _xovers)
+        {
+            var xoverComp = xover.GetComponent<XoverComponent>();
+            if (GetIndex(xoverComp.GetNextGO()) > index)
+            {
+                xovers.Add(xover);
+            }
+        }
+        return xovers;
+    }
+
     // Removes crossover.
-    public void RemoveXover(int index)
+    public void DeleteXover(int index)
     {
         GameObject backbone = _nucleotides[index];
         if (backbone.GetComponent<XoverComponent>())
         {
-            RemoveXover(backbone);
+            DeleteXover(backbone);
         }
     }
 
     // Removes crossover.
-    public void RemoveXover(GameObject xover)
+    public void DeleteXover(GameObject xover)
     {
         _xovers.Remove(xover);
+        xover.GetComponent<XoverComponent>().GetPrevGO().GetComponent<NucleotideComponent>().SetXover(null);
+        xover.GetComponent<XoverComponent>().GetNextGO().GetComponent<NucleotideComponent>().SetXover(null);
         GameObject.Destroy(xover);
     }
 
@@ -248,17 +346,16 @@ public class Strand
                 var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
                 ntc.Highlight(color);
             }
-            // Set Crossover
-            else if (_nucleotides[i].GetComponent<XoverComponent>() != null)
-            {
-                var xoverComp = _nucleotides[i].GetComponent<XoverComponent>();
-                xoverComp.Highlight(color);
-            }
             // Set backbone
             else
             {
                 _nucleotides[i].GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
             }
+        }
+        for (int i = 0; i < _xovers.Count; i++)
+        {
+            var xoverComp = _xovers[i].GetComponent<XoverComponent>();
+            xoverComp.Highlight(color);
         }
         HighlightCone(color);
     }
@@ -272,6 +369,7 @@ public class Strand
     // Sets variables of each GameObject's component (strandId, color, etc).
     public void SetComponents()
     {
+        Debug.Log("Strand id of nucleotides: " + _strandId);
         for (int i = 0; i < _nucleotides.Count; i++)
         {
             // Set nucleotide
@@ -282,16 +380,15 @@ public class Strand
                 ntc.StrandId = _strandId;
                 ntc.SetColor(_color);
             }
-            // Set Crossover
-            else if (_nucleotides[i].GetComponent<XoverComponent>() != null)
-            {
-                SetXoverColor(_nucleotides[i]);
-            }
             // Set backbone
             else
             {
                 _nucleotides[i].GetComponent<Renderer>().material.SetColor("_Color", _color);
             }
+        }
+        for (int i = 0; i < _xovers.Count; i++)
+        {
+            SetXoverColor(_xovers[i]);
         }
         SetCone();
     }
@@ -314,11 +411,11 @@ public class Strand
     public void SetXoverColor(GameObject xover)
     {
         double length = xover.transform.localScale.y;
-        if (length <= 0.02)
+        if (length <= 0.025)
         {
             xover.GetComponent<Renderer>().material.SetColor("_Color", _color);
         }
-        else if (length <= 0.03)
+        else if (length <= 0.035)
         {
             xover.GetComponent<Renderer>().material.SetColor("_Color", Color.gray);
         }
@@ -342,11 +439,6 @@ public class Strand
                 ntc.StrandId = -1;
                 ntc.ResetColor();
                 ntc.Highlight(Color.black);
-            }
-            // Reset Crossover (remove it)
-            else if (nucleotides[i].GetComponent<XoverComponent>() != null)
-            {
-                RemoveXover(nucleotides[i]);
             }
             // Reset backbone
             else

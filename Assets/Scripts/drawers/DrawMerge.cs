@@ -111,8 +111,7 @@ public class DrawMerge : MonoBehaviour
         {
             return 0;
         }
-        
-        if (strand.GetTail() == go && tailNeighbor.GetComponent<NucleotideComponent>().Selected)
+        else if (strand.GetTail() == go && tailNeighbor.GetComponent<NucleotideComponent>().Selected)
         {
             return 1;
         }
@@ -187,9 +186,11 @@ public class DrawMerge : MonoBehaviour
             return;
         }
         */
+        firstStrand.AddXovers(secondStrand.GetXovers());
 
         if (isHead)
         {
+            //firstStrand.AddXov
             firstStrand.AddToHead(backbone);
             firstStrand.AddToHead(secondStrand.GetNucleotides());
             // must add backbone between 2 strands
@@ -200,7 +201,7 @@ public class DrawMerge : MonoBehaviour
             firstStrand.AddToTail(secondStrand.GetNucleotides());
             // must add backbone between 2 strands
         }
-        SelectStrand.DeleteStrand(secondGO);
+        SelectStrand.RemoveStrand(secondGO);
         firstStrand.SetComponents();
     }
 }

@@ -99,7 +99,11 @@ public static class DrawPoint
         float dist = Vector3.Distance(nextGO.transform.position, prevGO.transform.position);
         xover.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
         xoverComp.SetLength(dist);
-        
+
+        prevGO.GetComponent<NucleotideComponent>().SetXover(xover);
+        nextGO.GetComponent<NucleotideComponent>().SetXover(xover);
+
+
         return xover;
     }
     public static GameObject MakeSphere(Vector3 position, string name)

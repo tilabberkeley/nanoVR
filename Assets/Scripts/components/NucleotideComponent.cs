@@ -14,7 +14,7 @@ public class NucleotideComponent : MonoBehaviour
     private int _helixId; // id of helix
     private int _strandId = -1; // id of strand
     private int _direction; // 0 = 5' to 3' right->left, 1 = left->right
-    private GameObject _crossoverGO = null;
+    private GameObject _xover;
     private GameObject _crossoverBB = null;
 
     private GameObject _prevGO = null;
@@ -23,7 +23,7 @@ public class NucleotideComponent : MonoBehaviour
     private GameObject _nextBB = null;
     private GameObject _complementGO = null;
 
-    private bool _selected = false;
+    // private bool _selected = false;
 
     private Color _color = Color.white;
     private static Color s_yellow = new Color(1, 0.92f, 0.016f, 0.5f);
@@ -37,9 +37,9 @@ public class NucleotideComponent : MonoBehaviour
     public int Direction { get; set; }
     public Vector3 GetPosition() { return transform.position; }
     public void SetPosition(Vector3 p) { transform.position = p; }
-    public bool HasCrossover() { return _crossoverGO != null; }
-    public GameObject GetCrossoverGO() { return _crossoverGO; }
-    public void SetCrossoverGO(GameObject c) { _crossoverGO = c; }
+    public bool HasXover() { return _xover != null; }
+    public GameObject GetXover() { return _xover; }
+    public void SetXover(GameObject x) { _xover = x; }
     public GameObject GetCrossoverBB() { return _crossoverBB; }
     public void SetCrossoverBB(GameObject c) { _crossoverBB = c; }
     public GameObject GetPrevGO() { return _prevGO; }
