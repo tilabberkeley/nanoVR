@@ -78,4 +78,14 @@ public static class Highlight
             }
         }
     }
+
+    /// <summary>
+    /// Highlights or unhighlights the given crossover suggestion.
+    /// </summary>
+    /// <param name="xoverSuggestionComponent">Crossover suggestion to highlight.</param>
+    /// <param name="highlight">Highlights if true. Unhighlights if false.</param>
+    public static void HighlightXoverSuggestion(XoverSuggestionComponent xoverSuggestionComponent, bool highlight)
+    {
+        xoverSuggestionComponent.GetComponent<Renderer>().enabled = highlight;
+    }
 }

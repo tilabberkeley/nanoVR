@@ -13,26 +13,29 @@ using static GlobalVariables;
 /// </summary>
 public class Strand
 {
-    // List of nucleotide GameObjects included in strand.
+    // List of nucleotide GameObjects included in this strand.
     private List<GameObject> _nucleotides;
 
-    // Strand id.
+    // This strand's id.
     private int _strandId;
 
-    // Strand color.
+    // This strand's color.
     private Color _color;
 
-    // GameObject at front of strand (at index 0 of nucleotides list).
+    // GameObject at front of this strand (at index 0 of nucleotides list).
     private GameObject _head;
 
-    // GameObject at end of strand (at last index of nucleotides list).
+    // GameObject at end of this strand (at last index of nucleotides list).
     private GameObject _tail;
 
-    // Indicates strand's direction.
+    // Indicates this strand's direction.
     private GameObject _cone;
 
-    // List of strand's crossovers (needs testing).
+    // List of this strand's crossovers (needs testing).
     private List<GameObject> _xovers;
+
+    // List of this strand's crossover suggestions.
+    private List<GameObject> _xoverSuggestions; 
 
     // Array of colors that strands cycle through.
     private static Color[] s_colors = { Color.blue, Color.magenta, Color.green, Color.red, Color.cyan, Color.yellow };
@@ -46,7 +49,8 @@ public class Strand
         _head = _nucleotides[0];
         _tail = _nucleotides.Last();
         _xovers = new List<GameObject>();
-        _cone = DrawPoint.MakeCone(_head.transform.position); 
+        _cone = DrawPoint.MakeCone(_head.transform.position);
+        CheckForXoverSuggestions();
     }
 
     // Strand constructor with Color parameter.
@@ -445,6 +449,31 @@ public class Strand
             {
                 nucleotides[i].GetComponent<Renderer>().material.SetColor("_Color", Color.white);
                 nucleotides[i].GetComponent<Renderer>().material.SetColor("_EmissionColor", Color.black);
+            }
+        }
+    }
+
+    private void CheckForXoverSuggestions()
+    {
+        // tail check
+        GameObject tail = GetTail();
+        List<NucleotideComponent> neighborNucleotideComponents = tail.GetComponent<NucleotideComponent>().getNeighborNucleotides();
+        foreach (NucleotideComponent nucleotideComponent in neighborNucleotideComponents)
+        {
+            if (nucleotideComponent.IsEndStrand())
+            {
+                DrawPoint.MakeXoverSuggestion(tail, nucleotideComponent.gameObject);
+            }
+        }
+
+        // head check
+        GameObject head = GetHead();
+        neighborNucleotideComponents = head.GetComponent<NucleotideComponent>().getNeighborNucleotides();
+        foreach (NucleotideComponent nucleotideComponent in neighborNucleotideComponents)
+        {
+            if (nucleotideComponent.IsEndStrand())
+            {
+                DrawPoint.MakeXoverSuggestion(head, nucleotideComponent.gameObject);
             }
         }
     }

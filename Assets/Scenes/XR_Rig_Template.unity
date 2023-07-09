@@ -4689,6 +4689,7 @@ GameObject:
   - component: {fileID: 713889238}
   - component: {fileID: 713889224}
   - component: {fileID: 713889225}
+  - component: {fileID: 713889226}
   m_Layer: 0
   m_Name: RightHand Controller
   m_TagString: Untagged
@@ -5268,6 +5269,20 @@ MonoBehaviour:
   _xrNode: 5
   rightRayInteractor: {fileID: 713889222}
   dropdown: {fileID: 546608845}
+--- !u!114 &713889226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 713889218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66ed58ec46028f544ae43672be708e98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _xrNode: 5
+  rightRayInteractor: {fileID: 713889222}
 --- !u!135 &713889228
 SphereCollider:
   m_ObjectHideFlags: 0

@@ -140,7 +140,7 @@ public class DrawCrossover : MonoBehaviour
       
     }
 
-    public void DoCreateXover(GameObject startGO, GameObject endGO)
+    public static void DoCreateXover(GameObject startGO, GameObject endGO)
     {
         if (!IsValid(startGO, endGO))
         {

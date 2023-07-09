@@ -106,7 +106,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
             }
         }
         // Trigger is released, create strand                                       
-        else if (!triggerReleased && !triggerValue)
+        else if (gotTriggerValue && !triggerReleased && !triggerValue)
         {
             triggerReleased = true;
             if (creatingStrand)
@@ -363,7 +363,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
     /// <param name="nucComp">Nucleotide Component of the nucleotide game object.</param>
     private void ExtendIfLastNucleotide(NucleotideComponent nucComp)
     {
-        if (nucComp.IsEndNucleotide())
+        if (nucComp.IsEndHelix())
         {
             int helixId = nucComp.HelixId;
             s_helixDict.TryGetValue(helixId, out Helix helix);
