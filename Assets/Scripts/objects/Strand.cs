@@ -37,9 +37,6 @@ public class Strand
     // List of this strand's crossover suggestions.
     private List<GameObject> _xoverSuggestions; 
 
-    // Array of colors that strands cycle through.
-    private static Color[] s_colors = { Color.blue, Color.magenta, Color.green, Color.red, Color.cyan, Color.yellow };
-
     // Strand constructor.
     public Strand(List<GameObject> nucleotides, int strandId)
     {

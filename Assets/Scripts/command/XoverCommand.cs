@@ -21,9 +21,9 @@ public class XoverCommand : ICommand
     {
         _startGO = startGO;
         _endGO = endGO;
-        //_endId = endGO.GetComponent<NucleotideComponent>().StrandId;
-        //_endColor = endGO.GetComponent<NucleotideComponent>().GetColor();
-        //_isHead = isHead;
+        _endId = endGO.GetComponent<NucleotideComponent>().StrandId;
+        _endColor = endGO.GetComponent<NucleotideComponent>().GetColor();
+        _isHead = isHead;
        // _isFirstEnd = isFirstEnd;
        // _isSecondEnd = isSecondEnd;
     }
@@ -37,9 +37,7 @@ public class XoverCommand : ICommand
     {
         //DrawSplit.SplitStrand(_startGO, _endColor, _isHead);
         _xover = _startGO.GetComponent<NucleotideComponent>().GetXover();
-        DrawCrossover.EraseXover(_xover);
-        
-       
+        DrawCrossover.EraseXover(_xover, _endId, _endColor, _isHead);
     }
 
     public void Redo()

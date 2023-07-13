@@ -18,37 +18,25 @@ public class XoverComponent : MonoBehaviour
     
     private bool _selected = false;
 
-    private Color _color = Color.white;
+    private Color _color;
 
     private Renderer _ntRenderer;
    
-    public int GetHelixId() { return _helixId; }
-    public void SetHelixId(int helixId) { _helixId = helixId; }
     public int GetStrandId() { return _strandId; }
     public void SetStrandId(int strandId) { _strandId = strandId; }
-    public int GetDirection() { return _direction; }
-    public void SetDirection(int direction) { _direction = direction; }
     public double GetLength() { return _length; }
     public void SetLength(double length) { _length = length; }
     public GameObject GetPrevGO() { return _prevGO; }
     public void SetPrevGO(GameObject s) { _prevGO = s; }
     public GameObject GetNextGO() { return _nextGO; }
     public void SetNextGO(GameObject s) { _nextGO = s; }
-    public bool IsSelected() { return _selected; }
-    public void SetSelected(bool selected) { _selected = selected; }
 
-    public Color GetColor() { return _color; }
     public void SetColor(Color c)
     {
         _color = c;
-        _ntRenderer.material.SetColor("_Color", c);
     }
 
-    public void ResetColor()
-    {
-        _color = Color.white;
-        _ntRenderer.material.SetColor("_Color", _color);
-    }
+    public Color GetColor() { return _color; }
 
     public void Highlight(Color color)
     {

@@ -97,11 +97,11 @@ public class DrawGrid : MonoBehaviour
                 {
                     Vector3 startPos = s_hit.collider.bounds.center;
                     Vector3 endPos = startPos - new Vector3(0, 0, 64 * 0.034f);
-                    int id = _grid.GetLines().Count;
+                    int id = s_numHelices;
                     _grid.AddLine(id, startPos, endPos);
-                    _grid.AddHelix(id, startPos, endPos, plane, gc);
-                    gc.Line = _grid.GetLine(id);
-                    gc.Helix = _grid.GetHelix(id);
+                    _grid.DoAddHelix(id, startPos, endPos, plane, gc);
+                    //gc.Line = _grid.GetLine(id);
+                    gc.Helix = s_helixDict[id];
                     gc.Selected = true;
                     //Debug.Log("X: " + gc.GridPoint.X + ", Y:" + gc.GridPoint.Y);
                     _grid.CheckExpansion(gc);
@@ -162,6 +162,7 @@ public class DrawGrid : MonoBehaviour
         }
         */
 
+        /*
         bool primaryButton;
         if (primaryButtonReleased 
             && _device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryButton) 
@@ -173,7 +174,7 @@ public class DrawGrid : MonoBehaviour
         else if (!(_device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryButton) && primaryButton))
         {
             primaryButtonReleased = true;
-        }
+        }*/
 
         /*
         if (!(_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue) && gripValue))

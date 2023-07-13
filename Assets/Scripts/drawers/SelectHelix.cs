@@ -127,13 +127,13 @@ public class SelectHelix : MonoBehaviour
     {
         helixSelected = true;
         var gc = go.GetComponent<GridComponent>();
+        
         s_gridGO = go;
         gc.Helix.Highlight(Color.red);
         foreach (int id in gc.Helix.GetStrandIds())
         {
-            Debug.Log("Strand" + id);
+            Debug.Log("Strand " + id);
         }
-        Debug.Log("Helix id: " + gc.Helix);
     }
 
     public static void UnhighlightHelix()
@@ -146,5 +146,12 @@ public class SelectHelix : MonoBehaviour
         if (go == null) { return; }
         var gc = go.GetComponent<GridComponent>();
         gc.Helix.Highlight(Color.black);
+    }
+
+    public static void DeleteHelix(int id)
+    {
+        s_helixDict.TryGetValue(id, out Helix helix);
+        helix.DeleteHelix();
+        s_helixDict.Remove(id);
     }
 }

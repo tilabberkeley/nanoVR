@@ -9,18 +9,22 @@ public class EraseXoverCommand : ICommand
     private GameObject _xover;
     private GameObject _startGO;
     private GameObject _endGO;
+    private int _strandId;
+    private Color _color;
 
-    public EraseXoverCommand(GameObject xover)
+    public EraseXoverCommand(GameObject xover, int strandId, Color color)
     {
         _xover = xover;
         var xoverComp = xover.GetComponent<XoverComponent>();
         _startGO = xoverComp.GetPrevGO();
         _endGO = xoverComp.GetNextGO();
+        _strandId = strandId;
+        _color = color;
     }
 
     public void Do()
     {
-        DrawCrossover.EraseXover(_xover);
+        DrawCrossover.EraseXover(_xover, _strandId, _color, false);
     }
 
     public void Undo()
@@ -31,6 +35,6 @@ public class EraseXoverCommand : ICommand
 
     public void Redo()
     {
-        DrawCrossover.EraseXover(_xover);
+        DrawCrossover.EraseXover(_xover, _strandId, _color, false);
     }
 }

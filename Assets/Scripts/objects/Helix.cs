@@ -49,7 +49,7 @@ public class Helix
     private Vector3 LastPositionB { get; set; }
 
     // Helix constructor.
-    public Helix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent)
+    public Helix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, int length, GridComponent gridComponent)
     {
         Id = id;
         _startPoint = startPoint;
@@ -64,7 +64,7 @@ public class Helix
         StrandIds = new List<int>();
         LastPositionA = GridComponent.Position - new Vector3(0, OFFSET, 0);
         LastPositionB = GridComponent.Position + new Vector3(0, OFFSET, 0);
-        Extend();
+        Extend(length);
         ChangeRendering();
         s_helixDict.Add(id, this);
     }
@@ -72,10 +72,10 @@ public class Helix
     /// <summary>
     /// Draws the nucleotides of the helix.
     /// </summary>
-    public void Extend()
+    public void Extend(int length)
     {
         int prevLength = Length;
-        Length += LENGTH;
+        Length += length;
         for (int i = prevLength; i < Length; i++)
         {
             GameObject sphereA = DrawPoint.MakeNucleotide(LastPositionA, i, Id, 1);
@@ -161,6 +161,18 @@ public class Helix
             temp.Add(NucleotidesA[eIndex]);
             temp.Reverse();
             return temp;
+        }
+    }
+
+    public GameObject GetNucleotide(int id, int direction)
+    {
+        if (direction == 0)
+        {
+            return NucleotidesB[id];
+        }
+        else
+        {
+            return NucleotidesA[id];
         }
     }
 
@@ -327,6 +339,28 @@ public class Helix
             }
         }
         return helices;
+    }
+
+    public void DeleteHelix()
+    {
+        GridComponent.Helix = null;
+        GridComponent.Selected = false;
+        foreach (GameObject nucleotide in NucleotidesA)
+        {
+            GameObject.Destroy(nucleotide);
+        }
+        foreach (GameObject nucleotide in NucleotidesB)
+        {
+            GameObject.Destroy(nucleotide);
+        }
+        foreach (GameObject nucleotide in BackbonesA)
+        {
+            GameObject.Destroy(nucleotide);
+        }
+        foreach (GameObject nucleotide in BackbonesB)
+        {
+            GameObject.Destroy(nucleotide);
+        }
     }
 }
 

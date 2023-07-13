@@ -189,8 +189,6 @@ public class SelectStrand : MonoBehaviour
         Debug.Log("Strand Id of deleted strand: " + strandId);
         Debug.Log("Nucleotide head being deleted: " + go);
         Strand strand = s_strandDict[strandId];
-
-     
         //DeleteStrandFromHelix(go);
         ObjectListManager.DeleteButton(strandId);
 
@@ -218,7 +216,7 @@ public class SelectStrand : MonoBehaviour
     {
         var ntc = go.GetComponent<NucleotideComponent>();
         int helixId = ntc.HelixId;
-        Helix helix = s_gridList[0].GetHelix(helixId);
+        s_helixDict.TryGetValue(helixId, out Helix helix);
         helix.DeleteStrandId(ntc.StrandId);
     }
 }

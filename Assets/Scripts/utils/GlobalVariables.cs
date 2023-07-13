@@ -34,4 +34,6 @@ public static class GlobalVariables
     public static Dictionary<int, Helix> s_helixDict = new Dictionary<int, Helix>();
     public static Dictionary<int, Strand> s_strandDict = new Dictionary<int, Strand>();
     public static int s_numStrands = 0;
+    public static int s_numHelices = 0;
+    public static Color[] s_colors = { Color.blue, Color.magenta, Color.green, Color.red, Color.cyan, Color.yellow };
 }

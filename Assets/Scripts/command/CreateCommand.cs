@@ -10,31 +10,53 @@ using static GlobalVariables;
 public class CreateCommand : ICommand
 {
     private List<GameObject> _nucleotides;
+    //private GameObject _startGO;
+    //private GameObject _endGO;
+    private int _helixId;
+    private int _startId;
+    private int _endId;
     private int _strandId;
+    private int _direction;
+    private GameObject _startGO;
+    private GameObject _endGO;
     private List<GameObject> _xovers;
     private Color _color;
 
-    public CreateCommand(List<GameObject> nucleotides, int strandId)
+    public CreateCommand(GameObject startGO, GameObject endGO, int strandId)
     {
-        _nucleotides = nucleotides;
+        _startId = startGO.GetComponent<NucleotideComponent>().Id;
+        _endId = endGO.GetComponent<NucleotideComponent>().Id;
+        _helixId = startGO.GetComponent<NucleotideComponent>().HelixId;
+        _direction = startGO.GetComponent<NucleotideComponent>().Direction;
         _xovers = new List<GameObject>();
         _strandId = strandId;
     }
 
     public void Do()
     {
-        DrawNucleotideDynamic.CreateStrand(_nucleotides, _strandId);
+        GameObject startGO = FindNucleotide(_startId, _helixId, _direction);
+        GameObject endGO = FindNucleotide(_endId, _helixId, _direction);
+        DrawNucleotideDynamic.CreateStrand(startGO, endGO, _strandId);
         _color = s_strandDict[_strandId].GetColor();
     }
 
     public void Undo()
     {
         // Delete entire strand.
-        SelectStrand.DeleteStrand(_nucleotides[0]);
+        GameObject startGO = FindNucleotide(_startId, _helixId, _direction);
+        SelectStrand.DeleteStrand(startGO);
     }
 
     public void Redo()
     {
-        DrawCrossover.CreateStrand(_nucleotides, _xovers, _strandId, _color);
+        GameObject startGO = FindNucleotide(_startId, _helixId, _direction);
+        GameObject endGO = FindNucleotide(_endId, _helixId, _direction);
+        DrawCrossover.CreateStrand(startGO, endGO, _xovers, _strandId, _color);
+    }
+
+    public GameObject FindNucleotide(int id, int helixId, int direction)
+    {
+        s_helixDict.TryGetValue(helixId, out Helix helix);
+        return helix.GetNucleotide(id, direction);
     }
 }
