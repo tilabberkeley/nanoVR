@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
+using static Highlight;
 
 public class SelectStrand : MonoBehaviour
 {
@@ -152,7 +153,8 @@ public class SelectStrand : MonoBehaviour
     {
         int strandId = go.GetComponent<NucleotideComponent>().StrandId;
         if (strandId == -1) { return; }
-        HighlightStrand(strandId);
+        Strand strand = s_strandDict[strandId];
+        Highlight.HighlightStrand(strand);
     }
 
     // TEST
@@ -160,7 +162,7 @@ public class SelectStrand : MonoBehaviour
     {
         strandSelected = true;
         Strand strand = s_strandDict[strandId];
-        strand.Highlight(Color.red);
+        Highlight.HighlightStrand(strand);
         s_startGO = strand.GetHead();
     }
 
@@ -171,7 +173,7 @@ public class SelectStrand : MonoBehaviour
 
         if (strandId == -1) { return; }
         Strand strand = s_strandDict[strandId];
-        strand.Highlight(Color.black);
+        Highlight.UnHighlightStrand(strand);
     }
 
     public static void DoDeleteStrand(GameObject go)

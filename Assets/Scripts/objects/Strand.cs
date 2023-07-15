@@ -13,8 +13,9 @@ using static GlobalVariables;
 /// </summary>
 public class Strand
 {
-    // List of nucleotide GameObjects included in this strand.
+    // List of nucleotide and backbone GameObjects included in this strand.
     private List<GameObject> _nucleotides;
+    public List<GameObject> Nucleotides { get { return _nucleotides; } }
 
     // This strand's id.
     private int _strandId;
@@ -30,9 +31,11 @@ public class Strand
 
     // Indicates this strand's direction.
     private GameObject _cone;
+    public GameObject Cone { get { return _cone; } }
 
     // List of this strand's crossovers (needs testing).
     private List<GameObject> _xovers;
+    public List<GameObject> Xovers { get { return _xovers; } }
 
     // List of this strand's crossover suggestions.
     private List<GameObject> _xoverSuggestions; 

@@ -21,6 +21,7 @@ public class XoverComponent : MonoBehaviour
     private Color _color = Color.white;
 
     private Renderer _ntRenderer;
+    private Outline _outline;
    
     public int GetHelixId() { return _helixId; }
     public void SetHelixId(int helixId) { _helixId = helixId; }
@@ -58,5 +59,7 @@ public class XoverComponent : MonoBehaviour
     void Start()
     {
         _ntRenderer = gameObject.GetComponent<Renderer>();
+        _outline = GetComponent<Outline>();
+        _outline.enabled = false;
     }
 }

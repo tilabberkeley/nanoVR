@@ -33,16 +33,16 @@ public class Helix
     public List<GameObject> NucleotidesA { get; private set; }
 
     // List containing all backbones in spiral going in direction 1.
-    private List<GameObject> BackbonesA { get; set; }
+    public List<GameObject> BackbonesA { get; set; }
 
     // List containing all nucleotides in spiral going in direction 0.
     public List<GameObject> NucleotidesB { get; private set; }
 
     // List containing all backbones in spiral going in direction 0.
-    private List<GameObject> BackbonesB { get; set; }
+    public List<GameObject> BackbonesB { get; set; }
 
     // List of strand ids created on helix.
-    private List<int> StrandIds { get; set; }
+    public List<int> StrandIds { get; set; }
 
     // Positions of last nucleotides in helix
     private Vector3 LastPositionA { get; set; }
