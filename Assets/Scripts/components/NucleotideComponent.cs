@@ -18,6 +18,7 @@ public class NucleotideComponent : MonoBehaviour
     private static Color s_yellow = new Color(1, 0.92f, 0.016f, 0.5f);
 
     private Renderer _ntRenderer;
+    private Outline _outline;
 
     public bool Selected { get; set; } = false;
     public int Id { get; set; }
@@ -43,14 +44,16 @@ public class NucleotideComponent : MonoBehaviour
     
     public void Highlight(Color color)
     {
-        gameObject.GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
-        gameObject.GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
+        GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
+        GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        _ntRenderer = gameObject.GetComponent<Renderer>();
+        _ntRenderer = GetComponent<Renderer>();
+        _outline = GetComponent<Outline>();
+        _outline.enabled = false;
     }
 
     /// <summary>

@@ -4,29 +4,35 @@ using System.Drawing;
 using UnityEngine;
 using Color = UnityEngine.Color;
 
+/// <summary>
+/// Static helper class to highlight gameobjects.
+/// </summary>
 public static class Highlight
 {
-    private static Color highlightColor = Color.green;
-    private static Color unhighlightColor = Color.black;
+    /* METHODS RELY ON ALL GAMEOBJECTS PASSED IN HAVE OUTLINE COMPONENT */
+
+    private static Color nucleotideHighlightColor = Color.green;
 
     /// <summary>
-    /// Highlights given nucleotide.
+    /// Highlights given gameobject.
     /// </summary>
-    /// <param name="go">Nucleotide GameObject</param>
-    public static void HighlightNucleotide(GameObject go)
+    /// <param name="go">GameObject to highlight.</param>
+    /// <param name="color">Color to highlight with.</param>
+    private static void HighlightGO(GameObject go, Color color)
     { 
-        NucleotideComponent comp = go.GetComponent<NucleotideComponent>();
-        comp.Highlight(highlightColor);
+        Outline outline = go.GetComponent<Outline>();
+        outline.enabled = true;
+        outline.OutlineColor = color;
     }
 
     /// <summary>
     /// Unhighlights given nucleotide.
     /// </summary>
-    /// <param name="go">Nucleotide GameObject</param>
-    public static void UnhighlightNucleotide(GameObject go)
+    /// <param name="go">GameObject to unhighlight.</param>
+    private static void UnhighlightGO(GameObject go)
     {
-        NucleotideComponent comp = go.GetComponent<NucleotideComponent>();
-        comp.Highlight(unhighlightColor);
+        Outline outline = go.GetComponent<Outline>();
+        outline.enabled = false;
     }
 
     /// <summary>
@@ -41,16 +47,7 @@ public static class Highlight
         }
         for (int i = 0; i < list.Count; i++)
         {
-            // Highlight nucleotide
-            if (list[i].GetComponent<NucleotideComponent>() != null)
-            {
-                HighlightNucleotide(list[i]);
-            }
-            // Highlight backbone
-            else
-            {
-                list[i].GetComponent<Renderer>().material.SetColor("_EmissionColor", highlightColor);
-            }
+            HighlightGO(list[i], nucleotideHighlightColor);
         }
     }
 
@@ -66,16 +63,7 @@ public static class Highlight
         }
         for (int i = 0; i < list.Count; i++)
         {
-            // Highlight nucleotide
-            if (list[i].GetComponent<NucleotideComponent>() != null)
-            {
-                UnhighlightNucleotide(list[i]);
-            }
-            // Highlight backbone
-            else
-            {
-                list[i].GetComponent<Renderer>().material.SetColor("_EmissionColor", unhighlightColor);
-            }
+            UnhighlightGO(list[i]);
         }
     }
 
