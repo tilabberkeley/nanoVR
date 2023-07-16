@@ -64,7 +64,7 @@ public class NucleotideComponent : MonoBehaviour
     {
         s_helixDict.TryGetValue(HelixId, out Helix helix);
         // This nucleotide is the last nucleotide if its id is equal to the length of its helix - 1
-        return Id == helix.GetLength() - 1;
+        return Id == helix.Length - 1;
     }
 
     /// <summary>

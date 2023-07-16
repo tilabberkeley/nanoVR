@@ -173,7 +173,7 @@ public class SelectStrand : MonoBehaviour
 
         if (strandId == -1) { return; }
         Strand strand = s_strandDict[strandId];
-        Highlight.UnHighlightStrand(strand);
+        Highlight.UnhighlightStrand(strand);
     }
 
     public static void DoDeleteStrand(GameObject go)

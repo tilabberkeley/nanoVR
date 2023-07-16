@@ -38,7 +38,7 @@ public class Strand
     public List<GameObject> Xovers { get { return _xovers; } }
 
     // List of this strand's crossover suggestions.
-    private List<GameObject> _xoverSuggestions; 
+    private List<GameObject> _xoverSuggestions;
 
     // Array of colors that strands cycle through.
     private static Color[] s_colors = { Color.blue, Color.magenta, Color.green, Color.red, Color.cyan, Color.yellow };
@@ -342,37 +342,6 @@ public class Strand
         GameObject.Destroy(xover);
     }
 
-    // Highlights strand.
-    public void Highlight(Color color)
-    {
-        for (int i = 0; i < _nucleotides.Count; i++)
-        {
-            // Set nucleotide
-            if (_nucleotides[i].GetComponent<NucleotideComponent>() != null)
-            {
-                var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
-                ntc.Highlight(color);
-            }
-            // Set backbone
-            else
-            {
-                _nucleotides[i].GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
-            }
-        }
-        for (int i = 0; i < _xovers.Count; i++)
-        {
-            var xoverComp = _xovers[i].GetComponent<XoverComponent>();
-            xoverComp.Highlight(color);
-        }
-        HighlightCone(color);
-    }
-
-    // Highlights cone.
-    public void HighlightCone(Color color)
-    {
-        _cone.GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
-    }
-
     // Sets variables of each GameObject's component (strandId, color, etc).
     public void SetComponents()
     {
@@ -456,6 +425,9 @@ public class Strand
         }
     }
 
+    /// <summary>
+    /// Creates cross over suggestion game objects if there is a close enough strand in the opposite direction.
+    /// </summary>
     private void CheckForXoverSuggestions()
     {
         // tail check

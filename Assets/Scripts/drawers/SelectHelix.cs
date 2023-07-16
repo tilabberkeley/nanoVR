@@ -150,6 +150,6 @@ public class SelectHelix : MonoBehaviour
         if (go == null) { return; }
         var gc = go.GetComponent<GridComponent>();
         // gc.Helix.Highlight(Color.black);
-        Highlight.UnHighlightHelix(gc.Helix);
+        Highlight.UnhighlightHelix(gc.Helix);
     }
 }

@@ -12,9 +12,11 @@ public static class Highlight
 {
     /* METHODS RELY ON ALL PASSED IN GAMEOBJECTS HAVING OUTLINE COMPONENT. */
 
+    // Colors for highlighting.
     private static Color nucleotideHighlightColor = Color.green;
     private static Color strandHighlightColor = Color.blue;
     private static Color helixHighlightColor = Color.yellow;
+    private static Color xoverSuggestionColor = Color.cyan;
 
     /// <summary>
     /// Highlights given gameobject.
@@ -29,10 +31,10 @@ public static class Highlight
     }
 
     /// <summary>
-    /// Unhighlights given nucleotide.
+    /// Unhighlights given gameobject.
     /// </summary>
     /// <param name="go">GameObject to unhighlight.</param>
-    private static void UnHighlightGO(GameObject go)
+    private static void UnhighlightGO(GameObject go)
     {
         Outline outline = go.GetComponent<Outline>();
         outline.enabled = false;
@@ -66,7 +68,7 @@ public static class Highlight
         }
         for (int i = 0; i < list.Count; i++)
         {
-            UnHighlightGO(list[i]);
+            UnhighlightGO(list[i]);
         }
     }
 
@@ -94,20 +96,20 @@ public static class Highlight
     /// Unhighlights given strand.
     /// </summary>
     /// <param name="strand">Strand to unhighlight.</param>
-    public static void UnHighlightStrand(Strand strand)
+    public static void UnhighlightStrand(Strand strand)
     {
         List<GameObject> nucleotides = strand.Nucleotides;
         List<GameObject> xovers = strand.Xovers;
         GameObject cone = strand.Cone;
         for (int i = 0; i < nucleotides.Count; i++)
         {
-            UnHighlightGO(nucleotides[i]);
+            UnhighlightGO(nucleotides[i]);
         }
         for (int i = 0; i < xovers.Count; i++)
         {
-            UnHighlightGO(xovers[i]);
+            UnhighlightGO(xovers[i]);
         }
-        UnHighlightGO(cone);
+        UnhighlightGO(cone);
     }
     
     /// <summary>
@@ -143,7 +145,7 @@ public static class Highlight
     /// Unhighlights given helix.
     /// </summary>
     /// <param name="helix">Helix to unhighlight.</param>
-    public static void UnHighlightHelix(Helix helix)
+    public static void UnhighlightHelix(Helix helix)
     {
         List<GameObject> nucleotidesA = helix.NucleotidesA;
         List<GameObject> nucleotidesB = helix.NucleotidesB;
@@ -152,28 +154,36 @@ public static class Highlight
         List<int> strandIds = helix.StrandIds;
         for (int i = 0; i < nucleotidesA.Count; i++)
         {
-            UnHighlightGO(nucleotidesA[i]);
-            UnHighlightGO(nucleotidesB[i]);
+            UnhighlightGO(nucleotidesA[i]);
+            UnhighlightGO(nucleotidesB[i]);
         }
         for (int i = 0; i < backbonesA.Count; i++)
         {
-            UnHighlightGO(backbonesA[i]);
-            UnHighlightGO(backbonesB[i]);
+            UnhighlightGO(backbonesA[i]);
+            UnhighlightGO(backbonesB[i]);
         }
         for (int i = 0; i < strandIds.Count; i++)
         {
             s_strandDict.TryGetValue(i, out Strand strand);
-            UnHighlightGO(strand.Cone);
+            UnhighlightGO(strand.Cone);
         }
     }
 
     /// <summary>
-    /// Highlights or unhighlights the given crossover suggestion.
+    /// Highlights crossover suggestion.
     /// </summary>
     /// <param name="xoverSuggestionComponent">Crossover suggestion to highlight.</param>
-    /// <param name="highlight">Highlights if true. Unhighlights if false.</param>
-    public static void HighlightXoverSuggestion(XoverSuggestionComponent xoverSuggestionComponent, bool highlight)
+    public static void HighlightXoverSuggestion(XoverSuggestionComponent xoverSuggestionComponent)
     {
-        xoverSuggestionComponent.GetComponent<Renderer>().enabled = highlight;
+        HighlightGO(xoverSuggestionComponent.gameObject, xoverSuggestionColor);
+    }
+
+    /// <summary>
+    /// Unhighlights crossover suggestion.
+    /// </summary>
+    /// <param name="xoverSuggestionComponent">Crossover suggestion to unhighlight.</param>
+    public static void UnhighlightXoverSuggestion(XoverSuggestionComponent xoverSuggestionComponent)
+    {
+        UnhighlightGO(xoverSuggestionComponent.gameObject);
     }
 }

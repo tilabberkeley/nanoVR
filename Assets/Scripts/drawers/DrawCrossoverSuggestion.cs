@@ -83,7 +83,7 @@ public class DrawCrossoverSuggestion : MonoBehaviour
                 {
                     _lookingAtXover = true;
                     _currentXoverSuggestion = hitGO;
-                    HighlightXoverSuggestion(xoverSuggestionComponent, true);
+                    HighlightXoverSuggestion(xoverSuggestionComponent);
                 }
             }
             else
@@ -91,7 +91,7 @@ public class DrawCrossoverSuggestion : MonoBehaviour
                 _lookingAtXover = false;
                 if (_currentXoverSuggestion != null)
                 {
-                    HighlightXoverSuggestion(_currentXoverSuggestion.GetComponent<XoverSuggestionComponent>(), false);
+                    UnhighlightXoverSuggestion(_currentXoverSuggestion.GetComponent<XoverSuggestionComponent>());
                 }
             }
         }
@@ -99,7 +99,7 @@ public class DrawCrossoverSuggestion : MonoBehaviour
         else if (_lookingAtXover)
         {
             _lookingAtXover = false;
-            HighlightXoverSuggestion(_currentXoverSuggestion.GetComponent<XoverSuggestionComponent>(), false);
+            UnhighlightXoverSuggestion(_currentXoverSuggestion.GetComponent<XoverSuggestionComponent>());
             _currentXoverSuggestion = null;
         }
 

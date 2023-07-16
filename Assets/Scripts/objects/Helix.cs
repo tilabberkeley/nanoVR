@@ -18,52 +18,59 @@ public class Helix
     private const int LENGTH = 64;
 
     // Helix id.
-    private int Id { get; set; }
+    private int _id;
     private Vector3 _startPoint;
     private Vector3 _endPoint;
 
     // Number of nucleotides in helix.
-    public int Length { get; private set; }
+    private int _length;
+    public int Length { get { return _length; } }
     private string _orientation;
 
     // Grid Component that helix is on.
-    public GridComponent GridComponent { get; private set; }
+    public GridComponent _gridComponent;
 
     // List containing all nucleotides in spiral going in direction 1.
-    public List<GameObject> NucleotidesA { get; private set; }
+    private List<GameObject> _nucleotidesA;
+    public List<GameObject> NucleotidesA { get { return _nucleotidesA; } }
+
 
     // List containing all backbones in spiral going in direction 1.
-    public List<GameObject> BackbonesA { get; set; }
+    private List<GameObject> _backbonesA;
+    public List<GameObject> BackbonesA { get { return _backbonesA; } }
 
     // List containing all nucleotides in spiral going in direction 0.
-    public List<GameObject> NucleotidesB { get; private set; }
+    private List<GameObject> _nucleotidesB;
+    public List<GameObject> NucleotidesB { get { return _nucleotidesB; } }
 
     // List containing all backbones in spiral going in direction 0.
-    public List<GameObject> BackbonesB { get; set; }
+    private List<GameObject> _backbonesB;
+    public List<GameObject> BackbonesB { get { return _backbonesB; } }
 
     // List of strand ids created on helix.
-    public List<int> StrandIds { get; set; }
+    private List<int> _strandIds;
+    public List<int> StrandIds { get { return _strandIds; } }
 
     // Positions of last nucleotides in helix
-    private Vector3 LastPositionA { get; set; }
-    private Vector3 LastPositionB { get; set; }
+    private Vector3 _lastPositionA;
+    private Vector3 _lastPositionB;
 
     // Helix constructor.
     public Helix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent)
     {
-        Id = id;
+        _id = id;
         _startPoint = startPoint;
         _endPoint = endPoint;
-        Length = 0;
+        _length = 0;
         _orientation = orientation;
-        GridComponent = gridComponent;
-        NucleotidesA = new List<GameObject>();
-        BackbonesA = new List<GameObject>();
-        NucleotidesB = new List<GameObject>();
-        BackbonesB = new List<GameObject>();
-        StrandIds = new List<int>();
-        LastPositionA = GridComponent.Position - new Vector3(0, OFFSET, 0);
-        LastPositionB = GridComponent.Position + new Vector3(0, OFFSET, 0);
+        _gridComponent = gridComponent;
+        _nucleotidesA = new List<GameObject>();
+        _backbonesA = new List<GameObject>();
+        _nucleotidesB = new List<GameObject>();
+        _backbonesB = new List<GameObject>();
+        _strandIds = new List<int>();
+        _lastPositionA = _gridComponent.Position - new Vector3(0, OFFSET, 0);
+        _lastPositionB = _gridComponent.Position + new Vector3(0, OFFSET, 0);
         Extend();
         ChangeRendering();
         s_helixDict.Add(id, this);
@@ -74,17 +81,17 @@ public class Helix
     /// </summary>
     public void Extend()
     {
-        int prevLength = Length;
-        Length += LENGTH;
-        for (int i = prevLength; i < Length; i++)
+        int prevLength = _length;
+        _length += LENGTH;
+        for (int i = prevLength; i < _length; i++)
         {
-            GameObject sphereA = DrawPoint.MakeNucleotide(LastPositionA, i, Id, 1);
+            GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, i, _id, 1);
             //sphereA.SetActive(false);
-            NucleotidesA.Add(sphereA);
+            _nucleotidesA.Add(sphereA);
 
-            GameObject sphereB = DrawPoint.MakeNucleotide(LastPositionB, i, Id, 0);
+            GameObject sphereB = DrawPoint.MakeNucleotide(_lastPositionB, i, _id, 0);
             //sphereB.SetActive(false);
-            NucleotidesB.Add(sphereB);
+            _nucleotidesB.Add(sphereB);
 
             float angleA = i * (2 * (float)(Math.PI) / 10); // rotation per bp in radians
             float angleB = (float)(((float)(i) + 5.5) * (2 * (float)(Math.PI) / 10));
@@ -93,8 +100,8 @@ public class Helix
             float axisOneChangeB = Mathf.Cos(angleB) * 0.02f;
             float axisTwoChangeB = Mathf.Sin(angleB) * 0.02f;
 
-            LastPositionA += new Vector3(axisOneChangeA, axisTwoChangeA, -RISE);
-            LastPositionB += new Vector3(axisOneChangeB, axisTwoChangeB, -RISE);
+            _lastPositionA += new Vector3(axisOneChangeA, axisTwoChangeA, -RISE);
+            _lastPositionB += new Vector3(axisOneChangeB, axisTwoChangeB, -RISE);
         }
 
         if (prevLength == 0) 
@@ -115,19 +122,19 @@ public class Helix
     private void DrawBackbones(int start)
     {
         // Backbones for A nucleotides
-        for (int i = start; i < NucleotidesA.Count; i++)
+        for (int i = start; i < _nucleotidesA.Count; i++)
         {
-            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, NucleotidesA[i].transform.position, NucleotidesA[i - 1].transform.position);
+            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, _nucleotidesA[i].transform.position, _nucleotidesA[i - 1].transform.position);
             //cylinder.SetActive(false);
-            BackbonesA.Add(cylinder);
+            _backbonesA.Add(cylinder);
         }
 
         // Backbones for B nucleotides
-        for (int i = start; i < NucleotidesB.Count; i++)
+        for (int i = start; i < _nucleotidesB.Count; i++)
         {
-            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, NucleotidesB[i].transform.position, NucleotidesB[i - 1].transform.position);
+            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, _nucleotidesB[i].transform.position, _nucleotidesB[i - 1].transform.position);
             //cylinder.SetActive(false);
-            BackbonesB.Add(cylinder);
+            _backbonesB.Add(cylinder);
         }
     }
 
@@ -145,20 +152,20 @@ public class Helix
         {
             for (int i = sIndex; i < eIndex; i++)
             {
-                temp.Add(NucleotidesB[i]);
-                temp.Add(BackbonesB[i]);
+                temp.Add(_nucleotidesB[i]);
+                temp.Add(_backbonesB[i]);
             }
-            temp.Add(NucleotidesB[eIndex]);
+            temp.Add(_nucleotidesB[eIndex]);
             return temp;
         }
         else 
         {
             for (int i = sIndex; i < eIndex; i++)
             {
-                temp.Add(NucleotidesA[i]);
-                temp.Add(BackbonesA[i]);
+                temp.Add(_nucleotidesA[i]);
+                temp.Add(_backbonesA[i]);
             }
-            temp.Add(NucleotidesA[eIndex]);
+            temp.Add(_nucleotidesA[eIndex]);
             temp.Reverse();
             return temp;
         }
@@ -174,13 +181,13 @@ public class Helix
     {
         if (direction == 0)
         {
-            int index = NucleotidesB.IndexOf(go);
-            return NucleotidesB[index - 1];
+            int index = _nucleotidesB.IndexOf(go);
+            return _nucleotidesB[index - 1];
         }
         else
         {
-            int index = NucleotidesA.IndexOf(go);
-            return NucleotidesA[index + 1];
+            int index = _nucleotidesA.IndexOf(go);
+            return _nucleotidesA[index + 1];
         }
     }
 
@@ -194,13 +201,13 @@ public class Helix
     {
         if (direction == 0)
         {
-            int index = NucleotidesB.IndexOf(go);
-            return NucleotidesB[index + 1];
+            int index = _nucleotidesB.IndexOf(go);
+            return _nucleotidesB[index + 1];
         }
         else
         {
-            int index = NucleotidesA.IndexOf(go);
-            return NucleotidesA[index - 1];
+            int index = _nucleotidesA.IndexOf(go);
+            return _nucleotidesA[index - 1];
         }
     }
 
@@ -214,13 +221,13 @@ public class Helix
     {
         if (direction == 0)
         {
-            int index = NucleotidesB.IndexOf(go);
-            return BackbonesB[index - 1];
+            int index = _nucleotidesB.IndexOf(go);
+            return _backbonesB[index - 1];
         }
         else
         {
-            int index = NucleotidesA.IndexOf(go);
-            return BackbonesA[index];
+            int index = _nucleotidesA.IndexOf(go);
+            return _backbonesA[index];
         }
     }
 
@@ -234,58 +241,31 @@ public class Helix
     {
         if (direction == 0)
         {
-            int index = NucleotidesB.IndexOf(go);
-            return BackbonesB[index];
+            int index = _nucleotidesB.IndexOf(go);
+            return _backbonesB[index];
         }
         else
         {
-            int index = NucleotidesA.IndexOf(go);
-            return BackbonesA[index - 1];
+            int index = _nucleotidesA.IndexOf(go);
+            return _backbonesA[index - 1];
         }
     }
 
     public List<int> GetStrandIds()
     {
-        return StrandIds;
+        return _strandIds;
     }
 
     // Adds strandId to strand id list.
     public void AddStrandId(int strandId)
     {
-        StrandIds.Add(strandId);
+        _strandIds.Add(strandId);
     }
 
     // Removes strandId from strand id list.
     public void DeleteStrandId(int strandId)
     {
-        StrandIds.Remove(strandId);
-    }
-
-    /// <summary>
-    /// Returns the length of the helix.
-    /// </summary>
-    /// <returns>Lenght of the helix</returns>
-    public int GetLength()
-    {
-        return Length;
-    }
-
-    public void Highlight(Color color)
-    {
-        for (int i = 0; i < NucleotidesA.Count; i++)
-        {
-            NucleotidesA[i].GetComponent<NucleotideComponent>().Highlight(color);
-            NucleotidesB[i].GetComponent<NucleotideComponent>().Highlight(color);
-        }
-        for (int i = 0; i < BackbonesA.Count; i++)
-        {
-            BackbonesA[i].GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
-            BackbonesB[i].GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
-        }
-        for (int i = 0; i < StrandIds.Count; i++)
-        {
-            s_strandDict[StrandIds[i]].HighlightCone(color);
-        }
+        _strandIds.Remove(strandId);
     }
 
     /// <summary>
@@ -293,19 +273,19 @@ public class Helix
     /// </summary>
     public void ChangeRendering()
     {
-        for (int i = 0; i < BackbonesA.Count; i++)
+        for (int i = 0; i < _backbonesA.Count; i++)
         {
-            NucleotidesA[i].SetActive(s_nucleotideView);
-            BackbonesA[i].SetActive(s_nucleotideView);
-            NucleotidesB[i].SetActive(s_nucleotideView);
-            BackbonesB[i].SetActive(s_nucleotideView);
+            _nucleotidesA[i].SetActive(s_nucleotideView);
+            _backbonesA[i].SetActive(s_nucleotideView);
+            _nucleotidesB[i].SetActive(s_nucleotideView);
+            _backbonesB[i].SetActive(s_nucleotideView);
         }
-        NucleotidesA[NucleotidesA.Count - 1].SetActive(s_nucleotideView);
-        NucleotidesB[NucleotidesB.Count - 1].SetActive(s_nucleotideView);
+        _nucleotidesA[_nucleotidesA.Count - 1].SetActive(s_nucleotideView);
+        _nucleotidesB[_nucleotidesB.Count - 1].SetActive(s_nucleotideView);
 
-        for (int i = 0; i < StrandIds.Count; i++)
+        for (int i = 0; i < _strandIds.Count; i++)
         {
-            Strand strand = s_strandDict[StrandIds[i]];
+            Strand strand = s_strandDict[_strandIds[i]];
             strand.ShowHideCone(s_nucleotideView);
         }   
     }
@@ -317,7 +297,7 @@ public class Helix
     public List<Helix> getNeighborHelices()
     {
         List<Helix> helices = new List<Helix>();
-        foreach (GridComponent gridComponent in GridComponent.getNeighborGridComponents())
+        foreach (GridComponent gridComponent in _gridComponent.getNeighborGridComponents())
         {
             Helix helix = gridComponent.Helix;
             // helix != null if there is a helix on the grid component
