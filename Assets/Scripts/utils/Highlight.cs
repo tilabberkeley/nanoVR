@@ -13,7 +13,8 @@ public static class Highlight
     /* METHODS RELY ON ALL PASSED IN GAMEOBJECTS HAVING OUTLINE COMPONENT. */
 
     // Colors for highlighting.
-    private static Color nucleotideHighlightColor = Color.green;
+    private static Color drawNucleotideHighlightColor = Color.green;
+    private static Color eraseNucleotideHighlightColor = Color.red;
     private static Color strandHighlightColor = Color.blue;
     private static Color helixHighlightColor = Color.yellow;
     private static Color xoverSuggestionColor = Color.cyan;
@@ -46,13 +47,18 @@ public static class Highlight
     /// <param name="list">GameObject list of nucleotides and backbones.</param>
     public static void HighlightNucleotideSelection(List<GameObject> list)
     {
+        Color color = drawNucleotideHighlightColor;
+        if (s_eraseTogOn)
+        {
+            color = eraseNucleotideHighlightColor;
+        }
         if (list == null)
         {
             return;
         }
         for (int i = 0; i < list.Count; i++)
         {
-            HighlightGO(list[i], nucleotideHighlightColor);
+            HighlightGO(list[i], color);
         }
     }
 
