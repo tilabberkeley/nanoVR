@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: -561032753160363944}
   - component: {fileID: -7363410407987860067}
   - component: {fileID: 6016319295994240312}
+  - component: {fileID: 4954706721125006004}
   m_Layer: 0
   m_Name: XoverSuggestion
   m_TagString: Untagged
@@ -216,3 +217,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d86ba781818b994db5a7f2be504027c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &4954706721125006004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7691098692861084593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 1
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []

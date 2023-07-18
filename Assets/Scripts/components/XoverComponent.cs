@@ -21,6 +21,7 @@ public class XoverComponent : MonoBehaviour
     private Color _color;
 
     private Renderer _ntRenderer;
+    private Outline _outline;
    
     public int GetStrandId() { return _strandId; }
     public void SetStrandId(int strandId) { _strandId = strandId; }
@@ -46,5 +47,7 @@ public class XoverComponent : MonoBehaviour
     void Start()
     {
         _ntRenderer = gameObject.GetComponent<Renderer>();
+        _outline = GetComponent<Outline>();
+        _outline.enabled = false;
     }
 }

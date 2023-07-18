@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
+using static Highlight;
 
 public class SelectHelix : MonoBehaviour
 {
@@ -133,7 +134,15 @@ public class SelectHelix : MonoBehaviour
         {
             Debug.Log(i);
         }*/
-        gc.Helix.Highlight(Color.red);
+        // gc.Helix.Highlight(Color.red);
+        Highlight.HighlightHelix(gc.Helix);
+        /*
+        foreach (int id in gc.Helix.GetStrandIds())
+        {
+            Debug.Log("Strand" + id);
+        }
+        Debug.Log("Helix id: " + gc.Helix);
+        */
     }
 
     public static void UnhighlightHelix()
@@ -168,5 +177,7 @@ public class SelectHelix : MonoBehaviour
         }
         helix.DeleteHelix();
         s_helixDict.Remove(id);
+        // gc.Helix.Highlight(Color.black);
+        //Highlight.UnhighlightHelix(gc.Helix);
     }
 }

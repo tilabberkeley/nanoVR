@@ -19,7 +19,7 @@ public class DeleteHelixCommand : ICommand
         _endPoint = helix.EndPoint;
         _orientation = helix.Orientation;
         _length = helix.Length;
-        _gridComponent = helix.GridComponent;
+        _gridComponent = helix._gridComponent;
     }
 
     public void Do()
