@@ -101,8 +101,8 @@ public class DrawGrid : MonoBehaviour
                     //Grid.AddLine(id, startPos, endPos);
                     Grid.DoAddHelix(id, startPos, endPos, plane, gc);
                     //gc.Line = _grid.GetLine(id);
-                    gc.Helix = s_helixDict[id];
-                    gc.Selected = true;
+                    //gc.Helix = s_helixDict[id];
+                    //gc.Selected = true;
                     //Debug.Log("X: " + gc.GridPoint.X + ", Y:" + gc.GridPoint.Y);
                     _grid.CheckExpansion(gc);
                 }

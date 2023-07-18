@@ -447,6 +447,8 @@ public class Grid
     {
         Helix helix = new Helix(id, startPoint, endPoint, orientation, length, gridComponent);
         s_helixDict.Add(id, helix);
+        gridComponent.Helix = helix;
+        gridComponent.Selected = true;
         s_numHelices += 1;
 
         //_helices.Add(helix);
