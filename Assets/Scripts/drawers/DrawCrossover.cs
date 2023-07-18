@@ -295,6 +295,26 @@ public class DrawCrossover : MonoBehaviour
         }
     }
 
+    public static void CreateStrand(GameObject startGO, GameObject endGO, List<GameObject> xovers, int strandId, Color color)
+    {
+        List<GameObject> nucleotides = DrawNucleotideDynamic.MakeNuclList(startGO, endGO);
+        CreateStrand(nucleotides, xovers, strandId, color);
+    }
+
+    public static void CreateStrand(List<GameObject> nucleotides, List<GameObject> xovers, List<int> helixIds, int strandId, Color color)
+    {
+        Strand strand = new Strand(nucleotides, xovers, helixIds, strandId, color);
+        strand.SetComponents();
+        s_strandDict.Add(strandId, strand);
+        DrawNucleotideDynamic.CreateButton(strandId);
+        /*foreach (int helixId in helixIds)
+        {
+            s_helixDict.TryGetValue(helixId, out Helix helix);
+            helix.AddStrandId(strandId);
+        }*/
+        //DrawNucleotideDynamic.AddStrandToHelix(nucleotides[0]);
+        s_numStrands += 1;
+    }
     public static void CreateStrand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId, Color color)
     {
         Strand strand = new Strand(nucleotides, xovers, strandId, color);
@@ -305,16 +325,6 @@ public class DrawCrossover : MonoBehaviour
         s_numStrands += 1;
     }
 
-    public static void CreateStrand(GameObject startGO, GameObject endGO, List<GameObject> xovers, int strandId, Color color)
-    {
-        List<GameObject> nucleotides = DrawNucleotideDynamic.MakeNuclList(startGO, endGO);
-        Strand strand = new Strand(nucleotides, xovers, strandId, color);
-        strand.SetComponents();
-        s_strandDict.Add(strandId, strand);
-        DrawNucleotideDynamic.CreateButton(strandId);
-        //DrawNucleotideDynamic.AddStrandToHelix(nucleotides[0]);
-        s_numStrands += 1;
-    }
 
     public static void MergeStrand(GameObject firstGO, GameObject secondGO, GameObject backbone)
     {
@@ -353,7 +363,8 @@ public class DrawCrossover : MonoBehaviour
         }
         //secondStrand.RemoveStrand();
         firstStrand.SetComponents();
-        DrawNucleotideDynamic.AddStrandToHelix(secondGO);
+        //firstStrand.AddHelixId(secondGO.GetComponent<NucleotideComponent>().HelixId);
+        //DrawNucleotideDynamic.AddStrandToHelix(secondGO);
     }
 
     public static void HandleCycle(Strand firstStrand, Strand secondStrand, bool addToHead)

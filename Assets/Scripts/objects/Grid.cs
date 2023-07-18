@@ -436,20 +436,21 @@ public class Grid
         //_lines.Add(line);
     }
 
-    public void DoAddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent)
+    public static void DoAddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent)
     {
-        ICommand command = new CreateHelixCommand(this, id, startPoint, endPoint, orientation, gridComponent);
+        ICommand command = new CreateHelixCommand(id, startPoint, endPoint, orientation, gridComponent);
         CommandManager.AddCommand(command);
         command.Do();
     }
 
-    public void AddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, int length, GridComponent gridComponent)
+    public static void AddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, int length, GridComponent gridComponent)
     {
         Helix helix = new Helix(id, startPoint, endPoint, orientation, length, gridComponent);
+        s_helixDict.Add(id, helix);
         s_numHelices += 1;
 
-    //_helices.Add(helix);
-}
+        //_helices.Add(helix);
+    }
 
 /// <summary>
 /// Changes rendering of the lines and helixes in grid.

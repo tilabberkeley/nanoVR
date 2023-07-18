@@ -10,7 +10,7 @@ public class CreateHelixCommand : ICommand
 
 
     // Grid that helix belongs to.
-    private Grid _grid;
+    // private Grid _grid;
 
     // Helix id.
     private int _id;
@@ -55,9 +55,9 @@ public class CreateHelixCommand : ICommand
     private Vector3 lastPositionA;
     private Vector3 lastPositionB;
 
-    public CreateHelixCommand(Grid grid, int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent)
+    public CreateHelixCommand(int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent)
     {
-        _grid = grid;
+        //_grid = grid;
         _id = id;
         _startPoint = startPoint;
         _endPoint = endPoint;
@@ -79,12 +79,12 @@ public class CreateHelixCommand : ICommand
 
     public void Do()
     {
-        _grid.AddHelix(_id, _startPoint, _endPoint, _orientation, _length, _gridComp);
+        Grid.AddHelix(_id, _startPoint, _endPoint, _orientation, _length, _gridComp);
     }
 
     public void Redo()
     {
-        _grid.AddHelix(_id, _startPoint, _endPoint, _orientation, _length, _gridComp);
+        Grid.AddHelix(_id, _startPoint, _endPoint, _orientation, _length, _gridComp);
         /*for (int i = 0; i < _deletedStrands.Count; i++)
         {
             //DrawCrossover.CreateStrand(_deletedStrands[i].Item2, _deletedStrands[i].Item1, _deletedStrands[i].Item3);

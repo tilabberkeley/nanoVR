@@ -98,8 +98,8 @@ public class DrawGrid : MonoBehaviour
                     Vector3 startPos = s_hit.collider.bounds.center;
                     Vector3 endPos = startPos - new Vector3(0, 0, 64 * 0.034f);
                     int id = s_numHelices;
-                    _grid.AddLine(id, startPos, endPos);
-                    _grid.DoAddHelix(id, startPos, endPos, plane, gc);
+                    //Grid.AddLine(id, startPos, endPos);
+                    Grid.DoAddHelix(id, startPos, endPos, plane, gc);
                     //gc.Line = _grid.GetLine(id);
                     gc.Helix = s_helixDict[id];
                     gc.Selected = true;
@@ -109,6 +109,7 @@ public class DrawGrid : MonoBehaviour
                 else
                 {
                     SelectHelix.UnhighlightHelix();
+                    SelectHelix.ResetNucleotides();
                     SelectHelix.HighlightHelix(s_hit.collider.gameObject);
                 }
             }

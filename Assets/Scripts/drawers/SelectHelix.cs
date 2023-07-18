@@ -44,10 +44,10 @@ public class SelectHelix : MonoBehaviour
             return;
         }
 
-        if (!s_drawTogOn && !s_eraseTogOn)
+        /*if (!s_drawTogOn && !s_eraseTogOn)
         {
             return;
-        }
+        }*/
 
         if (!_device.isValid)
         {
@@ -95,6 +95,7 @@ public class SelectHelix : MonoBehaviour
             if (helixSelected)
             {
                 // DELETE HELIX
+                DoDeleteHelix(s_gridGO.GetComponent<GridComponent>().Helix.Id);
             }
         }
 
@@ -117,7 +118,7 @@ public class SelectHelix : MonoBehaviour
     /// <summary>
     /// Resets the start and end nucleotides.
     /// </summary>
-    public void ResetNucleotides()
+    public static void ResetNucleotides()
     {
         s_gridGO = null;
         helixSelected = false;
@@ -127,13 +128,12 @@ public class SelectHelix : MonoBehaviour
     {
         helixSelected = true;
         var gc = go.GetComponent<GridComponent>();
-        
         s_gridGO = go;
-        gc.Helix.Highlight(Color.red);
-        foreach (int id in gc.Helix.GetStrandIds())
+        /*foreach (int i in gc.Helix.StrandIds)
         {
-            Debug.Log("Strand " + id);
-        }
+            Debug.Log(i);
+        }*/
+        gc.Helix.Highlight(Color.red);
     }
 
     public static void UnhighlightHelix()
@@ -145,12 +145,27 @@ public class SelectHelix : MonoBehaviour
     {
         if (go == null) { return; }
         var gc = go.GetComponent<GridComponent>();
-        gc.Helix.Highlight(Color.black);
+        if (gc.Helix != null)
+        {
+            gc.Helix.Highlight(Color.black);
+        }
+    }
+
+    public static void DoDeleteHelix(int id)
+    {
+        ICommand command = new DeleteHelixCommand(id);
+        CommandManager.AddCommand(command);
+        command.Do();
     }
 
     public static void DeleteHelix(int id)
     {
         s_helixDict.TryGetValue(id, out Helix helix);
+        if (!helix.IsEmpty())
+        {
+            Debug.Log("Helix not empty. Cannot delete");
+            return;
+        }
         helix.DeleteHelix();
         s_helixDict.Remove(id);
     }

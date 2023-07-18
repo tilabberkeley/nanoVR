@@ -18,13 +18,13 @@ public class Helix
     private const int LENGTH = 64;
 
     // Helix id.
-    private int Id { get; set; }
-    private Vector3 _startPoint;
-    private Vector3 _endPoint;
+    public int Id { get; set; }
+    public Vector3 StartPoint { get; set; }
+    public Vector3 EndPoint { get; set; }
 
     // Number of nucleotides in helix.
     public int Length { get; private set; }
-    private string _orientation;
+    public string Orientation { get; set; }
 
     // Grid Component that helix is on.
     public GridComponent GridComponent { get; private set; }
@@ -42,7 +42,7 @@ public class Helix
     private List<GameObject> BackbonesB { get; set; }
 
     // List of strand ids created on helix.
-    private List<int> StrandIds { get; set; }
+    public List<int> StrandIds { get; set; }
 
     // Positions of last nucleotides in helix
     private Vector3 LastPositionA { get; set; }
@@ -52,10 +52,10 @@ public class Helix
     public Helix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, int length, GridComponent gridComponent)
     {
         Id = id;
-        _startPoint = startPoint;
-        _endPoint = endPoint;
+        StartPoint = startPoint;
+        EndPoint = endPoint;
         Length = 0;
-        _orientation = orientation;
+        Orientation = orientation;
         GridComponent = gridComponent;
         NucleotidesA = new List<GameObject>();
         BackbonesA = new List<GameObject>();
@@ -66,7 +66,6 @@ public class Helix
         LastPositionB = GridComponent.Position + new Vector3(0, OFFSET, 0);
         Extend(length);
         ChangeRendering();
-        s_helixDict.Add(id, this);
     }
 
     /// <summary>
@@ -117,7 +116,7 @@ public class Helix
         // Backbones for A nucleotides
         for (int i = start; i < NucleotidesA.Count; i++)
         {
-            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, NucleotidesA[i].transform.position, NucleotidesA[i - 1].transform.position);
+            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, Id, 1, NucleotidesA[i].transform.position, NucleotidesA[i - 1].transform.position);
             //cylinder.SetActive(false);
             BackbonesA.Add(cylinder);
         }
@@ -125,7 +124,7 @@ public class Helix
         // Backbones for B nucleotides
         for (int i = start; i < NucleotidesB.Count; i++)
         {
-            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, NucleotidesB[i].transform.position, NucleotidesB[i - 1].transform.position);
+            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, Id, 0, NucleotidesB[i].transform.position, NucleotidesB[i - 1].transform.position);
             //cylinder.SetActive(false);
             BackbonesB.Add(cylinder);
         }
@@ -176,6 +175,17 @@ public class Helix
         }
     }
 
+    public GameObject GetBackbone(int id, int direction)
+    {
+        if (direction == 0)
+        {
+            return BackbonesB[id];
+        }
+        else
+        {
+            return BackbonesA[id];
+        }
+    }
     /// <summary>
     /// Returns nucleotide in front of head nucleotide.
     /// </summary>
@@ -256,11 +266,6 @@ public class Helix
         }
     }
 
-    public List<int> GetStrandIds()
-    {
-        return StrandIds;
-    }
-
     // Adds strandId to strand id list.
     public void AddStrandId(int strandId)
     {
@@ -271,6 +276,27 @@ public class Helix
     public void DeleteStrandId(int strandId)
     {
         StrandIds.Remove(strandId);
+    }
+
+    // Returns true if none of the helix's nucleotides are selected.
+    // In other words, if there are no strands on the helix.
+    public bool IsEmpty()
+    {
+        return IsEmpty(NucleotidesA) && IsEmpty(NucleotidesB) && IsEmpty(BackbonesA) && IsEmpty(BackbonesB);
+    }
+
+    // Helper method for IsEmpty().
+    public bool IsEmpty(List<GameObject> lst)
+    {
+        foreach (GameObject nucleotide in lst)
+        {
+            var ntc = nucleotide.GetComponent<NucleotideComponent>();
+            if (ntc.Selected)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     /// <summary>
@@ -291,13 +317,14 @@ public class Helix
         }
         for (int i = 0; i < BackbonesA.Count; i++)
         {
-            BackbonesA[i].GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
-            BackbonesB[i].GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
+            BackbonesA[i].GetComponent<NucleotideComponent>().Highlight(color);
+            BackbonesB[i].GetComponent<NucleotideComponent>().Highlight(color);
         }
+        /*
         for (int i = 0; i < StrandIds.Count; i++)
         {
             s_strandDict[StrandIds[i]].HighlightCone(color);
-        }
+        } */
     }
 
     /// <summary>
@@ -314,12 +341,13 @@ public class Helix
         }
         NucleotidesA[NucleotidesA.Count - 1].SetActive(s_nucleotideView);
         NucleotidesB[NucleotidesB.Count - 1].SetActive(s_nucleotideView);
-
+        /*
         for (int i = 0; i < StrandIds.Count; i++)
         {
             Strand strand = s_strandDict[StrandIds[i]];
             strand.ShowHideCone(s_nucleotideView);
         }   
+        */
     }
 
     /// <summary>

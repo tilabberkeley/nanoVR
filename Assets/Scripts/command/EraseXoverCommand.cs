@@ -3,6 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu>
  */
 using UnityEngine;
+using static GlobalVariables;
 
 public class EraseXoverCommand : ICommand
 {
@@ -12,6 +13,13 @@ public class EraseXoverCommand : ICommand
     private int _strandId;
     private Color _color;
 
+    private int _startId;
+    private int _startHelixId;
+    private int _startDirection;
+    private int _endId;
+    private int _endHelixId;
+    private int _endDirection;
+
     public EraseXoverCommand(GameObject xover, int strandId, Color color)
     {
         _xover = xover;
@@ -20,6 +28,16 @@ public class EraseXoverCommand : ICommand
         _endGO = xoverComp.GetNextGO();
         _strandId = strandId;
         _color = color;
+
+        var startNtc = _startGO.GetComponent<NucleotideComponent>();
+        _startId = startNtc.Id;
+        _startHelixId = startNtc.HelixId;
+        _startDirection = startNtc.Direction;
+
+        var endNtc = _endGO.GetComponent<NucleotideComponent>();
+        _endId = endNtc.Id;
+        _endHelixId = endNtc.HelixId;
+        _endDirection = endNtc.Direction;
     }
 
     public void Do()
@@ -30,11 +48,19 @@ public class EraseXoverCommand : ICommand
     public void Undo()
     {
         // _xover does not exist after it gets erased. must created new xover
-        _xover = DrawCrossover.CreateXover(_startGO, _endGO);
+        GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
+        GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
+        _xover = DrawCrossover.CreateXover(startGO, endGO);
     }
 
     public void Redo()
     {
         DrawCrossover.EraseXover(_xover, _strandId, _color, false);
+    }
+
+    public GameObject FindNucleotide(int id, int helixId, int direction)
+    {
+        s_helixDict.TryGetValue(helixId, out Helix helix);
+        return helix.GetNucleotide(id, direction);
     }
 }

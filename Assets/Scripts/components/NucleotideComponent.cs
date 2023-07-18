@@ -25,6 +25,9 @@ public class NucleotideComponent : MonoBehaviour
     public int StrandId { get; set; } = -1;
     public int Direction { get; set; } // 0 = 5' to 3' right->left, 1 = left->right
 
+    // Checks if NucleotideComponent is attached to a nucleotide or backbone GameObject.
+    public bool IsBackbone { get; set; } = false;
+
     public bool HasXover() { return _xover != null; }
     public GameObject GetXover() { return _xover; }
     public void SetXover(GameObject x) { _xover = x; }

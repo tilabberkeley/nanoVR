@@ -49,12 +49,18 @@ public static class DrawPoint
     /// <param name="start">Position of start nucleotide.</param>
     /// <param name="end">Position of end nucleotide.</param>
     /// <returns>GameObject of backbone.</returns>
-    public static GameObject MakeBackbone(int id, Vector3 start, Vector3 end)
+    public static GameObject MakeBackbone(int id, int helixId, int direction, Vector3 start, Vector3 end)
     {
         GameObject cylinder = Instantiate(Resources.Load("Backbone"),
                                     Vector3.zero,
                                     Quaternion.identity) as GameObject;
         cylinder.name = "Backbone" + id;
+        var ntc = cylinder.GetComponent<NucleotideComponent>();
+        ntc.Id = id;
+        ntc.HelixId = helixId;
+        ntc.Direction = direction;
+        ntc.IsBackbone = true;
+
         Vector3 cylinderDefaultOrientation = new Vector3(0, 1, 0);
 
         // Position

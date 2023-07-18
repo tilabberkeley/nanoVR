@@ -159,7 +159,7 @@ public class SelectStrand : MonoBehaviour
     public static void HighlightStrand(int strandId)
     {
         strandSelected = true;
-        Strand strand = s_strandDict[strandId];
+        s_strandDict.TryGetValue(strandId, out Strand strand);
         strand.Highlight(Color.red);
         s_startGO = strand.GetHead();
     }
@@ -177,8 +177,8 @@ public class SelectStrand : MonoBehaviour
     public static void DoDeleteStrand(GameObject go)
     {
         int strandId = go.GetComponent<NucleotideComponent>().StrandId;
-        Strand strand = s_strandDict[strandId];
-        ICommand command = new DeleteCommand(strand.GetStrandId(), strand.GetNucleotides(), strand.GetXovers(), strand.GetColor());
+        s_strandDict.TryGetValue(strandId, out Strand strand);
+        ICommand command = new DeleteCommand(strandId, strand.GetNucleotides(), strand.GetXovers(), strand.GetColor());
         CommandManager.AddCommand(command);
         command.Do();
     }
@@ -186,21 +186,12 @@ public class SelectStrand : MonoBehaviour
     public static void DeleteStrand(GameObject go)
     {
         int strandId = go.GetComponent<NucleotideComponent>().StrandId;
-        Debug.Log("Strand Id of deleted strand: " + strandId);
-        Debug.Log("Nucleotide head being deleted: " + go);
+        //Debug.Log("Strand Id of deleted strand: " + strandId);
+        //Debug.Log("Nucleotide head being deleted: " + go);
         Strand strand = s_strandDict[strandId];
         //DeleteStrandFromHelix(go);
         ObjectListManager.DeleteButton(strandId);
-
-        try
-        {
-            strand.DeleteStrand();
-        }
-        catch (Exception e)
-        {
-            Debug.LogError(e.StackTrace);
-            Debug.LogError(e.Message);
-        }
+        strand.DeleteStrand();
     }
 
     public static void RemoveStrand(GameObject go)
@@ -212,11 +203,17 @@ public class SelectStrand : MonoBehaviour
         strand.RemoveStrand();
     }
 
+    /*
     public static void DeleteStrandFromHelix(GameObject go)
     {
-        var ntc = go.GetComponent<NucleotideComponent>();
-        int helixId = ntc.HelixId;
-        s_helixDict.TryGetValue(helixId, out Helix helix);
-        helix.DeleteStrandId(ntc.StrandId);
-    }
+        int strandId = go.GetComponent<NucleotideComponent>().StrandId;
+        s_strandDict.TryGetValue(strandId, out Strand strand);
+        List<int> helixIds = strand.GetHelixIds();
+        foreach (int id in helixIds)
+        {
+            Debug.Log("Helix strand belongs to: " + id);
+            s_helixDict.TryGetValue(id, out Helix helix);
+            helix.DeleteStrandId(strandId);
+        }
+    }*/
 }

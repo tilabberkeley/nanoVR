@@ -210,6 +210,6 @@ public class DrawMerge : MonoBehaviour
         }
         SelectStrand.RemoveStrand(secondGO);
         firstStrand.SetComponents();
-        // DrawNucleotideDynamic.AddStrandToHelix(secondGO);
+        //DrawNucleotideDynamic.AddStrandToHelix(secondGO);
     }
 }
