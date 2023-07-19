@@ -56,7 +56,7 @@ public class DrawGrid : MonoBehaviour
 
     void Update()
     {
-        if (!s_gridTogOn)
+        if (!s_gridTogOn || s_hideStencils)
         {
             return;
         }

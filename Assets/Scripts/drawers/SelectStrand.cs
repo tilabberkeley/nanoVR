@@ -2,8 +2,6 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu>
  */
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
@@ -13,30 +11,41 @@ using static Highlight;
 
 public class SelectStrand : MonoBehaviour
 {
-    [SerializeField] private XRNode _xrNode;
+    [SerializeField] private XRNode _leftXRNode;
+    [SerializeField] private XRNode _rightXRNode;
     private List<InputDevice> _devices = new List<InputDevice>();
-    private InputDevice _device;
+    private InputDevice _leftDevice;
+    private InputDevice _rightDevice;
     [SerializeField] private XRRayInteractor rightRayInteractor;
-    private bool triggerReleased = true;
+    [SerializeField] private XRRayInteractor leftRayInteractor;
+    private bool rightTriggerReleased = true;
+    private bool leftTriggerReleased = true;
     private bool axisReleased = true;
     private const float DOUBLE_CLICK_TIME = 1f;
     private float lastClickTime;
     private static bool strandSelected = false;
     private static GameObject s_startGO = null;
     private static RaycastHit s_hit;
+    private static List<Strand> s_highlightedStrands = new List<Strand>();
 
     private void GetDevice()
     {
-        InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
+        InputDevices.GetDevicesAtXRNode(_leftXRNode, _devices);
         if (_devices.Count > 0)
         {
-            _device = _devices[0];
+            _leftDevice = _devices[0];
+        }
+
+        InputDevices.GetDevicesAtXRNode(_rightXRNode, _devices);
+        if (_devices.Count > 0)
+        {
+            _rightDevice = _devices[0];
         }
     }
 
     private void OnEnable()
     {
-        if (!_device.isValid)
+        if (!_leftDevice.isValid || !_rightDevice.isValid)
         {
             GetDevice();
         }
@@ -54,19 +63,20 @@ public class SelectStrand : MonoBehaviour
             return;
         }*/
 
-        if (!_device.isValid)
+        if (!_leftDevice.isValid || !_rightDevice.isValid)
         {
             GetDevice();
         }
 
-        // SELECT CROSSOVER NUCLEOTIDE
-        bool triggerValue;
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue
-            && triggerReleased
+        bool rightTriggerValue; 
+        bool leftTriggerValue;
+
+        if (_rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out rightTriggerValue)
+            && rightTriggerValue
+            && rightTriggerReleased
             && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
-            triggerReleased = false;
+            rightTriggerReleased = false;
             if (s_hit.collider.name.Contains("nucleotide"))
             {
                 if (s_startGO == null)
@@ -79,7 +89,6 @@ public class SelectStrand : MonoBehaviour
                     if (timeSinceLastClick <= DOUBLE_CLICK_TIME)
                     {
                         // DOUBLE CLICK!
-                        strandSelected = true;
                         HighlightStrand(s_startGO);
                     }
                     else
@@ -104,37 +113,53 @@ public class SelectStrand : MonoBehaviour
         }
 
         bool axisClick;
-        if ((_device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out axisClick)
+        if ((_rightDevice.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out axisClick)
             && axisClick)
             && axisReleased)
         {
             axisReleased = false;
             if (strandSelected)
             {
+                UnhighlightStrand(s_startGO);
                 DoDeleteStrand(s_startGO);
             }
         }
 
 
-        if (!(_device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out axisClick)
+        if (!(_rightDevice.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out axisClick)
             && axisClick))
         {
             axisReleased = true;
         }
 
         // Resets triggers do avoid multiple selections.                                              
-        if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue))
+        if (!(_rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out rightTriggerValue)
+            && rightTriggerValue))
         {
-            triggerReleased = true;
+            rightTriggerReleased = true;
+        }
+
+        if (!(_leftDevice.TryGetFeatureValue(CommonUsages.triggerButton, out leftTriggerValue)
+            && leftTriggerValue))
+        {
+            leftTriggerReleased = true;
         }
 
         // Resets nucleotide.
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue
+        if (_rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out rightTriggerValue)
+            && rightTriggerValue
             && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
-            triggerReleased = false;
+            rightTriggerReleased = false;
+            UnhighlightStrand(s_startGO);
+            ResetNucleotides();
+        }
+
+        if (_leftDevice.TryGetFeatureValue(CommonUsages.triggerButton, out leftTriggerValue)
+            && leftTriggerValue
+            && !leftRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        {
+            leftTriggerReleased = false;
             UnhighlightStrand(s_startGO);
             ResetNucleotides();
         }
@@ -153,8 +178,7 @@ public class SelectStrand : MonoBehaviour
     {
         int strandId = go.GetComponent<NucleotideComponent>().StrandId;
         if (strandId == -1) { return; }
-        Strand strand = s_strandDict[strandId];
-        Highlight.HighlightStrand(strand);
+        HighlightStrand(strandId);
     }
 
     // TEST
@@ -162,18 +186,22 @@ public class SelectStrand : MonoBehaviour
     {
         strandSelected = true;
         s_strandDict.TryGetValue(strandId, out Strand strand);
-        Highlight.HighlightStrand(strand);
         s_startGO = strand.GetHead();
+   
+        Highlight.HighlightStrand(strand);
+        
     }
 
-    public void UnhighlightStrand(GameObject go)
+    public static void UnhighlightStrand(GameObject go)
     {
+       
         if (go == null) { return; }
         int strandId = go.GetComponent<NucleotideComponent>().StrandId;
 
         if (strandId == -1) { return; }
-        Strand strand = s_strandDict[strandId];
+        s_strandDict.TryGetValue(strandId, out Strand strand);
         Highlight.UnhighlightStrand(strand);
+        
     }
 
     public static void DoDeleteStrand(GameObject go)
@@ -190,7 +218,7 @@ public class SelectStrand : MonoBehaviour
         int strandId = go.GetComponent<NucleotideComponent>().StrandId;
         //Debug.Log("Strand Id of deleted strand: " + strandId);
         //Debug.Log("Nucleotide head being deleted: " + go);
-        Strand strand = s_strandDict[strandId];
+        s_strandDict.TryGetValue(strandId, out Strand strand);
         //DeleteStrandFromHelix(go);
         ObjectListManager.DeleteButton(strandId);
         strand.DeleteStrand();
@@ -199,7 +227,7 @@ public class SelectStrand : MonoBehaviour
     public static void RemoveStrand(GameObject go)
     {
         int strandId = go.GetComponent<NucleotideComponent>().StrandId;
-        Strand strand = s_strandDict[strandId];
+        s_strandDict.TryGetValue(strandId, out Strand strand);
         //DeleteStrandFromHelix(go);
         ObjectListManager.DeleteButton(strandId);
         strand.RemoveStrand();

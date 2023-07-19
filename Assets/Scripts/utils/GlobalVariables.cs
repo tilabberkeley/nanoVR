@@ -27,6 +27,7 @@ public static class GlobalVariables
 
     // adjust/add varaibles when add helix view.
     public static bool s_nucleotideView = true;
+    public static bool s_hideStencils = false;
 
     public static List<Object> s_origamis;
     public static List<Pointer> s_pointerList = new List<Pointer>();

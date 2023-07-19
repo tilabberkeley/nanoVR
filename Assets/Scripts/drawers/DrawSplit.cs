@@ -40,12 +40,7 @@ public class DrawSplit : MonoBehaviour
 
     void Update()
     {
-        if (!s_gridTogOn)
-        {
-            return;
-        }
-
-        if (!s_splitTogOn)
+        if (!s_gridTogOn || !s_splitTogOn || s_hideStencils)
         {
             return;
         }

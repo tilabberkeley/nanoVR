@@ -40,12 +40,7 @@ public class DrawMerge : MonoBehaviour
 
     void Update()
     {
-        if (!s_gridTogOn)
-        {
-            return;
-        }
-
-        if (!s_mergeTogOn)
+        if (!s_gridTogOn || s_hideStencils || !s_mergeTogOn)
         {
             return;
         }

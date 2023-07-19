@@ -139,12 +139,13 @@ public static class Highlight
             HighlightGO(backbonesA[i], helixHighlightColor);
             HighlightGO(backbonesB[i], helixHighlightColor);
         }
+        /*
         Debug.Log(strandIds.Count);
         for (int i = 0; i < strandIds.Count; i++)
         {
             s_strandDict.TryGetValue(i, out Strand strand);
             HighlightGO(strand.Cone, helixHighlightColor);
-        }
+        }*/
     }
 
     /// <summary>
@@ -168,11 +169,12 @@ public static class Highlight
             UnhighlightGO(backbonesA[i]);
             UnhighlightGO(backbonesB[i]);
         }
+        /*
         for (int i = 0; i < strandIds.Count; i++)
         {
             s_strandDict.TryGetValue(i, out Strand strand);
             UnhighlightGO(strand.Cone);
-        }
+        }*/
     }
 
     /// <summary>

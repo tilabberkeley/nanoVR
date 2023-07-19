@@ -347,6 +347,26 @@ public class Helix
         //_strandIds.Remove(strandId);
     }
 
+    public void ChangeStencilView()
+    {
+        ChangeStencilView(_nucleotidesA);
+        ChangeStencilView(_nucleotidesB);
+        ChangeStencilView(_backbonesA);
+        ChangeStencilView(_backbonesB);
+    }
+
+    // Helper method to hide stencil.
+    public void ChangeStencilView(List<GameObject> lst)
+    {
+        foreach (GameObject go in lst)
+        {
+            if (!go.GetComponent<NucleotideComponent>().Selected)
+            {
+                go.SetActive(s_hideStencils);
+            }
+        }
+    }
+
     /// <summary>
     /// Changes rendering of helix and its components (cones).
     /// </summary>
@@ -391,10 +411,12 @@ public class Helix
         return helices;
     }
 
+    // Deletes helix and destroys all of its GameObjects.
     public void DeleteHelix()
     {
         _gridComponent.Helix = null;
         _gridComponent.Selected = false;
+        s_strandDict.Remove(_id);
         foreach (GameObject nucleotide in NucleotidesA)
         {
             GameObject.Destroy(nucleotide);
