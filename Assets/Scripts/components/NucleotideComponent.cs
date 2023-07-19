@@ -61,6 +61,9 @@ public class NucleotideComponent : MonoBehaviour
     private List<XoverSuggestionComponent> _xoverSuggestionComponents;
     public List<XoverSuggestionComponent> XoverSuggestionComponents { get { return _xoverSuggestionComponents; } }
 
+    // Checks if NucleotideComponent is attached to a nucleotide or backbone GameObject.
+    public bool IsBackbone { get; set; } = false;
+
     // Start is called before the first frame update
     void Start()
     {

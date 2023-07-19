@@ -17,7 +17,10 @@ public class Flying : MonoBehaviour
     void GetDevice()
     {
         InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
-        _device = _devices[0];
+        if (_devices.Count > 0)
+        {
+            _device = _devices[0];
+        }
     }
 
     void OnEnable()

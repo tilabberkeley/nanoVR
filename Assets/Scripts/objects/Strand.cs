@@ -40,8 +40,8 @@ public class Strand
     // List of this strand's crossover suggestions.
     private List<GameObject> _xoverSuggestions;
 
-    // Array of colors that strands cycle through.
-    private static Color[] s_colors = { Color.blue, Color.magenta, Color.green, Color.red, Color.cyan, Color.yellow };
+    // List of helix ids this strand is on.
+    //private List<int> _helixIds;
 
     // Strand constructor.
     public Strand(List<GameObject> nucleotides, int strandId)
@@ -53,6 +53,7 @@ public class Strand
         _tail = _nucleotides.Last();
         _xovers = new List<GameObject>();
         _cone = DrawPoint.MakeCone(_head.transform.position);
+        //_helixIds = new List<int> { _head.GetComponent<NucleotideComponent>().HelixId };
         CheckForXoverSuggestions();
     }
 
@@ -66,6 +67,7 @@ public class Strand
         _tail = _nucleotides.Last();
         _xovers = new List<GameObject>();
         _cone = DrawPoint.MakeCone(_head.transform.position);
+        //_helixIds = new List<int> { _head.GetComponent<NucleotideComponent>().HelixId };
     }
 
     public Strand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId, Color color)
@@ -77,6 +79,19 @@ public class Strand
         _head = _nucleotides[0];
         _tail = _nucleotides.Last();
         _cone = DrawPoint.MakeCone(_head.transform.position);
+        //_helixIds = new List<int> { _head.GetComponent<NucleotideComponent>().HelixId };
+    }
+
+    public Strand(List<GameObject> nucleotides, List<GameObject> xovers, List<int> helixIds, int strandId, Color color)
+    {
+        _nucleotides = new List<GameObject>(nucleotides);
+        _xovers = xovers;
+        _strandId = strandId;
+        _color = color;
+        _head = _nucleotides[0];
+        _tail = _nucleotides.Last();
+        _cone = DrawPoint.MakeCone(_head.transform.position);
+        //_helixIds = helixIds;
     }
 
     public Strand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId)
@@ -88,6 +103,7 @@ public class Strand
         _head = _nucleotides[0];
         _tail = _nucleotides.Last();
         _cone = DrawPoint.MakeCone(_head.transform.position);
+        //_helixIds = new List<int> { _head.GetComponent<NucleotideComponent>().HelixId };
     }
 
     // Returns strand id.
@@ -125,6 +141,18 @@ public class Strand
     {     
         return _nucleotides.IndexOf(go);
     }
+
+    // Adds helix id to helix id list.
+    /*public void AddHelixId(int id)
+    {
+        _helixIds.Add(id);
+    }
+
+    // Returns list of helix ids.
+    public List<int> GetHelixIds()
+    {
+        return _helixIds;
+    }*/
 
     // Shows or hides cone based on input parameter.
     public void ShowHideCone(bool enabled)
@@ -347,7 +375,7 @@ public class Strand
     // Sets variables of each GameObject's component (strandId, color, etc).
     public void SetComponents()
     {
-        Debug.Log("Strand id of nucleotides: " + _strandId);
+        //Debug.Log("Strand id of nucleotides: " + _strandId);
         for (int i = 0; i < _nucleotides.Count; i++)
         {
             // Set nucleotide

@@ -18,6 +18,12 @@ public class Helix
     private const int LENGTH = 64;
 
     // Helix id.
+    public int Id { get; set; }
+    public Vector3 StartPoint { get; set; }
+    public Vector3 EndPoint { get; set; }
+
+    // Number of nucleotides in helix.
+    public string Orientation { get; set; }
     private int _id;
     private Vector3 _startPoint;
     private Vector3 _endPoint;
@@ -56,7 +62,7 @@ public class Helix
     private Vector3 _lastPositionB;
 
     // Helix constructor.
-    public Helix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent)
+    public Helix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, int length, GridComponent gridComponent)
     {
         _id = id;
         _startPoint = startPoint;
@@ -71,18 +77,17 @@ public class Helix
         _strandIds = new List<int>();
         _lastPositionA = _gridComponent.Position - new Vector3(0, OFFSET, 0);
         _lastPositionB = _gridComponent.Position + new Vector3(0, OFFSET, 0);
-        Extend();
+        Extend(length);
         ChangeRendering();
-        s_helixDict.Add(id, this);
     }
 
     /// <summary>
     /// Draws the nucleotides of the helix.
     /// </summary>
-    public void Extend()
+    public void Extend(int length)
     {
         int prevLength = _length;
-        _length += LENGTH;
+        _length += length;
         for (int i = prevLength; i < _length; i++)
         {
             GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, i, _id, 1);
@@ -124,7 +129,7 @@ public class Helix
         // Backbones for A nucleotides
         for (int i = start; i < _nucleotidesA.Count; i++)
         {
-            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, _nucleotidesA[i].transform.position, _nucleotidesA[i - 1].transform.position);
+            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, Id, 1, NucleotidesA[i].transform.position, NucleotidesA[i - 1].transform.position);
             //cylinder.SetActive(false);
             _backbonesA.Add(cylinder);
         }
@@ -132,7 +137,7 @@ public class Helix
         // Backbones for B nucleotides
         for (int i = start; i < _nucleotidesB.Count; i++)
         {
-            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, _nucleotidesB[i].transform.position, _nucleotidesB[i - 1].transform.position);
+            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, Id, 0, NucleotidesB[i].transform.position, NucleotidesB[i - 1].transform.position);
             //cylinder.SetActive(false);
             _backbonesB.Add(cylinder);
         }
@@ -171,6 +176,29 @@ public class Helix
         }
     }
 
+    public GameObject GetNucleotide(int id, int direction)
+    {
+        if (direction == 0)
+        {
+            return NucleotidesB[id];
+        }
+        else
+        {
+            return NucleotidesA[id];
+        }
+    }
+
+    public GameObject GetBackbone(int id, int direction)
+    {
+        if (direction == 0)
+        {
+            return BackbonesB[id];
+        }
+        else
+        {
+            return BackbonesA[id];
+        }
+    }
     /// <summary>
     /// Returns nucleotide in front of head nucleotide.
     /// </summary>
@@ -251,6 +279,7 @@ public class Helix
         }
     }
 
+
     public List<int> GetStrandIds()
     {
         return _strandIds;
@@ -265,7 +294,48 @@ public class Helix
     // Removes strandId from strand id list.
     public void DeleteStrandId(int strandId)
     {
-        _strandIds.Remove(strandId);
+        StrandIds.Remove(strandId);
+    }
+
+    // Returns true if none of the helix's nucleotides are selected.
+    // In other words, if there are no strands on the helix.
+    public bool IsEmpty()
+    {
+        return IsEmpty(NucleotidesA) && IsEmpty(NucleotidesB) && IsEmpty(BackbonesA) && IsEmpty(BackbonesB);
+    }
+
+    // Helper method for IsEmpty().
+    public bool IsEmpty(List<GameObject> lst)
+    {
+        foreach (GameObject nucleotide in lst)
+        {
+            var ntc = nucleotide.GetComponent<NucleotideComponent>();
+            if (ntc.Selected)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void ChangeStencilView()
+    {
+        ChangeStencilView(_nucleotidesA);
+        ChangeStencilView(_nucleotidesB);
+        ChangeStencilView(_backbonesA);
+        ChangeStencilView(_backbonesB);
+    }
+
+    // Helper method to hide stencil.
+    public void ChangeStencilView(List<GameObject> lst)
+    {
+        foreach (GameObject go in lst)
+        {
+            if (!go.GetComponent<NucleotideComponent>().Selected)
+            {
+                go.SetActive(s_hideStencils);
+            }
+        }
     }
 
     /// <summary>
@@ -280,14 +350,17 @@ public class Helix
             _nucleotidesB[i].SetActive(s_nucleotideView);
             _backbonesB[i].SetActive(s_nucleotideView);
         }
-        _nucleotidesA[_nucleotidesA.Count - 1].SetActive(s_nucleotideView);
-        _nucleotidesB[_nucleotidesB.Count - 1].SetActive(s_nucleotideView);
+        NucleotidesA[NucleotidesA.Count - 1].SetActive(s_nucleotideView);
+        NucleotidesB[NucleotidesB.Count - 1].SetActive(s_nucleotideView);
+        /*
+        
 
         for (int i = 0; i < _strandIds.Count; i++)
         {
             Strand strand = s_strandDict[_strandIds[i]];
             strand.ShowHideCone(s_nucleotideView);
         }   
+        */
     }
 
     /// <summary>
@@ -307,6 +380,30 @@ public class Helix
             }
         }
         return helices;
+    }
+
+    // Deletes helix and destroys all of its GameObjects.
+    public void DeleteHelix()
+    {
+        _gridComponent.Helix = null;
+        _gridComponent.Selected = false;
+        s_strandDict.Remove(_id);
+        foreach (GameObject nucleotide in NucleotidesA)
+        {
+            GameObject.Destroy(nucleotide);
+        }
+        foreach (GameObject nucleotide in NucleotidesB)
+        {
+            GameObject.Destroy(nucleotide);
+        }
+        foreach (GameObject nucleotide in BackbonesA)
+        {
+            GameObject.Destroy(nucleotide);
+        }
+        foreach (GameObject nucleotide in BackbonesB)
+        {
+            GameObject.Destroy(nucleotide);
+        }
     }
 }
 

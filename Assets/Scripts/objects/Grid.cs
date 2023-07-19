@@ -1,22 +1,19 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
 using System;
 using UnityEngine;
 using static GlobalVariables;
-using JetBrains.Annotations;
-using static UnityEditor.MaterialProperty;
-using Newtonsoft.Json.Bson;
 
 /// <summary>
 /// Grid object keeps track of its helices.
 /// </summary>
 public class Grid
 {
-    private const int STARTLENGTH = 9;
-    private const int STARTWIDTH = 9;
+    private const int STARTLENGTH = 5;
+    private const int STARTWIDTH = 5;
     private const float GRIDCIRCLESIZEFACTOR = 10.0f;
 
     private int _id;
@@ -35,7 +32,8 @@ public class Grid
     /* Need to keep track of the number of south and west positions because they are used to
      * calculate the offset from the _startPos to generate the grid circles in the scene. 
      * For example, if expandWest was called multiple times, expandNorth needs to know how 
-     * many times that happened to correctly offset its new grid circle generations. */
+     * many times that happened to correctly offset its new grid circle generations. 
+     */
     private int _numSouthExpansions;
     private int _numWestExpansions;
 
@@ -48,14 +46,14 @@ public class Grid
         _lines = new List<Line>();
         _helices = new List<Helix>();
         _size = 0;
-        setBounds();
+        SetBounds();
         // 2D array with _length rows and _width columns
         _grid2D = new GridComponent[_length, _width];
         //GeneratePositions();
         DrawGrid();
     }
 
-    private void setBounds()
+    private void SetBounds()
     {
         _length = STARTLENGTH;
         _width = STARTWIDTH;
@@ -435,28 +433,33 @@ public class Grid
     public void AddLine(int id, Vector3 startPoint, Vector3 endPoint)
     {
         Line line = new Line(id, startPoint, endPoint);
-        _lines.Add(line);
+        //_lines.Add(line);
     }
 
-    public void DoAddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent)
+    public static void DoAddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent)
     {
-        ICommand command = new CreateHelixCommand(this, id, startPoint, endPoint, orientation, gridComponent);
+        ICommand command = new CreateHelixCommand(id, startPoint, endPoint, orientation, gridComponent);
         CommandManager.AddCommand(command);
         command.Do();
     }
 
-    public void AddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent)
+    public static void AddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, int length, GridComponent gridComponent)
     {
-        Helix helix = new Helix(id, startPoint, endPoint, orientation, gridComponent);
-        _helices.Add(helix);
+        Helix helix = new Helix(id, startPoint, endPoint, orientation, length, gridComponent);
+        s_helixDict.Add(id, helix);
+        gridComponent.Helix = helix;
+        gridComponent.Selected = true;
+        s_numHelices += 1;
+
+        //_helices.Add(helix);
     }
 
-    /// <summary>
-    /// Changes rendering of the lines and helixes in grid.
-    /// 
-    /// Note: Only method that changes value of s_nucleotideView.
-    /// </summary>
-    public void ChangeRendering()
+/// <summary>
+/// Changes rendering of the lines and helixes in grid.
+/// 
+/// Note: Only method that changes value of s_nucleotideView.
+/// </summary>
+public void ChangeRendering()
     {
         s_nucleotideView = !s_nucleotideView;
         for (int i = 0; i < _lines.Count; i++)

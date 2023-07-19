@@ -40,12 +40,7 @@ public class DrawMerge : MonoBehaviour
 
     void Update()
     {
-        if (!s_gridTogOn)
-        {
-            return;
-        }
-
-        if (!s_mergeTogOn)
+        if (!s_gridTogOn || s_hideStencils || !s_mergeTogOn)
         {
             return;
         }
@@ -103,7 +98,7 @@ public class DrawMerge : MonoBehaviour
 
         // Check GameObject's neighbor is part of another strand.
         int helixId = startNtc.HelixId;
-        Helix helix = s_gridList[0].GetHelix(helixId);
+        s_helixDict.TryGetValue(helixId, out Helix helix);
         int direction = startNtc.Direction;
         GameObject headNeighbor = helix.GetHeadNeighbor(go, direction);
         GameObject tailNeighbor = helix.GetTailNeighbor(go, direction);
@@ -128,47 +123,54 @@ public class DrawMerge : MonoBehaviour
         }
         var ntc = go.GetComponent<NucleotideComponent>();
         int helixId = ntc.HelixId;
-        Helix helix = s_gridList[0].GetHelix(helixId);
+        s_helixDict.TryGetValue(helixId, out Helix helix);
         int direction = ntc.Direction;
+        GameObject neighbor = null;
 
         if (valid == 0)
         {
-            GameObject neighbor = helix.GetHeadNeighbor(go, direction);
-            Color color = neighbor.GetComponent<NucleotideComponent>().Color;
-            ICommand command = new MergeCommand(go, color, false);
-            CommandManager.AddCommand(command);
-            command.Do();
+            neighbor = helix.GetHeadNeighbor(go, direction);
         }
         else if (valid == 1)
         {
-            GameObject neighbor = helix.GetTailNeighbor(go, direction);
-            Color color = neighbor.GetComponent<NucleotideComponent>().Color;
-            ICommand command = new MergeCommand(go, color, true);
-            CommandManager.AddCommand(command);
-            command.Do();
+            neighbor = helix.GetTailNeighbor(go, direction);
         }
+
+        Color color = neighbor.GetComponent<NucleotideComponent>().Color;
+        int id = neighbor.GetComponent<NucleotideComponent>().StrandId;
+        ICommand command = new MergeCommand(go, id, color, false);
+        CommandManager.AddCommand(command);
+        command.Do();
     }
 
     public static void MergeStrand(GameObject go)
     {
         int valid = IsValid(go);
+        if (valid == -1)
+        {
+            return;
+        }
 
         var ntc = go.GetComponent<NucleotideComponent>();
         int helixId = ntc.HelixId;
-        Helix helix = s_gridList[0].GetHelix(helixId);
+        s_helixDict.TryGetValue(helixId, out Helix helix);
         int direction = ntc.Direction;
+        GameObject neighbor = null;
+        GameObject backbone = null;
 
         if (valid == 0)
         {
-            GameObject neighbor = helix.GetHeadNeighbor(go, direction);
-            GameObject backbone = helix.GetHeadBackbone(go, direction);
+            neighbor = helix.GetHeadNeighbor(go, direction);
+            backbone = helix.GetHeadBackbone(go, direction);
             MergeStrand(go, neighbor, backbone, true);
+
         }
         else if (valid == 1)
         {
-            GameObject neighbor = helix.GetTailNeighbor(go, direction);
-            GameObject backbone = helix.GetTailBackbone(go, direction);
+            neighbor = helix.GetTailNeighbor(go, direction);
+            backbone = helix.GetTailBackbone(go, direction); 
             MergeStrand(go, neighbor, backbone, false);
+
         }
     }
 
@@ -203,5 +205,6 @@ public class DrawMerge : MonoBehaviour
         }
         SelectStrand.RemoveStrand(secondGO);
         firstStrand.SetComponents();
+        //DrawNucleotideDynamic.AddStrandToHelix(secondGO);
     }
 }

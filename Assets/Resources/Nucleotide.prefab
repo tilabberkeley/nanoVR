@@ -9,13 +9,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3413478417337708176}
-  - component: {fileID: 3242455836062654325}
   - component: {fileID: 217573721015226427}
   - component: {fileID: 5881385357099519523}
   - component: {fileID: -8811762883532522408}
   - component: {fileID: -2738924596088588251}
   - component: {fileID: 3601446448909762670}
   - component: {fileID: 1287777643201053704}
+  - component: {fileID: 683920757159833131}
   m_Layer: 0
   m_Name: Nucleotide
   m_TagString: Untagged
@@ -37,14 +37,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &3242455836062654325
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4553772625660252668}
-  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &217573721015226427
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -234,3 +226,11 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!33 &683920757159833131
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4553772625660252668}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}

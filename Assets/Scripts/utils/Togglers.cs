@@ -92,4 +92,9 @@ public class Togglers : MonoBehaviour
         s_mergeTogOn = true;
         DrawNucleotideDynamic.ResetNucleotides();
     }
+
+    public void StencilsToggled()
+    {
+        s_hideStencils = !s_hideStencils;
+    }
 }

@@ -1,4 +1,7 @@
-
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu>
+ */
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,13 +14,13 @@ public class ConsoleToText : MonoBehaviour
     private void OnEnable()
     {
         Application.logMessageReceived += HandleLog;
-        Debug.Log("Log enabled");
+        //Debug.Log("Log enabled");
     }
 
     private void OnDisable()
     {
         Application.logMessageReceived -= HandleLog;
-        ClearLog();
+        //ClearLog();
     }
 
     void HandleLog(string logString, string stackTrace, LogType type)

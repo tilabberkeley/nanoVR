@@ -3,6 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu>
  */
 
+using UnityEngine;
 /// <summary>
 /// Interface for undo/redo commands.
 /// </summary>

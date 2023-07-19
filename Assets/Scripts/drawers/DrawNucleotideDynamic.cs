@@ -1,4 +1,7 @@
-using System.Collections;
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * authors: David Yang <davidmyang@berkeley.edu and Oliver Petrick <odpetrick@berkeley.edu>
+ */
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -44,7 +47,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
 
     void Update()
     {
-        if (!s_gridTogOn)
+        if (!s_gridTogOn || s_hideStencils)
         {
             return;
         }
@@ -165,11 +168,11 @@ public class DrawNucleotideDynamic : MonoBehaviour
         if (!s_startGO.GetComponent<NucleotideComponent>().Selected
             && !s_endGO.GetComponent<NucleotideComponent>().Selected)
         {
-            DoCreateStrand(nucleotides, s_numStrands);
+            DoCreateStrand(s_startGO, s_endGO, s_numStrands);
         }
         else
         {
-            DoEditStrand(s_startGO, nucleotides);
+            DoEditStrand(s_startGO, s_endGO);
         }
     }
 
@@ -193,7 +196,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
     /// <param name="start">GameObject that marks the beginning of nucleotide list.</param>
     /// <param name="end">GameObject that marks the end of nucleotide list.</param>
     /// <returns>Returns a list of GameObjects.</returns>
-    private static List<GameObject> MakeNuclList(GameObject start, GameObject end)
+    public static List<GameObject> MakeNuclList(GameObject start, GameObject end)
     {
         NucleotideComponent startNtc = start.GetComponent<NucleotideComponent>();
         NucleotideComponent endNtc = end.GetComponent<NucleotideComponent>();
@@ -208,7 +211,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
         int direction = startNtc.Direction;
 
         // CHANGE THIS SINCE HELICES CAN BE DELETED
-        Helix helix = s_gridList[0].GetHelix(helixId);
+        s_helixDict.TryGetValue(helixId, out Helix helix);
         if (startId < endId)
         {
             return helix.GetHelixSub(startId, endId, direction);
@@ -216,9 +219,9 @@ public class DrawNucleotideDynamic : MonoBehaviour
         return helix.GetHelixSub(endId, startId, direction);
     }
 
-    public void DoCreateStrand(List<GameObject> nucleotides, int strandId)
+    public void DoCreateStrand(GameObject startGO, GameObject endGO, int strandId)
     {
-        ICommand command = new CreateCommand(nucleotides, strandId);
+        ICommand command = new CreateCommand(startGO, endGO, strandId);
         CommandManager.AddCommand(command);
         command.Do();
     }
@@ -228,8 +231,9 @@ public class DrawNucleotideDynamic : MonoBehaviour
     /// Adds new strand to the global strand dictionary.
     /// </summary>
     /// <param name="nucleotides">List of nucleotides to use in new strand.</param>
-    public static void CreateStrand(List<GameObject> nucleotides, int strandId)
+    public static void CreateStrand(GameObject startGO, GameObject endGO, int strandId)
     {
+        List<GameObject> nucleotides = MakeNuclList(startGO, endGO);
         Strand strand = new Strand(nucleotides, strandId);
         strand.SetComponents();
         s_strandDict.Add(strandId, strand);
@@ -246,7 +250,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
     {
         var ntc = go.GetComponent<NucleotideComponent>();
         int helixId = ntc.HelixId;
-        Helix helix = s_gridList[0].GetHelix(helixId);
+        s_helixDict.TryGetValue(helixId, out Helix helix);
         helix.AddStrandId(ntc.StrandId);
     }
 
@@ -259,9 +263,9 @@ public class DrawNucleotideDynamic : MonoBehaviour
         ObjectListManager.CreateButton(strandId);
     }
 
-    public void DoEditStrand(GameObject startGO, List<GameObject> newNucls)
+    public void DoEditStrand(GameObject startGO, GameObject endGO)
     {
-        ICommand command = new EditCommand(startGO, newNucls);
+        ICommand command = new EditCommand(startGO, endGO);
         CommandManager.AddCommand(command);
         command.Do();
     }
@@ -272,8 +276,9 @@ public class DrawNucleotideDynamic : MonoBehaviour
     /// </summary>
     /// <param name="newNucls">List of nucleotides to add to strand. A nucleotide, either the 
     /// first or last GameObject in the list, is apart of a strand.</param>
-    public static void EditStrand(List<GameObject> newNucls)
+    public static void EditStrand(GameObject startGO, GameObject endGO)
     {
+        List<GameObject> newNucls = MakeNuclList(startGO, endGO);
         var startNtc = newNucls[0].GetComponent<NucleotideComponent>();
         int strandId = startNtc.StrandId;
         if (strandId == -1)
@@ -309,12 +314,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
         if (s_startGO.GetComponent<NucleotideComponent>().Selected
             && s_endGO.GetComponent<NucleotideComponent>().Selected)
         {
-            List<GameObject> nucleotides = MakeNuclList(s_startGO, s_endGO);
-            if (nucleotides == null)
-            {
-                return;
-            }
-            ICommand command = new EraseCommand(s_startGO, nucleotides);
+            ICommand command = new EraseCommand(s_startGO, s_endGO);
             CommandManager.AddCommand(command);
             command.Do();
         }
@@ -325,9 +325,10 @@ public class DrawNucleotideDynamic : MonoBehaviour
     /// the strand itself is also deleted.
     /// </summary>
     /// <param name="nucleotides">List of nucleotides to delete from selected strand.</param>
-    public static void EraseStrand(GameObject startGO, List<GameObject> nucleotides)
+    public static void EraseStrand(GameObject startGO, GameObject endGO)
     {
         // DEBUG THIS
+        List<GameObject> nucleotides = MakeNuclList(startGO, endGO);
         var startNtc = nucleotides[0].GetComponent<NucleotideComponent>();
         int strandId = startNtc.StrandId;
         Strand strand = s_strandDict[strandId];
@@ -367,7 +368,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
         {
             int helixId = nucComp.HelixId;
             s_helixDict.TryGetValue(helixId, out Helix helix);
-            helix.Extend();
+            helix.Extend(64);
         }
     }
 }
