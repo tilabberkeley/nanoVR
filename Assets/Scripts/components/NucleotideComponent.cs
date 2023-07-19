@@ -14,6 +14,7 @@ public class NucleotideComponent : MonoBehaviour
 {
     public static Color s_defaultColor = Color.white;
 
+    // Components
     private Renderer _ntRenderer;
     private Outline _outline;
 
@@ -75,7 +76,7 @@ public class NucleotideComponent : MonoBehaviour
     /// <returns>True if the nucleotide is last. False otherwise</returns>
     public bool IsEndHelix()
     {
-        s_helixDict.TryGetValue(HelixId, out Helix helix);
+        s_helixDict.TryGetValue(_helixId, out Helix helix);
         // This nucleotide is the last nucleotide if its id is equal to the length of its helix - 1
         return Id == helix.Length - 1;
     }
@@ -86,11 +87,11 @@ public class NucleotideComponent : MonoBehaviour
     /// <returns>True if nucleotide is the head or tail of a strand. False otherwise.</returns>
     public bool IsEndStrand()
     {
-        if (!Selected)
+        if (!_selected)
         {
             return false;
         }
-        s_strandDict.TryGetValue(StrandId, out Strand strand);
+        s_strandDict.TryGetValue(_strandId, out Strand strand);
         return ReferenceEquals(gameObject, strand.GetTail()) || ReferenceEquals(gameObject, strand.GetHead());
     }
 
@@ -101,9 +102,9 @@ public class NucleotideComponent : MonoBehaviour
     /// <returns>List of neighboring nucleotides.</returns>
     public List<NucleotideComponent> getNeighborNucleotides()
     {
-        s_helixDict.TryGetValue(HelixId, out Helix thisHelix);
+        s_helixDict.TryGetValue(_helixId, out Helix thisHelix);
         List<NucleotideComponent> nucleotideComponents = new List<NucleotideComponent>();
-        int oppositeDirection = (Direction + 1) % 2;
+        int oppositeDirection = (_direction + 1) % 2;
         foreach (Helix helix in thisHelix.getNeighborHelices())
         {
             if (oppositeDirection == 1)

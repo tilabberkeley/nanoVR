@@ -167,6 +167,7 @@ public class Strand
         _nucleotides.InsertRange(0, newNucls);
         _head = _nucleotides[0];
         _cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
+        //CheckForXoverSuggestions();
     }
 
     // Adds GameObject to end of nucleotide list.
@@ -181,6 +182,7 @@ public class Strand
     {
         _nucleotides.AddRange(newNucls);
         _tail = _nucleotides.Last();
+        //CheckForXoverSuggestions();
     }
 
     /// <summary>
