@@ -100,8 +100,8 @@ public static class DrawPoint
         xover.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
         xoverComp.SetLength(dist);
 
-        prevGO.GetComponent<NucleotideComponent>().SetXover(xover);
-        nextGO.GetComponent<NucleotideComponent>().SetXover(xover);
+        prevGO.GetComponent<NucleotideComponent>().Xover = xover;
+        nextGO.GetComponent<NucleotideComponent>().Xover = xover;
 
 
         return xover;

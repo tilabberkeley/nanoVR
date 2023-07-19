@@ -12,41 +12,53 @@ using static GlobalVariables;
 /// </summary>
 public class NucleotideComponent : MonoBehaviour
 {
-    private GameObject _xover;
- 
-    private Color _color = Color.white;
-    private static Color s_yellow = new Color(1, 0.92f, 0.016f, 0.5f);
+    public static Color s_defaultColor = Color.white;
 
     private Renderer _ntRenderer;
     private Outline _outline;
 
-    public bool Selected { get; set; } = false;
-    public int Id { get; set; }
-    public int HelixId { get; set; }
-    public int StrandId { get; set; } = -1;
-    public int Direction { get; set; } // 0 = 5' to 3' right->left, 1 = left->right
-
-    public bool HasXover() { return _xover != null; }
-    public GameObject GetXover() { return _xover; }
-    public void SetXover(GameObject x) { _xover = x; }
-
-    public Color GetColor() { return _color; }
-    public void SetColor(Color c) 
+    // Color of this nucleotide.
+    private Color _color = s_defaultColor;
+    public Color Color 
     { 
-        _color = c; 
-        _ntRenderer.material.SetColor("_Color", c); 
+        get 
+        { 
+            return _color; 
+        } 
+        set
+        {
+            _color = value;
+            _ntRenderer.material.SetColor("_Color", value);
+        }
     }
 
-    public void ResetColor() { 
-        _color = Color.white;
-        _ntRenderer.material.SetColor("_Color", _color);
-    }
-    
-    public void Highlight(Color color)
-    {
-        GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
-        GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
-    }
+    // Whether this nucleotide is apart of a strand.
+    private bool _selected = false;
+    public bool Selected { get { return _selected; } set { _selected = value; } }
+
+    // Id of the nucleotide.
+    private int _id;
+    public int Id { get { return _id; } set { _id = value; } }
+
+    // Helix id of the helix this nucleotide is apart of.
+    private int _helixId;
+    public int HelixId { get { return _helixId; } set { _helixId = value; } }
+
+    // Strand id of the strand this nucleotide is apart of. Default as -1, meaning not apart of strand.
+    private int _strandId = -1;
+    public int StrandId { get { return _strandId; } set { _strandId = value; } }
+
+    // Direction of this nucleotides. 0 = 5' to 3' right->left, 1 = left->right
+    private int _direction;
+    public int Direction { get { return _direction; } set { _direction = value; } }
+
+    // Gameobject of xover attached to this nucleotide. Null if there isn'ta xover.
+    private GameObject _xover;
+    public GameObject Xover { get { return _xover;} set { _xover = value; } }
+
+    // List of crossover suggestions connect to this nucleotide.
+    private List<XoverSuggestionComponent> _xoverSuggestionComponents;
+    public List<XoverSuggestionComponent> XoverSuggestionComponents { get { return _xoverSuggestionComponents; } }
 
     // Start is called before the first frame update
     void Start()
@@ -54,6 +66,7 @@ public class NucleotideComponent : MonoBehaviour
         _ntRenderer = GetComponent<Renderer>();
         _outline = GetComponent<Outline>();
         _outline.enabled = false;
+        _xoverSuggestionComponents = new List<XoverSuggestionComponent>();
     }
 
     /// <summary>
@@ -103,5 +116,17 @@ public class NucleotideComponent : MonoBehaviour
             }
         }
         return nucleotideComponents;
+    }
+
+    /// <summary>
+    /// Removes all crossover suggestions on this nucleotide.
+    /// </summary>
+    public void RemoveXoverSuggestions()
+    {
+        foreach (XoverSuggestionComponent xoverSuggestionComponent in _xoverSuggestionComponents)
+        {
+            Destroy(xoverSuggestionComponent.gameObject);
+        }
+        _xoverSuggestionComponents.Clear();
     }
 }

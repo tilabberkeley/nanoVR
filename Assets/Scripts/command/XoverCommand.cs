@@ -36,7 +36,7 @@ public class XoverCommand : ICommand
     public void Undo()
     {
         //DrawSplit.SplitStrand(_startGO, _endColor, _isHead);
-        _xover = _startGO.GetComponent<NucleotideComponent>().GetXover();
+        _xover = _startGO.GetComponent<NucleotideComponent>().Xover;
         DrawCrossover.EraseXover(_xover);
         
        

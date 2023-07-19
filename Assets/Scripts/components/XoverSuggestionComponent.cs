@@ -10,11 +10,33 @@ public class XoverSuggestionComponent : MonoBehaviour
 {
     // Nucleotide 0 that crossover suggestion is attached to.
     private NucleotideComponent _nucleotideComponent0;
-    public NucleotideComponent NucleotideComponent0 { get { return _nucleotideComponent0; } set { _nucleotideComponent0 = value; } }
+    public NucleotideComponent NucleotideComponent0 
+    { 
+        get 
+        { 
+            return _nucleotideComponent0; 
+        } 
+        set 
+        { 
+            _nucleotideComponent0 = value;
+            value.XoverSuggestionComponents.Add(this);
+        } 
+    }
 
     // Nucleotide 1 that crossover suggestion is attached to.
     private NucleotideComponent _nucleotideComponent1;
-    public NucleotideComponent NucleotideComponent1 { get { return _nucleotideComponent1; } set { _nucleotideComponent1 = value; } }
+    public NucleotideComponent NucleotideComponent1 
+    {
+        get
+        {
+            return _nucleotideComponent1;
+        }
+        set
+        {
+            _nucleotideComponent1 = value;
+            value.XoverSuggestionComponents.Add(this);
+        }
+    }
 
     // Outline component
     private Outline _outline;
@@ -32,6 +54,8 @@ public class XoverSuggestionComponent : MonoBehaviour
     public void CreateXover()
     {
         DrawCrossover.DoCreateXover(_nucleotideComponent0.gameObject, _nucleotideComponent1.gameObject);
-        Destroy(gameObject);
+        // Remove all the other crossover suggestions on both nucleotides.
+        _nucleotideComponent0.RemoveXoverSuggestions();
+        _nucleotideComponent1.RemoveXoverSuggestions();
     }
 }

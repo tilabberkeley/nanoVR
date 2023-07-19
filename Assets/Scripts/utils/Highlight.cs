@@ -42,7 +42,7 @@ public static class Highlight
     }
 
     /// <summary>
-    /// Highlights given list of nucleotides and backbones.
+    /// Highlights given list of nucleotides and backbones. Highlights red if erase is on. Green otherwise.
     /// </summary>
     /// <param name="list">GameObject list of nucleotides and backbones.</param>
     public static void HighlightNucleotideSelection(List<GameObject> list)

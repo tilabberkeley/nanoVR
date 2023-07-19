@@ -134,7 +134,7 @@ public class DrawMerge : MonoBehaviour
         if (valid == 0)
         {
             GameObject neighbor = helix.GetHeadNeighbor(go, direction);
-            Color color = neighbor.GetComponent<NucleotideComponent>().GetColor();
+            Color color = neighbor.GetComponent<NucleotideComponent>().Color;
             ICommand command = new MergeCommand(go, color, false);
             CommandManager.AddCommand(command);
             command.Do();
@@ -142,7 +142,7 @@ public class DrawMerge : MonoBehaviour
         else if (valid == 1)
         {
             GameObject neighbor = helix.GetTailNeighbor(go, direction);
-            Color color = neighbor.GetComponent<NucleotideComponent>().GetColor();
+            Color color = neighbor.GetComponent<NucleotideComponent>().Color;
             ICommand command = new MergeCommand(go, color, true);
             CommandManager.AddCommand(command);
             command.Do();

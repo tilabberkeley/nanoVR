@@ -124,22 +124,6 @@ public class DrawCrossover : MonoBehaviour
         s_endGO = null;
     }
 
-    public static void Highlight(GameObject go, Color color)
-    {
-        
-        var comp = go.GetComponent<NucleotideComponent>();
-        comp.Highlight(color);
-        
-    }
-
-    public static void Unhighlight(GameObject go)
-    {
-        
-        var comp = go.GetComponent<NucleotideComponent>();
-        comp.Highlight(Color.black);
-      
-    }
-
     public static void DoCreateXover(GameObject startGO, GameObject endGO)
     {
         if (!IsValid(startGO, endGO))

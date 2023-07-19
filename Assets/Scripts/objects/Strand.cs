@@ -337,8 +337,8 @@ public class Strand
     public void DeleteXover(GameObject xover)
     {
         _xovers.Remove(xover);
-        xover.GetComponent<XoverComponent>().GetPrevGO().GetComponent<NucleotideComponent>().SetXover(null);
-        xover.GetComponent<XoverComponent>().GetNextGO().GetComponent<NucleotideComponent>().SetXover(null);
+        xover.GetComponent<XoverComponent>().GetPrevGO().GetComponent<NucleotideComponent>().Xover = null;
+        xover.GetComponent<XoverComponent>().GetNextGO().GetComponent<NucleotideComponent>().Xover = null;
         GameObject.Destroy(xover);
     }
 
@@ -354,7 +354,7 @@ public class Strand
                 var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
                 ntc.Selected = true;
                 ntc.StrandId = _strandId;
-                ntc.SetColor(_color);
+                ntc.Color = _color;
             }
             // Set backbone
             else
@@ -413,8 +413,8 @@ public class Strand
                 var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
                 ntc.Selected = false;
                 ntc.StrandId = -1;
-                ntc.ResetColor();
-                ntc.Highlight(Color.black);
+                ntc.Color = NucleotideComponent.s_defaultColor;
+                // ntc.Highlight(Color.black);
             }
             // Reset backbone
             else
