@@ -38,8 +38,9 @@ public class Grid
     private int _numWestExpansions;
 
 
-    public Grid(string plane, Vector3 startPos)
+    public Grid(int id, string plane, Vector3 startPos)
     {
+        _id = id;
         _plane = plane;
         _startPos = startPos;
         _positions = new List<Vector3>();
@@ -436,7 +437,7 @@ public class Grid
         //_lines.Add(line);
     }
 
-    public static void DoAddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent)
+    public void DoAddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent)
     {
         ICommand command = new CreateHelixCommand(id, startPoint, endPoint, orientation, gridComponent);
         CommandManager.AddCommand(command);

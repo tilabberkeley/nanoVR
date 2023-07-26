@@ -9,35 +9,38 @@ using UnityEngine;
 /// </summary>
 public class XoverComponent : MonoBehaviour
 {
-    private int _helixId; // id of helix
-    private int _strandId = -1; // id of strand
-    private int _direction; // 0 = 5' to 3' right->left, 1 = left->right
+    public static Color s_defaultColor = Color.white;
+    private int _strandId = -1;
+    public int StrandId { get { return _strandId; } set { _strandId = value; } }
+
     private double _length;
+    public double Length { get { return _length; } set { _length = value; } }
+
+    // Start GameObject of xover.
     private GameObject _prevGO = null;
-    private GameObject _nextGO = null; // GameObject to split strand at if xover is deleted.
-    
-    private bool _selected = false;
+    public GameObject PrevGO { get { return _prevGO; } set { _prevGO = value; } }
 
-    private Color _color;
+    // End GameObject of xover.
+    private GameObject _nextGO = null;
+    public GameObject NextGO { get { return _nextGO; } set { _nextGO = value; } }
 
-    private Renderer _ntRenderer;
-    private Outline _outline;
-   
-    public int GetStrandId() { return _strandId; }
-    public void SetStrandId(int strandId) { _strandId = strandId; }
-    public double GetLength() { return _length; }
-    public void SetLength(double length) { _length = length; }
-    public GameObject GetPrevGO() { return _prevGO; }
-    public void SetPrevGO(GameObject s) { _prevGO = s; }
-    public GameObject GetNextGO() { return _nextGO; }
-    public void SetNextGO(GameObject s) { _nextGO = s; }
-
-    public void SetColor(Color c)
+    private Color _color = s_defaultColor;
+    public Color Color
     {
-        _color = c;
+        get
+        {
+            return _color;
+        }
+        set
+        {
+            _color = value;
+            _ntRenderer.material.SetColor("_Color", value);
+        }
     }
 
-    public Color GetColor() { return _color; }
+    // Components
+    private Renderer _ntRenderer;
+    private Outline _outline;
 
     public void Highlight(Color color)
     {
@@ -46,7 +49,7 @@ public class XoverComponent : MonoBehaviour
 
     void Start()
     {
-        _ntRenderer = gameObject.GetComponent<Renderer>();
+        _ntRenderer = GetComponent<Renderer>();
         _outline = GetComponent<Outline>();
         _outline.enabled = false;
     }

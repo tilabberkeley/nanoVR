@@ -24,13 +24,14 @@ public static class DrawPoint
         GameObject sphere =
                     Instantiate(Resources.Load("Nucleotide"),
                     position,
-                    Quaternion.identity) as GameObject;        
+                    Quaternion.identity) as GameObject;
         sphere.name = "nucleotide" + id;
 
         var ntc = sphere.GetComponent<NucleotideComponent>();
         ntc.Id = id;
         ntc.HelixId = helixId;
         ntc.Direction = ssDirection;
+        ntc.IsBackbone = false;
         return sphere;
     }
 
@@ -86,9 +87,9 @@ public static class DrawPoint
                    Quaternion.identity) as GameObject;
         xover.name = "xover";
         var xoverComp = xover.GetComponent<XoverComponent>();
-        xoverComp.SetStrandId(strandId);
-        xoverComp.SetColor(prevGO.GetComponent<NucleotideComponent>().Color);
-        
+        xoverComp.StrandId = strandId;
+        xoverComp.Color = prevGO.GetComponent<NucleotideComponent>().Color;
+
         Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
 
         // Position
@@ -103,11 +104,10 @@ public static class DrawPoint
         // Scale        
         float dist = Vector3.Distance(nextGO.transform.position, prevGO.transform.position);
         xover.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
-        xoverComp.SetLength(dist);
+        xoverComp.Length = dist;
 
         prevGO.GetComponent<NucleotideComponent>().Xover = xover;
         nextGO.GetComponent<NucleotideComponent>().Xover = xover;
-
 
         return xover;
     }
@@ -173,6 +173,29 @@ public static class DrawPoint
         gridComponent.GridPoint = gridPoint;
         gridComponent.Position = position;
         return gridCircle;
+    }
+
+    public static GameObject MakeStrandCylinder(Vector3 startV, Vector3 endV, Color color)
+    {
+        GameObject cyl = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        var cylRenderer = cyl.GetComponent<Renderer>();
+        cylRenderer.material.SetColor("_Color", color);
+        Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
+
+        // Position
+        cyl.transform.position = (endV + startV) / 2.0F;
+
+        // Rotation
+        Vector3 dirV = Vector3.Normalize(endV - startV);
+        Vector3 rotAxisV = dirV + cylDefaultOrientation;
+        rotAxisV = Vector3.Normalize(rotAxisV);
+        cyl.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
+
+        // Scale        
+        float dist = Vector3.Distance(endV, startV);
+        cyl.transform.localScale = new Vector3(0.02f, dist / 2, 0.02f);
+        
+        return cyl;
     }
 }
 

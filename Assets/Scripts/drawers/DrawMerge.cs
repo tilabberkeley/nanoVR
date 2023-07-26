@@ -62,10 +62,8 @@ public class DrawMerge : MonoBehaviour
             {
                 s_GO = s_hit.collider.gameObject;
                 DoMergeStrand(s_GO);
-                
             }
         }
-
 
         // Resets triggers to avoid multiple selections.                                              
         if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)

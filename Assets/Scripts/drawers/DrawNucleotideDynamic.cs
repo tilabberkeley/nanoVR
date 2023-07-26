@@ -243,18 +243,6 @@ public class DrawNucleotideDynamic : MonoBehaviour
     }
 
     /// <summary>
-    /// Adds strandId to corresponding helix object.
-    /// </summary>
-    /// <param name="go">Gameobject in strand.</param>
-    public static void AddStrandToHelix(GameObject go)
-    {
-        var ntc = go.GetComponent<NucleotideComponent>();
-        int helixId = ntc.HelixId;
-        s_helixDict.TryGetValue(helixId, out Helix helix);
-        helix.AddStrandId(ntc.StrandId);
-    }
-
-    /// <summary>
     /// Creates strand button in UI corresponding to each strand object.
     /// </summary>
     /// <param name="strandId">Strand's id.</param>

@@ -34,7 +34,7 @@ public class DeleteCommand : ICommand
         }
         for (int i = 0; i < xovers.Count; i++)
         {
-            var ntc = xovers[i].GetComponent<XoverComponent>().GetPrevGO().GetComponent<NucleotideComponent>();
+            var ntc = xovers[i].GetComponent<XoverComponent>().PrevGO.GetComponent<NucleotideComponent>();
             int id = ntc.Id;
             int helixId = ntc.HelixId;
             int direction = ntc.Direction;
@@ -42,7 +42,7 @@ public class DeleteCommand : ICommand
             _prevGOs.Add((id, helixId, direction, isBackbone));
 
 
-            ntc = xovers[i].GetComponent<XoverComponent>().GetNextGO().GetComponent<NucleotideComponent>();
+            ntc = xovers[i].GetComponent<XoverComponent>().NextGO.GetComponent<NucleotideComponent>();
             id = ntc.Id;
             helixId = ntc.HelixId;
             direction = ntc.Direction;
@@ -81,8 +81,8 @@ public class DeleteCommand : ICommand
             GameObject nextGO = FindGameObject(_nextGOs[i].Item1, _nextGOs[i].Item2, _nextGOs[i].Item3, _nextGOs[i].Item4);
 
             GameObject xover = DrawPoint.MakeXover(prevGO, nextGO, _strandId);
-            xover.GetComponent<XoverComponent>().SetPrevGO(prevGO);
-            xover.GetComponent<XoverComponent>().SetNextGO(nextGO);
+            xover.GetComponent<XoverComponent>().PrevGO = prevGO;
+            xover.GetComponent<XoverComponent>().NextGO = nextGO;
             xovers.Add(xover);
             // Debug.Log("Drawing xover! " + xover);
         }

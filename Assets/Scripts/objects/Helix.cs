@@ -1,6 +1,6 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System;
 using System.Collections.Generic;
@@ -13,25 +13,26 @@ using static GlobalVariables;
 public class Helix
 {
     //constants
-    private const float OFFSET = 0.034f;
-    private const float RISE = 0.034f;
+    private const float OFFSET = 0.0333f;
+    private const float RISE = 0.011333f;
     private const int LENGTH = 64;
 
     // Helix id.
-    public int Id { get; set; }
-    public Vector3 StartPoint { get; set; }
-    public Vector3 EndPoint { get; set; }
-
-    // Number of nucleotides in helix.
-    public string Orientation { get; set; }
     private int _id;
+    public int Id { get { return _id; } set { _id = value; } }
+
     private Vector3 _startPoint;
+    public Vector3 StartPoint { get { return _startPoint; } set { _startPoint = value; } }
+
     private Vector3 _endPoint;
+    public Vector3 EndPoint { get { return _endPoint; } set { _endPoint = value; } }
+
+    private string _orientation;
+    public string Orientation { get { return _orientation; } set { _orientation = value; } }
 
     // Number of nucleotides in helix.
     private int _length;
     public int Length { get { return _length; } }
-    private string _orientation;
 
     // Grid Component that helix is on.
     public GridComponent _gridComponent;
@@ -75,8 +76,8 @@ public class Helix
         _nucleotidesB = new List<GameObject>();
         _backbonesB = new List<GameObject>();
         _strandIds = new List<int>();
-        _lastPositionA = _gridComponent.Position - new Vector3(0, OFFSET, 0);
-        _lastPositionB = _gridComponent.Position + new Vector3(0, OFFSET, 0);
+        _lastPositionA = Vector3.zero;
+        _lastPositionB = Vector3.zero;
         Extend(length);
         ChangeRendering();
     }
@@ -90,23 +91,21 @@ public class Helix
         _length += length;
         for (int i = prevLength; i < _length; i++)
         {
+            float angleA = (float) (i * (2 * (Math.PI) / 10.5)); // rotation per bp in radians
+            float angleB = (float) ((i + 6) * (2 * Math.PI/ 10.5));
+            float axisOneChangeA = (float) (OFFSET * Mathf.Cos(angleA));
+            float axisTwoChangeA = (float) (OFFSET * Mathf.Sin(angleA));
+            float axisOneChangeB = (float) (OFFSET * Mathf.Cos(angleB));
+            float axisTwoChangeB = (float) (OFFSET * Mathf.Sin(angleB));
+
+            _lastPositionA = _gridComponent.Position + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
+            _lastPositionB = _gridComponent.Position + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
+
             GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, i, _id, 1);
-            //sphereA.SetActive(false);
             _nucleotidesA.Add(sphereA);
 
             GameObject sphereB = DrawPoint.MakeNucleotide(_lastPositionB, i, _id, 0);
-            //sphereB.SetActive(false);
             _nucleotidesB.Add(sphereB);
-
-            float angleA = i * (2 * (float)(Math.PI) / 10); // rotation per bp in radians
-            float angleB = (float)(((float)(i) + 5.5) * (2 * (float)(Math.PI) / 10));
-            float axisOneChangeA = Mathf.Cos(angleA) * 0.02f;
-            float axisTwoChangeA = Mathf.Sin(angleA) * 0.02f;
-            float axisOneChangeB = Mathf.Cos(angleB) * 0.02f;
-            float axisTwoChangeB = Mathf.Sin(angleB) * 0.02f;
-
-            _lastPositionA += new Vector3(axisOneChangeA, axisTwoChangeA, -RISE);
-            _lastPositionB += new Vector3(axisOneChangeB, axisTwoChangeB, -RISE);
         }
 
         if (prevLength == 0) 
@@ -129,7 +128,7 @@ public class Helix
         // Backbones for A nucleotides
         for (int i = start; i < _nucleotidesA.Count; i++)
         {
-            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, Id, 1, NucleotidesA[i].transform.position, NucleotidesA[i - 1].transform.position);
+            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, _id, 1, NucleotidesA[i].transform.position, NucleotidesA[i - 1].transform.position);
             //cylinder.SetActive(false);
             _backbonesA.Add(cylinder);
         }
@@ -137,7 +136,7 @@ public class Helix
         // Backbones for B nucleotides
         for (int i = start; i < _nucleotidesB.Count; i++)
         {
-            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, Id, 0, NucleotidesB[i].transform.position, NucleotidesB[i - 1].transform.position);
+            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, _id, 0, NucleotidesB[i].transform.position, NucleotidesB[i - 1].transform.position);
             //cylinder.SetActive(false);
             _backbonesB.Add(cylinder);
         }
@@ -199,6 +198,7 @@ public class Helix
             return BackbonesA[id];
         }
     }
+
     /// <summary>
     /// Returns nucleotide in front of head nucleotide.
     /// </summary>
@@ -279,24 +279,6 @@ public class Helix
         }
     }
 
-
-    public List<int> GetStrandIds()
-    {
-        return _strandIds;
-    }
-
-    // Adds strandId to strand id list.
-    public void AddStrandId(int strandId)
-    {
-        _strandIds.Add(strandId);
-    }
-
-    // Removes strandId from strand id list.
-    public void DeleteStrandId(int strandId)
-    {
-        StrandIds.Remove(strandId);
-    }
-
     // Returns true if none of the helix's nucleotides are selected.
     // In other words, if there are no strands on the helix.
     public bool IsEmpty()
@@ -338,6 +320,24 @@ public class Helix
         }
     }
 
+    // Hides helix GameObjects in world.
+    public void HideHelix()
+    {
+        HideObjects(_nucleotidesA);
+        HideObjects(_nucleotidesB);
+        HideObjects(_backbonesA);
+        HideObjects(_backbonesB);
+    }
+
+    // Helper method that hides a list of GameObjects in world.
+    public void HideObjects(List<GameObject> lst)
+    {
+        foreach (GameObject go in lst)
+        {
+            go.SetActive(false);
+        }
+    }
+
     /// <summary>
     /// Changes rendering of helix and its components (cones).
     /// </summary>
@@ -352,15 +352,6 @@ public class Helix
         }
         NucleotidesA[NucleotidesA.Count - 1].SetActive(s_nucleotideView);
         NucleotidesB[NucleotidesB.Count - 1].SetActive(s_nucleotideView);
-        /*
-        
-
-        for (int i = 0; i < _strandIds.Count; i++)
-        {
-            Strand strand = s_strandDict[_strandIds[i]];
-            strand.ShowHideCone(s_nucleotideView);
-        }   
-        */
     }
 
     /// <summary>

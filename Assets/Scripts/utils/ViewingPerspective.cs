@@ -13,11 +13,31 @@ public class ViewingPerspective : MonoBehaviour
         }
     }
 
-    public void ViewNucleotides()
+    public static void ViewNucleotide()
     {
-
+        foreach (Strand strand in s_strandDict.Values)
+        {
+            strand.DeleteBezier();
+            strand.ShowHideCone(true);
+        }
+        foreach (Helix helix in s_helixDict.Values)
+        {
+            helix.ChangeRendering();
+        }
     }
 
-    public void ViewStrand() { }
-    public void ViewHelix() { }
+    public static void ViewStrand() 
+    { 
+        foreach (Helix helix in s_helixDict.Values)
+        {
+            helix.ChangeRendering();
+        }
+
+        foreach (Strand strand in s_strandDict.Values)
+        {
+            strand.ShowHideCone(false);
+            strand.DrawBezier();
+        }
+    }
+    public static void ViewHelix() { }
 }
