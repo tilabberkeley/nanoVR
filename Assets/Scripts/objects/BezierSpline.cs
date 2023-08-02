@@ -8,196 +8,114 @@ using UnityEngine;
 
 public class BezierSpline
 {
-	private List<GameObject> _controlPoints;
+	private List<Vector3> _controlPoints;
 	private Color _color;
-	private static float WIDTH = 0.2f;
-	private int _numberOfPoints;
-	private List<Vector3> _positions;
 	private List<GameObject> _cylinders;
-
-	private int _curveCount = 0;
-	private int layerOrder = 0;
-	private int SEGMENT_COUNT = 50;
 
 	public BezierSpline(List<GameObject> controlPoints, Color color)
 	{
-		_controlPoints = new List<GameObject>();
+		_controlPoints = new List<Vector3>();
 		for (int i = 0; i < controlPoints.Count; i += 1)
 		{
 			if (i % 2 == 0)
 			{
-				_controlPoints.Add(controlPoints[i]);
+				_controlPoints.Add(controlPoints[i].transform.position);
 			}
 		}
 		_color = color;
-		_numberOfPoints = (int) Math.Ceiling((double) controlPoints.Count / 2);
-		_curveCount = (int) controlPoints.Count / 3;
-		_positions = new List<Vector3>();
+		//_numberOfPoints = (int) Math.Ceiling((double) controlPoints.Count / 2);
+		//_curveCount = (int) controlPoints.Count / 3;
+		//_positions = new List<Vector3>();
 		_cylinders = new List<GameObject>();
-		GeneratePoints();
-		DrawCurve();
+		DrawGizmos();
+		//DrawCurve();
 	}
 	
-
-	void GeneratePoints()
-	{
-		if (_numberOfPoints < 2)
+	private void DrawGizmos()
+    {
+		for (int i = 0; i < _controlPoints.Count; i++)
 		{
-			_numberOfPoints = 2;
-		}
-		//lineRenderer.positionCount = _numberOfPoints * (_controlPoints.Count - 2);
-
-		Vector3 p0, p1, p2;
-		for (int j = 0; j < _controlPoints.Count - 2; j++)
-		{
-			// check control points
-			if (_controlPoints[j] == null || _controlPoints[j + 1] == null
-			|| _controlPoints[j + 2] == null)
+			
+			if (i == 0 || i == _controlPoints.Count - 1)
 			{
-				return;
+				continue;
 			}
-			// determine control points of segment
-			p0 = 0.5f * (_controlPoints[j].transform.position
-			+ _controlPoints[j + 1].transform.position);
-			p1 = _controlPoints[j + 1].transform.position;
-			p2 = 0.5f * (_controlPoints[j + 1].transform.position
-			+ _controlPoints[j + 2].transform.position);
-
-			// set points of quadratic Bezier curve
-			Vector3 position;
-			float t;
-			float pointStep = 1.0f / _numberOfPoints;
-			if (j == _controlPoints.Count - 3)
-			{
-				pointStep = 1.0f / (_numberOfPoints - 1.0f);
-				// last point of last segment should reach p2
-			}
-			for (int i = 0; i < _numberOfPoints; i++)
-			{
-				t = i * pointStep;
-				position = (1.0f - t) * (1.0f - t) * p0
-				+ 2.0f * (1.0f - t) * t * p1 + t * t * p2;
-				_positions.Add(position);
-			}
+			DisplayCatmullRomSpline(i);
 		}
 	}
 
-	Vector3 CalculateCubicBezierPoint(float t, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
+	void DisplayCatmullRomSpline(int pos)
 	{
-		float u = 1 - t;
-		float tt = t * t;
-		float uu = u * u;
-		float uuu = uu * u;
-		float ttt = tt * t;
+		//The 4 points we need to form a spline between p1 and p2
+		Vector3 p0 = _controlPoints[ClampListPos(pos - 1)];
+		Vector3 p1 = _controlPoints[pos];
+		Vector3 p2 = _controlPoints[ClampListPos(pos + 1)];
+		Vector3 p3 = _controlPoints[ClampListPos(pos + 2)];
 
-		Vector3 p = uuu * p0;
-		p += 3 * uu * t * p1;
-		p += 3 * u * tt * p2;
-		p += ttt * p3;
+		//The start position of the line
+		Vector3 lastPos = p1;
 
-		return p;
+		//The spline's resolution
+		//Make sure it's is adding up to 1, so 0.3 will give a gap, but 0.2 will work
+		float resolution = 0.05f;
+
+		//How many times should we loop?
+		int loops = Mathf.FloorToInt(1f / resolution);
+
+		for (int i = 1; i <= loops; i++)
+		{
+			//Which t position are we at?
+			float t = i * resolution;
+
+			//Find the coordinate between the end points with a Catmull-Rom spline
+			Vector3 newPos = GetCatmullRomPosition(t, p0, p1, p2, p3);
+
+			//Draw this line segment
+			//GameObject cylinder = DrawPoint.MakeStrandCylinder(lastPos, newPos, _color);
+			//_cylinders.Add(cylinder);
+
+			//Save this pos so we can draw the next line segment
+			lastPos = newPos;
+		}
 	}
-	/*
-	private List<GameObject> _controlPoints;
-	private Color _color;
-	private static float WIDTH = 0.2f;
-	private int _numberOfPoints;
-	private List<Vector3> _positions;
-	private List<GameObject> _cylinders;
 
-	public BezierSpline(List<GameObject> controlPoints, Color color)
-    {
-		for (int i = 0; i < controlPoints.Count; i += 1)
-        {
-			if (i % 2 == 0)
-            {
-				_controlPoints.Add(controlPoints[i]);
-            }
-        }
-		_color = color;
-		_numberOfPoints = (int) Math.Ceiling((double) controlPoints.Count / 2);
-		GeneratePoints();
-		DrawCurve();
-    }
-	/*
-	void Start()
+	//Clamp the list positions to allow looping
+	int ClampListPos(int pos)
 	{
-		lineRenderer = GetComponent<LineRenderer>();
-		lineRenderer.useWorldSpace = true;
-		lineRenderer.material = new Material(Shader.Find("Legacy Shaders/Particles/Additive"));
-	}*/
+		if (pos < 0)
+		{
+			pos = _controlPoints.Count - 1;
+		}
+		if (pos > _controlPoints.Count)
+		{
+			pos = 1;
+		}
+		else if (pos > _controlPoints.Count - 1)
+		{
+			pos = 0;
+		}
+		return pos;
+	}
 
-	/*
-	void GeneratePoints()
+	Vector3 GetCatmullRomPosition(float t, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
 	{
-		if (null == lineRenderer || _controlPoints == null || _controlPoints.Count < 3)
-		{
-			return; // not enough points specified
-		}
-		// update line renderer
-		
-		
-		lineRenderer.startColor = _color;
-		lineRenderer.endColor = _color;
-		lineRenderer.startWidth = WIDTH;
-		lineRenderer.endWidth = WIDTH;
-		
+		//The coefficients of the cubic polynomial (except the 0.5f * which I added later for performance)
+		Vector3 a = 2f * p1;
+		Vector3 b = p2 - p0;
+		Vector3 c = 2f * p0 - 5f * p1 + 4f * p2 - p3;
+		Vector3 d = -p0 + 3f * p1 - 3f * p2 + p3;
 
-		if (_numberOfPoints < 2)
-		{
-			_numberOfPoints = 2;
-		}
-		//lineRenderer.positionCount = _numberOfPoints * (_controlPoints.Count - 2);
+		//The cubic polynomial: a + b * t + c * t^2 + d * t^3
+		Vector3 pos = 0.5f * (a + (b * t) + (c * t * t) + (d * t * t * t));
 
-		Vector3 p0, p1, p2;
-		for (int j = 0; j < _controlPoints.Count - 2; j++)
-		{
-			// check control points
-			if (_controlPoints[j] == null || _controlPoints[j + 1] == null
-			|| _controlPoints[j + 2] == null)
-			{
-				return;
-			}
-			// determine control points of segment
-			p0 = 0.5f * (_controlPoints[j].transform.position
-			+ _controlPoints[j + 1].transform.position);
-			p1 = _controlPoints[j + 1].transform.position;
-			p2 = 0.5f * (_controlPoints[j + 1].transform.position
-			+ _controlPoints[j + 2].transform.position);
-
-			// set points of quadratic Bezier curve
-			Vector3 position;
-			float t;
-			float pointStep = 1.0f / _numberOfPoints;
-			if (j == _controlPoints.Count - 3)
-			{
-				pointStep = 1.0f / (_numberOfPoints - 1.0f);
-				// last point of last segment should reach p2
-			}
-			for (int i = 0; i < _numberOfPoints; i++)
-			{
-				t = i * pointStep;
-				position = (1.0f - t) * (1.0f - t) * p0
-				+ 2.0f * (1.0f - t) * t * p1 + t * t * p2;
-				_positions.Add(position);
-			}
-		}
-	}*/
-
-	public void DrawCurve()
-    {
-		for (int i = 1; i < _positions.Count; i += 1)
-        {
-			GameObject cylinder = DrawPoint.MakeStrandCylinder(_positions[i], _positions[i - 1], _color);
-			_cylinders.Add(cylinder);
-        }
-    }
+		return pos;
+	}
 
 	public void Delete()
     {
 		foreach (GameObject go in _cylinders)
         {
-			GameObject.Destroy(go);
+			GameObject.DestroyImmediate(go);
         }
     }
 }

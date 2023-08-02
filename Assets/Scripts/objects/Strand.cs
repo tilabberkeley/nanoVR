@@ -21,7 +21,7 @@ public class Strand
     private int _strandId;
 
     // This strand's color.
-    private Color _color;
+    private Color32 _color;
 
     // GameObject at front of this strand (at index 0 of nucleotides list).
     private GameObject _head;
@@ -40,7 +40,7 @@ public class Strand
     // List of this strand's crossover suggestions.
     private List<GameObject> _xoverSuggestions;
 
-    private BezierSpline _bezier;
+    private GameObject _bezier;
 
     // List of helix ids this strand is on.
     //private List<int> _helixIds;
@@ -48,7 +48,7 @@ public class Strand
     // Strand constructor.
     public Strand(List<GameObject> nucleotides, int strandId) : this(nucleotides, new List<GameObject>(), strandId, s_colors[s_numStrands % 6]) { }
 
-    public Strand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId, Color color)
+    public Strand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId, Color32 color)
     {
         _nucleotides = new List<GameObject>(nucleotides);
         _xovers = xovers;
@@ -56,7 +56,7 @@ public class Strand
         _color = color;
         _head = _nucleotides[0];
         _tail = _nucleotides.Last();
-        _cone = DrawPoint.MakeCone(_head.transform.position);
+        _cone = DrawPoint.MakeCone();
         _bezier = null;
         CheckForXoverSuggestions();
     }
@@ -149,7 +149,8 @@ public class Strand
     {
         _nucleotides.InsertRange(0, newNucls);
         _head = _nucleotides[0];
-        _cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
+        _cone.transform.position = _head.transform.position;
+        SetCone();
         //CheckForXoverSuggestions();
     }
 
@@ -227,18 +228,25 @@ public class Strand
     /// </summary>
     /// <param name="go">GameObject that determines index of where strand is being split.</param>
     /// <returns>Returns list of nucleotides before split.</returns>
-    public List<GameObject> SplitBefore(GameObject go)
+    public List<GameObject> SplitBefore(GameObject go, bool isXover)
     {
         List<GameObject> splitList = new List<GameObject>();
         int splitIndex = _nucleotides.IndexOf(go);
-        
-        // Clears the backbone bewteen the two split lists.
-        _nucleotides[splitIndex - 1].GetComponent<NucleotideComponent>().Color = Color.white;
 
-        splitList.AddRange(_nucleotides.GetRange(0, splitIndex-1));
+        if (isXover)
+        {
+            splitList.AddRange(_nucleotides.GetRange(0, splitIndex));
+        }
+        else
+        {
+            // Clears the backbone between the two split lists.
+            _nucleotides[splitIndex - 1].GetComponent<NucleotideComponent>().Color = Color.white;
+            splitList.AddRange(_nucleotides.GetRange(0, splitIndex - 1));
+        }
+        
         _nucleotides.RemoveRange(0, splitIndex);
         _head = _nucleotides[0];
-        _cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
+        _cone.transform.position = _head.transform.position;
         ShowHideCone(true);
         SetCone();
         return splitList;
@@ -249,16 +257,22 @@ public class Strand
     /// </summary>
     /// <param name="go">GameObject that determines index of where strand is being split.</param>
     /// <returns>Returns list of nucleotides after split.</returns>
-    public List<GameObject> SplitAfter(GameObject go)
+    public List<GameObject> SplitAfter(GameObject go, bool isXover)
     {
         List<GameObject> splitList = new List<GameObject>();
         int splitIndex = _nucleotides.IndexOf(go);
         int count = _nucleotides.Count - splitIndex - 1;
 
-        // Clear backbone between the two split lists.
-        _nucleotides[splitIndex + 1].GetComponent<NucleotideComponent>().Color = Color.white;
-
-        splitList.AddRange(_nucleotides.GetRange(splitIndex + 2, count-1));
+        if (isXover)
+        {
+            splitList.AddRange(_nucleotides.GetRange(splitIndex + 1, count));
+        }
+        else
+        {
+            // Clear backbone between the two split lists.
+            _nucleotides[splitIndex + 1].GetComponent<NucleotideComponent>().Color = Color.white;
+            splitList.AddRange(_nucleotides.GetRange(splitIndex + 2, count - 1));
+        }
         _nucleotides.RemoveRange(splitIndex + 1, count);
         _tail = _nucleotides.Last();
         ShowHideCone(true);
@@ -294,16 +308,6 @@ public class Strand
     }
 
     // Removes crossover.
-    public void DeleteXover(int index)
-    {
-        GameObject backbone = _nucleotides[index];
-        if (backbone.GetComponent<XoverComponent>())
-        {
-            DeleteXover(backbone);
-        }
-    }
-
-    // Removes crossover.
     public void DeleteXover(GameObject xover)
     {
         _xovers.Remove(xover);
@@ -331,16 +335,13 @@ public class Strand
 
     // Sets cone direction (pointing left or right).
     public void SetCone()
-    {
-        _cone.GetComponent<Renderer>().material.SetColor("_Color", _color);
-        if (_head.GetComponent<NucleotideComponent>().Direction == 0)
-        {
-            _cone.transform.eulerAngles = new Vector3(90, 0, 0);
-        }
-        else
-        {
-            _cone.transform.eulerAngles = new Vector3(-90, 0, 0);
-        }
+    { 
+        _cone.GetComponent<Renderer>().material.SetColor("_Color", _color); // FIX: Abstract into Cone component
+        int helixId = _head.GetComponent<NucleotideComponent>().HelixId;
+        GameObject neighbor = s_helixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
+        _cone.transform.rotation = Quaternion.FromToRotation(Vector3.up, neighbor.transform.position - _head.transform.position);
+        _cone.transform.position = _head.transform.position;
+
     }
 
     // Sets crossover color based on length (color of strand if appropriate length, gray if questionable, black if undoable).
@@ -405,14 +406,14 @@ public class Strand
 
     public void DrawBezier()
     {
-        _bezier = new BezierSpline(_nucleotides, _color);
+        _bezier = DrawPoint.MakeStrandCylinder(_nucleotides, _color);
     }
 
     public void DeleteBezier()
     {
         if (_bezier != null)
         {
-            _bezier.Delete();
+            _bezier.GetComponent<TubeRenderer>().DestroyTube();
             _bezier = null;
         }
     }

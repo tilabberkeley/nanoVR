@@ -9,6 +9,11 @@ using UnityEngine;
 /// </summary>
 public class XoverComponent : MonoBehaviour
 {
+
+    // Components
+    private Renderer _ntRenderer;
+    private Outline _outline;
+
     public static Color s_defaultColor = Color.white;
     private int _strandId = -1;
     public int StrandId { get { return _strandId; } set { _strandId = value; } }
@@ -38,19 +43,10 @@ public class XoverComponent : MonoBehaviour
         }
     }
 
-    // Components
-    private Renderer _ntRenderer;
-    private Outline _outline;
-
-    public void Highlight(Color color)
+    void Awake()
     {
-        gameObject.GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
-    }
-
-    void Start()
-    {
-        _ntRenderer = GetComponent<Renderer>();
-        _outline = GetComponent<Outline>();
+        _ntRenderer = gameObject.GetComponent<Renderer>();
+        _outline = gameObject.GetComponent<Outline>();
         _outline.enabled = false;
     }
 }

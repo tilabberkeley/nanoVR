@@ -14,7 +14,7 @@ public class Grid
 {
     private const int STARTLENGTH = 5;
     private const int STARTWIDTH = 5;
-    private const float GRIDCIRCLESIZEFACTOR = 10.0f;
+    private const float GRIDCIRCLESIZEFACTOR = 7.0f;
 
     private int _id;
     private string _plane;
@@ -439,14 +439,14 @@ public class Grid
 
     public void DoAddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent)
     {
-        ICommand command = new CreateHelixCommand(id, startPoint, endPoint, orientation, gridComponent);
+        ICommand command = new CreateHelixCommand(id, startPoint, endPoint, orientation, gridComponent, this);
         CommandManager.AddCommand(command);
         command.Do();
     }
 
-    public static void AddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, int length, GridComponent gridComponent)
+    public void AddHelix(int id, Vector3 startPoint, string orientation, int length, GridComponent gridComponent)
     {
-        Helix helix = new Helix(id, startPoint, endPoint, orientation, length, gridComponent);
+        Helix helix = new Helix(id, startPoint, orientation, length, gridComponent);
         s_helixDict.Add(id, helix);
         gridComponent.Helix = helix;
         gridComponent.Selected = true;
@@ -455,12 +455,12 @@ public class Grid
         //_helices.Add(helix);
     }
 
-/// <summary>
-/// Changes rendering of the lines and helixes in grid.
-/// 
-/// Note: Only method that changes value of s_nucleotideView.
-/// </summary>
-public void ChangeRendering()
+    /// <summary>
+    /// Changes rendering of the lines and helixes in grid.
+    /// 
+    /// Note: Only method that changes value of s_nucleotideView.
+    /// </summary>
+    public void ChangeRendering()
     {
         s_nucleotideView = !s_nucleotideView;
         for (int i = 0; i < _lines.Count; i++)

@@ -41,7 +41,7 @@ public class XoverSuggestionComponent : MonoBehaviour
     // Outline component
     private Outline _outline;
 
-    private void Start()
+    private void Awake()
     {
         // On instantiation, this xover suggestion should not be visable.
         _outline = GetComponent<Outline>();

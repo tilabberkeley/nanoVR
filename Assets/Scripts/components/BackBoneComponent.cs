@@ -12,7 +12,7 @@ public class BackBoneComponent : MonoBehaviour
     private Outline _outline;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         _outline = GetComponent<Outline>();
         _outline.enabled = false;

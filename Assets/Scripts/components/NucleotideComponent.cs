@@ -65,7 +65,7 @@ public class NucleotideComponent : MonoBehaviour
     public bool IsBackbone { get { return _isBackbone; } set { _isBackbone = value; } }
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         _ntRenderer = GetComponent<Renderer>();
         _outline = GetComponent<Outline>();

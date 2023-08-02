@@ -13,9 +13,8 @@ using static GlobalVariables;
 public class Helix
 {
     //constants
-    private const float OFFSET = 0.0333f;
-    private const float RISE = 0.011333f;
-    private const int LENGTH = 64;
+    private const float OFFSET = 0.05f;
+    private const float RISE = 0.017f;
 
     // Helix id.
     private int _id;
@@ -63,11 +62,10 @@ public class Helix
     private Vector3 _lastPositionB;
 
     // Helix constructor.
-    public Helix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, int length, GridComponent gridComponent)
+    public Helix(int id, Vector3 startPoint, string orientation, int length, GridComponent gridComponent)
     {
         _id = id;
         _startPoint = startPoint;
-        _endPoint = endPoint;
         _length = 0;
         _orientation = orientation;
         _gridComponent = gridComponent;
@@ -79,7 +77,7 @@ public class Helix
         _lastPositionA = Vector3.zero;
         _lastPositionB = Vector3.zero;
         Extend(length);
-        ChangeRendering();
+        //ChangeRendering();
     }
 
     /// <summary>
@@ -373,12 +371,83 @@ public class Helix
         return helices;
     }
 
+    /// <summary>
+    /// Moves all GameObjects in helix.
+    /// </summary>
+    /// <param name="diff">Vector3 specifying how much to move the helix.</param>
+    public void MoveNucleotides(Vector3 diff)
+    {
+        foreach (GameObject nucleotide in NucleotidesA)
+        {
+            nucleotide.transform.position += diff;
+            var ntc = nucleotide.GetComponent<NucleotideComponent>();
+            Strand strand = null;
+            if (ntc.Selected)
+            {
+                strand = s_strandDict[ntc.StrandId];
+            }
+            if (nucleotide.GetComponent<NucleotideComponent>().Xover != null)
+            {
+                MoveXover(nucleotide);
+            }
+            if (strand != null && strand.GetHead() == nucleotide)
+            {
+                strand.SetCone();
+            }
+        }
+        foreach (GameObject nucleotide in NucleotidesB)
+        {
+            nucleotide.transform.position += diff;
+            var ntc = nucleotide.GetComponent<NucleotideComponent>();
+            Strand strand = null;
+            if (ntc.Selected)
+            {
+                strand = s_strandDict[ntc.StrandId];
+            }
+            if (nucleotide.GetComponent<NucleotideComponent>().Xover != null)
+            {
+                MoveXover(nucleotide);
+            }
+            if (strand != null && strand.GetHead() == nucleotide)
+            {
+                strand.SetCone();
+            }
+        }
+        foreach (GameObject nucleotide in BackbonesA)
+        {
+            nucleotide.transform.position += diff;
+        }
+        foreach (GameObject nucleotide in BackbonesB)
+        {
+            nucleotide.transform.position += diff;
+        }
+    }
+
+    /// <summary>
+    /// Helps redraw the xovers when a helix is moved to a new grid circle.
+    /// </summary>
+    /// <param name="nucleotide">Moved nucleotide GameObject which is attached to the xover being redrawn.</param>
+    public void MoveXover(GameObject nucleotide)
+    {
+        var ntc = nucleotide.GetComponent<NucleotideComponent>();
+        s_strandDict.TryGetValue(ntc.StrandId, out Strand strand);
+        GameObject oldXover = ntc.Xover;
+        var xoverComp = oldXover.GetComponent<XoverComponent>();
+        GameObject prevGO = xoverComp.PrevGO;
+        GameObject newGO = xoverComp.NextGO;
+        strand.DeleteXover(oldXover);
+        GameObject newXover = DrawPoint.MakeXover(xoverComp.PrevGO, xoverComp.NextGO, ntc.StrandId);
+        //newXover.
+        strand.AddXover(newXover);
+        strand.SetXoverColor(newXover);
+    }
+
     // Deletes helix and destroys all of its GameObjects.
     public void DeleteHelix()
     {
         _gridComponent.Helix = null;
         _gridComponent.Selected = false;
-        s_strandDict.Remove(_id);
+        s_helixDict.Remove(_id);
         foreach (GameObject nucleotide in NucleotidesA)
         {
             GameObject.Destroy(nucleotide);

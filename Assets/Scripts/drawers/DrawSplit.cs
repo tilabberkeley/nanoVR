@@ -98,13 +98,13 @@ public class DrawSplit : MonoBehaviour
         {
             List<GameObject> xovers = strand.GetXoversAfterIndex(goIndex);
             strand.RemoveXovers(xovers);
-            CreateStrand(strand.SplitAfter(go), id, xovers, color);
+            CreateStrand(strand.SplitAfter(go, false), id, xovers, color);
         }
         else
         {
             List<GameObject> xovers = strand.GetXoversBeforeIndex(goIndex);
             strand.RemoveXovers(xovers);
-            CreateStrand(strand.SplitBefore(go), id, xovers, color);
+            CreateStrand(strand.SplitBefore(go, false), id, xovers, color);
         }
     }
 

@@ -11,6 +11,7 @@ public class DeleteHelixCommand : ICommand
     private string _orientation;
     private int _length;
     private GridComponent _gridComponent;
+    private Grid _grid;
     public DeleteHelixCommand(int id)
     {
         _id = id;
@@ -20,6 +21,7 @@ public class DeleteHelixCommand : ICommand
         _orientation = helix.Orientation;
         _length = helix.Length;
         _gridComponent = helix._gridComponent;
+        _grid = _gridComponent.Grid;
     }
 
     public void Do()
@@ -29,11 +31,15 @@ public class DeleteHelixCommand : ICommand
 
     public void Redo()
     {
+        s_helixDict.TryGetValue(_id, out Helix helix);
+        _startPoint = helix.StartPoint;
+        _length = helix.Length;
+        _gridComponent = helix._gridComponent;
         SelectHelix.DeleteHelix(_id);
     }
 
     public void Undo()
     {
-        Grid.AddHelix(_id, _startPoint, _endPoint, _orientation, _length, _gridComponent);
+        _grid.AddHelix(_id, _startPoint, _orientation, _length, _gridComponent);
     }
 }

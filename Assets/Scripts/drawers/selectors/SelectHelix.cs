@@ -7,7 +7,6 @@ using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
-using static Highlight;
 
 public class SelectHelix : MonoBehaviour
 {
@@ -45,39 +44,12 @@ public class SelectHelix : MonoBehaviour
             return;
         }
 
-        /*if (!s_drawTogOn && !s_eraseTogOn)
-        {
-            return;
-        }*/
-
         if (!_device.isValid)
         {
             GetDevice();
         }
 
         bool triggerValue;
-
-        /*
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue
-            && triggerReleased
-            && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
-        {
-            triggerReleased = false;
-            if (s_hit.collider.gameObject.GetComponent<GridComponent>())
-            {
-                UnhighlightHelix(s_gridGO);
-                s_gridGO = s_hit.collider.gameObject;
-                HighlightHelix(s_gridGO);
-            }
-            else
-            {
-                UnhighlightHelix(s_gridGO);
-                ResetNucleotides();
-            }
-        }
-        */
-
         if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
            && triggerValue
            && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
@@ -100,7 +72,6 @@ public class SelectHelix : MonoBehaviour
             }
         }
 
-
         if (!(_device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out axisClick)
             && axisClick))
         {
@@ -113,7 +84,6 @@ public class SelectHelix : MonoBehaviour
         {
             triggerReleased = true;
         }
-
     }
 
     /// <summary>
@@ -130,19 +100,7 @@ public class SelectHelix : MonoBehaviour
         helixSelected = true;
         var gc = go.GetComponent<GridComponent>();
         s_gridGO = go;
-        /*foreach (int i in gc.Helix.StrandIds)
-        {
-            Debug.Log(i);
-        }*/
-        // gc.Helix.Highlight(Color.red);
         Highlight.HighlightHelix(gc.Helix);
-        /*
-        foreach (int id in gc.Helix.GetStrandIds())
-        {
-            Debug.Log("Strand" + id);
-        }
-        Debug.Log("Helix id: " + gc.Helix);
-        */
     }
 
     public static void UnhighlightHelix()
@@ -176,7 +134,5 @@ public class SelectHelix : MonoBehaviour
             return;
         }
         helix.DeleteHelix();
-        // gc.Helix.Highlight(Color.black);
-        //Highlight.UnhighlightHelix(gc.Helix);
     }
 }

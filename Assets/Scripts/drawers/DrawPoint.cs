@@ -2,6 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu>
  */
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using static UnityEngine.Object;
@@ -35,11 +36,9 @@ public static class DrawPoint
         return sphere;
     }
 
-    public static GameObject MakeCone(Vector3 position)
+    public static GameObject MakeCone()
     {
-        GameObject cone = Instantiate(Resources.Load("Cone"),
-                                    position + new Vector3(0.015f, 0, 0),
-                                    Quaternion.identity) as GameObject;
+        GameObject cone = Instantiate(Resources.Load("Cone")) as GameObject;
         return cone;
     }
 
@@ -88,7 +87,7 @@ public static class DrawPoint
         xover.name = "xover";
         var xoverComp = xover.GetComponent<XoverComponent>();
         xoverComp.StrandId = strandId;
-        xoverComp.Color = prevGO.GetComponent<NucleotideComponent>().Color;
+        //xoverComp.Color = prevGO.GetComponent<NucleotideComponent>().Color;
 
         Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
 
@@ -108,7 +107,8 @@ public static class DrawPoint
 
         prevGO.GetComponent<NucleotideComponent>().Xover = xover;
         nextGO.GetComponent<NucleotideComponent>().Xover = xover;
-
+        xoverComp.PrevGO = prevGO;
+        xoverComp.NextGO = nextGO;
         return xover;
     }
 
@@ -175,27 +175,20 @@ public static class DrawPoint
         return gridCircle;
     }
 
-    public static GameObject MakeStrandCylinder(Vector3 startV, Vector3 endV, Color color)
+    public static GameObject MakeStrandCylinder(List<GameObject> nucleotides, Color32 color)
     {
-        GameObject cyl = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        var cylRenderer = cyl.GetComponent<Renderer>();
-        cylRenderer.material.SetColor("_Color", color);
-        Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
-
-        // Position
-        cyl.transform.position = (endV + startV) / 2.0F;
-
-        // Rotation
-        Vector3 dirV = Vector3.Normalize(endV - startV);
-        Vector3 rotAxisV = dirV + cylDefaultOrientation;
-        rotAxisV = Vector3.Normalize(rotAxisV);
-        cyl.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
-
-        // Scale        
-        float dist = Vector3.Distance(endV, startV);
-        cyl.transform.localScale = new Vector3(0.02f, dist / 2, 0.02f);
+        GameObject tube = new GameObject("tube");
+        var tubeRend = tube.AddComponent<TubeRenderer>();
+        var meshRend = tube.GetComponent<MeshRenderer>();
+        tubeRend.radius = 0.01f;
+        tubeRend.points = new Vector3[nucleotides.Count];
+        meshRend.material.SetColor("_Color", color);
+        for (int i = 0; i < nucleotides.Count; i += 1)
+        {
+            tubeRend.points[i] = nucleotides[i].transform.position;
+        }
         
-        return cyl;
+        return tube;
     }
 }
 

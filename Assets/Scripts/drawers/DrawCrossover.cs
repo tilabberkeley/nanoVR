@@ -135,11 +135,19 @@ public class DrawCrossover : MonoBehaviour
     public static bool IsValid(GameObject startGO, GameObject endGO)
     {
         var startNtc = startGO.GetComponent<NucleotideComponent>();
+        int startId = startNtc.StrandId;
         int startDir = startNtc.Direction;
-        Strand startStrand = s_strandDict[startNtc.StrandId];
 
         var endNtc = endGO.GetComponent<NucleotideComponent>();
+        int endId = endNtc.StrandId;
         int endDir = endNtc.Direction;
+
+        if (startId == -1 || endId == -1)
+        {
+            return false;
+        }
+
+        Strand startStrand = s_strandDict[startNtc.StrandId];
         Strand endStrand = s_strandDict[endNtc.StrandId];
 
 
@@ -213,13 +221,13 @@ public class DrawCrossover : MonoBehaviour
         {
             List<GameObject> xovers = strand.GetXoversBeforeIndex(goIndex);
             strand.RemoveXovers(xovers);
-            CreateStrand(strand.SplitBefore(go), xovers, id, color);
+            CreateStrand(strand.SplitBefore(go, true), xovers, id, color);
         }
         else
         {
             List<GameObject> xovers = strand.GetXoversAfterIndex(goIndex);
             strand.RemoveXovers(xovers);
-            CreateStrand(strand.SplitAfter(go), xovers, id, color);
+            CreateStrand(strand.SplitAfter(go, true), xovers, id, color);
         }
     }
 
