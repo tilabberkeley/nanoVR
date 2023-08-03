@@ -180,7 +180,7 @@ public class Strand
         if (_nucleotides.Count > 0)
         {
             _head = _nucleotides[0];
-            _cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
+            SetCone();
         }
         
         ResetComponents(nucleotides);
@@ -406,14 +406,17 @@ public class Strand
 
     public void DrawBezier()
     {
-        _bezier = DrawPoint.MakeStrandCylinder(_nucleotides, _color);
+        if (_bezier == null)
+        {
+            _bezier = DrawPoint.MakeStrandCylinder(_nucleotides, _color);
+        }
     }
 
     public void DeleteBezier()
     {
         if (_bezier != null)
         {
-            _bezier.GetComponent<TubeRenderer>().DestroyTube();
+            GameObject.Destroy(_bezier);
             _bezier = null;
         }
     }

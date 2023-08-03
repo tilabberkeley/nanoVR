@@ -17,6 +17,7 @@ public class ViewingPerspective : MonoBehaviour
 
     public static void ViewNucleotide()
     {
+        if (!s_nucleotideView) { return; }
         foreach (Strand strand in s_strandDict.Values)
         {
             strand.DeleteBezier();
@@ -29,7 +30,9 @@ public class ViewingPerspective : MonoBehaviour
     }
 
     public static void ViewStrand() 
-    { 
+    {
+        if (!s_strandView) { return; }
+
         foreach (Helix helix in s_helixDict.Values)
         {
             helix.ChangeRendering();

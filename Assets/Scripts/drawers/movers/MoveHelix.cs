@@ -4,7 +4,6 @@
  */
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
@@ -69,7 +68,7 @@ public class MoveHelix : MonoBehaviour
                     if (!s_hit.collider.gameObject.Equals(s_gridCircle))
                     {
                         var gc = s_hit.collider.gameObject.GetComponent<GridComponent>();
-                        MovesHelix(s_gridCircle, s_hit.collider.gameObject);
+                        DoMove(s_gridCircle, s_hit.collider.gameObject);
                         gc.Grid.CheckExpansion(gc);
                         Reset();
                     }
@@ -89,8 +88,19 @@ public class MoveHelix : MonoBehaviour
         s_gridCircle = null;
     }
 
+    public void DoMove(GameObject oldCircle, GameObject newCircle)
+    {
+        if (!IsValid(oldCircle, newCircle))
+        {
+            return;
+        }
+        ICommand command = new MoveHelixCommand(oldCircle, newCircle);
+        CommandManager.AddCommand(command);
+        command.Do();
+    }
+
     // Moves helix's nucleotide objects to a new Grid Circle's position.
-    public void MovesHelix(GameObject oldCircle, GameObject newCircle)
+    public static void Move(GameObject oldCircle, GameObject newCircle)
     {
         if (!IsValid(oldCircle, newCircle))
         {
@@ -112,7 +122,7 @@ public class MoveHelix : MonoBehaviour
         newComp.Helix._gridComponent = newComp;
     }
 
-    public bool IsValid(GameObject oldCircle, GameObject newCircle)
+    public static bool IsValid(GameObject oldCircle, GameObject newCircle)
     {
         var oldComp = oldCircle.GetComponent<GridComponent>();
         var newComp = newCircle.GetComponent<GridComponent>();
