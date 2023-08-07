@@ -2,8 +2,6 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu>
  */
-using Newtonsoft.Json.Bson;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,14 +19,9 @@ public class DrawGrid : MonoBehaviour
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rightRayInteractor;
     bool triggerReleased = true;
-    bool primaryButtonReleased = true;
-    bool secondaryButtonReleased = true;
-    bool gripReleased = true;
     private static RaycastHit s_hit;
     [SerializeField] private Dropdown dropdown;
     private string plane;
-    private Grid _grid;
-    private bool gridExists = false;
 
     void GetDevice()
     {
@@ -67,25 +60,27 @@ public class DrawGrid : MonoBehaviour
         }
 
         bool triggerValue;
+
+        // Adds a new grid.
         if (triggerReleased
             && _device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
             && triggerValue
-            && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit)
-            && !gridExists)
+            && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
-            gridExists = true;
             plane = dropdown.options[dropdown.value].text;
             Vector3 direction = transform.rotation * Vector3.forward;
             Vector3 currPoint = transform.position + direction * 0.07f;
-            _grid = new Grid(plane, currPoint);
-            s_gridList.Add(_grid);
+            Grid grid = new Grid(s_numGrids, plane, currPoint);
+            s_gridDict.Add(s_numGrids, grid);
+            s_numGrids += 1;
         }
+
+        // Adds a helix to a grid.
         else if (triggerReleased
             && _device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
             && triggerValue
-            && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit)
-            && gridExists)
+            && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
 
@@ -98,13 +93,8 @@ public class DrawGrid : MonoBehaviour
                     Vector3 startPos = s_hit.collider.bounds.center;
                     Vector3 endPos = startPos - new Vector3(0, 0, 64 * 0.034f);
                     int id = s_numHelices;
-                    //Grid.AddLine(id, startPos, endPos);
-                    Grid.DoAddHelix(id, startPos, endPos, plane, gc);
-                    //gc.Line = _grid.GetLine(id);
-                    //gc.Helix = s_helixDict[id];
-                    //gc.Selected = true;
-                    //Debug.Log("X: " + gc.GridPoint.X + ", Y:" + gc.GridPoint.Y);
-                    _grid.CheckExpansion(gc);
+                    gc.Grid.DoAddHelix(id, startPos, endPos, plane, gc);
+                    gc.Grid.CheckExpansion(gc);
                 }
                 else
                 {
@@ -114,86 +104,11 @@ public class DrawGrid : MonoBehaviour
                 }
             }
         }
-        else if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
+        
+        if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
             && triggerValue))
         {
             triggerReleased = true;
         }
-
-        /*
-        bool gripValue;
-        if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
-            && gripValue
-            && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
-        {
-            if (s_hit.collider.name.Contains("startPoint") || s_hit.collider.name.Contains("endPoint"))
-            {
-                //gripReleased = false;
-                Vector3 spherePos = s_hit.collider.bounds.center;
-                Vector3 direction = transform.rotation * Vector3.forward;
-                Vector3 rayPos = transform.position + direction * 0.07f;
-                Vector3 newPos;
-                if (plane.Equals("XY"))
-                {
-                    newPos = new Vector3(spherePos.x, spherePos.y, rayPos.z);
-                }
-                else if (plane.Equals("YZ"))
-                {
-                    newPos = new Vector3(rayPos.x, spherePos.y, spherePos.z);
-                }
-                else
-                {
-                    newPos = new Vector3(spherePos.x, rayPos.y, spherePos.z);
-                }
-
-                s_hit.collider.gameObject.transform.position = Vector3.MoveTowards(spherePos, newPos, 50f);
-                if (s_hit.collider.name.Contains("startPoint"))
-                {
-                    int index = Int32.Parse(s_hit.collider.name.Substring(s_hit.collider.name.Length - 1));
-                    Line line = _grid.GetLine(index);
-                    line.SetStart(newPos);
-                }
-                else if (s_hit.collider.name.Contains("endPoint"))
-                {
-                    int index = Int32.Parse(s_hit.collider.name.Substring(s_hit.collider.name.Length - 1));
-                    Line line = _grid.GetLine(index);
-                    line.SetEnd(newPos);
-                }
-            }
-        }
-        */
-
-        /*
-        bool primaryButton;
-        if (primaryButtonReleased 
-            && _device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryButton) 
-            && primaryButton)
-        {
-            primaryButtonReleased = false;
-            _grid.ChangeRendering();
-        }
-        else if (!(_device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryButton) && primaryButton))
-        {
-            primaryButtonReleased = true;
-        }*/
-
-        /*
-        if (!(_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue) && gripValue))
-        {
-            gripReleased = true;
-        }
-        */
     }
-
-
-    // public void ShowLength(Vector3 pos) {
-    //     GameObject playerText = new GameObject("Text");
-    //     TextMesh uiText = playerText.AddComponent<TextMesh>();
-    //     playerText.transform.localScale = new Vector3(0.0015f, 0.0015f, 0.0015f);
-    //     playerText.transform.position = new Vector3(pos.x, pos.y, pos.z-0.05f);
-    //     uiText.fontSize = 100;
-    //     uiText.font = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
-    //     uiText.text = "60";  
-    //     uiText.color = Color.black;              
-    // }
 }

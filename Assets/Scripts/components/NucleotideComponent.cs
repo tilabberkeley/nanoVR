@@ -1,9 +1,8 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using static GlobalVariables;
 
@@ -62,10 +61,11 @@ public class NucleotideComponent : MonoBehaviour
     public List<XoverSuggestionComponent> XoverSuggestionComponents { get { return _xoverSuggestionComponents; } }
 
     // Checks if NucleotideComponent is attached to a nucleotide or backbone GameObject.
-    public bool IsBackbone { get; set; } = false;
+    private bool _isBackbone = false;
+    public bool IsBackbone { get { return _isBackbone; } set { _isBackbone = value; } }
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         _ntRenderer = GetComponent<Renderer>();
         _outline = GetComponent<Outline>();

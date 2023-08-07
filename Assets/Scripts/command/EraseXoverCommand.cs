@@ -24,8 +24,8 @@ public class EraseXoverCommand : ICommand
     {
         _xover = xover;
         var xoverComp = xover.GetComponent<XoverComponent>();
-        _startGO = xoverComp.GetPrevGO();
-        _endGO = xoverComp.GetNextGO();
+        _startGO = xoverComp.PrevGO;
+        _endGO = xoverComp.NextGO;
         _strandId = strandId;
         _color = color;
 

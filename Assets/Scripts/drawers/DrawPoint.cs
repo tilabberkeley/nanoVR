@@ -2,6 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu>
  */
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using static UnityEngine.Object;
@@ -24,21 +25,20 @@ public static class DrawPoint
         GameObject sphere =
                     Instantiate(Resources.Load("Nucleotide"),
                     position,
-                    Quaternion.identity) as GameObject;        
+                    Quaternion.identity) as GameObject;
         sphere.name = "nucleotide" + id;
 
         var ntc = sphere.GetComponent<NucleotideComponent>();
         ntc.Id = id;
         ntc.HelixId = helixId;
         ntc.Direction = ssDirection;
+        ntc.IsBackbone = false;
         return sphere;
     }
 
-    public static GameObject MakeCone(Vector3 position)
+    public static GameObject MakeCone()
     {
-        GameObject cone = Instantiate(Resources.Load("Cone"),
-                                    position + new Vector3(0.015f, 0, 0),
-                                    Quaternion.identity) as GameObject;
+        GameObject cone = Instantiate(Resources.Load("Cone")) as GameObject;
         return cone;
     }
 
@@ -86,9 +86,9 @@ public static class DrawPoint
                    Quaternion.identity) as GameObject;
         xover.name = "xover";
         var xoverComp = xover.GetComponent<XoverComponent>();
-        xoverComp.SetStrandId(strandId);
-        xoverComp.SetColor(prevGO.GetComponent<NucleotideComponent>().Color);
-        
+        xoverComp.StrandId = strandId;
+        //xoverComp.Color = prevGO.GetComponent<NucleotideComponent>().Color;
+
         Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
 
         // Position
@@ -103,12 +103,12 @@ public static class DrawPoint
         // Scale        
         float dist = Vector3.Distance(nextGO.transform.position, prevGO.transform.position);
         xover.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
-        xoverComp.SetLength(dist);
+        xoverComp.Length = dist;
 
         prevGO.GetComponent<NucleotideComponent>().Xover = xover;
         nextGO.GetComponent<NucleotideComponent>().Xover = xover;
-
-
+        xoverComp.PrevGO = prevGO;
+        xoverComp.NextGO = nextGO;
         return xover;
     }
 
@@ -173,6 +173,22 @@ public static class DrawPoint
         gridComponent.GridPoint = gridPoint;
         gridComponent.Position = position;
         return gridCircle;
+    }
+
+    public static GameObject MakeStrandCylinder(List<GameObject> nucleotides, Color32 color)
+    {
+        GameObject tube = new GameObject("tube");
+        var tubeRend = tube.AddComponent<TubeRenderer>();
+        var meshRend = tube.GetComponent<MeshRenderer>();
+        tubeRend.radius = 0.01f;
+        tubeRend.points = new Vector3[nucleotides.Count];
+        meshRend.material.SetColor("_Color", color);
+        for (int i = 0; i < nucleotides.Count; i += 1)
+        {
+            tubeRend.points[i] = nucleotides[i].transform.position;
+        }
+        
+        return tube;
     }
 }
 

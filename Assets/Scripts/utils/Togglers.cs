@@ -97,4 +97,25 @@ public class Togglers : MonoBehaviour
     {
         s_hideStencils = !s_hideStencils;
     }
+
+    public void NucleotideViewToggled()
+    {
+        s_strandView = false;
+        s_helixView = false;
+        s_nucleotideView = true;
+    }
+
+    public void StrandViewToggled()
+    {
+        s_strandView = true;
+        s_helixView = false;
+        s_nucleotideView = false;
+    }
+
+    public void HelixViewToggled()
+    {
+        s_strandView = false;
+        s_helixView = true;
+        s_nucleotideView = false;
+    }
 }

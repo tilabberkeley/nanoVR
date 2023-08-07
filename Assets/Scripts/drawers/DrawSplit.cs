@@ -62,10 +62,8 @@ public class DrawSplit : MonoBehaviour
             {
                 s_GO = s_hit.collider.gameObject;
                 DoSplitStrand(s_GO);
-                
             }
         }
-
 
         // Resets triggers to avoid multiple selections.                                              
         if ((_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
@@ -100,24 +98,24 @@ public class DrawSplit : MonoBehaviour
         {
             List<GameObject> xovers = strand.GetXoversAfterIndex(goIndex);
             strand.RemoveXovers(xovers);
-            CreateStrand(strand.SplitAfter(go), id, xovers, color);
+            CreateStrand(strand.SplitAfter(go, false), id, xovers, color);
         }
         else
         {
             List<GameObject> xovers = strand.GetXoversBeforeIndex(goIndex);
             strand.RemoveXovers(xovers);
-            CreateStrand(strand.SplitBefore(go), id, xovers, color);
+            CreateStrand(strand.SplitBefore(go, false), id, xovers, color);
         }
     }
 
     public static bool IsValid(GameObject go)
     {
-        var startNtc = go.GetComponent<NucleotideComponent>();
-        if (!startNtc.Selected)
+        var ntc = go.GetComponent<NucleotideComponent>();
+        if (!ntc.Selected)
         {
             return false;
         }
-        int strandId = startNtc.StrandId;
+        int strandId = ntc.StrandId;
         Strand strand = s_strandDict[strandId];
 
         if (strand.GetHead() == go)
@@ -127,7 +125,7 @@ public class DrawSplit : MonoBehaviour
        
         for (int i = 0; i < strand.GetXovers().Count; i++)
         {
-            if (go == strand.GetXovers()[i].GetComponent<XoverComponent>().GetNextGO())
+            if (go == strand.GetXovers()[i].GetComponent<XoverComponent>().NextGO)
             {
                 return false;
             }

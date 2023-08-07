@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
+using static GlobalVariables;
 
 public class UndoRedo : MonoBehaviour
 {
@@ -37,6 +38,11 @@ public class UndoRedo : MonoBehaviour
         if (!_device.isValid)
         {
             GetDevice();
+        }
+
+        if (s_hideStencils)
+        {
+            return;
         }
 
         bool primaryValue;
