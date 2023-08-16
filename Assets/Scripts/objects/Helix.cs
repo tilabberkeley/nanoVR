@@ -175,6 +175,8 @@ public class Helix
 
     public GameObject GetNucleotide(int id, int direction)
     {
+        // Need to prevent indexOutOfBounds
+        if (id < 0 || id >= NucleotidesA.Count) { return null; }
         if (direction == 0)
         {
             return NucleotidesB[id];

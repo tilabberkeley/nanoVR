@@ -15,7 +15,7 @@ public class Strand
 {
     // List of nucleotide and backbone GameObjects included in this strand.
     private List<GameObject> _nucleotides;
-    public List<GameObject> Nucleotides { get { return _nucleotides; } }
+    public List<GameObject> Nucleotides { get { return _nucleotides; } set { _nucleotides = value; } }
 
     // This strand's id.
     private int _strandId;
@@ -96,6 +96,9 @@ public class Strand
     {     
         return _nucleotides.IndexOf(go);
     }
+
+    // Returns number of nucleotides in strand, not including backbones.
+    public int Count { get { return _nucleotides.Count / 2 + 1; } }
 
     // Adds helix id to helix id list.
     /*public void AddHelixId(int id)

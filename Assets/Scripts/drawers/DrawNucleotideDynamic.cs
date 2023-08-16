@@ -148,22 +148,20 @@ public class DrawNucleotideDynamic : MonoBehaviour
     private void BuildStrand()
     {
         List<GameObject> nucleotides = MakeNuclList(s_startGO, s_endGO);
-        //Debug.Log("Test");
         if (nucleotides == null)
         {
             return;
         }
-        //Debug.Log(nucleotides);
+
         // Checks that we are not drawing over another strand.
-        /*foreach(GameObject nucleotide in nucleotides)
+        for (int i = 1; i < nucleotides.Count - 1; i += 1)
         {
-            var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            Debug.Log(ntc.Selected);
+            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
             if (ntc.Selected)
             {
                 return;
             }
-        }*/
+        }
 
         if (!s_startGO.GetComponent<NucleotideComponent>().Selected
             && !s_endGO.GetComponent<NucleotideComponent>().Selected)
@@ -186,6 +184,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
     {
         NucleotideComponent startNtc = start.GetComponent<NucleotideComponent>();
         NucleotideComponent endNtc = end.GetComponent<NucleotideComponent>();
+
         return startNtc.HelixId == endNtc.HelixId && startNtc.Direction == endNtc.Direction;
     }
 
@@ -210,7 +209,6 @@ public class DrawNucleotideDynamic : MonoBehaviour
         int helixId = startNtc.HelixId;
         int direction = startNtc.Direction;
 
-        // CHANGE THIS SINCE HELICES CAN BE DELETED
         s_helixDict.TryGetValue(helixId, out Helix helix);
         if (startId < endId)
         {
@@ -238,7 +236,6 @@ public class DrawNucleotideDynamic : MonoBehaviour
         strand.SetComponents();
         s_strandDict.Add(strandId, strand);
         CreateButton(strandId);
-        //AddStrandToHelix(nucleotides[0]);
         s_numStrands += 1;
     }
 

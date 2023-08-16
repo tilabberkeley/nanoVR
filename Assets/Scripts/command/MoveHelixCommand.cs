@@ -22,12 +22,10 @@ public class MoveHelixCommand : ICommand
     public void Redo()
     {
         MoveHelix.Move(_oldCircle, _newCircle);
-
     }
 
     public void Undo()
     {
         MoveHelix.Move(_newCircle, _oldCircle);
-
     }
 }
