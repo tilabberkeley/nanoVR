@@ -15,7 +15,7 @@ public class Strand
 {
     // List of nucleotide and backbone GameObjects included in this strand.
     private List<GameObject> _nucleotides;
-    public List<GameObject> Nucleotides { get { return _nucleotides; } set { _nucleotides = value; } }
+    public List<GameObject> Nucleotides { get { return _nucleotides; } set { _nucleotides = value; _head = value[0]; _tail = value.Last(); } }
 
     // This strand's id.
     private int _strandId;

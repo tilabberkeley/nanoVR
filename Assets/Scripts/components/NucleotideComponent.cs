@@ -48,7 +48,7 @@ public class NucleotideComponent : MonoBehaviour
     private int _strandId = -1;
     public int StrandId { get { return _strandId; } set { _strandId = value; } }
 
-    // Direction of this nucleotides. 0 = 5' to 3' right->left, 1 = left->right
+    // Direction of this nucleotides. 0 = 5' to 3' left<-right, 1 = left->right
     private int _direction;
     public int Direction { get { return _direction; } set { _direction = value; } }
 

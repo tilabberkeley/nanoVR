@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
+using static Highlight;
 
 /// <summary>
 /// Moves a helix from one grid circle to another.
@@ -19,7 +20,11 @@ public class MoveStrand : MonoBehaviour
     [SerializeField] private XRRayInteractor rightRayInteractor;
     bool gripReleased = true;
     private static RaycastHit s_hit;
-    private static GameObject s_nucleotide = null;
+    private static GameObject s_oldNucl = null;
+    private static GameObject s_currNucl = null;
+    private static List<GameObject> s_currNucleotides;
+    bool movingStrand = false;
+
 
     void GetDevice()
     {
@@ -49,6 +54,8 @@ public class MoveStrand : MonoBehaviour
         {
             GetDevice();
         }
+        bool hitFound = rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit);
+        
 
         bool gripValue;
         if (gripReleased
@@ -56,34 +63,43 @@ public class MoveStrand : MonoBehaviour
             && gripValue
             && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
+            //movingStrand = true;
             gripReleased = false;
-            if (s_hit.collider.gameObject.GetComponent<NucleotideComponent>())
+            GameObject go = s_hit.collider.gameObject;
+            if (go.GetComponent<NucleotideComponent>() && go.GetComponent<NucleotideComponent>().Selected)
             {
-                if (s_nucleotide == null)
-                {
-                    s_nucleotide = s_hit.collider.gameObject;
-                }
-                else
-                {
-                    if (!s_hit.collider.gameObject.Equals(s_nucleotide))
-                    {
-                        DoMove(s_nucleotide, s_hit.collider.gameObject);
-                        Reset();
-                    }
-                }
+                s_oldNucl = s_hit.collider.gameObject;
+                //s_currNucleotides = GetNucleotides(s_oldNucl, s_oldNucl);
+                //HighlightNucleotideSelection(s_currNucleotides);
             }
         }
-
-        if (!(_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
-            && gripValue))
+        else if (!gripReleased && _device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
+            && gripValue && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        {
+            GameObject go = s_hit.collider.gameObject;
+            List<GameObject> nucleotides = GetNucleotides(s_oldNucl, go);
+            if (go.GetComponent<NucleotideComponent>() && IsValid(nucleotides, s_oldNucl))
+            {
+                s_currNucl = go;
+                UnhighlightNucleotideSelection(s_currNucleotides);
+                s_currNucleotides = nucleotides;
+                HighlightNucleotideSelection(s_currNucleotides);
+            }
+        }
+        else if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
+            && !gripValue && !gripReleased)
         {
             gripReleased = true;
+            UnhighlightNucleotideSelection(s_currNucleotides);
+            DoMove(s_oldNucl, s_currNucl);
+            Reset();
         }
     }
 
     public void Reset()
     {
-        s_nucleotide = null;
+        s_oldNucl = null;
+        s_currNucl = null;
     }
 
     public void DoMove(GameObject oldNucl, GameObject newNucl)
@@ -119,14 +135,33 @@ public class MoveStrand : MonoBehaviour
     {
         var oldComp = oldNucl.GetComponent<NucleotideComponent>();
         var newComp = newNucl.GetComponent<NucleotideComponent>();
+
+        if (oldComp.Direction != newComp.Direction)
+        {
+            return null;
+        }
+
         Strand strand = s_strandDict[oldComp.StrandId];
+
+        // CANNOT HANDLE XOVERS RIGHT NOW
+        if (strand.Xovers.Count > 0) { return null; }
+
         Helix helix = s_helixDict[newComp.HelixId];
         int count = strand.Count;
         int distToHead = oldComp.Id - strand.GetHead().GetComponent<NucleotideComponent>().Id;
         int startId = newComp.Id - distToHead;
-        int endId = startId + count;
 
-        return helix.GetHelixSub(startId, endId, newComp.Direction);
+        if (newComp.Direction == 0)
+        {
+            int endId = startId + count - 1;
+            return helix.GetHelixSub(startId, endId, newComp.Direction);
+        }
+        else
+        {
+            int endId = startId - count + 1;
+            return helix.GetHelixSub(endId, startId, newComp.Direction);
+        }
+
     }
 
     public static bool IsValid(List<GameObject> nucleotides, GameObject oldNucl)
