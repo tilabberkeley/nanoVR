@@ -217,7 +217,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
         return helix.GetHelixSub(endId, startId, direction);
     }
 
-    public void DoCreateStrand(GameObject startGO, GameObject endGO, int strandId)
+    public static void DoCreateStrand(GameObject startGO, GameObject endGO, int strandId)
     {
         ICommand command = new CreateCommand(startGO, endGO, strandId);
         CommandManager.AddCommand(command);

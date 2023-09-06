@@ -2676,6 +2676,7 @@ GameObject:
   - component: {fileID: 337757934}
   - component: {fileID: 337757933}
   - component: {fileID: 337757935}
+  - component: {fileID: 337757936}
   m_Layer: 0
   m_Name: LeftHand Controller
   m_TagString: Untagged
@@ -3454,6 +3455,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _xrNode: 4
   rightRayInteractor: {fileID: 337757918}
+--- !u!114 &337757936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337757916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 781434e724d4c374491ceaf3e2f46e3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _XRNode: 4
+  rayInteractor: {fileID: 337757918}
 --- !u!1 &357418052
 GameObject:
   m_ObjectHideFlags: 0
@@ -5636,6 +5651,8 @@ GameObject:
   - component: {fileID: 713889226}
   - component: {fileID: 713889227}
   - component: {fileID: 713889229}
+  - component: {fileID: 713889230}
+  - component: {fileID: 713889233}
   m_Layer: 0
   m_Name: RightHand Controller
   m_TagString: Untagged
@@ -6270,6 +6287,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _xrNode: 5
   rightRayInteractor: {fileID: 713889222}
+--- !u!114 &713889230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 713889218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82486a695bf1538439b75ec7a4d5b0ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _XRNode: 5
+  rayInteractor: {fileID: 713889222}
 --- !u!23 &713889231
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6319,6 +6350,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 713889218}
   m_Mesh: {fileID: 0}
+--- !u!114 &713889233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 713889218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 781434e724d4c374491ceaf3e2f46e3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _XRNode: 5
+  rayInteractor: {fileID: 713889222}
 --- !u!114 &713889234
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8708,10 +8753,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 781434e724d4c374491ceaf3e2f46e3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _leftXRNode: 4
-  _rightXRNode: 5
-  rightRayInteractor: {fileID: 713889222}
-  leftRayInteractor: {fileID: 337757918}
+  _XRNode: 0
+  rayInteractor: {fileID: 0}
 --- !u!1 &1112480304
 GameObject:
   m_ObjectHideFlags: 0
@@ -10069,8 +10112,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1377871040}
   m_HandleRect: {fileID: 1377871039}
   m_Direction: 2
-  m_Value: 1.0000061
-  m_Size: 0.88200027
+  m_Value: 1.0000035
+  m_Size: 0.882
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

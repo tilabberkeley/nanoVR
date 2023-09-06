@@ -78,7 +78,7 @@ public class MoveStrand : MonoBehaviour
         {
             GameObject go = s_hit.collider.gameObject;
             List<GameObject> nucleotides = GetNucleotides(s_oldNucl, go);
-            if (go.GetComponent<NucleotideComponent>() && IsValid(nucleotides, s_oldNucl))
+            if (IsValid(nucleotides, s_oldNucl))
             {
                 s_currNucl = go;
                 UnhighlightNucleotideSelection(s_currNucleotides);
@@ -133,6 +133,11 @@ public class MoveStrand : MonoBehaviour
 
     public static List<GameObject> GetNucleotides(GameObject oldNucl, GameObject newNucl)
     {
+        if (oldNucl.GetComponent<NucleotideComponent>() || newNucl.GetComponent<NucleotideComponent>())
+        {
+            return null;
+        }
+
         var oldComp = oldNucl.GetComponent<NucleotideComponent>();
         var newComp = newNucl.GetComponent<NucleotideComponent>();
 

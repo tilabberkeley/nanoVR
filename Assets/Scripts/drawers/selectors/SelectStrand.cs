@@ -7,45 +7,34 @@ using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
-using static Highlight;
 
 public class SelectStrand : MonoBehaviour
 {
-    [SerializeField] private XRNode _leftXRNode;
-    [SerializeField] private XRNode _rightXRNode;
+    [SerializeField] private XRNode _XRNode;
     private List<InputDevice> _devices = new List<InputDevice>();
-    private InputDevice _leftDevice;
-    private InputDevice _rightDevice;
-    [SerializeField] private XRRayInteractor rightRayInteractor;
-    [SerializeField] private XRRayInteractor leftRayInteractor;
-    private bool rightTriggerReleased = true;
-    private bool leftTriggerReleased = true;
+    private InputDevice _device;
+    [SerializeField] private XRRayInteractor rayInteractor;
+    private bool triggerReleased = true;
     private bool axisReleased = true;
     private const float DOUBLE_CLICK_TIME = 1f;
     private float lastClickTime;
     private static bool strandSelected = false;
-    private static GameObject s_startGO = null;
+    public static Strand s_strand = null;
     private static RaycastHit s_hit;
     private static List<Strand> s_highlightedStrands = new List<Strand>();
 
     private void GetDevice()
     {
-        InputDevices.GetDevicesAtXRNode(_leftXRNode, _devices);
+        InputDevices.GetDevicesAtXRNode(_XRNode, _devices);
         if (_devices.Count > 0)
         {
-            _leftDevice = _devices[0];
-        }
-
-        InputDevices.GetDevicesAtXRNode(_rightXRNode, _devices);
-        if (_devices.Count > 0)
-        {
-            _rightDevice = _devices[0];
+            _device = _devices[0];
         }
     }
 
     private void OnEnable()
     {
-        if (!_leftDevice.isValid || !_rightDevice.isValid)
+        if (!_device.isValid)
         {
             GetDevice();
         }
@@ -63,15 +52,13 @@ public class SelectStrand : MonoBehaviour
             return;
         }*/
 
-        if (!_leftDevice.isValid || !_rightDevice.isValid)
+        if (!_device.isValid)
         {
             GetDevice();
         }
 
-        bool rightTriggerValue; 
-        bool leftTriggerValue;
-
-        if (_rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out rightTriggerValue)
+        bool triggerValue; 
+        /*if (_rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out rightTriggerValue)
             && rightTriggerValue
             && rightTriggerReleased
             && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
@@ -110,67 +97,50 @@ public class SelectStrand : MonoBehaviour
                 UnhighlightStrand(s_startGO);
                 ResetNucleotides();
             }
-        }
-
+        }*/
         bool axisClick;
-        if ((_rightDevice.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out axisClick)
+        if ((_device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out axisClick)
             && axisClick)
             && axisReleased)
         {
             axisReleased = false;
             if (strandSelected)
             {
-                UnhighlightStrand(s_startGO);
-                DoDeleteStrand(s_startGO);
+                UnhighlightStrand(s_strand);
+                DoDeleteStrand(s_strand);
             }
         }
 
+        // Resets nucleotide.
+        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
+            && triggerValue)
+        {
+            triggerReleased = false;
+            UnhighlightStrand(s_strand);
+            Reset();
+        }
 
-        if (!(_rightDevice.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out axisClick)
+        // Resets axis click.
+        if (!(_device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out axisClick)
             && axisClick))
         {
             axisReleased = true;
         }
 
-        // Resets triggers do avoid multiple selections.                                              
-        if (!(_rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out rightTriggerValue)
-            && rightTriggerValue))
+        // Resets trigger.                                          
+        if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
+            && triggerValue))
         {
-            rightTriggerReleased = true;
-        }
-
-        if (!(_leftDevice.TryGetFeatureValue(CommonUsages.triggerButton, out leftTriggerValue)
-            && leftTriggerValue))
-        {
-            leftTriggerReleased = true;
-        }
-
-        // Resets nucleotide.
-        if (_rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out rightTriggerValue)
-            && rightTriggerValue
-            && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
-        {
-            rightTriggerReleased = false;
-            UnhighlightStrand(s_startGO);
-            ResetNucleotides();
-        }
-
-        if (_leftDevice.TryGetFeatureValue(CommonUsages.triggerButton, out leftTriggerValue)
-            && leftTriggerValue
-            && !leftRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
-        {
-            leftTriggerReleased = false;
-            UnhighlightStrand(s_startGO);
-            ResetNucleotides();
+            triggerReleased = true;
         }
     }
 
     /// <summary>
     /// Resets the start and end nucleotides.
     /// </summary>
-    public void ResetNucleotides()
+    public void Reset()
     {
-        s_startGO = null;
+        s_strand = null;
         strandSelected = false;
     }
 
@@ -186,29 +156,21 @@ public class SelectStrand : MonoBehaviour
     {
         strandSelected = true;
         s_strandDict.TryGetValue(strandId, out Strand strand);
-        s_startGO = strand.GetHead();
+        s_strand = strand;
    
         Highlight.HighlightStrand(strand);
         
     }
 
-    public static void UnhighlightStrand(GameObject go)
+    public static void UnhighlightStrand(Strand strand)
     {
-       
-        if (go == null) { return; }
-        int strandId = go.GetComponent<NucleotideComponent>().StrandId;
-
-        if (strandId == -1) { return; }
-        s_strandDict.TryGetValue(strandId, out Strand strand);
+        if (strand == null) { return; }
         Highlight.UnhighlightStrand(strand);
-        
     }
 
-    public static void DoDeleteStrand(GameObject go)
+    public static void DoDeleteStrand(Strand strand)
     {
-        int strandId = go.GetComponent<NucleotideComponent>().StrandId;
-        s_strandDict.TryGetValue(strandId, out Strand strand);
-        ICommand command = new DeleteCommand(strandId, strand.GetNucleotides(), strand.GetXovers(), strand.GetColor());
+        ICommand command = new DeleteCommand(strand.GetStrandId(), strand.GetNucleotides(), strand.GetXovers(), strand.GetColor());
         CommandManager.AddCommand(command);
         command.Do();
     }
