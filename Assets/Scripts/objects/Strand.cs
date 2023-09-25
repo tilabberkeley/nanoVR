@@ -59,7 +59,9 @@ public class Strand
         _cone = DrawPoint.MakeCone();
         _bezier = null;
         SetComponents();
+        s_strandDict.Add(strandId, this);
         CheckForXoverSuggestions();
+        s_numStrands += 1;
     }
 
     // Returns strand id.
@@ -389,9 +391,8 @@ public class Strand
         GameObject tail = GetTail();
         List<NucleotideComponent> neighborNucleotideComponents = tail.GetComponent<NucleotideComponent>().getNeighborNucleotides();
         foreach (NucleotideComponent nucleotideComponent in neighborNucleotideComponents)
-        {
-            //Debug.Log(DrawCrossover.IsValid(tail, nucleotideComponent.gameObject));
-            if (nucleotideComponent.IsEndStrand())
+        { 
+            if (DrawCrossover.IsValid(tail, nucleotideComponent.gameObject))
             {
                 DrawPoint.MakeXoverSuggestion(tail, nucleotideComponent.gameObject);
             }
@@ -402,8 +403,7 @@ public class Strand
         neighborNucleotideComponents = head.GetComponent<NucleotideComponent>().getNeighborNucleotides();
         foreach (NucleotideComponent nucleotideComponent in neighborNucleotideComponents)
         {
-            //Debug.Log(DrawCrossover.IsValid(head, nucleotideComponent.gameObject));
-            if (nucleotideComponent.IsEndStrand())
+            if (DrawCrossover.IsValid(head, nucleotideComponent.gameObject))
             {
                 DrawPoint.MakeXoverSuggestion(head, nucleotideComponent.gameObject);
             }

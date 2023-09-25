@@ -143,12 +143,7 @@ public class DrawSplit : MonoBehaviour
     public static void CreateStrand(List<GameObject> nucleotides, int strandId, List<GameObject> xovers, Color color)
     {
         Strand strand = new Strand(nucleotides, xovers, strandId, color);
-        strand.SetComponents();
-        s_strandDict.Add(strandId, strand);
-
         DrawNucleotideDynamic.CreateButton(strandId);
         //DrawNucleotideDynamic.AddStrandToHelix(nucleotides[0]);
-
-        s_numStrands += 1;
     }
 }

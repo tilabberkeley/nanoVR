@@ -233,10 +233,10 @@ public class DrawNucleotideDynamic : MonoBehaviour
     {
         List<GameObject> nucleotides = MakeNuclList(startGO, endGO);
         Strand strand = new Strand(nucleotides, strandId);
-        strand.SetComponents();
-        s_strandDict.Add(strandId, strand);
+        //strand.SetComponents();
+        //s_strandDict.Add(strandId, strand);
         CreateButton(strandId);
-        s_numStrands += 1;
+        //s_numStrands += 1;
     }
 
     /// <summary>

@@ -152,7 +152,6 @@ public class DrawCrossover : MonoBehaviour
 
         if (startId == -1 || endId == -1)
         {
-            //Debug.Log("Ids negative");
             return false;
         }
 
@@ -250,10 +249,7 @@ public class DrawCrossover : MonoBehaviour
     public static void CreateStrand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId, Color color)
     {
         Strand strand = new Strand(nucleotides, xovers, strandId, color);
-        strand.SetComponents();
-        s_strandDict.Add(strandId, strand);
         DrawNucleotideDynamic.CreateButton(strandId);
-        s_numStrands += 1;
     }
 
     public static void MergeStrand(GameObject firstGO, GameObject secondGO, GameObject backbone)
