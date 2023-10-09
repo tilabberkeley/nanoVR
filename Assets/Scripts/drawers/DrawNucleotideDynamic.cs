@@ -219,10 +219,16 @@ public class DrawNucleotideDynamic : MonoBehaviour
 
     public static void DoCreateStrand(GameObject startGO, GameObject endGO, int strandId)
     {
-        ICommand command = new CreateCommand(startGO, endGO, strandId);
+        DoCreateStrand(MakeNuclList(startGO, endGO), new List<GameObject>(), strandId);
+    }
+
+    public static void DoCreateStrand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId)
+    {
+        ICommand command = new CreateCommand(nucleotides, xovers, strandId);
         CommandManager.AddCommand(command);
         command.Do();
     }
+
 
     /// <summary>
     /// Creates a new strand with it's own id, color, and list of nucleotides.

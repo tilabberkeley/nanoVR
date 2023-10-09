@@ -231,13 +231,15 @@ public class DrawCrossover : MonoBehaviour
         }
     }
 
-    public static void CreateStrand(GameObject startGO, GameObject endGO, List<GameObject> xovers, int strandId, Color color)
+    public static void CreateStrand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId)
     {
-        List<GameObject> nucleotides = DrawNucleotideDynamic.MakeNuclList(startGO, endGO);
-        CreateStrand(nucleotides, xovers, strandId, color);
+        Strand strand = new Strand(nucleotides, xovers, strandId);
+        strand.SetComponents();
+        s_strandDict.Add(strandId, strand);
+        DrawNucleotideDynamic.CreateButton(strandId);
+        s_numStrands += 1;
     }
 
-   
     public static void CreateStrand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId, Color color)
     {
         Strand strand = new Strand(nucleotides, xovers, strandId, color);

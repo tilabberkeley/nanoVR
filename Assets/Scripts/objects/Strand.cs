@@ -15,7 +15,11 @@ public class Strand
 {
     // List of nucleotide and backbone GameObjects included in this strand.
     private List<GameObject> _nucleotides;
-    public List<GameObject> Nucleotides { get { return _nucleotides; } set { _nucleotides = value; _head = value[0]; _tail = value.Last(); } }
+    public List<GameObject> Nucleotides 
+    { 
+        get { return _nucleotides; } 
+        set { _nucleotides = value; _head = value[0]; _tail = value.Last(); } 
+    }
 
     // This strand's id.
     private int _strandId;
@@ -47,6 +51,8 @@ public class Strand
 
     // Strand constructor.
     public Strand(List<GameObject> nucleotides, int strandId) : this(nucleotides, new List<GameObject>(), strandId, s_colors[s_numStrands % 6]) { }
+
+    public Strand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId) : this(nucleotides, xovers, strandId, s_colors[s_numStrands % 6]) { }
 
     public Strand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId, Color32 color)
     {

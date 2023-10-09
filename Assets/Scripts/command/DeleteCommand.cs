@@ -1,6 +1,6 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
 using UnityEngine;
@@ -30,8 +30,8 @@ public class DeleteCommand : ICommand
             int direction = ntc.Direction;
             bool isBackbone = ntc.IsBackbone;
             _nucleotideIds.Add((id, helixId, direction, isBackbone));
-           
         }
+
         for (int i = 0; i < xovers.Count; i++)
         {
             var ntc = xovers[i].GetComponent<XoverComponent>().PrevGO.GetComponent<NucleotideComponent>();
@@ -40,7 +40,6 @@ public class DeleteCommand : ICommand
             int direction = ntc.Direction;
             bool isBackbone = ntc.IsBackbone;
             _prevGOs.Add((id, helixId, direction, isBackbone));
-
 
             ntc = xovers[i].GetComponent<XoverComponent>().NextGO.GetComponent<NucleotideComponent>();
             id = ntc.Id;

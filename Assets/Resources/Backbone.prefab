@@ -15,8 +15,8 @@ GameObject:
   - component: {fileID: 1396808662735978118}
   - component: {fileID: 1972057723722904017}
   - component: {fileID: 7983188676066219661}
-  - component: {fileID: 2034829126251616346}
   - component: {fileID: 746427054482158947}
+  - component: {fileID: 7490441584671394603}
   m_Layer: 0
   m_Name: Backbone
   m_TagString: Untagged
@@ -222,18 +222,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0653e9ebcecf2a34882a77ac6c10e787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &2034829126251616346
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1396808662735978176}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5954c3603199c0842a3be0a74d63bef2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!136 &746427054482158947
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -248,3 +236,15 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+--- !u!114 &7490441584671394603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1396808662735978176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5954c3603199c0842a3be0a74d63bef2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

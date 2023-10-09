@@ -52,7 +52,7 @@ public class NucleotideComponent : MonoBehaviour
     private int _direction;
     public int Direction { get { return _direction; } set { _direction = value; } }
 
-    // Gameobject of xover attached to this nucleotide. Null if there isn'ta xover.
+    // Gameobject of xover attached to this nucleotide. Null if there isn't a xover.
     private GameObject _xover;
     public GameObject Xover { get { return _xover;} set { _xover = value; } }
 
