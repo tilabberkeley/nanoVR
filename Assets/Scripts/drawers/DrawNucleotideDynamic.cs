@@ -66,15 +66,15 @@ public class DrawNucleotideDynamic : MonoBehaviour
         bool hitFound = rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit);
 
         // Set helper variables
-        DNAComponent nucComp = null;
+        NucleotideComponent nucComp = null;
         bool hitIsNucleotide = false;
         GameObject hitGO = null;
         bool isStartNucleotide = false;
         bool isPrevNucleotide = false;
         if (hitFound)
         {
-            nucComp = s_hit.transform.GetComponent<DNAComponent>();
-            hitIsNucleotide = !nucComp.IsBackbone;
+            nucComp = s_hit.transform.GetComponent<NucleotideComponent>();
+            hitIsNucleotide = nucComp != null;
             hitGO = s_hit.collider.gameObject;
             isStartNucleotide = ReferenceEquals(hitGO, s_startGO);
             isPrevNucleotide = ReferenceEquals(hitGO, s_endGO);
@@ -82,7 +82,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
 
         if (hitIsNucleotide && creatingStrand)
         {
-            ExtendIfLastNucleotide((NucleotideComponent) nucComp);
+            ExtendIfLastNucleotide(nucComp);
         }
 
         // Handles first nucleotide selection

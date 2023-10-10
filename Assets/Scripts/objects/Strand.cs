@@ -60,7 +60,7 @@ public class Strand
         _bezier = null;
         SetComponents();
         s_strandDict.Add(strandId, this);
-        CheckForXoverSuggestions();
+        //CheckForXoverSuggestions();
         s_numStrands += 1;
     }
 
