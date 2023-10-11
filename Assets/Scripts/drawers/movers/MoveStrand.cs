@@ -83,7 +83,7 @@ public class MoveStrand : MonoBehaviour
                 s_currNucl = go;
                 UnhighlightNucleotideSelection(s_currNucleotides);
                 s_currNucleotides = nucleotides;
-                HighlightNucleotideSelection(s_currNucleotides);
+                HighlightNucleotideSelection(s_currNucleotides, true);
             }
         }
         else if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)

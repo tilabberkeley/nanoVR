@@ -1,6 +1,6 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Linq;
 using System.Collections.Generic;
@@ -23,7 +23,6 @@ public class CopyPaste : MonoBehaviour
     private static Strand s_copied = null;
     private static RaycastHit s_hit;
     private static List<GameObject> s_currNucleotides = null;
-    private static List<(GameObject, GameObject)> s_newEndpoints = null;
 
     private void GetDevice()
     {
@@ -64,7 +63,6 @@ public class CopyPaste : MonoBehaviour
         {
             primaryReleased = false;
             s_copied = SelectStrand.s_strand;
-            Debug.Log("Copied!");
         }
 
         bool secondaryValue;
@@ -75,57 +73,69 @@ public class CopyPaste : MonoBehaviour
             secondaryReleased = false;
             if (s_copied != null)
             {
-                Debug.Log("Pasting!");
                 pasting = true;
             }
         }
 
+        if (pasting && !rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        {
+            UnhighlightNucleotideSelection(s_currNucleotides);
+        }
+
+        bool triggerValue;
         if (pasting && rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             GameObject go = s_hit.collider.gameObject;
             if (go.GetComponent<NucleotideComponent>() && !go.GetComponent<NucleotideComponent>().IsBackbone)
             {
-                Debug.Log("Copied and hovering over nucleotide!");
                 List<GameObject> nucleotides = GetNucleotides(s_copied, go);
-                if (IsValid(nucleotides))
+                bool valid = IsValid(nucleotides);
+                UnhighlightNucleotideSelection(s_currNucleotides);
+                s_currNucleotides = nucleotides;
+
+                if (valid)
                 {
-                    Debug.Log("Copied and highlighting valid nucleotides!");
+                    HighlightNucleotideSelection(s_currNucleotides, valid);
+                }
+                else
+                {
+                    HighlightNucleotideSelection(s_currNucleotides, !valid);
+                }
+
+                if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue) && triggerValue && triggerReleased)
+                {
+                    triggerReleased = false;
                     UnhighlightNucleotideSelection(s_currNucleotides);
-                    s_currNucleotides = nucleotides;
-                    HighlightNucleotideSelection(s_currNucleotides);
+                    if (!valid) { return; }
+
+                    //Make new xover list
+                    List<GameObject> xovers = new List<GameObject>();
+                    for (int i = 1; i < s_currNucleotides.Count; i++)
+                    {
+                        NucleotideComponent prevComp = s_currNucleotides[i - 1].GetComponent<NucleotideComponent>();
+                        NucleotideComponent nextComp = s_currNucleotides[i].GetComponent<NucleotideComponent>();
+                        if (!prevComp.IsBackbone
+                                && !nextComp.IsBackbone)
+                        {
+                            GameObject xover = DrawPoint.MakeXover(s_currNucleotides[i - 1], s_currNucleotides[i], s_numStrands);
+                            xovers.Add(xover);
+                        }
+                    }
+                    DrawNucleotideDynamic.DoCreateStrand(s_currNucleotides, xovers, s_numStrands);
+                    Reset();
                 }
             }
         }
 
-        bool triggerValue;
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue) && triggerValue && triggerReleased && pasting)
+        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue) && triggerValue && triggerReleased)
         {
             triggerReleased = false;
-            if (s_currNucleotides != null)
-            {
-                UnhighlightNucleotideSelection(s_currNucleotides);
-
-                // TODO: Make new xover list
-                List<GameObject> xovers = new List<GameObject>();
-                for (int i = 1; i < s_currNucleotides.Count; i++)
-                {
-                    if (!s_currNucleotides[i - 1].GetComponent<NucleotideComponent>().IsBackbone 
-                        && !s_currNucleotides[i].GetComponent<NucleotideComponent>().IsBackbone)
-                    {
-                        GameObject xover = DrawCrossover.CreateXover(s_currNucleotides[i - 1], s_currNucleotides[i]);
-                        xovers.Add(xover);
-                    } 
-                }
-
-                Debug.Log("Drawing copied strand!");
-                DrawNucleotideDynamic.DoCreateStrand(s_currNucleotides, xovers, s_numStrands);
-            }
             Reset();
         }
 
         // Resets trigger button.                                            
         if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue))
+        && triggerValue))
         {
             triggerReleased = true;
         }
@@ -143,7 +153,6 @@ public class CopyPaste : MonoBehaviour
         {
             secondaryReleased = true;
         }
-
     }
 
     public void Reset()
@@ -151,9 +160,6 @@ public class CopyPaste : MonoBehaviour
         s_currNucleotides = null;
         pasting = false;
         s_copied = null;
-        s_newEndpoints = null;
-        Debug.Log("Reset!");
-
     }
 
     public static List<GameObject> GetNucleotides(Strand strand, GameObject newGO)
@@ -178,6 +184,10 @@ public class CopyPaste : MonoBehaviour
         {
             endpoints.Add((head, strand.Xovers[0].GetComponent<XoverComponent>().PrevGO));
         }
+        else
+        {
+            endpoints.Add((head, strand.GetTail()));
+        }
         for (int i = 0; i < strand.Xovers.Count - 1; i++)
         {
             endpoints.Add((strand.Xovers[i].GetComponent<XoverComponent>().NextGO, strand.Xovers[i+1].GetComponent<XoverComponent>().PrevGO));
@@ -197,15 +207,12 @@ public class CopyPaste : MonoBehaviour
             xyDistances.Add(distance);
         }
 
-
         Helix newHelix = s_helixDict[newGO.GetComponent<NucleotideComponent>().HelixId];
         GridPoint newGP = newHelix._gridComponent.GridPoint;
         Grid grid = newHelix._gridComponent.Grid;
         int newX = newGP.X;
         int newY = newGP.Y;
         int offset = newGO.GetComponent<NucleotideComponent>().Id - head.GetComponent<NucleotideComponent>().Id;
-
-        Debug.Log("Offset: " + offset);
 
         for (int i = 0; i < xyDistances.Count; i++)
         {
@@ -219,25 +226,11 @@ public class CopyPaste : MonoBehaviour
                 return null;
             }
 
-            // Grab nucleotides from helix object. Need to get indices for each one
-            Debug.Log("EndPoint 1: " + endpoints[i].Item1.GetComponent<NucleotideComponent>().Id + " -- EndPoint 2: " + endpoints[i].Item2.GetComponent<NucleotideComponent>().Id);
             List<GameObject> subNucleotides = GetSubList(endpoints[i].Item1, endpoints[i].Item2, gc, offset);
-            //CreateEndPoints(endpoints[i].Item1, endpoints[i].Item2, gc, offset);
             nucleotides.AddRange(subNucleotides);
         }
         return nucleotides;
     }
-
-/*    public static void CreateEndPoints(GameObject start, GameObject end, GridComponent gc, int offset)
-    {
-        int direction = start.GetComponent<NucleotideComponent>().Direction;
-        int startId = GetNewIndex(start.GetComponent<NucleotideComponent>().Id, offset);
-        int endId = GetNewIndex(end.GetComponent<NucleotideComponent>().Id, offset);
-
-        GameObject startNucl = gc.Helix.GetNucleotide(startId, direction);
-        GameObject endNucl = gc.Helix.GetNucleotide(endId, direction);
-        s_newEndpoints.Add((startNucl, endNucl));
-    }*/
 
     public static List<GameObject> GetSubList(GameObject start, GameObject end, GridComponent gc, int offset)
     {
@@ -246,7 +239,6 @@ public class CopyPaste : MonoBehaviour
         int endId = GetNewIndex(end.GetComponent<NucleotideComponent>().Id, offset);
         if (startId < endId)
         {
-            // Check what happens if id's are out of bounds (bigger than number of nucleotides in helix that currently exist)
             return gc.Helix.GetHelixSub(startId, endId, direction);
         }
         return gc.Helix.GetHelixSub(endId, startId, direction);
@@ -276,9 +268,6 @@ public class CopyPaste : MonoBehaviour
                 return false;
             }
         }
-
-        Debug.Log("Finish checking validness");
-
         return true;
     }
 }

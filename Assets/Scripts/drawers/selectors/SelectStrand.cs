@@ -113,7 +113,7 @@ public class SelectStrand : MonoBehaviour
 
         // Resets nucleotide.
         if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue)
+            && triggerValue && !rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
             UnhighlightStrand(s_strand);

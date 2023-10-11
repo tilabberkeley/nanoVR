@@ -149,6 +149,11 @@ public class Helix
     /// <returns>Returns sublist of nucleotides from helix spiral.</returns>
     public List<GameObject> GetHelixSub(int sIndex, int eIndex, int direction)
     {
+        if (sIndex < 0 || eIndex >= _backbonesA.Count)
+        {
+            return null;
+        }
+
         List<GameObject> temp = new List<GameObject>();
         if (direction == 0)
         {
