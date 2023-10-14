@@ -23,18 +23,18 @@ public class DeleteCommand : ICommand
         //_helixIds = helixIds;
         for (int i = 0; i < nucleotides.Count; i += 1)
         {
-            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            DNAComponent dnaComponent = nucleotides[i].GetComponent<DNAComponent>();
             
-            int id = ntc.Id;
-            int helixId = ntc.HelixId;
-            int direction = ntc.Direction;
-            bool isBackbone = ntc.IsBackbone;
+            int id = dnaComponent.Id;
+            int helixId = dnaComponent.HelixId;
+            int direction = dnaComponent.Direction;
+            bool isBackbone = dnaComponent.IsBackbone;
             _nucleotideIds.Add((id, helixId, direction, isBackbone));
         }
 
         for (int i = 0; i < xovers.Count; i++)
         {
-            var ntc = xovers[i].GetComponent<XoverComponent>().PrevGO.GetComponent<NucleotideComponent>();
+            NucleotideComponent ntc = xovers[i].GetComponent<XoverComponent>().PrevGO.GetComponent<NucleotideComponent>();
             int id = ntc.Id;
             int helixId = ntc.HelixId;
             int direction = ntc.Direction;

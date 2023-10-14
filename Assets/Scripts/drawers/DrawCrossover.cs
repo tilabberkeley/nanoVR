@@ -132,6 +132,14 @@ public class DrawCrossover : MonoBehaviour
         command.Do();
     }
 
+    /// <summary>
+    /// Returns whether there can be a crossover between the two inputted nucleotides.
+    /// The nucleotides must be going in different directions and either be head to tail or
+    /// tail to head.
+    /// </summary>
+    /// <param name="startGO">First nucleotide game object.</param>
+    /// <param name="endGO">Second nucleotide game object.</param>
+    /// <returns>Whether there can be a crossover between the two nucleotide.</returns>
     public static bool IsValid(GameObject startGO, GameObject endGO)
     {
         var startNtc = startGO.GetComponent<NucleotideComponent>();
@@ -243,10 +251,7 @@ public class DrawCrossover : MonoBehaviour
     public static void CreateStrand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId, Color color)
     {
         Strand strand = new Strand(nucleotides, xovers, strandId, color);
-        strand.SetComponents();
-        s_strandDict.Add(strandId, strand);
         DrawNucleotideDynamic.CreateButton(strandId);
-        s_numStrands += 1;
     }
 
     public static void MergeStrand(GameObject firstGO, GameObject secondGO, GameObject backbone)

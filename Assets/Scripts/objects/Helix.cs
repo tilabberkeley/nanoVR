@@ -296,8 +296,8 @@ public class Helix
     {
         foreach (GameObject nucleotide in lst)
         {
-            var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            if (ntc.Selected)
+            DNAComponent dnaComponent = nucleotide.GetComponent<DNAComponent>();
+            if (dnaComponent.Selected)
             {
                 return false;
             }
@@ -318,7 +318,7 @@ public class Helix
     {
         foreach (GameObject go in lst)
         {
-            if (!go.GetComponent<NucleotideComponent>().Selected)
+            if (!go.GetComponent<DNAComponent>().Selected)
             {
                 go.SetActive(s_hideStencils);
             }
@@ -420,13 +420,13 @@ public class Helix
                 strand.SetCone();
             }
         }
-        foreach (GameObject nucleotide in BackbonesA)
+        foreach (GameObject backbone in BackbonesA)
         {
-            nucleotide.transform.position += diff;
+            backbone.transform.position += diff;
         }
-        foreach (GameObject nucleotide in BackbonesB)
+        foreach (GameObject backbone in BackbonesB)
         {
-            nucleotide.transform.position += diff;
+            backbone.transform.position += diff;
         }
     }
 

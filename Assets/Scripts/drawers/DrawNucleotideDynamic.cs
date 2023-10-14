@@ -156,7 +156,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
         // Checks that we are not drawing over another strand.
         for (int i = 1; i < nucleotides.Count - 1; i += 1)
         {
-            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            DNAComponent ntc = nucleotides[i].GetComponent<DNAComponent>();
             if (ntc.Selected)
             {
                 return;
@@ -239,10 +239,10 @@ public class DrawNucleotideDynamic : MonoBehaviour
     {
         List<GameObject> nucleotides = MakeNuclList(startGO, endGO);
         Strand strand = new Strand(nucleotides, strandId);
-        strand.SetComponents();
-        s_strandDict.Add(strandId, strand);
+        //strand.SetComponents();
+        //s_strandDict.Add(strandId, strand);
         CreateButton(strandId);
-        s_numStrands += 1;
+        //s_numStrands += 1;
     }
 
     /// <summary>

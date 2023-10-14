@@ -64,7 +64,10 @@ public class Strand
         _tail = _nucleotides.Last();
         _cone = DrawPoint.MakeCone();
         _bezier = null;
-        CheckForXoverSuggestions();
+        SetComponents();
+        s_strandDict.Add(strandId, this);
+        //CheckForXoverSuggestions();
+        s_numStrands += 1;
     }
 
     // Returns strand id.
@@ -249,7 +252,7 @@ public class Strand
         else
         {
             // Clears the backbone between the two split lists.
-            _nucleotides[splitIndex - 1].GetComponent<NucleotideComponent>().Color = Color.white;
+            _nucleotides[splitIndex - 1].GetComponent<DNAComponent>().Color = Color.white;
             splitList.AddRange(_nucleotides.GetRange(0, splitIndex - 1));
         }
         
@@ -279,7 +282,7 @@ public class Strand
         else
         {
             // Clear backbone between the two split lists.
-            _nucleotides[splitIndex + 1].GetComponent<NucleotideComponent>().Color = Color.white;
+            _nucleotides[splitIndex + 1].GetComponent<DNAComponent>().Color = Color.white;
             splitList.AddRange(_nucleotides.GetRange(splitIndex + 2, count - 1));
         }
         _nucleotides.RemoveRange(splitIndex + 1, count);
@@ -330,7 +333,7 @@ public class Strand
     {
         for (int i = 0; i < _nucleotides.Count; i++)
         {
-            var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+            var ntc = _nucleotides[i].GetComponent<DNAComponent>();
             ntc.Selected = true;
             ntc.StrandId = _strandId;
             ntc.Color = _color;
@@ -378,7 +381,7 @@ public class Strand
         if (nucleotides == null) { return; }
         for (int i = 0; i < nucleotides.Count; i++)
         {
-            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            var ntc = nucleotides[i].GetComponent<DNAComponent>();
             ntc.Selected = false;
             ntc.StrandId = -1;
             ntc.Color = NucleotideComponent.s_defaultColor;
@@ -394,8 +397,8 @@ public class Strand
         GameObject tail = GetTail();
         List<NucleotideComponent> neighborNucleotideComponents = tail.GetComponent<NucleotideComponent>().getNeighborNucleotides();
         foreach (NucleotideComponent nucleotideComponent in neighborNucleotideComponents)
-        {
-            if (nucleotideComponent.IsEndStrand())
+        { 
+            if (DrawCrossover.IsValid(tail, nucleotideComponent.gameObject))
             {
                 DrawPoint.MakeXoverSuggestion(tail, nucleotideComponent.gameObject);
             }
@@ -406,7 +409,7 @@ public class Strand
         neighborNucleotideComponents = head.GetComponent<NucleotideComponent>().getNeighborNucleotides();
         foreach (NucleotideComponent nucleotideComponent in neighborNucleotideComponents)
         {
-            if (nucleotideComponent.IsEndStrand())
+            if (DrawCrossover.IsValid(head, nucleotideComponent.gameObject))
             {
                 DrawPoint.MakeXoverSuggestion(head, nucleotideComponent.gameObject);
             }

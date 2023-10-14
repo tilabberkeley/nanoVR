@@ -55,11 +55,11 @@ public static class DrawPoint
                                     Vector3.zero,
                                     Quaternion.identity) as GameObject;
         cylinder.name = "Backbone" + id;
-        var ntc = cylinder.GetComponent<NucleotideComponent>();
-        ntc.Id = id;
-        ntc.HelixId = helixId;
-        ntc.Direction = direction;
-        ntc.IsBackbone = true;
+        BackBoneComponent backBoneComponent = cylinder.GetComponent<BackBoneComponent>();
+        backBoneComponent.Id = id;
+        backBoneComponent.HelixId = helixId;
+        backBoneComponent.Direction = direction;
+        backBoneComponent.IsBackbone = true;
 
         Vector3 cylinderDefaultOrientation = new Vector3(0, 1, 0);
 

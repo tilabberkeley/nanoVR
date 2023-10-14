@@ -9,7 +9,7 @@ using static GlobalVariables;
 /// <summary>
 /// Component attached to each nucleotide gameobject. Handles direct Ray interactions and gameobject visuals.
 /// </summary>
-public class NucleotideComponent : MonoBehaviour
+public class NucleotideComponent : DNAComponent
 {
     public static Color s_defaultColor = Color.white;
 
@@ -60,16 +60,11 @@ public class NucleotideComponent : MonoBehaviour
     private List<XoverSuggestionComponent> _xoverSuggestionComponents;
     public List<XoverSuggestionComponent> XoverSuggestionComponents { get { return _xoverSuggestionComponents; } }
 
-    // Checks if NucleotideComponent is attached to a nucleotide or backbone GameObject.
-    private bool _isBackbone = false;
-    public bool IsBackbone { get { return _isBackbone; } set { _isBackbone = value; } }
-
     // Start is called before the first frame update
-    void Awake()
+    protected override void Awake()
     {
-        _ntRenderer = GetComponent<Renderer>();
-        _outline = GetComponent<Outline>();
-        _outline.enabled = false;
+        base.Awake();
+        _isBackbone = false;
         _xoverSuggestionComponents = new List<XoverSuggestionComponent>();
     }
 
