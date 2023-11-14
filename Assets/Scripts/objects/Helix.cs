@@ -154,6 +154,8 @@ public class Helix
             return null;
         }
 
+        Debug.Log("Indices passed.");
+
         List<GameObject> temp = new List<GameObject>();
         if (direction == 0)
         {
@@ -184,11 +186,11 @@ public class Helix
         if (id < 0 || id >= NucleotidesA.Count) { return null; }
         if (direction == 0)
         {
-            return NucleotidesB[id];
+            return _nucleotidesB[id];
         }
         else
         {
-            return NucleotidesA[id];
+            return _nucleotidesA[id];
         }
     }
 
@@ -196,11 +198,11 @@ public class Helix
     {
         if (direction == 0)
         {
-            return BackbonesB[id];
+            return _backbonesB[id];
         }
         else
         {
-            return BackbonesA[id];
+            return _backbonesA[id];
         }
     }
 
@@ -215,11 +217,19 @@ public class Helix
         if (direction == 0)
         {
             int index = _nucleotidesB.IndexOf(go);
+            if (index == 0)
+            {
+                return null;
+            }
             return _nucleotidesB[index - 1];
         }
         else
         {
             int index = _nucleotidesA.IndexOf(go);
+            if (index == _nucleotidesA.Count - 1)
+            {
+                return null;
+            }
             return _nucleotidesA[index + 1];
         }
     }
@@ -235,11 +245,19 @@ public class Helix
         if (direction == 0)
         {
             int index = _nucleotidesB.IndexOf(go);
+            if (index == _nucleotidesB.Count - 1)
+            {
+                return null;
+            }
             return _nucleotidesB[index + 1];
         }
         else
         {
             int index = _nucleotidesA.IndexOf(go);
+            if (index == 0)
+            {
+                return null;
+            }
             return _nucleotidesA[index - 1];
         }
     }
@@ -288,7 +306,7 @@ public class Helix
     // In other words, if there are no strands on the helix.
     public bool IsEmpty()
     {
-        return IsEmpty(NucleotidesA) && IsEmpty(NucleotidesB) && IsEmpty(BackbonesA) && IsEmpty(BackbonesB);
+        return IsEmpty(_nucleotidesA) && IsEmpty(_nucleotidesB) && IsEmpty(_backbonesA) && IsEmpty(_backbonesB);
     }
 
     // Helper method for IsEmpty().

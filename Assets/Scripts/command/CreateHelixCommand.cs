@@ -10,7 +10,6 @@ public class CreateHelixCommand : ICommand
     // Helix id.
     private int _id;
     private Vector3 _startPoint;
-    private Vector3 _endPoint;
 
     // Number of nucleotides in helix.
     private int _length;
@@ -22,13 +21,12 @@ public class CreateHelixCommand : ICommand
     // Grid that helix belongs to.
     private Grid _grid;
 
-    public CreateHelixCommand(int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent, Grid grid)
+    public CreateHelixCommand(int id, Vector3 startPoint, int length, string orientation, GridComponent gridComponent, Grid grid)
     {
         //_grid = grid;
         _id = id;
         _startPoint = startPoint;
-        _endPoint = endPoint;
-        _length = 64;
+        _length = length;
         _orientation = orientation;
         _gridComp = gridComponent;
         _grid = grid;
@@ -36,12 +34,12 @@ public class CreateHelixCommand : ICommand
 
     public void Do()
     {
-        _grid.AddHelix(_id, _startPoint, _orientation, _length, _gridComp);
+        _grid.AddHelix(_id, _startPoint, _length, _orientation, _gridComp);
     }
 
     public void Redo()
     {
-        _grid.AddHelix(_id, _startPoint, _orientation, _length, _gridComp);
+        _grid.AddHelix(_id, _startPoint, _length, _orientation, _gridComp);
     }
 
     public void Undo()

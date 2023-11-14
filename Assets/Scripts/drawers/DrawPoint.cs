@@ -20,7 +20,7 @@ public static class DrawPoint
     /// <param name="helixId">Id of helix nucleotide is in.</param>
     /// <param name="ssDirection">Direction of nucleotide.</param>
     /// <returns>GameObject of Nucleotide.</returns>
-    public static GameObject MakeNucleotide(Vector3 position, int id, int helixId, int ssDirection)
+    public static GameObject MakeNucleotide(Vector3 position, int id, int helixId, int direction)
     {
         GameObject sphere =
                     Instantiate(Resources.Load("Nucleotide"),
@@ -31,7 +31,7 @@ public static class DrawPoint
         var ntc = sphere.GetComponent<NucleotideComponent>();
         ntc.Id = id;
         ntc.HelixId = helixId;
-        ntc.Direction = ssDirection;
+        ntc.Direction = direction;
         ntc.IsBackbone = false;
         return sphere;
     }

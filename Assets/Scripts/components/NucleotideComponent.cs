@@ -11,7 +11,7 @@ using static GlobalVariables;
 /// </summary>
 public class NucleotideComponent : DNAComponent
 {
-    public static Color s_defaultColor = Color.white;
+   /* public static Color s_defaultColor = Color.white;
 
     // Components
     private Renderer _ntRenderer;
@@ -50,7 +50,7 @@ public class NucleotideComponent : DNAComponent
 
     // Direction of this nucleotides. 0 = 5' to 3' left<-right, 1 = left->right
     private int _direction;
-    public int Direction { get { return _direction; } set { _direction = value; } }
+    public int Direction { get { return _direction; } set { _direction = value; } }*/
 
     // Gameobject of xover attached to this nucleotide. Null if there isn't a xover.
     private GameObject _xover;

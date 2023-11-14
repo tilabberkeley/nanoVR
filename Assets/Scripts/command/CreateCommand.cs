@@ -25,7 +25,7 @@ public class CreateCommand : ICommand
 
         for (int i = 0; i < nucleotides.Count; i += 1)
         {
-            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            var ntc = nucleotides[i].GetComponent<DNAComponent>();
 
             int id = ntc.Id;
             int helixId = ntc.HelixId;
@@ -36,14 +36,14 @@ public class CreateCommand : ICommand
 
         for (int i = 0; i < xovers.Count; i++)
         {
-            var ntc = xovers[i].GetComponent<XoverComponent>().PrevGO.GetComponent<NucleotideComponent>();
+            var ntc = xovers[i].GetComponent<XoverComponent>().PrevGO.GetComponent<DNAComponent>();
             int id = ntc.Id;
             int helixId = ntc.HelixId;
             int direction = ntc.Direction;
             bool isBackbone = ntc.IsBackbone;
             _prevGOs.Add((id, helixId, direction, isBackbone));
 
-            ntc = xovers[i].GetComponent<XoverComponent>().NextGO.GetComponent<NucleotideComponent>();
+            ntc = xovers[i].GetComponent<XoverComponent>().NextGO.GetComponent<DNAComponent>();
             id = ntc.Id;
             helixId = ntc.HelixId;
             direction = ntc.Direction;

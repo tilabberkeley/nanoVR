@@ -440,14 +440,14 @@ public class Grid
         //_lines.Add(line);
     }
 
-    public void DoAddHelix(int id, Vector3 startPoint, Vector3 endPoint, string orientation, GridComponent gridComponent)
+    public void DoAddHelix(int id, Vector3 startPoint, int length, string orientation, GridComponent gridComponent)
     {
-        ICommand command = new CreateHelixCommand(id, startPoint, endPoint, orientation, gridComponent, this);
+        ICommand command = new CreateHelixCommand(id, startPoint, length, orientation, gridComponent, this);
         CommandManager.AddCommand(command);
         command.Do();
     }
 
-    public void AddHelix(int id, Vector3 startPoint, string orientation, int length, GridComponent gridComponent)
+    public void AddHelix(int id, Vector3 startPoint, int length, string orientation, GridComponent gridComponent)
     {
         Helix helix = new Helix(id, startPoint, orientation, length, gridComponent);
         s_helixDict.Add(id, helix);

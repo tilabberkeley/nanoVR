@@ -11,16 +11,10 @@ public class ConsoleToText : MonoBehaviour
     string output = "";
     string stack = "";
 
-    private void OnEnable()
+    private void Start()
     {
         Application.logMessageReceived += HandleLog;
         //Debug.Log("Log enabled");
-    }
-
-    private void OnDisable()
-    {
-        Application.logMessageReceived -= HandleLog;
-        //ClearLog();
     }
 
     void HandleLog(string logString, string stackTrace, LogType type)

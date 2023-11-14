@@ -253,8 +253,6 @@ public class CopyPaste : MonoBehaviour
     {
         if (nucleotides == null) { return false; }
 
-        Debug.Log("Start checking validness");
-
         foreach (GameObject nucleotide in nucleotides)
         {
             if (nucleotide == null)

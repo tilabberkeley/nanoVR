@@ -64,10 +64,10 @@ public class Strand
         _tail = _nucleotides.Last();
         _cone = DrawPoint.MakeCone();
         _bezier = null;
-        SetComponents();
-        s_strandDict.Add(strandId, this);
+        //SetComponents();
+        //s_strandDict.Add(strandId, this);
         //CheckForXoverSuggestions();
-        s_numStrands += 1;
+        //s_numStrands += 1;
     }
 
     // Returns strand id.
@@ -351,7 +351,18 @@ public class Strand
         _cone.GetComponent<Renderer>().material.SetColor("_Color", _color); // FIX: Abstract into Cone component
         int helixId = _head.GetComponent<NucleotideComponent>().HelixId;
         GameObject neighbor = s_helixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
-        _cone.transform.rotation = Quaternion.FromToRotation(Vector3.up, neighbor.transform.position - _head.transform.position);
+        Vector3 toDirection;
+
+        // If strand head is index 0 of nucleotide, recalculate direction of cone with next nucleotide.
+        if (neighbor == null) {
+            toDirection = _head.transform.position - _nucleotides[2].transform.position;
+        }
+        else
+        {
+            toDirection = neighbor.transform.position - _head.transform.position;
+        }
+
+        _cone.transform.rotation = Quaternion.FromToRotation(Vector3.up, toDirection);
         _cone.transform.position = _head.transform.position;
 
     }

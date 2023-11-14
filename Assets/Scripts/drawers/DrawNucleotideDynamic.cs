@@ -102,6 +102,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
         {
             if (hitFound && hitIsNucleotide && !isStartNucleotide && !isPrevNucleotide && creatingStrand && IsValidNucleotideSelection(s_startGO, hitGO))
             {
+                Debug.Log("Hit GameObject: " + hitGO);
                 s_endGO = hitGO;
                 UnhighlightNucleotideSelection(s_currentNucleotides);
                 s_currentNucleotides = MakeNuclList(s_startGO, s_endGO);
@@ -130,6 +131,8 @@ public class DrawNucleotideDynamic : MonoBehaviour
                 ResetNucleotides();
                 creatingStrand = false;
             }
+            ResetNucleotides();
+            creatingStrand = false;
         }
     }
 
@@ -163,12 +166,13 @@ public class DrawNucleotideDynamic : MonoBehaviour
             }
         }
 
-        if (!s_startGO.GetComponent<NucleotideComponent>().Selected
-            && !s_endGO.GetComponent<NucleotideComponent>().Selected)
+        bool startSelected = s_startGO.GetComponent<DNAComponent>().Selected;
+        bool endSelected = s_endGO.GetComponent<DNAComponent>().Selected;
+        if (!startSelected && !endSelected)
         {
             DoCreateStrand(s_startGO, s_endGO, s_numStrands);
         }
-        else
+        else if ((startSelected && !endSelected) || (!startSelected && endSelected))
         {
             DoEditStrand(s_startGO, s_endGO);
         }

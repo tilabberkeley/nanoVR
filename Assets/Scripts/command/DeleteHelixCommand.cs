@@ -40,6 +40,6 @@ public class DeleteHelixCommand : ICommand
 
     public void Undo()
     {
-        _grid.AddHelix(_id, _startPoint, _orientation, _length, _gridComponent);
+        _grid.AddHelix(_id, _startPoint, _length, _orientation, _gridComponent);
     }
 }

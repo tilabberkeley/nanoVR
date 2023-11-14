@@ -22,6 +22,7 @@ public class DrawGrid : MonoBehaviour
     private static RaycastHit s_hit;
     [SerializeField] private Dropdown dropdown;
     private string plane;
+    private const int LENGTH = 64;
 
     void GetDevice()
     {
@@ -86,20 +87,9 @@ public class DrawGrid : MonoBehaviour
             if (s_hit.collider.GetComponent<GridComponent>())
             {
                 GridComponent gc = s_hit.collider.GetComponent<GridComponent>();
-                if (!gc.Selected)
-                {
-                    Vector3 startPos = s_hit.collider.bounds.center;
-                    Vector3 endPos = startPos - new Vector3(0, 0, 64 * 0.034f);
-                    int id = s_numHelices;
-                    gc.Grid.DoAddHelix(id, startPos, endPos, plane, gc);
-                    gc.Grid.CheckExpansion(gc);
-                }
-                else
-                {
-                    SelectHelix.UnhighlightHelix();
-                    SelectHelix.ResetNucleotides();
-                    SelectHelix.HighlightHelix(s_hit.collider.gameObject);
-                }
+                Vector3 startPos = s_hit.collider.bounds.center;
+                int id = s_numHelices;
+                CreateHelix(id, startPos, LENGTH, plane, gc);
             }
         }
         
@@ -115,8 +105,23 @@ public class DrawGrid : MonoBehaviour
         plane = dropdown.options[dropdown.value].text;
         Vector3 direction = transform.rotation * Vector3.forward;
         Vector3 currPoint = transform.position + direction * 0.2f;
-        Grid grid = new Grid(s_numGrids, plane, currPoint);
-        s_gridDict.Add(s_numGrids, grid);
+        CreateGrid(s_numGrids, plane, currPoint);
+    }
+
+    public static Grid CreateGrid(int id, string orientation, Vector3 position)
+    {
+        Grid grid = new Grid(id, orientation, position);
+        s_gridDict.Add(id, grid);
         s_numGrids += 1;
+        return grid;
+    }
+
+    public void CreateHelix(int id, Vector3 startPos, int length, string orientation, GridComponent gc)
+    {
+        if (!gc.Selected)
+        {
+            gc.Grid.DoAddHelix(id, startPos, length, orientation, gc);
+            gc.Grid.CheckExpansion(gc);
+        }
     }
 }
