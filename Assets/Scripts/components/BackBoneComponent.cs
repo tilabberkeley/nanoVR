@@ -7,14 +7,12 @@ using UnityEngine;
 /// <summary>
 /// Script component for the backbone game object.
 /// </summary>
-public class BackBoneComponent : MonoBehaviour
-{
-    private Outline _outline;
-
+public class BackBoneComponent : DNAComponent
+{ 
     // Start is called before the first frame update
-    void Awake()
+    protected override void Awake()
     {
-        _outline = GetComponent<Outline>();
-        _outline.enabled = false;
+        base.Awake();
+        _isBackbone = true;
     }
 }

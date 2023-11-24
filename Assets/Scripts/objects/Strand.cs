@@ -15,7 +15,11 @@ public class Strand
 {
     // List of nucleotide and backbone GameObjects included in this strand.
     private List<GameObject> _nucleotides;
-    public List<GameObject> Nucleotides { get { return _nucleotides; } }
+    public List<GameObject> Nucleotides 
+    { 
+        get { return _nucleotides; } 
+        set { _nucleotides = value; _head = value[0]; _tail = value.Last(); } 
+    }
 
     // This strand's id.
     private int _strandId;
@@ -48,6 +52,8 @@ public class Strand
     // Strand constructor.
     public Strand(List<GameObject> nucleotides, int strandId) : this(nucleotides, new List<GameObject>(), strandId, s_colors[s_numStrands % 6]) { }
 
+    public Strand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId) : this(nucleotides, xovers, strandId, s_colors[s_numStrands % 6]) { }
+
     public Strand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId, Color32 color)
     {
         _nucleotides = new List<GameObject>(nucleotides);
@@ -58,7 +64,10 @@ public class Strand
         _tail = _nucleotides.Last();
         _cone = DrawPoint.MakeCone();
         _bezier = null;
-        CheckForXoverSuggestions();
+        SetComponents();
+        s_strandDict.Add(strandId, this);
+        //CheckForXoverSuggestions();
+        s_numStrands += 1;
     }
 
     // Returns strand id.
@@ -96,6 +105,9 @@ public class Strand
     {     
         return _nucleotides.IndexOf(go);
     }
+
+    // Returns number of nucleotides in strand, not including backbones.
+    public int Count { get { return _nucleotides.Count / 2 + 1; } }
 
     // Adds helix id to helix id list.
     /*public void AddHelixId(int id)
@@ -240,7 +252,7 @@ public class Strand
         else
         {
             // Clears the backbone between the two split lists.
-            _nucleotides[splitIndex - 1].GetComponent<NucleotideComponent>().Color = Color.white;
+            _nucleotides[splitIndex - 1].GetComponent<DNAComponent>().Color = Color.white;
             splitList.AddRange(_nucleotides.GetRange(0, splitIndex - 1));
         }
         
@@ -270,7 +282,7 @@ public class Strand
         else
         {
             // Clear backbone between the two split lists.
-            _nucleotides[splitIndex + 1].GetComponent<NucleotideComponent>().Color = Color.white;
+            _nucleotides[splitIndex + 1].GetComponent<DNAComponent>().Color = Color.white;
             splitList.AddRange(_nucleotides.GetRange(splitIndex + 2, count - 1));
         }
         _nucleotides.RemoveRange(splitIndex + 1, count);
@@ -321,7 +333,7 @@ public class Strand
     {
         for (int i = 0; i < _nucleotides.Count; i++)
         {
-            var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+            var ntc = _nucleotides[i].GetComponent<DNAComponent>();
             ntc.Selected = true;
             ntc.StrandId = _strandId;
             ntc.Color = _color;
@@ -369,7 +381,7 @@ public class Strand
         if (nucleotides == null) { return; }
         for (int i = 0; i < nucleotides.Count; i++)
         {
-            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            var ntc = nucleotides[i].GetComponent<DNAComponent>();
             ntc.Selected = false;
             ntc.StrandId = -1;
             ntc.Color = NucleotideComponent.s_defaultColor;
@@ -385,8 +397,8 @@ public class Strand
         GameObject tail = GetTail();
         List<NucleotideComponent> neighborNucleotideComponents = tail.GetComponent<NucleotideComponent>().getNeighborNucleotides();
         foreach (NucleotideComponent nucleotideComponent in neighborNucleotideComponents)
-        {
-            if (nucleotideComponent.IsEndStrand())
+        { 
+            if (DrawCrossover.IsValid(tail, nucleotideComponent.gameObject))
             {
                 DrawPoint.MakeXoverSuggestion(tail, nucleotideComponent.gameObject);
             }
@@ -397,7 +409,7 @@ public class Strand
         neighborNucleotideComponents = head.GetComponent<NucleotideComponent>().getNeighborNucleotides();
         foreach (NucleotideComponent nucleotideComponent in neighborNucleotideComponents)
         {
-            if (nucleotideComponent.IsEndStrand())
+            if (DrawCrossover.IsValid(head, nucleotideComponent.gameObject))
             {
                 DrawPoint.MakeXoverSuggestion(head, nucleotideComponent.gameObject);
             }

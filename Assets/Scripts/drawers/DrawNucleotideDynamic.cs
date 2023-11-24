@@ -94,7 +94,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
                 creatingStrand = true;
                 s_startGO = hitGO;
                 s_currentNucleotides = MakeNuclList(s_startGO, s_startGO);
-                HighlightNucleotideSelection(s_currentNucleotides);
+                HighlightNucleotideSelection(s_currentNucleotides, !s_eraseTogOn);
             }
         }
         // Holding down trigger, highlight current strand                                             
@@ -105,7 +105,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
                 s_endGO = hitGO;
                 UnhighlightNucleotideSelection(s_currentNucleotides);
                 s_currentNucleotides = MakeNuclList(s_startGO, s_endGO);
-                HighlightNucleotideSelection(s_currentNucleotides);
+                HighlightNucleotideSelection(s_currentNucleotides, !s_eraseTogOn);
             }
         }
         // Trigger is released, create strand                                       
@@ -148,22 +148,20 @@ public class DrawNucleotideDynamic : MonoBehaviour
     private void BuildStrand()
     {
         List<GameObject> nucleotides = MakeNuclList(s_startGO, s_endGO);
-        //Debug.Log("Test");
         if (nucleotides == null)
         {
             return;
         }
-        //Debug.Log(nucleotides);
+
         // Checks that we are not drawing over another strand.
-        /*foreach(GameObject nucleotide in nucleotides)
+        for (int i = 1; i < nucleotides.Count - 1; i += 1)
         {
-            var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            Debug.Log(ntc.Selected);
+            DNAComponent ntc = nucleotides[i].GetComponent<DNAComponent>();
             if (ntc.Selected)
             {
                 return;
             }
-        }*/
+        }
 
         if (!s_startGO.GetComponent<NucleotideComponent>().Selected
             && !s_endGO.GetComponent<NucleotideComponent>().Selected)
@@ -186,6 +184,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
     {
         NucleotideComponent startNtc = start.GetComponent<NucleotideComponent>();
         NucleotideComponent endNtc = end.GetComponent<NucleotideComponent>();
+
         return startNtc.HelixId == endNtc.HelixId && startNtc.Direction == endNtc.Direction;
     }
 
@@ -210,7 +209,6 @@ public class DrawNucleotideDynamic : MonoBehaviour
         int helixId = startNtc.HelixId;
         int direction = startNtc.Direction;
 
-        // CHANGE THIS SINCE HELICES CAN BE DELETED
         s_helixDict.TryGetValue(helixId, out Helix helix);
         if (startId < endId)
         {
@@ -219,12 +217,18 @@ public class DrawNucleotideDynamic : MonoBehaviour
         return helix.GetHelixSub(endId, startId, direction);
     }
 
-    public void DoCreateStrand(GameObject startGO, GameObject endGO, int strandId)
+    public static void DoCreateStrand(GameObject startGO, GameObject endGO, int strandId)
     {
-        ICommand command = new CreateCommand(startGO, endGO, strandId);
+        DoCreateStrand(MakeNuclList(startGO, endGO), new List<GameObject>(), strandId);
+    }
+
+    public static void DoCreateStrand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId)
+    {
+        ICommand command = new CreateCommand(nucleotides, xovers, strandId);
         CommandManager.AddCommand(command);
         command.Do();
     }
+
 
     /// <summary>
     /// Creates a new strand with it's own id, color, and list of nucleotides.
@@ -235,11 +239,10 @@ public class DrawNucleotideDynamic : MonoBehaviour
     {
         List<GameObject> nucleotides = MakeNuclList(startGO, endGO);
         Strand strand = new Strand(nucleotides, strandId);
-        strand.SetComponents();
-        s_strandDict.Add(strandId, strand);
+        //strand.SetComponents();
+        //s_strandDict.Add(strandId, strand);
         CreateButton(strandId);
-        //AddStrandToHelix(nucleotides[0]);
-        s_numStrands += 1;
+        //s_numStrands += 1;
     }
 
     /// <summary>

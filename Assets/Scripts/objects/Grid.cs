@@ -20,7 +20,10 @@ public class Grid
     private string _plane;
     private Vector3 _startPos;
     private List<Vector3> _positions;
+
     private GridComponent[,] _grid2D;
+    public GridComponent[,] Grid2D { get { return _grid2D; } }
+
     private List<Line> _lines;
     private List<Helix> _helices;
     private int _length;
@@ -176,7 +179,7 @@ public class Grid
     /// </summary>
     /// <param name="x">grid point x value.</param>
     /// <returns>2D array row index.</returns>
-    private int GridXToIndex(int x)
+    public int GridXToIndex(int x)
     {
         return x - _minimumBound.X; 
     }
@@ -186,7 +189,7 @@ public class Grid
     /// </summary>
     /// <param name="y">grid point y value.</param>
     /// <returns>2D array column index.</returns>
-    private int GridYToIndex(int y)
+    public int GridYToIndex(int y)
     {
         return y - _minimumBound.Y; 
     }

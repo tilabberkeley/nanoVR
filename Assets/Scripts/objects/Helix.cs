@@ -149,6 +149,11 @@ public class Helix
     /// <returns>Returns sublist of nucleotides from helix spiral.</returns>
     public List<GameObject> GetHelixSub(int sIndex, int eIndex, int direction)
     {
+        if (sIndex < 0 || eIndex >= _backbonesA.Count)
+        {
+            return null;
+        }
+
         List<GameObject> temp = new List<GameObject>();
         if (direction == 0)
         {
@@ -175,6 +180,8 @@ public class Helix
 
     public GameObject GetNucleotide(int id, int direction)
     {
+        // Need to prevent indexOutOfBounds
+        if (id < 0 || id >= NucleotidesA.Count) { return null; }
         if (direction == 0)
         {
             return NucleotidesB[id];
@@ -289,8 +296,8 @@ public class Helix
     {
         foreach (GameObject nucleotide in lst)
         {
-            var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            if (ntc.Selected)
+            DNAComponent dnaComponent = nucleotide.GetComponent<DNAComponent>();
+            if (dnaComponent.Selected)
             {
                 return false;
             }
@@ -311,7 +318,7 @@ public class Helix
     {
         foreach (GameObject go in lst)
         {
-            if (!go.GetComponent<NucleotideComponent>().Selected)
+            if (!go.GetComponent<DNAComponent>().Selected)
             {
                 go.SetActive(s_hideStencils);
             }
@@ -413,13 +420,13 @@ public class Helix
                 strand.SetCone();
             }
         }
-        foreach (GameObject nucleotide in BackbonesA)
+        foreach (GameObject backbone in BackbonesA)
         {
-            nucleotide.transform.position += diff;
+            backbone.transform.position += diff;
         }
-        foreach (GameObject nucleotide in BackbonesB)
+        foreach (GameObject backbone in BackbonesB)
         {
-            nucleotide.transform.position += diff;
+            backbone.transform.position += diff;
         }
     }
 

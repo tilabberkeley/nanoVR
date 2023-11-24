@@ -62,7 +62,7 @@ public class DrawGrid : MonoBehaviour
         bool triggerValue;
 
         // Adds a new grid.
-        if (triggerReleased
+        /*if (triggerReleased
             && _device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
             && triggerValue
             && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
@@ -71,13 +71,11 @@ public class DrawGrid : MonoBehaviour
             plane = dropdown.options[dropdown.value].text;
             Vector3 direction = transform.rotation * Vector3.forward;
             Vector3 currPoint = transform.position + direction * 0.07f;
-            Grid grid = new Grid(s_numGrids, plane, currPoint);
-            s_gridDict.Add(s_numGrids, grid);
-            s_numGrids += 1;
-        }
+            CreateGrid(s_numGrids, plane, currPoint);
+        }*/
 
         // Adds a helix to a grid.
-        else if (triggerReleased
+        if (triggerReleased
             && _device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
             && triggerValue
             && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
@@ -110,5 +108,15 @@ public class DrawGrid : MonoBehaviour
         {
             triggerReleased = true;
         }
+    }
+
+    public void CreateGrid()
+    {
+        plane = dropdown.options[dropdown.value].text;
+        Vector3 direction = transform.rotation * Vector3.forward;
+        Vector3 currPoint = transform.position + direction * 0.2f;
+        Grid grid = new Grid(s_numGrids, plane, currPoint);
+        s_gridDict.Add(s_numGrids, grid);
+        s_numGrids += 1;
     }
 }
