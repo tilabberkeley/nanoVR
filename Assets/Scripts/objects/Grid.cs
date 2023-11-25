@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using static GlobalVariables;
+using Oculus.Interaction;
 
 /// <summary>
 /// Grid object keeps track of its helices.
@@ -117,6 +118,32 @@ public class Grid
     }
 
     /// <summary>
+    /// Generates a grid circle at the specified grid point.
+    /// </summary>
+    /// <param name="gridPoint">Grid point to generate circle at.</param>
+    /// <param name="xOffset">x direction offset (depends on expansions).</param>
+    /// <param name="yOffset">y direction offset (depends on expansions),</param>
+    /// <returns>Game object of grid circle that was created.</returns>
+    private GameObject CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset)
+    {
+        if (_plane.Equals("XY"))
+        {
+            Vector3 gamePosition = new Vector3(_startPos.x + xOffset / GRIDCIRCLESIZEFACTOR, _startPos.y + yOffset / GRIDCIRCLESIZEFACTOR, _startPos.z);
+            GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
+            return gridGO;
+        }
+        else if (_plane.Equals("YZ"))
+        {
+            // TODO
+        }
+        else
+        {
+            // TODO
+        }
+        return null;
+    }
+
+    /// <summary>
     /// Draws the grid in the XY direction.
     /// </summary>
     private void DrawGridXY()
@@ -128,8 +155,7 @@ public class Grid
                 int x = IndexToGridX(i);
                 int y = IndexToGridY(j);
                 GridPoint gridPoint = new GridPoint(x, y);
-                Vector3 gamePosition = new Vector3(_startPos.x + i / GRIDCIRCLESIZEFACTOR, _startPos.y + j / GRIDCIRCLESIZEFACTOR, _startPos.z);
-                GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
+                GameObject gridGO = CreateGridCircle(gridPoint, i, j);
                 GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
                 gridComponent.Grid = this;
                 _grid2D[i, j] = gridComponent;
@@ -245,8 +271,7 @@ public class Grid
             int x = IndexToGridX(i);
             int y = IndexToGridY(newJ);
             GridPoint gridPoint = new GridPoint(x, y);
-            Vector3 gamePosition = new Vector3(_startPos.x + xCreationOffset / GRIDCIRCLESIZEFACTOR, _startPos.y + yCreationOffset / GRIDCIRCLESIZEFACTOR, _startPos.z);
-            GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
+            GameObject gridGO = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset);
             GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
             gridComponent.Grid = this;
             _grid2D[i, newJ] = gridComponent;
@@ -291,8 +316,7 @@ public class Grid
             int x = IndexToGridX(newI);
             int y = IndexToGridY(j);
             GridPoint gridPoint = new GridPoint(x, y);
-            Vector3 gamePosition = new Vector3(_startPos.x + xCreationOffset / GRIDCIRCLESIZEFACTOR, _startPos.y + yCreationOffset / GRIDCIRCLESIZEFACTOR, _startPos.z);
-            GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
+            GameObject gridGO = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset);
             GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
             gridComponent.Grid = this;
             _grid2D[newI, j] = gridComponent;
@@ -337,8 +361,7 @@ public class Grid
             int x = IndexToGridX(i);
             int y = IndexToGridY(newY);
             GridPoint gridPoint = new GridPoint(x, y);
-            Vector3 gamePosition = new Vector3(_startPos.x + xCreationOffset / GRIDCIRCLESIZEFACTOR, _startPos.y + yCreationOffset / GRIDCIRCLESIZEFACTOR, _startPos.z);
-            GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
+            GameObject gridGO = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset);
             GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
             gridComponent.Grid = this;
             _grid2D[i, newY] = gridComponent;
@@ -384,8 +407,7 @@ public class Grid
             int x = IndexToGridX(newI);
             int y = IndexToGridY(j);
             GridPoint gridPoint = new GridPoint(x, y);
-            Vector3 gamePosition = new Vector3(_startPos.x + xCreationOffset / GRIDCIRCLESIZEFACTOR, _startPos.y + yCreationOffset / GRIDCIRCLESIZEFACTOR, _startPos.z);
-            GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
+            GameObject gridGO = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset);
             GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
             gridComponent.Grid = this;
             _grid2D[newI, j] = gridComponent;
