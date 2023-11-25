@@ -115,7 +115,7 @@ public class DrawGrid : MonoBehaviour
         plane = dropdown.options[dropdown.value].text;
         Vector3 direction = transform.rotation * Vector3.forward;
         Vector3 currPoint = transform.position + direction * 0.2f;
-        Grid grid = new Grid(s_numGrids, plane, currPoint);
+        Grid grid = new SquareGrid(s_numGrids, plane, currPoint);
         s_gridDict.Add(s_numGrids, grid);
         s_numGrids += 1;
     }
