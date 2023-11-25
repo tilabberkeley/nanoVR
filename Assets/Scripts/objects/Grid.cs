@@ -76,28 +76,6 @@ public class Grid
     public List<Helix> GetHelices() { return _helices; }
     public Helix GetHelix(int index) { return _helices[index]; }
 
-    private void GeneratePositions()
-    {
-        for (int i = 0, secDim = 0; secDim < _length; secDim++)
-        {
-            for (int firstDim = 0; firstDim < _width; firstDim++, i++)
-            {
-                if (_plane.Equals("XY"))
-                {
-                    _positions.Add(new Vector3(_startPos.x + secDim / GRIDCIRCLESIZEFACTOR, _startPos.y + firstDim / GRIDCIRCLESIZEFACTOR, _startPos.z));
-                }
-                else if (this._plane.Equals("YZ"))
-                {
-                    _positions.Add(new Vector3(_startPos.x, _startPos.y + firstDim / GRIDCIRCLESIZEFACTOR, _startPos.z + secDim / GRIDCIRCLESIZEFACTOR));
-                }
-                else
-                {
-                    _positions.Add(new Vector3(_startPos.x + firstDim / GRIDCIRCLESIZEFACTOR, _startPos.y, _startPos.z + secDim / GRIDCIRCLESIZEFACTOR));
-                }
-            }
-        }
-    }
-
     /// <summary>
     /// Draws the grid in the scene upon instantiation.
     /// </summary>
@@ -122,15 +100,19 @@ public class Grid
     /// </summary>
     /// <param name="gridPoint">Grid point to generate circle at.</param>
     /// <param name="xOffset">x direction offset (depends on expansions).</param>
-    /// <param name="yOffset">y direction offset (depends on expansions),</param>
+    /// <param name="yOffset">y direction offset (depends on expansions).</param>
+    /// <param name="i">x memory location of grid circle in grid 2D.</param>
+    /// <param name="j">j memory location of grid circle in grid 2D.</param>
     /// <returns>Game object of grid circle that was created.</returns>
-    private GameObject CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset)
+    private void CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j)
     {
         if (_plane.Equals("XY"))
         {
             Vector3 gamePosition = new Vector3(_startPos.x + xOffset / GRIDCIRCLESIZEFACTOR, _startPos.y + yOffset / GRIDCIRCLESIZEFACTOR, _startPos.z);
             GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
-            return gridGO;
+            GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
+            gridComponent.Grid = this;
+            _grid2D[i, j] = gridComponent;
         }
         else if (_plane.Equals("YZ"))
         {
@@ -140,7 +122,6 @@ public class Grid
         {
             // TODO
         }
-        return null;
     }
 
     /// <summary>
@@ -155,10 +136,7 @@ public class Grid
                 int x = IndexToGridX(i);
                 int y = IndexToGridY(j);
                 GridPoint gridPoint = new GridPoint(x, y);
-                GameObject gridGO = CreateGridCircle(gridPoint, i, j);
-                GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
-                gridComponent.Grid = this;
-                _grid2D[i, j] = gridComponent;
+                CreateGridCircle(gridPoint, i, j, i, j);
                 _size++;
             }
         }
@@ -271,10 +249,7 @@ public class Grid
             int x = IndexToGridX(i);
             int y = IndexToGridY(newJ);
             GridPoint gridPoint = new GridPoint(x, y);
-            GameObject gridGO = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset);
-            GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
-            gridComponent.Grid = this;
-            _grid2D[i, newJ] = gridComponent;
+            CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, i, newJ);
             _size++;
         }
     }
@@ -316,10 +291,7 @@ public class Grid
             int x = IndexToGridX(newI);
             int y = IndexToGridY(j);
             GridPoint gridPoint = new GridPoint(x, y);
-            GameObject gridGO = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset);
-            GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
-            gridComponent.Grid = this;
-            _grid2D[newI, j] = gridComponent;
+            CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, newI, j);
             _size++;
         }
     }
@@ -355,16 +327,13 @@ public class Grid
         // create new grid components
         for (int i = 0; i < _length; i++)
         {
-            int newY = 0;
+            int newJ = 0;
             int xCreationOffset = i - _numWestExpansions;
-            int yCreationOffset = newY - _numSouthExpansions - 1;
+            int yCreationOffset = newJ - _numSouthExpansions - 1;
             int x = IndexToGridX(i);
-            int y = IndexToGridY(newY);
+            int y = IndexToGridY(newJ);
             GridPoint gridPoint = new GridPoint(x, y);
-            GameObject gridGO = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset);
-            GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
-            gridComponent.Grid = this;
-            _grid2D[i, newY] = gridComponent;
+            CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, i, newJ);
             _size++;
         }
         _numSouthExpansions++;
@@ -407,10 +376,7 @@ public class Grid
             int x = IndexToGridX(newI);
             int y = IndexToGridY(j);
             GridPoint gridPoint = new GridPoint(x, y);
-            GameObject gridGO = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset);
-            GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
-            gridComponent.Grid = this;
-            _grid2D[newI, j] = gridComponent;
+            CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, newI, j);
             _size++;
         }
         _numWestExpansions++;
