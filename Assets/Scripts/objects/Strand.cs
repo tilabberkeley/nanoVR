@@ -50,7 +50,9 @@ public class Strand
     //private List<int> _helixIds;
 
     // Strand constructor.
-    public Strand(List<GameObject> nucleotides, int strandId) : this(nucleotides, new List<GameObject>(), strandId, s_colors[s_numStrands % 6]) { }
+    public Strand(List<GameObject> nucleotides, int strandId) : this(nucleotides, strandId, s_colors[s_numStrands % 6]) { }
+
+    public Strand(List<GameObject> nucleotides, int strandId, Color color) : this(nucleotides, new List<GameObject>(), strandId, color) { }
 
     public Strand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId) : this(nucleotides, xovers, strandId, s_colors[s_numStrands % 6]) { }
 

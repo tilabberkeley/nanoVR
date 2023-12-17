@@ -137,21 +137,39 @@ public class FileImport : MonoBehaviour
         for (int i = 0; i < helices.Count; i++)
         {
             JSONArray coord = helices[i]["grid_position"].AsArray;
-            GridComponent gc = grid.Grid2D[coord[0].AsInt, coord[1].AsInt];
-            grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), 64, "XY", gc);
+            int length = helices[i]["max_offset"].AsInt;
+
+            int xInd = grid.GridXToIndex(coord[0].AsInt);
+            int yInd = grid.GridYToIndex(coord[1].AsInt * -1);
+
+            GridComponent gc = grid.Grid2D[xInd, yInd];
+            grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, "XY", gc);
             grid.CheckExpansion(gc);
         }
 
         for (int i = 0; i < strands.Count; i++)
         {
             JSONArray domains = strands[i]["domains"].AsArray;
+            string hexColor = strands[i]["color"].ToString();
+            hexColor = hexColor.Replace("\"", "");
+            Color color;
+            ColorUtility.TryParseHtmlString(hexColor, out color);
+
             List<GameObject> xoverEndpoints = new List<GameObject>();
             for (int j = 0; j < domains.Count; j++)
             {
                 int helixId = domains[j]["helix"].AsInt;
                 bool forward = domains[j]["forward"].AsBool;
                 int startId = domains[j]["start"].AsInt;
-                int endId = domains[j]["end"].AsInt;
+                int endId = domains[j]["end"].AsInt - 1; // End id is exclusive in .sc file
+                JSONArray deletions = domains[j]["deletions"].AsArray;
+                endId -= deletions.Count;
+                JSONArray insertions = domains[j]["insertions"].AsArray;
+                for (int k = 0; k < insertions.Count; k++)
+                {
+                    endId += insertions[k][1];
+                }
+
                 Helix helix = s_helixDict[helixId];
                 List<GameObject> nucleotides;
                 if (forward)
@@ -164,7 +182,7 @@ public class FileImport : MonoBehaviour
                     Debug.Log("Printing backward: " + startId + ", " + endId);
                     nucleotides = helix.GetHelixSub(startId, endId, 0);
                 }
-                Strand strand = new Strand(nucleotides, s_numStrands);
+                Strand strand = new Strand(nucleotides, s_numStrands, color);
                 strand.SetComponents();
                 s_strandDict.Add(s_numStrands, strand);
                 DrawNucleotideDynamic.CreateButton(s_numStrands);
