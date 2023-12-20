@@ -7,6 +7,7 @@ using System;
 using UnityEngine;
 using static GlobalVariables;
 using Oculus.Interaction;
+using Facebook.WitAi.Utilities;
 
 /// <summary>
 /// Grid object keeps track of its helices.
@@ -26,9 +27,10 @@ public class SquareGrid : Grid
     /// <returns>Game object of grid circle that was created.</returns>
     protected override void CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j)
     {
+        float diameter = 1 / GRIDCIRCLESIZEFACTOR;
         if (_plane.Equals("XY"))
         {
-            Vector3 gamePosition = new Vector3(_startPos.x + xOffset / GRIDCIRCLESIZEFACTOR, _startPos.y + yOffset / GRIDCIRCLESIZEFACTOR, _startPos.z);
+            Vector3 gamePosition = new Vector3(_startPos.x + xOffset * diameter, _startPos.y + yOffset * diameter, _startPos.z);
             GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
             GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
             gridComponent.Grid = this;

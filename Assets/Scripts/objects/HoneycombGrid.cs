@@ -26,11 +26,11 @@ public class HoneycombGrid : Grid
     {
         bool isXEven = gridPoint.X % 2 == 0;
         bool isYEven = gridPoint.Y % 2 == 0;
-        float r = GRIDCIRCLESIZEFACTOR / 2;
+        float r = (1 / GRIDCIRCLESIZEFACTOR) / 2;
 
         if (_plane.Equals("XY"))
         {
-            float xPosition = _startPos.x + xOffset / (r * Mathf.Sqrt(3.0f));
+            float xPosition = _startPos.x + xOffset * (r * Mathf.Sqrt(3.0f));
             float yPosition = _startPos.y + yOffset / 2 * r * 6 + (!isYEven ? 2 * r : 0);
 
             if (!isXEven && isYEven)

@@ -20,7 +20,8 @@ public class DrawGrid : MonoBehaviour
     [SerializeField] private XRRayInteractor rightRayInteractor;
     bool triggerReleased = true;
     private static RaycastHit s_hit;
-    [SerializeField] private Dropdown dropdown;
+    [SerializeField] private Dropdown directionDropdown;
+    [SerializeField] private Dropdown gridTypeDropdown;
     private string plane;
 
     void GetDevice()
@@ -110,12 +111,28 @@ public class DrawGrid : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Creates a grid when new grid button is clicked in game. 
+    /// </summary>
     public void CreateGrid()
     {
-        plane = dropdown.options[dropdown.value].text;
+        plane = directionDropdown.options[directionDropdown.value].text;
         Vector3 direction = transform.rotation * Vector3.forward;
         Vector3 currPoint = transform.position + direction * 0.2f;
-        Grid grid = new SquareGrid(s_numGrids, plane, currPoint);
+        Grid grid;
+
+        if (gridTypeDropdown.options[gridTypeDropdown.value].text.Equals("Square"))
+        {
+            grid = new SquareGrid(s_numGrids, plane, currPoint);
+        } 
+        else if (gridTypeDropdown.options[gridTypeDropdown.value].text.Equals("Honeycomb"))
+        {
+            grid = new HoneycombGrid(s_numGrids, plane, currPoint);
+        }
+        else //Add more grids later
+        {
+            return;
+        }
         s_gridDict.Add(s_numGrids, grid);
         s_numGrids += 1;
     }
