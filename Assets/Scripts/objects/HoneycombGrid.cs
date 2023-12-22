@@ -29,7 +29,7 @@ public class HoneycombGrid : Grid
         if (_plane.Equals("XY"))
         {
             float xPosition = _startPos.x + xOffset * (RADIUS * Mathf.Sqrt(3.0f));
-            float yPosition = _startPos.y + yOffset / 2 * RADIUS * 6 + (!isYEven ? 2 * RADIUS : 0);
+            float yPosition = _startPos.y + (yOffset >> 1) * RADIUS * 6 + (!isYEven ? 2 * RADIUS : 0);
 
             if (!isXEven && isYEven)
             {
