@@ -129,9 +129,9 @@ public class DrawGrid : MonoBehaviour
         {
             grid = new HoneycombGrid(s_numGrids, plane, currPoint);
         }
-        else //Add more grids later
+        else
         {
-            return;
+            grid = new HexGrid(s_numGrids, plane, currPoint);
         }
         s_gridDict.Add(s_numGrids, grid);
         s_numGrids += 1;

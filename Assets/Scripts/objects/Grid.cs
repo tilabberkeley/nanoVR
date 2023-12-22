@@ -5,9 +5,12 @@ using static GlobalVariables;
 
 public abstract class Grid
 {
+    /* Constants. Increase GRIDCIRCLESIZEFACTOR to decrease distance between grid circles and vice versa. */
     protected const int STARTLENGTH = 5;
     protected const int STARTWIDTH = 5;
     protected const float GRIDCIRCLESIZEFACTOR = 7.0f;
+    protected const float DIAMETER = 1 / GRIDCIRCLESIZEFACTOR;
+    protected const float RADIUS = DIAMETER / 2;
 
     protected int _id;
     protected string _plane;
@@ -33,6 +36,12 @@ public abstract class Grid
     protected int _numSouthExpansions;
     protected int _numWestExpansions;
 
+    /// <summary>
+    /// Grid constructor. 
+    /// </summary>
+    /// <param name="id">Id number of this grid.</param>
+    /// <param name="plane">Plane defintion.</param>
+    /// <param name="startPos">3D location of where this grid starts.</param>
     public Grid(int id, string plane, Vector3 startPos)
     {
         _id = id;
@@ -48,6 +57,9 @@ public abstract class Grid
         DrawGrid();
     }
 
+    /// <summary>
+    /// Sets fields for bounds and expansions.
+    /// </summary>
     private void SetBounds()
     {
         _length = STARTLENGTH;
@@ -66,7 +78,6 @@ public abstract class Grid
     /// <param name="yOffset">y direction offset (depends on expansions).</param>
     /// <param name="i">x memory location of grid circle in grid 2D.</param>
     /// <param name="j">j memory location of grid circle in grid 2D.</param>
-    /// <returns>Game object of grid circle that was created.</returns>
     protected abstract void CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j);
 
     /// <summary>

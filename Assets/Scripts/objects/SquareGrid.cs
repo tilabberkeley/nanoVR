@@ -14,6 +14,12 @@ using Facebook.WitAi.Utilities;
 /// </summary>
 public class SquareGrid : Grid
 {
+    /// <summary>
+    /// Square grid constructor. 
+    /// </summary>
+    /// <param name="id">Id number of this grid.</param>
+    /// <param name="plane">Plane defintion.</param>
+    /// <param name="startPos">3D location of where this grid starts.</param>
     public SquareGrid(int id, string plane, Vector3 startPos) : base(id, plane, startPos) { }
 
     /// <summary>
@@ -24,13 +30,11 @@ public class SquareGrid : Grid
     /// <param name="yOffset">y direction offset (depends on expansions).</param>
     /// <param name="i">x memory location of grid circle in grid 2D.</param>
     /// <param name="j">j memory location of grid circle in grid 2D.</param>
-    /// <returns>Game object of grid circle that was created.</returns>
     protected override void CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j)
     {
-        float diameter = 1 / GRIDCIRCLESIZEFACTOR;
         if (_plane.Equals("XY"))
         {
-            Vector3 gamePosition = new Vector3(_startPos.x + xOffset * diameter, _startPos.y + yOffset * diameter, _startPos.z);
+            Vector3 gamePosition = new Vector3(_startPos.x + xOffset * DIAMETER, _startPos.y + yOffset * DIAMETER, _startPos.z);
             GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
             GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
             gridComponent.Grid = this;

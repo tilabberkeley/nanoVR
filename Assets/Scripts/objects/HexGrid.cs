@@ -1,17 +1,16 @@
-using Facebook.WitAi.Utilities;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HoneycombGrid : Grid
+public class HexGrid : Grid
 {
     /// <summary>
-    /// Honeycomb grid constructor. 
+    /// Square grid constructor. 
     /// </summary>
     /// <param name="id">Id number of this grid.</param>
     /// <param name="plane">Plane defintion.</param>
     /// <param name="startPos">3D location of where this grid starts.</param>
-    public HoneycombGrid(int id, string plane, Vector3 startPos) : base(id, plane, startPos) { }
+    public HexGrid(int id, string plane, Vector3 startPos) : base(id, plane, startPos) { }
 
     /// <summary>
     /// Generates a grid circle at the specified grid point.
@@ -24,20 +23,16 @@ public class HoneycombGrid : Grid
     protected override void CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j)
     {
         bool isXEven = gridPoint.X % 2 == 0;
-        bool isYEven = gridPoint.Y % 2 == 0;
+        // bool isYEven = gridPoint.Y % 2 == 0;
 
         if (_plane.Equals("XY"))
         {
             float xPosition = _startPos.x + xOffset * (RADIUS * Mathf.Sqrt(3.0f));
-            float yPosition = _startPos.y + yOffset / 2 * RADIUS * 6 + (!isYEven ? 2 * RADIUS : 0);
+            float yPosition = _startPos.y + yOffset * DIAMETER;
 
-            if (!isXEven && isYEven)
+            if (!isXEven)
             {
                 yPosition -= RADIUS;
-            }
-            else if (!isXEven && !isYEven)
-            {
-                yPosition += RADIUS;
             }
 
             Vector3 gamePosition = new Vector3(xPosition, yPosition, _startPos.z);
@@ -61,7 +56,7 @@ public class HoneycombGrid : Grid
     /// </summary>
     /// <param name="gridPoint">Location of grid component.</param>
     /// <returns>List of neighboring grid components.</returns>
-    public override List<GridComponent> GetNeighborGridComponents(GridPoint gridPoint) 
+    public override List<GridComponent> GetNeighborGridComponents(GridPoint gridPoint)
     {
         // TODO
         return null;
