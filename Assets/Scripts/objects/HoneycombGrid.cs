@@ -2,6 +2,7 @@ using Facebook.WitAi.Utilities;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class HoneycombGrid : Grid
 {
@@ -26,34 +27,24 @@ public class HoneycombGrid : Grid
         bool isXEven = gridPoint.X % 2 == 0;
         bool isYEven = gridPoint.Y % 2 == 0;
 
-        if (_plane.Equals("XY"))
-        {
-            float xPosition = _startPos.x + xOffset * (RADIUS * Mathf.Sqrt(3.0f));
-            float yPosition = _startPos.y + (yOffset >> 1) * RADIUS * 6 + (!isYEven ? 2 * RADIUS : 0);
+        float xPosition = _startPos.x + xOffset * (RADIUS * Mathf.Sqrt(3.0f));
+        // Doing the bit shift right once is the same as floor div 2, but C# has weird behavior with negatives, so bit shift fixes it. 
+        float yPosition = _startPos.y + (yOffset >> 1) * RADIUS * 6 + (!isYEven ? 2 * RADIUS : 0);
 
-            if (!isXEven && isYEven)
-            {
-                yPosition -= RADIUS;
-            }
-            else if (!isXEven && !isYEven)
-            {
-                yPosition += RADIUS;
-            }
-
-            Vector3 gamePosition = new Vector3(xPosition, yPosition, _startPos.z);
-            GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
-            GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
-            gridComponent.Grid = this;
-            _grid2D[i, j] = gridComponent;
-        }
-        else if (_plane.Equals("YZ"))
+        if (!isXEven && isYEven)
         {
-            // TODO
+            yPosition -= RADIUS;
         }
-        else
+        else if (!isXEven && !isYEven)
         {
-            // TODO
+            yPosition += RADIUS;
         }
+            
+        GameObject gridGO = DrawPoint.MakeGridCircleGO(_startPos, xPosition, yPosition, _plane);
+        GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
+        gridComponent.Grid = this;
+        gridComponent.GridPoint = gridPoint;
+        _grid2D[i, j] = gridComponent;
     }
 
     /// <summary>

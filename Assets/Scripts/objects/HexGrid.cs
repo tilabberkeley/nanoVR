@@ -25,30 +25,19 @@ public class HexGrid : Grid
         bool isXEven = gridPoint.X % 2 == 0;
         // bool isYEven = gridPoint.Y % 2 == 0;
 
-        if (_plane.Equals("XY"))
-        {
-            float xPosition = _startPos.x + xOffset * (RADIUS * Mathf.Sqrt(3.0f));
-            float yPosition = _startPos.y + yOffset * DIAMETER;
+        float xPosition = _startPos.x + xOffset * (RADIUS * Mathf.Sqrt(3.0f));
+        float yPosition = _startPos.y + yOffset * DIAMETER;
 
-            if (!isXEven)
-            {
-                yPosition -= RADIUS;
-            }
+        if (!isXEven)
+        {
+            yPosition -= RADIUS;
+        }
 
-            Vector3 gamePosition = new Vector3(xPosition, yPosition, _startPos.z);
-            GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
-            GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
-            gridComponent.Grid = this;
-            _grid2D[i, j] = gridComponent;
-        }
-        else if (_plane.Equals("YZ"))
-        {
-            // TODO
-        }
-        else
-        {
-            // TODO
-        }
+        GameObject gridGO = DrawPoint.MakeGridCircleGO(_startPos, xPosition, yPosition, _plane);
+        GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
+        gridComponent.Grid = this;
+        gridComponent.GridPoint = gridPoint;
+        _grid2D[i, j] = gridComponent;
     }
 
     /// <summary>

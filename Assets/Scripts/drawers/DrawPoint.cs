@@ -162,16 +162,38 @@ public static class DrawPoint
         return sphere;
     }
 
-    public static GameObject MakeGridGO(Vector3 position, GridPoint gridPoint, string name)
+    /// <summary>
+    /// Creates grid circle game object at specified location and rotates it depending on plane direction.
+    /// </summary>
+    /// <param name="startPosition">Start position of grid object.</param>
+    /// <param name="xPosition">2D x direction offset of grid circle in grid object.</param>
+    /// <param name="yPosition">2D y direction offset of grid circle in grid object.</param>
+    /// <param name="plane">Plane direction of grid object.</param>
+    /// <returns></returns>
+    public static GameObject MakeGridCircleGO(Vector3 startPosition, float xPosition, float yPosition, string plane)
     {
+        Vector3 gamePosition = Vector3.zero;
+        if (plane.Equals("XY"))
+        {
+            gamePosition = new Vector3(xPosition, yPosition, startPosition.z);
+            // eventually create quaternion for each plane and pass that into instantiate.
+        }
+        else if (plane.Equals("YZ"))
+        {
+            // TODO
+        }
+        else
+        {
+            // TODO
+        }
+
         GameObject gridCircle = Instantiate(Resources.Load("GridCircle"),
-                   position,
+                   gamePosition,
                    Quaternion.identity) as GameObject;
-        gridCircle.name = name;
+        gridCircle.name = "gridPoint";
         gridCircle.transform.Rotate(90f, 0f, 0f, 0);
         GridComponent gridComponent = gridCircle.GetComponent<GridComponent>();
-        gridComponent.GridPoint = gridPoint;
-        gridComponent.Position = position;
+        gridComponent.Position = gamePosition;
         return gridCircle;
     }
 

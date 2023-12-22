@@ -32,22 +32,14 @@ public class SquareGrid : Grid
     /// <param name="j">j memory location of grid circle in grid 2D.</param>
     protected override void CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j)
     {
-        if (_plane.Equals("XY"))
-        {
-            Vector3 gamePosition = new Vector3(_startPos.x + xOffset * DIAMETER, _startPos.y + yOffset * DIAMETER, _startPos.z);
-            GameObject gridGO = DrawPoint.MakeGridGO(gamePosition, gridPoint, "gridPoint");
-            GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
-            gridComponent.Grid = this;
-            _grid2D[i, j] = gridComponent;
-        }
-        else if (_plane.Equals("YZ"))
-        {
-            // TODO
-        }
-        else
-        {
-            // TODO
-        }
+        float xPosition = _startPos.x + xOffset * DIAMETER;
+        float yPosition = _startPos.y + yOffset * DIAMETER;
+
+        GameObject gridGO = DrawPoint.MakeGridCircleGO(_startPos, xPosition, yPosition, _plane);
+        GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
+        gridComponent.Grid = this;
+        gridComponent.GridPoint = gridPoint;
+        _grid2D[i, j] = gridComponent;
     }
 
     /// <summary>
