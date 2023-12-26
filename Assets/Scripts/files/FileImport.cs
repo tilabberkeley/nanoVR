@@ -110,7 +110,7 @@ public class FileImport : MonoBehaviour
             string fileContent = sr.ReadToEnd();
             Debug.Log("File selected.");
            
-            Parse(@fileContent);
+            ParseSC(@fileContent);
 
         }
         else
@@ -119,7 +119,7 @@ public class FileImport : MonoBehaviour
         }
     }
 
-    private void Parse(string fileContents)
+    private void ParseSC(string fileContents)
     {
         Debug.Log("Deserializing");
         JSONNode origami = JSON.Parse(fileContents);
@@ -150,10 +150,12 @@ public class FileImport : MonoBehaviour
         for (int i = 0; i < strands.Count; i++)
         {
             JSONArray domains = strands[i]["domains"].AsArray;
+            string sequence = strands[i]["sequence"].ToString();
             string hexColor = strands[i]["color"].ToString();
             hexColor = hexColor.Replace("\"", "");
             Color color;
             ColorUtility.TryParseHtmlString(hexColor, out color);
+            int strandId = s_numStrands;
 
             List<GameObject> xoverEndpoints = new List<GameObject>();
             for (int j = 0; j < domains.Count; j++)
@@ -163,29 +165,29 @@ public class FileImport : MonoBehaviour
                 int startId = domains[j]["start"].AsInt;
                 int endId = domains[j]["end"].AsInt - 1; // End id is exclusive in .sc file
                 JSONArray deletions = domains[j]["deletions"].AsArray;
-                endId -= deletions.Count;
                 JSONArray insertions = domains[j]["insertions"].AsArray;
-                for (int k = 0; k < insertions.Count; k++)
-                {
-                    endId += insertions[k][1];
-                }
-
                 Helix helix = s_helixDict[helixId];
                 List<GameObject> nucleotides;
-                if (forward)
+
+                for (int k = 0; k < deletions.Count; k++)
                 {
-                    Debug.Log("Printing forward: " + startId + ", " + endId);
-                    nucleotides = helix.GetHelixSub(startId, endId, 1);
+                    GameObject nt = helix.GetNucleotide(deletions[k], Convert.ToInt32(forward));                  
+                    nt.GetComponent<NucleotideComponent>().IsDeletion = true;
                 }
-                else
+
+                for (int k = 0; k < insertions.Count; k++)
                 {
-                    Debug.Log("Printing backward: " + startId + ", " + endId);
-                    nucleotides = helix.GetHelixSub(startId, endId, 0);
+                    GameObject nt = helix.GetNucleotide(insertions[k][0], Convert.ToInt32(forward));
+                    nt.GetComponent<NucleotideComponent>().Insertion = insertions[k][1];
                 }
-                Strand strand = new Strand(nucleotides, s_numStrands, color);
+              
+                Debug.Log("Printing: " + startId + ", " + endId);
+                nucleotides = helix.GetHelixSub(startId, endId, Convert.ToInt32(forward));
+                
+                Strand strand = new Strand(nucleotides, strandId, color);
                 strand.SetComponents();
-                s_strandDict.Add(s_numStrands, strand);
-                DrawNucleotideDynamic.CreateButton(s_numStrands);
+                s_strandDict.Add(strandId, strand);
+                DrawNucleotideDynamic.CreateButton(strandId);
                 s_numStrands += 1;
 
                 if (j == 0)
@@ -203,9 +205,35 @@ public class FileImport : MonoBehaviour
                 }
             }
 
+            // Add xovers to strand object.
             for (int j = 1; j < xoverEndpoints.Count; j += 2)
             {
-                DrawCrossover.CreateXover(xoverEndpoints[j - 1], xoverEndpoints[j]);
+                GameObject xover = DrawCrossover.CreateXover(xoverEndpoints[j - 1], xoverEndpoints[j]);
+            }
+
+            // Assign DNA sequence to strand.
+            Strand fullStrand = s_strandDict[strandId];
+            int seqCount = 0;
+            for (int j = fullStrand.Nucleotides.Count - 1; j >= 0; j--)
+            {
+                var ntc = fullStrand.Nucleotides[j].GetComponent<NucleotideComponent>();
+                if (ntc != null)
+                {
+                    if (ntc.IsDeletion)
+                    {
+                        ntc.Sequence = "X";
+                    }
+                    else if (ntc.IsInsertion)
+                    {
+                        ntc.Sequence = sequence.Substring(seqCount, ntc.Insertion + 1);
+                        seqCount += ntc.Insertion + 1;
+                    }
+                    else
+                    {
+                        ntc.Sequence = sequence.Substring(seqCount, 1);
+                        seqCount += 1;
+                    }
+                }
             }
         }
     }

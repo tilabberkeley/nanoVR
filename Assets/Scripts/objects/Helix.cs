@@ -12,9 +12,11 @@ using static GlobalVariables;
 /// </summary>
 public class Helix
 {
-    //constants
-    private const float OFFSET = 0.05f;
-    private const float RISE = 0.017f;
+    // CONSTANTS
+    private const float RATIO = 20f;
+    private const float RADIUS = 1f / RATIO;
+    private const float RISE = 0.34f / RATIO;
+
 
     // Helix id.
     private int _id;
@@ -90,11 +92,11 @@ public class Helix
         for (int i = prevLength; i < _length; i++)
         {
             float angleA = (float) (i * (2 * (Math.PI) / 10.5)); // rotation per bp in radians
-            float angleB = (float) ((i + 6) * (2 * Math.PI/ 10.5));
-            float axisOneChangeA = (float) (OFFSET * Mathf.Cos(angleA));
-            float axisTwoChangeA = (float) (OFFSET * Mathf.Sin(angleA));
-            float axisOneChangeB = (float) (OFFSET * Mathf.Cos(angleB));
-            float axisTwoChangeB = (float) (OFFSET * Mathf.Sin(angleB));
+            float angleB = (float) ((i + 5.25) * (2 * Math.PI/ 10.5));
+            float axisOneChangeA = (float) (RADIUS * Mathf.Cos(angleA));
+            float axisTwoChangeA = (float) (RADIUS * Mathf.Sin(angleA));
+            float axisOneChangeB = (float) (RADIUS * Mathf.Cos(angleB));
+            float axisTwoChangeB = (float) (RADIUS * Mathf.Sin(angleB));
 
             _lastPositionA = _gridComponent.Position + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
             _lastPositionB = _gridComponent.Position + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);

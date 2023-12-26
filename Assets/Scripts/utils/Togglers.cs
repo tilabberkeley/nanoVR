@@ -63,6 +63,8 @@ public class Togglers : MonoBehaviour
         s_eraseTogOn = false;
         s_splitTogOn = false;
         s_mergeTogOn = false;
+        s_insTogOn = false;
+        s_delTogOn = false;
         DrawNucleotideDynamic.ResetNucleotides();
     }
 
@@ -72,6 +74,8 @@ public class Togglers : MonoBehaviour
         s_eraseTogOn = true;
         s_splitTogOn = false;
         s_mergeTogOn = false;
+        s_insTogOn = false;
+        s_delTogOn = false;
         DrawNucleotideDynamic.ResetNucleotides();
     }
 
@@ -81,6 +85,8 @@ public class Togglers : MonoBehaviour
         s_eraseTogOn = false;
         s_splitTogOn = true;
         s_mergeTogOn = false;
+        s_insTogOn = false;
+        s_delTogOn = false;
         DrawNucleotideDynamic.ResetNucleotides();
     }
 
@@ -90,6 +96,30 @@ public class Togglers : MonoBehaviour
         s_eraseTogOn = false;
         s_splitTogOn = false;
         s_mergeTogOn = true;
+        s_insTogOn = false;
+        s_delTogOn = false;
+        DrawNucleotideDynamic.ResetNucleotides();
+    }
+
+    public void InsertionToggled()
+    {
+        s_drawTogOn = false;
+        s_eraseTogOn = false;
+        s_splitTogOn = false;
+        s_mergeTogOn = false;
+        s_insTogOn = true;
+        s_delTogOn = false;
+        DrawNucleotideDynamic.ResetNucleotides();
+    }
+
+    public void DeletionToggled()
+    {
+        s_drawTogOn = false;
+        s_eraseTogOn = false;
+        s_splitTogOn = false;
+        s_mergeTogOn = false;
+        s_insTogOn = false;
+        s_delTogOn = true;
         DrawNucleotideDynamic.ResetNucleotides();
     }
 
