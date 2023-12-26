@@ -20,7 +20,8 @@ public class DrawGrid : MonoBehaviour
     [SerializeField] private XRRayInteractor rightRayInteractor;
     bool triggerReleased = true;
     private static RaycastHit s_hit;
-    [SerializeField] private Dropdown dropdown;
+    [SerializeField] private Dropdown directionDropdown;
+    [SerializeField] private Dropdown gridTypeDropdown;
     private string plane;
     private const int LENGTH = 64;
 
@@ -100,21 +101,65 @@ public class DrawGrid : MonoBehaviour
         }
     }
 
+    // ADD A STATIC HELPER METHOD TO THIS
+
+    /// <summary>
+    /// Creates a grid when new grid button is clicked in game. 
+    /// </summary>
     public void CreateGrid()
     {
-        plane = dropdown.options[dropdown.value].text;
+        plane = directionDropdown.options[directionDropdown.value].text;
         Vector3 direction = transform.rotation * Vector3.forward;
         Vector3 currPoint = transform.position + direction * 0.2f;
-        CreateGrid(s_numGrids, plane, currPoint);
+        Grid grid;
+
+        CreateGrid(s_numGrids, "XY", currPoint, gridTypeDropdown.options[gridTypeDropdown.value].text);
+
+        if (gridTypeDropdown.options[gridTypeDropdown.value].text.Equals("Square"))
+        {
+            grid = new SquareGrid(s_numGrids, plane, currPoint);
+        }
+        else if (gridTypeDropdown.options[gridTypeDropdown.value].text.Equals("Honeycomb"))
+        {
+            grid = new HoneycombGrid(s_numGrids, plane, currPoint);
+        }
+        else
+        {
+            grid = new HexGrid(s_numGrids, plane, currPoint);
+        }
+        s_gridDict.Add(s_numGrids, grid);
+        s_numGrids += 1;
     }
 
-    public static Grid CreateGrid(int id, string orientation, Vector3 position)
+    public static Grid CreateGrid(int gridId, string orientation, Vector3 position, string gridType)
+    {
+        return new SquareGrid(gridId, orientation, position);
+    }
+
+
+    // FIGURE OUT THIS WITH FileImport.ParseSC()
+    /*public static Grid CreateGrid(int id, string orientation, Vector3 position)
     {
         Grid grid = new Grid(id, orientation, position);
         s_gridDict.Add(id, grid);
+        Grid grid;
+
+        if (gridTypeDropdown.options[gridTypeDropdown.value].text.Equals("Square"))
+        {
+            grid = new SquareGrid(s_numGrids, plane, currPoint);
+        } 
+        else if (gridTypeDropdown.options[gridTypeDropdown.value].text.Equals("Honeycomb"))
+        {
+            grid = new HoneycombGrid(s_numGrids, plane, currPoint);
+        }
+        else
+        {
+            grid = new HexGrid(s_numGrids, plane, currPoint);
+        }
+        s_gridDict.Add(s_numGrids, grid);
         s_numGrids += 1;
         return grid;
-    }
+    }*/
 
     public void CreateHelix(int id, Vector3 startPos, int length, string orientation, GridComponent gc)
     {

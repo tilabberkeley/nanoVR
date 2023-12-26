@@ -127,12 +127,15 @@ public class FileImport : MonoBehaviour
         JSONArray helices = origami["helices"].AsArray;
         JSONArray strands = origami["strands"].AsArray;
 
+
+        // FIX THIS WITH DrawGrid.CreateGrid
         /*if (gridType.Equals("square"))
         {
             DrawGrid.CreateGrid(s_numGrids, "XY", transform.position);
         }*/
 
-        Grid grid = DrawGrid.CreateGrid(s_numGrids, "XY", transform.position);
+        //Grid grid = DrawGrid.CreateGrid(s_numGrids, "XY", transform.position);
+        Grid grid = DrawGrid.CreateGrid(s_numGrids, "XY", transform.position, gridType);
 
         for (int i = 0; i < helices.Count; i++)
         {
