@@ -27,9 +27,9 @@ public class HoneycombGrid : Grid
         bool isXEven = gridPoint.X % 2 == 0;
         bool isYEven = gridPoint.Y % 2 == 0;
 
-        float xPosition = _startPos.x + xOffset * (RADIUS * Mathf.Sqrt(3.0f));
+        float xPosition = xOffset * (RADIUS * Mathf.Sqrt(3.0f));
         // Doing the bit shift right once is the same as floor div 2, but C# has weird behavior with negatives, so bit shift fixes it. 
-        float yPosition = _startPos.y + (yOffset >> 1) * RADIUS * 6 + (!isYEven ? 2 * RADIUS : 0);
+        float yPosition = (yOffset >> 1) * RADIUS * 6 + (!isYEven ? 2 * RADIUS : 0);
 
         if (!isXEven && isYEven)
         {

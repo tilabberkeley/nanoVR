@@ -113,8 +113,6 @@ public class DrawGrid : MonoBehaviour
         Vector3 currPoint = transform.position + direction * 0.2f;
         Grid grid;
 
-        CreateGrid(s_numGrids, "XY", currPoint, gridTypeDropdown.options[gridTypeDropdown.value].text);
-
         if (gridTypeDropdown.options[gridTypeDropdown.value].text.Equals("Square"))
         {
             grid = new SquareGrid(s_numGrids, plane, currPoint);
