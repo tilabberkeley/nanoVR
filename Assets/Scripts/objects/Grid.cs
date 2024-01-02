@@ -14,6 +14,7 @@ public abstract class Grid
 
     protected int _id;
     protected string _plane;
+    public string Plane { get { return _plane; } }
     protected Vector3 _startPos;
     protected List<Vector3> _positions;
 

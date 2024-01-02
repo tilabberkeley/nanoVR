@@ -90,7 +90,7 @@ public class DrawGrid : MonoBehaviour
                 GridComponent gc = s_hit.collider.GetComponent<GridComponent>();
                 Vector3 startPos = s_hit.collider.bounds.center;
                 int id = s_numHelices;
-                CreateHelix(id, startPos, LENGTH, plane, gc);
+                CreateHelix(id, startPos, LENGTH, gc.Grid.Plane, gc);
             }
         }
         
