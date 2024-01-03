@@ -93,14 +93,16 @@ public class CopyPaste : MonoBehaviour
                 UnhighlightNucleotideSelection(s_currNucleotides);
                 s_currNucleotides = nucleotides;
 
-                if (valid)
+                /*if (valid)
                 {
                     HighlightNucleotideSelection(s_currNucleotides, valid);
                 }
                 else
                 {
                     HighlightNucleotideSelection(s_currNucleotides, !valid);
-                }
+                }*/
+                HighlightNucleotideSelection(s_currNucleotides, valid);
+
 
                 if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue) && triggerValue && triggerReleased)
                 {

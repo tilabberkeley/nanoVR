@@ -6,18 +6,13 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static GlobalVariables;
+using static Utils;
 
 /// <summary>
 /// Helix object keeps track of nucleotides in the helix.
 /// </summary>
 public class Helix
 {
-    // CONSTANTS
-    private const float RATIO = 20f;
-    private const float RADIUS = 1f / RATIO;
-    private const float RISE = 0.34f / RATIO;
-
-
     // Helix id.
     private int _id;
     public int Id { get { return _id; } set { _id = value; } }
@@ -91,8 +86,8 @@ public class Helix
         _length += length;
         for (int i = prevLength; i < _length; i++)
         {
-            float angleA = (float) (i * (2 * (Math.PI) / 10.5)); // rotation per bp in radians
-            float angleB = (float) ((i + 5.25) * (2 * Math.PI/ 10.5));
+            float angleA = (float) (i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
+            float angleB = (float) ((i + 5) * (2 * Math.PI/ NUM_BASE_PAIRS));
             float axisOneChangeA = (float) (RADIUS * Mathf.Cos(angleA));
             float axisTwoChangeA = (float) (RADIUS * Mathf.Sin(angleA));
             float axisOneChangeB = (float) (RADIUS * Mathf.Cos(angleB));
@@ -460,8 +455,6 @@ public class Helix
         s_strandDict.TryGetValue(ntc.StrandId, out Strand strand);
         GameObject oldXover = ntc.Xover;
         var xoverComp = oldXover.GetComponent<XoverComponent>();
-        GameObject prevGO = xoverComp.PrevGO;
-        GameObject newGO = xoverComp.NextGO;
         strand.DeleteXover(oldXover);
         GameObject newXover = DrawPoint.MakeXover(xoverComp.PrevGO, xoverComp.NextGO, ntc.StrandId);
         //newXover.

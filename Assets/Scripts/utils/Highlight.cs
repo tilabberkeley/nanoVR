@@ -37,8 +37,61 @@ public static class Highlight
     /// <param name="go">GameObject to unhighlight.</param>
     private static void UnhighlightGO(GameObject go)
     {
+        NucleotideComponent ntc = go.GetComponent<NucleotideComponent>();
+        if (ntc != null && (ntc.IsInsertion || ntc.IsDeletion))
+        {
+            return;
+        }
         Outline outline = go.GetComponent<Outline>();
         outline.enabled = false;
+    }
+
+    /// <summary>
+    /// Helper method to highlight an insertion nucleotide.
+    /// </summary>
+    /// <param name="go">GameObject nucleotide being highlighted.</param>
+    public static void HighlightInsertion(GameObject go)
+    {
+        if (go.GetComponent<NucleotideComponent>() != null)
+        {
+            HighlightGO(go, drawNucleotideHighlightColor);
+        }
+    }
+
+    /// <summary>
+    /// Helper method to highlight a deletion nucleotide.
+    /// </summary>
+    /// <param name="go">GameObject nucleotide being highlighted.</param>
+    public static void HighlightDeletion(GameObject go)
+    {
+        if (go.GetComponent<NucleotideComponent>() != null)
+        {
+            HighlightGO(go, eraseNucleotideHighlightColor);
+        }
+    }
+
+    /// <summary>
+    /// Helper method to unhighlight an insertion nucleotide.
+    /// </summary>
+    /// <param name="go">GameObject nucleotide being unhighlighted.</param>
+    public static void UnhighlightInsertion(GameObject go)
+    {
+        if (go.GetComponent<NucleotideComponent>() != null)
+        {
+            UnhighlightGO(go);
+        }
+    }
+
+    /// <summary>
+    /// Helper method to unhighlight a deletion nucleotide.
+    /// </summary>
+    /// <param name="go">GameObject nucleotide being unhighlighted.</param>
+    public static void UnhighlightDeletion(GameObject go)
+    {
+        if (go.GetComponent<NucleotideComponent>() != null)
+        {
+            UnhighlightGO(go);
+        }
     }
 
     /// <summary>
@@ -128,7 +181,6 @@ public static class Highlight
         List<GameObject> nucleotidesB = helix.NucleotidesB;
         List<GameObject> backbonesA = helix.BackbonesA;
         List<GameObject> backbonesB = helix.BackbonesB;
-        List<int> strandIds = helix.StrandIds;
         for (int i = 0; i < nucleotidesA.Count; i++)
         {
             HighlightGO(nucleotidesA[i], helixHighlightColor);
@@ -151,7 +203,6 @@ public static class Highlight
         List<GameObject> nucleotidesB = helix.NucleotidesB;
         List<GameObject> backbonesA = helix.BackbonesA;
         List<GameObject> backbonesB = helix.BackbonesB;
-        List<int> strandIds = helix.StrandIds;
         for (int i = 0; i < nucleotidesA.Count; i++)
         {
             UnhighlightGO(nucleotidesA[i]);

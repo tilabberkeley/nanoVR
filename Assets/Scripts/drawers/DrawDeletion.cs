@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
+using static Highlight;
 
 /// <summary>
 /// Add deletion to selected nucleotide.
@@ -99,9 +100,14 @@ public class DrawDeletion : MonoBehaviour
         if (ntc.IsDeletion)
         {
             ntc.IsDeletion = false;
+            UnhighlightDeletion(go);
             return;
         }
 
-        ntc.IsDeletion = true;
+        if (ntc.Selected)
+        {
+            HighlightDeletion(go);
+            ntc.IsDeletion = true;
+        }
     }
 }

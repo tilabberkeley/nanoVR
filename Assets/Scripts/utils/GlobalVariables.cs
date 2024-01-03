@@ -1,9 +1,8 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
-using Unity.XR.CoreUtils;
 using UnityEngine;
 
 /// <summary>
@@ -33,7 +32,6 @@ public static class GlobalVariables
     public static bool s_strandView = false;
     public static bool s_helixView = false;
 
-    public static List<Object> s_origamis;
     public static List<Pointer> s_pointerList = new List<Pointer>();
     public static List<Grid> s_gridList = new List<Grid>();
     public static Dictionary<int, Helix> s_helixDict = new Dictionary<int, Helix>();

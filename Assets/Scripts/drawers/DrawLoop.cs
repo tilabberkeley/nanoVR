@@ -100,7 +100,7 @@ public class DrawLoop : MonoBehaviour
         deletePreviousLoop();
         DrawGizmos();
         Loop loop = new Loop(GlobalVariables.s_pointerList);
-        GlobalVariables.s_origamis.Add(loop);
+        //GlobalVariables.s_origamis.Add(loop);
         GlobalVariables.s_pointerList = new List<Pointer>();
         
     }

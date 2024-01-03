@@ -5,10 +5,12 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using TMPro;
 using static GlobalVariables;
+using static Highlight;
 
 /// <summary>
 /// Add insertion to selected nucleotide.
@@ -19,12 +21,17 @@ public class DrawInsertion : MonoBehaviour
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rightRayInteractor;
+    [SerializeField] private Canvas _menu;
     [SerializeField] private Canvas _editPanel;
     [SerializeField] private TMP_InputField _inputField;
+    [SerializeField] private Button _OKButton;
+    [SerializeField] private Button _cancelButton;
+    private TouchScreenKeyboard _keyboard;
     private bool triggerReleased = true;
     private bool gripReleased = true;
     private static GameObject s_GO = null;
     private static RaycastHit s_hit;
+    private static bool s_menuEnabled;
     private const int DEFAULT_LENGTH = 1;
 
     void GetDevice()
@@ -36,14 +43,21 @@ public class DrawInsertion : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        _editPanel.enabled = false;
+        _OKButton.onClick.AddListener(() => HideEditPanel());
+        _OKButton.onClick.AddListener(() => Edit());
+        _cancelButton.onClick.AddListener(() => HideEditPanel());
+        _inputField.onSelect.AddListener(delegate {TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
+    }
+
     void OnEnable()
     {
         if (!_device.isValid)
         {
             GetDevice();
         }
-
-        _editPanel.enabled = false;
     }
 
     void Update()
@@ -132,10 +146,15 @@ public class DrawInsertion : MonoBehaviour
         if (ntc.IsInsertion)
         {
             ntc.Insertion = 0;
+            UnhighlightInsertion(go);
             return;
         }
 
-        ntc.Insertion = length;
+        if (ntc.Selected)
+        {
+            HighlightInsertion(go);
+            ntc.Insertion = length;
+        }
     }
 
     /// <summary>
@@ -146,18 +165,37 @@ public class DrawInsertion : MonoBehaviour
         var ntc = s_GO.GetComponent<NucleotideComponent>();
         if (ntc.IsInsertion)
         {
-            ntc.Insertion = Int32.Parse(_inputField.text);
+            // Check input is a non-negative integer.
+            try
+            {
+                int length = Int32.Parse(_inputField.text);
+                if (length >= 0)
+                {
+                    ntc.Insertion = length;
+                }
+                else
+                {
+                    Debug.Log("Insertion length must be non-negative.");
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.Message);
+            }
         }
         HideEditPanel();
     }
 
     public void ShowEditPanel()
     {
+        s_menuEnabled = _menu.enabled;
+        _menu.enabled = false;
         _editPanel.enabled = true;
     }
 
     public void HideEditPanel()
     {
+        _menu.enabled = s_menuEnabled;
         _editPanel.enabled = false;
     }
 }

@@ -1,8 +1,14 @@
-using System.Collections;
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
+ */
 using System.Collections.Generic;
 using UnityEngine;
 using static GlobalVariables;
 
+/// <summary>
+/// Abstract class for Grid objects.
+/// </summary>
 public abstract class Grid
 {
     /* Constants. Increase GRIDCIRCLESIZEFACTOR to decrease distance between grid circles and vice versa. */
