@@ -24,7 +24,7 @@ public class Helix
     public Vector3 EndPoint { get { return _endPoint; } set { _endPoint = value; } }
 
     private string _orientation;
-    public string Orientation { get { return _orientation; } set { _orientation = value; } }
+    public string Orientation { get { return _orientation; } }
 
     // Number of nucleotides in helix.
     private int _length;
@@ -93,8 +93,24 @@ public class Helix
             float axisOneChangeB = (float) (RADIUS * Mathf.Cos(angleB));
             float axisTwoChangeB = (float) (RADIUS * Mathf.Sin(angleB));
 
-            _lastPositionA = _gridComponent.Position + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
-            _lastPositionB = _gridComponent.Position + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
+            if (_orientation.Equals("XY"))
+            {
+                _lastPositionA = _gridComponent.Position + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
+                _lastPositionB = _gridComponent.Position + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
+            }
+            else if (_orientation.Equals("XZ"))
+            {
+                _lastPositionA = _gridComponent.Position + new Vector3(axisOneChangeA, i * RISE, axisTwoChangeA);
+                _lastPositionB = _gridComponent.Position + new Vector3(axisOneChangeB, i * RISE, axisTwoChangeB);
+            }
+            else
+            {
+                _lastPositionA = _gridComponent.Position + new Vector3(i * RISE, axisOneChangeA, axisTwoChangeA);
+                _lastPositionB = _gridComponent.Position + new Vector3(i * RISE, axisOneChangeB, axisTwoChangeB);
+            }
+
+            Debug.Log(_orientation);
+
 
             GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, i, _id, 1);
             _nucleotidesA.Add(sphereA);

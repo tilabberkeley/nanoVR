@@ -25,8 +25,8 @@ public class HexGrid : Grid
         bool isXEven = gridPoint.X % 2 == 0;
         // bool isYEven = gridPoint.Y % 2 == 0;
 
-        float xPosition = _startPos.x + xOffset * (RADIUS * Mathf.Sqrt(3.0f));
-        float yPosition = _startPos.y + yOffset * DIAMETER;
+        float xPosition = xOffset * (RADIUS * Mathf.Sqrt(3.0f));
+        float yPosition = yOffset * DIAMETER;
 
         if (!isXEven)
         {
