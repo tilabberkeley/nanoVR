@@ -47,7 +47,7 @@ public class DrawInsertion : MonoBehaviour
     {
         _editPanel.enabled = false;
         _OKButton.onClick.AddListener(() => HideEditPanel());
-        _OKButton.onClick.AddListener(() => Edit());
+        _OKButton.onClick.AddListener(() => DoEditInsertion());
         _cancelButton.onClick.AddListener(() => HideEditPanel());
         _inputField.onSelect.AddListener(delegate {TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
     }
@@ -86,7 +86,7 @@ public class DrawInsertion : MonoBehaviour
             }
         }
 
-        // Checks grab button to show edit insertion length panel.
+        // Checks grab button to show edit insertion panel.
         bool gripValue;
         if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
                 && gripValue
@@ -122,7 +122,7 @@ public class DrawInsertion : MonoBehaviour
     /// </summary>
     /// <param name="go">Gameobject nucleotide of insertion.</param>
     /// <param name="length">Length of insertion.</param>
-    public void DoInsertion(GameObject go, int length)
+    private void DoInsertion(GameObject go, int length)
     {
         ICommand command = new InsertionCommand(go, length);
         CommandManager.AddCommand(command);
@@ -158,42 +158,65 @@ public class DrawInsertion : MonoBehaviour
     }
 
     /// <summary>
-    /// Edits insertion length to something other than default of 1.
+    /// Returns whether new insertion length is valid.
     /// </summary>
-    public void Edit()
+    /// <returns></returns>
+    private bool ValidEdit()
     {
-        var ntc = s_GO.GetComponent<NucleotideComponent>();
-        if (ntc.IsInsertion)
+        try
         {
-            // Check input is a non-negative integer.
-            try
+            int newLength = Int32.Parse(_inputField.text);
+            if (newLength <= 0)
             {
-                int length = Int32.Parse(_inputField.text);
-                if (length >= 0)
-                {
-                    ntc.Insertion = length;
-                }
-                else
-                {
-                    Debug.Log("Insertion length must be non-negative.");
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e.Message);
+                Debug.Log("Insertion length must be positive.");
+                return false;
             }
         }
-        HideEditPanel();
+        catch (Exception e)
+        {
+            Debug.Log(e.Message);
+            return false;
+        }
+        return true;
     }
 
-    public void ShowEditPanel()
+    /// <summary>
+    /// Edits insertion length to something other than default of 1.
+    /// </summary>
+    private void DoEditInsertion()
+    {
+        if (ValidEdit())
+        {
+            int newLength = Int32.Parse(_inputField.text);
+            ICommand command = new EditInsertionCommand(s_GO, newLength);
+            CommandManager.AddCommand(command);
+            command.Do();
+        }
+    }
+
+    /// <summary>
+    /// Actual method that edits insertion.
+    /// </summary>
+    /// <param name="go">Gameobject that is being edited.</param>
+    /// <param name="length">New length of insertion.</param>
+    public static void EditInsertion(GameObject go, int length)
+    {
+        var ntc = go.GetComponent<NucleotideComponent>();
+        if (ntc.IsInsertion)
+        {
+            ntc.Insertion = length;
+        }
+        Debug.Log(ntc.Insertion);
+    }
+
+    private void ShowEditPanel()
     {
         s_menuEnabled = _menu.enabled;
         _menu.enabled = false;
         _editPanel.enabled = true;
     }
 
-    public void HideEditPanel()
+    private void HideEditPanel()
     {
         _menu.enabled = s_menuEnabled;
         _editPanel.enabled = false;
