@@ -25,7 +25,7 @@ public class ConsoleToText : MonoBehaviour
 
     private void OnGUI()
     {
-        debugText.text = output;
+        debugText.text = output + "\n" + "Stack: " + stack;
     }
 
     public void ClearLog()

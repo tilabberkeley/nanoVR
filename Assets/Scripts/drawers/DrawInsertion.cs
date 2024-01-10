@@ -209,6 +209,19 @@ public class DrawInsertion : MonoBehaviour
         Debug.Log(ntc.Insertion);
     }
 
+    public void ShowLength()
+    {
+        var go = new GameObject();
+        var text = go.AddComponent<Text>();
+        text.text = gameObject.GetComponent<NucleotideComponent>().Insertion.ToString();
+        go.transform.position = gameObject.transform.position + new Vector3(0, 0.01f, 0);
+    }
+
+    public void DeleteLength()
+    {
+
+    }
+
     private void ShowEditPanel()
     {
         s_menuEnabled = _menu.enabled;

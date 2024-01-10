@@ -5,6 +5,7 @@ using SimpleFileBrowser;
 using System.Collections.Generic;
 using System.IO;
 using OVRSimpleJSON;
+using System.Reflection;
 using static GlobalVariables;
 using static Utils;
 
@@ -16,14 +17,22 @@ public class FileImport : MonoBehaviour
     private void Start()
     {
         FileBrowser.HideDialog();
-        FileBrowser.SingleClickMode = true;
+#if !UNITY_EDITOR && UNITY_ANDROID
+        Debug.Log("Test");
+        typeof(FileBrowserHelpers).GetField("m_shouldUseSAF", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, (bool?)false);
+
+#endif
         //FileBrowser.SetFilters(true, new FileBrowser.Filter("Scadnano", ".sc"), new FileBrowser.Filter("Cadnano", ".json"));
     }
 
+
+
     void Awake()
     {
-
-        FileBrowser.HideDialog();
+#if UNITY_ANDROID
+        Debug.Log("Test");
+        typeof(FileBrowserHelpers).GetField("m_shouldUseSAF", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, (bool?)false);
+#endif
         FileBrowser.SingleClickMode = true;
         //FileBrowser.SetFilters(true, new FileBrowser.Filter("Scadnano", ".sc"), new FileBrowser.Filter("Cadnano", ".json"));
 

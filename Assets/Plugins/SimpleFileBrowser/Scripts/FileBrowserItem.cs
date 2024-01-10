@@ -4,10 +4,10 @@ using UnityEngine.EventSystems;
 
 namespace SimpleFileBrowser
 {
-	public class FileBrowserItem : ListItem, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
+	public class FileBrowserItem : ListItem/*, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
 #if UNITY_EDITOR || ( !UNITY_ANDROID && !UNITY_IOS )
 		, IPointerEnterHandler, IPointerExitHandler
-#endif
+#endif*/
 	{
 		#region Constants
 		private const float DOUBLE_CLICK_TIME = 0.5f;
@@ -86,12 +86,28 @@ namespace SimpleFileBrowser
 			}
 		}
 		#endregion
+		public void Test()
+        {
+			Debug.Log("FileBrowserItem CLICK.");
 
+			if (Time.realtimeSinceStartup - prevClickTime < DOUBLE_CLICK_TIME)
+			{
+				prevClickTime = 0f;
+				fileBrowser.OnItemSelected(this, true);
+			}
+			else
+			{
+				Debug.Log("FileBrowserItem Pointer click hit in else statement.");
+				prevClickTime = Time.realtimeSinceStartup;
+				fileBrowser.OnItemSelected(this, false);
+			}
+		}
 		#region Pointer Events
-		public void OnPointerClick( PointerEventData eventData )
+		/*public void OnPointerClick( PointerEventData eventData )
 		{
+			Debug.Log("FileBrowserItem Pointer click hit.");
 #if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBGL || UNITY_WSA || UNITY_WSA_10_0
-			if( eventData.button == PointerEventData.InputButton.Middle )
+			if ( eventData.button == PointerEventData.InputButton.Middle )
 				return;
 			else if( eventData.button == PointerEventData.InputButton.Right )
 			{
@@ -115,6 +131,7 @@ namespace SimpleFileBrowser
 			}
 			else
 			{
+				Debug.Log("FileBrowserItem Pointer click hit in else statement.");
 				prevClickTime = Time.realtimeSinceStartup;
 				fileBrowser.OnItemSelected( this, false );
 			}
@@ -161,7 +178,7 @@ namespace SimpleFileBrowser
 			if( !isSelected )
 				background.color = ( Position % 2 ) == 0 ? skin.FileNormalBackgroundColor : skin.FileAlternatingBackgroundColor;
 		}
-#endif
+#endif*/
 		#endregion
 
 		#region Other Events
