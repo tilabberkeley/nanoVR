@@ -54,41 +54,52 @@ public class MoveStrand : MonoBehaviour
         {
             GetDevice();
         }
-        bool hitFound = rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit);
-        
 
-        bool gripValue;
         if (gripReleased
-            && _device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
+            && _device.TryGetFeatureValue(CommonUsages.gripButton, out bool gripValue)
             && gripValue
             && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             //movingStrand = true;
             gripReleased = false;
             GameObject go = s_hit.collider.gameObject;
-            if (go.GetComponent<NucleotideComponent>() && go.GetComponent<NucleotideComponent>().Selected)
+            if (go.GetComponent<NucleotideComponent>() != null && go.GetComponent<NucleotideComponent>().Selected)
             {
-                s_oldNucl = s_hit.collider.gameObject;
-                //s_currNucleotides = GetNucleotides(s_oldNucl, s_oldNucl);
-                //HighlightNucleotideSelection(s_currNucleotides);
+                Debug.Log("Entered if+if");
+
+                s_oldNucl = go;
+                s_currNucl = go;
+                s_currNucleotides = GetNucleotides(s_oldNucl, s_oldNucl);
+                HighlightNucleotideSelection(s_currNucleotides, true);
             }
         }
         else if (!gripReleased && _device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
             && gripValue && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
+            Debug.Log("Entered elseif");
+
             GameObject go = s_hit.collider.gameObject;
-            List<GameObject> nucleotides = GetNucleotides(s_oldNucl, go);
-            if (IsValid(nucleotides, s_oldNucl))
+            if (go != s_currNucl && go.GetComponent<NucleotideComponent>() != null && go.GetComponent<NucleotideComponent>().Selected)
             {
-                s_currNucl = go;
-                UnhighlightNucleotideSelection(s_currNucleotides);
-                s_currNucleotides = nucleotides;
-                HighlightNucleotideSelection(s_currNucleotides, true);
+                Debug.Log("Entered elif + if");
+
+                List<GameObject> nucleotides = GetNucleotides(s_oldNucl, go);
+                if (IsValid(nucleotides, s_oldNucl))
+                {
+                    Debug.Log("Entered elif + if + if");
+
+                    s_currNucl = go;
+                    UnhighlightNucleotideSelection(s_currNucleotides);
+                    s_currNucleotides = nucleotides;
+                    HighlightNucleotideSelection(s_currNucleotides, true);
+                }
             }
         }
         else if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
             && !gripValue && !gripReleased)
         {
+            Debug.Log("Entered elif #2");
+
             gripReleased = true;
             UnhighlightNucleotideSelection(s_currNucleotides);
             DoMove(s_oldNucl, s_currNucl);
@@ -104,6 +115,8 @@ public class MoveStrand : MonoBehaviour
 
     public void DoMove(GameObject oldNucl, GameObject newNucl)
     {
+        Debug.Log("Entered DoMove()");
+
         List<GameObject> nucleotides = GetNucleotides(oldNucl, newNucl);
         if (!IsValid(nucleotides, oldNucl))
         {
@@ -112,15 +125,20 @@ public class MoveStrand : MonoBehaviour
         ICommand command = new MoveStrandCommand(oldNucl, newNucl);
         CommandManager.AddCommand(command);
         command.Do();
+        Debug.Log("Finished DoMove()");
+
     }
 
     // Moves helix's nucleotide objects to a new Grid Circle's position.
     public static void Move(GameObject oldNucl, GameObject newNucl)
     {
+        Debug.Log("Entered Move()");
         List<GameObject> nucleotides = GetNucleotides(oldNucl, newNucl);
 
         if (!IsValid(nucleotides, oldNucl))
         {
+            Debug.Log("Move() not valid");
+
             return;
         }
 
@@ -129,11 +147,13 @@ public class MoveStrand : MonoBehaviour
         strand.ResetComponents(strand.Nucleotides);
         strand.Nucleotides = nucleotides;
         strand.SetComponents();
+        Debug.Log("Finished Move()");
     }
 
     public static List<GameObject> GetNucleotides(GameObject oldNucl, GameObject newNucl)
     {
-        if (oldNucl.GetComponent<NucleotideComponent>() || newNucl.GetComponent<NucleotideComponent>())
+        Debug.Log("Entered GetNucleotides");
+        if (oldNucl.GetComponent<NucleotideComponent>() == null || newNucl.GetComponent<NucleotideComponent>() == null)
         {
             return null;
         }
@@ -147,11 +167,15 @@ public class MoveStrand : MonoBehaviour
         }
 
         Strand strand = s_strandDict[oldComp.StrandId];
+        Debug.Log("Get oldNucl strand");
+
 
         // CANNOT HANDLE XOVERS RIGHT NOW
         if (strand.Xovers.Count > 0) { return null; }
 
         Helix helix = s_helixDict[newComp.HelixId];
+        Debug.Log("Get newNucl helix");
+
         int count = strand.Count;
         int distToHead = oldComp.Id - strand.GetHead().GetComponent<NucleotideComponent>().Id;
         int startId = newComp.Id - distToHead;
@@ -166,22 +190,27 @@ public class MoveStrand : MonoBehaviour
             int endId = startId - count + 1;
             return helix.GetHelixSub(endId, startId, newComp.Direction);
         }
-
     }
 
     public static bool IsValid(List<GameObject> nucleotides, GameObject oldNucl)
     {
+        Debug.Log("Entered IsValid()");
+
         if (nucleotides == null) { return false; }
 
         var oldComp = oldNucl.GetComponent<NucleotideComponent>();
         foreach (GameObject nucleotide in nucleotides)
         {
             var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            if (ntc.StrandId != -1 && ntc.StrandId != oldComp.StrandId)
+            if (ntc != null && ntc.StrandId != -1 && ntc.StrandId != oldComp.StrandId)
             {
+                Debug.Log("Finished IsValid() false");
+
                 return false;
             }
         }
+        Debug.Log("Finished IsValid() true");
+
         return true;
     }
 }

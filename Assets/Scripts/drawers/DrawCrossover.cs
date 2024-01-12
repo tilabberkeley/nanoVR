@@ -79,7 +79,7 @@ public class DrawCrossover : MonoBehaviour
                     }
                 }
             }
-            else if (s_hit.collider.name.Equals("xover") && s_eraseTogOn)
+            else if (s_hit.collider.gameObject.GetComponent<XoverComponent>() != null && s_eraseTogOn)
             {
                 //Highlight(s_hit.collider.gameObject);
                 DoEraseXover(s_hit.collider.gameObject);        

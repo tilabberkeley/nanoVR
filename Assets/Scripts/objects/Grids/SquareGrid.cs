@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using static GlobalVariables;
-using Oculus.Interaction;
-using Facebook.WitAi.Utilities;
 
 /// <summary>
 /// Grid object keeps track of its helices.

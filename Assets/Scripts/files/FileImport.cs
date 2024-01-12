@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.Collections;
 using UnityEngine;
 using SimpleFileBrowser;
 using System.Collections.Generic;
 using System.IO;
 using OVRSimpleJSON;
+using System.Reflection;
 using static GlobalVariables;
 using static Utils;
 
@@ -16,15 +17,45 @@ public class FileImport : MonoBehaviour
     private void Start()
     {
         FileBrowser.HideDialog();
-        FileBrowser.SingleClickMode = true;
+#if !UNITY_EDITOR && UNITY_ANDROID
+        Debug.Log("Test");
+        typeof(FileBrowserHelpers).GetField("m_shouldUseSAF", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, (bool?)false);
+
+#endif
         //FileBrowser.SetFilters(true, new FileBrowser.Filter("Scadnano", ".sc"), new FileBrowser.Filter("Cadnano", ".json"));
     }
 
+
+
     void Awake()
     {
-
-        FileBrowser.HideDialog();
+#if UNITY_ANDROID
+        Debug.Log("Test");
+        typeof(FileBrowserHelpers).GetField("m_shouldUseSAF", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, (bool?)false);
+#endif
         FileBrowser.SingleClickMode = true;
+
+
+        using var buildVersion = new AndroidJavaClass("android.os.Build$VERSION");
+        using var buildCodes = new AndroidJavaClass("android.os.Build$VERSION_CODES");
+        //Check SDK version > 29
+        if (buildVersion.GetStatic<int>("SDK_INT") > buildCodes.GetStatic<int>("Q"))
+        {
+            using var environment = new AndroidJavaClass("android.os.Environment");
+            //сhecking if permission already exists
+            if (!environment.CallStatic<bool>("isExternalStorageManager"))
+            {
+                using var settings = new AndroidJavaClass("android.provider.Settings");
+                using var uri = new AndroidJavaClass("android.net.Uri");
+                using var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+                using var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+                using var parsedUri = uri.CallStatic<AndroidJavaObject>("parse", $"package:{Application.identifier}");
+                using var intent = new AndroidJavaObject("android.content.Intent",
+                    settings.GetStatic<string>("ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION"),
+                    parsedUri);
+                currentActivity.Call("startActivity", intent);
+            }
+        }
         //FileBrowser.SetFilters(true, new FileBrowser.Filter("Scadnano", ".sc"), new FileBrowser.Filter("Cadnano", ".json"));
 
         // Set filters (optional)
@@ -119,8 +150,19 @@ public class FileImport : MonoBehaviour
         { 
             StreamReader sr = File.OpenText(selectedFilePath);
             string fileContent = sr.ReadToEnd();
-            Debug.Log("File selected.");
-            ParseSC(@fileContent);
+            string fileType = FileBrowser.GetExtensionFromFilename(selectedFilePath, true);
+            if (fileType.Equals(".sc"))
+            {
+                ParseSC(@fileContent);
+            }
+            else if (fileType.Equals(".json"))
+            {
+                // Parse cadnano JSON
+            }
+            else
+            {
+                Debug.Log("Don't support file type: " + fileType);
+            }
         }
         else
         {

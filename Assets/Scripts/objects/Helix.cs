@@ -13,6 +13,7 @@ using static Utils;
 /// </summary>
 public class Helix
 {
+    private const float ADJUSTMENT = 0.01f; // Accounts for Icosphere prefab's weird positioning 
     // Helix id.
     private int _id;
     public int Id { get { return _id; } set { _id = value; } }
@@ -95,18 +96,18 @@ public class Helix
 
             if (_orientation.Equals("XY"))
             {
-                _lastPositionA = _gridComponent.Position + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
-                _lastPositionB = _gridComponent.Position + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
+                _lastPositionA = _gridComponent.Position + new Vector3(axisOneChangeA, axisTwoChangeA - ADJUSTMENT, -i * RISE);
+                _lastPositionB = _gridComponent.Position + new Vector3(axisOneChangeB, axisTwoChangeB - ADJUSTMENT, -i * RISE);
             }
             else if (_orientation.Equals("XZ"))
             {
-                _lastPositionA = _gridComponent.Position + new Vector3(axisOneChangeA, i * RISE, axisTwoChangeA);
-                _lastPositionB = _gridComponent.Position + new Vector3(axisOneChangeB, i * RISE, axisTwoChangeB);
+                _lastPositionA = _gridComponent.Position + new Vector3(axisOneChangeA, i * RISE - ADJUSTMENT, axisTwoChangeA);
+                _lastPositionB = _gridComponent.Position + new Vector3(axisOneChangeB, i * RISE - ADJUSTMENT, axisTwoChangeB);
             }
             else
             {
-                _lastPositionA = _gridComponent.Position + new Vector3(i * RISE, axisOneChangeA, axisTwoChangeA);
-                _lastPositionB = _gridComponent.Position + new Vector3(i * RISE, axisOneChangeB, axisTwoChangeB);
+                _lastPositionA = _gridComponent.Position + new Vector3(i * RISE, axisOneChangeA - ADJUSTMENT, axisTwoChangeA);
+                _lastPositionB = _gridComponent.Position + new Vector3(i * RISE, axisOneChangeB - ADJUSTMENT, axisTwoChangeB);
             }
 
             GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, i, _id, 1);

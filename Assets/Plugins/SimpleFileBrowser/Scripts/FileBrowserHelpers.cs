@@ -31,7 +31,7 @@ namespace SimpleFileBrowser
 
 	public static class FileBrowserHelpers
 	{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 		private static AndroidJavaClass m_ajc = null;
 		public static AndroidJavaClass AJC
 		{
@@ -97,7 +97,7 @@ namespace SimpleFileBrowser
 
 		public static bool FileExists( string path )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( path ) )
 				return AJC.CallStatic<bool>( "SAFEntryExists", Context, path, false );
 #endif
@@ -106,7 +106,7 @@ namespace SimpleFileBrowser
 
 		public static bool DirectoryExists( string path )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( path ) )
 				return AJC.CallStatic<bool>( "SAFEntryExists", Context, path, true );
 			else if( ShouldUseSAF ) // Directory.Exists returns true even for inaccessible directories on Android 10+, we need to check if the directory is accessible
@@ -127,7 +127,7 @@ namespace SimpleFileBrowser
 
 		public static bool IsDirectory( string path )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( path ) )
 				return AJC.CallStatic<bool>( "SAFEntryDirectory", Context, path );
 #endif
@@ -142,7 +142,7 @@ namespace SimpleFileBrowser
 
 		public static bool IsPathDescendantOfAnother( string path, string parentFolderPath )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( path ) )
 				return AJC.CallStatic<bool>( "IsSAFEntryChildOfAnother", Context, path, parentFolderPath );
 #endif
@@ -160,7 +160,7 @@ namespace SimpleFileBrowser
 
 		public static string GetDirectoryName( string path )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( path ) )
 				return AJC.CallStatic<string>( "GetParentDirectory", Context, path );
 #endif
@@ -169,9 +169,11 @@ namespace SimpleFileBrowser
 
 		public static FileSystemEntry[] GetEntriesInDirectory( string path, bool extractOnlyLastSuffixFromExtensions )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
-			if( ShouldUseSAFForPath( path ) )
+			Debug.Log("Entered GetEntries()");
+
+			if ( ShouldUseSAFForPath( path ) )
 			{
+				Debug.Log("GetEntries() if");
 				string resultRaw = AJC.CallStatic<string>( "OpenSAFFolder", Context, path );
 				int separatorIndex = resultRaw.IndexOf( "<>" );
 				if( separatorIndex <= 0 )
@@ -235,11 +237,11 @@ namespace SimpleFileBrowser
 
 				return result;
 			}
-#endif
 
 			try
 			{
 				FileSystemInfo[] items = new DirectoryInfo( path ).GetFileSystemInfos();
+				Debug.Log("Items length: " + items.Length);
 				FileSystemEntry[] result = new FileSystemEntry[items.Length];
 				int index = 0;
 				for( int i = 0; i < items.Length; i++ )
@@ -271,7 +273,7 @@ namespace SimpleFileBrowser
 
 		public static string CreateFileInDirectory( string directoryPath, string filename )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( directoryPath ) )
 				return AJC.CallStatic<string>( "CreateSAFEntry", Context, directoryPath, false, filename );
 #endif
@@ -283,7 +285,7 @@ namespace SimpleFileBrowser
 
 		public static string CreateFolderInDirectory( string directoryPath, string folderName )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( directoryPath ) )
 				return AJC.CallStatic<string>( "CreateSAFEntry", Context, directoryPath, true, folderName );
 #endif
@@ -295,7 +297,7 @@ namespace SimpleFileBrowser
 
 		public static void WriteBytesToFile( string targetPath, byte[] bytes )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( targetPath ) )
 			{
 				File.WriteAllBytes( TemporaryFilePath, bytes );
@@ -310,7 +312,7 @@ namespace SimpleFileBrowser
 
 		public static void WriteTextToFile( string targetPath, string text )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( targetPath ) )
 			{
 				File.WriteAllText( TemporaryFilePath, text );
@@ -325,7 +327,7 @@ namespace SimpleFileBrowser
 
 		public static void AppendBytesToFile( string targetPath, byte[] bytes )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( targetPath ) )
 			{
 				File.WriteAllBytes( TemporaryFilePath, bytes );
@@ -343,7 +345,7 @@ namespace SimpleFileBrowser
 
 		public static void AppendTextToFile( string targetPath, string text )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( targetPath ) )
 			{
 				File.WriteAllText( TemporaryFilePath, text );
@@ -358,7 +360,7 @@ namespace SimpleFileBrowser
 
 		private static void AppendFileToFile( string targetPath, string sourceFileToAppend )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( targetPath ) )
 			{
 				AJC.CallStatic( "WriteToSAFEntry", Context, targetPath, sourceFileToAppend, true );
@@ -377,7 +379,7 @@ namespace SimpleFileBrowser
 
 		public static byte[] ReadBytesFromFile( string sourcePath )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( sourcePath ) )
 			{
 				AJC.CallStatic( "ReadFromSAFEntry", Context, sourcePath, TemporaryFilePath );
@@ -391,7 +393,7 @@ namespace SimpleFileBrowser
 
 		public static string ReadTextFromFile( string sourcePath )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( sourcePath ) )
 			{
 				AJC.CallStatic( "ReadFromSAFEntry", Context, sourcePath, TemporaryFilePath );
@@ -405,7 +407,7 @@ namespace SimpleFileBrowser
 
 		public static void CopyFile( string sourcePath, string destinationPath )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAF ) // No need to use ShouldUseSAFForPath because both SAF paths and raw file paths are handled on the native-side
 			{
 				AJC.CallStatic( "CopyFile", Context, sourcePath, destinationPath, false );
@@ -417,7 +419,7 @@ namespace SimpleFileBrowser
 
 		public static void CopyDirectory( string sourcePath, string destinationPath )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAF ) // No need to use ShouldUseSAFForPath because both SAF paths and raw directory paths are handled on the native-side
 			{
 				AJC.CallStatic( "CopyDirectory", Context, sourcePath, destinationPath, false );
@@ -442,7 +444,7 @@ namespace SimpleFileBrowser
 
 		public static void MoveFile( string sourcePath, string destinationPath )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAF ) // No need to use ShouldUseSAFForPath because both SAF paths and raw file paths are handled on the native-side
 			{
 				AJC.CallStatic( "CopyFile", Context, sourcePath, destinationPath, true );
@@ -454,7 +456,7 @@ namespace SimpleFileBrowser
 
 		public static void MoveDirectory( string sourcePath, string destinationPath )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAF ) // No need to use ShouldUseSAFForPath because both SAF paths and raw directory paths are handled on the native-side
 			{
 				AJC.CallStatic( "CopyDirectory", Context, sourcePath, destinationPath, true );
@@ -466,7 +468,7 @@ namespace SimpleFileBrowser
 
 		public static string RenameFile( string path, string newName )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( path ) )
 				return AJC.CallStatic<string>( "RenameSAFEntry", Context, path, newName );
 #endif
@@ -478,7 +480,7 @@ namespace SimpleFileBrowser
 
 		public static string RenameDirectory( string path, string newName )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( path ) )
 				return AJC.CallStatic<string>( "RenameSAFEntry", Context, path, newName );
 #endif
@@ -490,7 +492,7 @@ namespace SimpleFileBrowser
 
 		public static void DeleteFile( string path )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( path ) )
 			{
 				AJC.CallStatic<bool>( "DeleteSAFEntry", Context, path );
@@ -502,7 +504,7 @@ namespace SimpleFileBrowser
 
 		public static void DeleteDirectory( string path )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( path ) )
 			{
 				AJC.CallStatic<bool>( "DeleteSAFEntry", Context, path );
@@ -514,7 +516,7 @@ namespace SimpleFileBrowser
 
 		public static string GetFilename( string path )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( path ) )
 				return AJC.CallStatic<string>( "SAFEntryName", Context, path );
 #endif
@@ -523,7 +525,7 @@ namespace SimpleFileBrowser
 
 		public static long GetFilesize( string path )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( ShouldUseSAFForPath( path ) )
 				return AJC.CallStatic<long>( "SAFEntrySize", Context, path );
 #endif
@@ -532,7 +534,7 @@ namespace SimpleFileBrowser
 
 		public static System.DateTime GetLastModifiedDate( string path )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			// Credit: https://stackoverflow.com/a/28504416/2373034
 			if( ShouldUseSAFForPath( path ) )
 				return new System.DateTime( 1970, 1, 1, 0, 0, 0 ).AddMilliseconds( AJC.CallStatic<long>( "SAFEntryLastModified", Context, path ) );

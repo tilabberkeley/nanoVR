@@ -263,7 +263,7 @@ namespace SimpleFileBrowser
 							m_instance.showHiddenFilesToggle.gameObject.SetActive( false );
 						else if( m_instance.windowTR.sizeDelta.x >= m_instance.narrowScreenWidth )
 						{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 							if( !FileBrowserHelpers.ShouldUseSAF )
 #endif
 							m_instance.showHiddenFilesToggle.gameObject.SetActive( true );
@@ -566,7 +566,7 @@ namespace SimpleFileBrowser
 		private HashSet<char> invalidFilenameChars;
 
 		private float drivesNextRefreshTime;
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 		private string driveQuickLinks;
 #else
 		private string[] driveQuickLinks;
@@ -596,7 +596,7 @@ namespace SimpleFileBrowser
 				if( value != null )
 				{
 					value = value.Trim();
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 					if( !FileBrowserHelpers.ShouldUseSAFForPath( value ) )
 #endif
 					value = GetPathWithoutTrailingDirectorySeparator( value );
@@ -634,7 +634,7 @@ namespace SimpleFileBrowser
 
 					backButton.interactable = currentPathIndex > 0;
 					forwardButton.interactable = currentPathIndex < pathsFollowed.Count - 1;
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 					if( FileBrowserHelpers.ShouldUseSAF )
 					{
 						string parentPath = FileBrowserHelpers.GetDirectoryName( m_currentPath );
@@ -667,7 +667,7 @@ namespace SimpleFileBrowser
 					}
 
 					// If a quick link points to this directory, highlight it
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 					// Path strings aren't deterministic on Storage Access Framework but the paths' absolute parts usually are
 					if( FileBrowserHelpers.ShouldUseSAFForPath( m_currentPath ) )
 					{
@@ -821,13 +821,13 @@ namespace SimpleFileBrowser
 
 			nullPointerEventData = new PointerEventData( null );
 
-#if !UNITY_EDITOR && ( UNITY_ANDROID || UNITY_IOS || UNITY_WSA || UNITY_WSA_10_0 )
+#if ( UNITY_ANDROID || UNITY_IOS || UNITY_WSA || UNITY_WSA_10_0 )
 			defaultInitialPath = Application.persistentDataPath;
 #else
 			defaultInitialPath = Environment.GetFolderPath( Environment.SpecialFolder.MyDocuments );
 #endif
 
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( FileBrowserHelpers.ShouldUseSAF )
 			{
 				// These UI elements have no use in Storage Access Framework mode (Android 10+)
@@ -976,7 +976,7 @@ namespace SimpleFileBrowser
 
 			// Refresh drive quick links
 #if UNITY_EDITOR || ( !UNITY_IOS && !UNITY_WSA && !UNITY_WSA_10_0 )
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( !FileBrowserHelpers.ShouldUseSAF )
 #endif
 			if( quickLinksInitialized && generateQuickLinksForDrives && m_drivesRefreshInterval >= 0f && Time.realtimeSinceStartup >= drivesNextRefreshTime )
@@ -1028,7 +1028,7 @@ namespace SimpleFileBrowser
 			quickLinksInitialized = true;
 			drivesNextRefreshTime = Time.realtimeSinceStartup + m_drivesRefreshInterval;
 
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( FileBrowserHelpers.ShouldUseSAF )
 			{
 				AddQuickLink( m_skin.DriveIcon, PickFolderQuickLinkText, SAF_PICK_FOLDER_QUICK_LINK_PATH );
@@ -1083,7 +1083,7 @@ namespace SimpleFileBrowser
 		private void RefreshDriveQuickLinks()
 		{
 			// Check if drives has changed since the last refresh
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			string drivesList = FileBrowserHelpers.AJC.CallStatic<string>( "GetExternalDrives", FileBrowserHelpers.Context );
 			if( drivesList == driveQuickLinks || ( string.IsNullOrEmpty( drivesList ) && string.IsNullOrEmpty( driveQuickLinks ) ) )
 				return;
@@ -1129,7 +1129,7 @@ namespace SimpleFileBrowser
 			quickLinksContainer.sizeDelta = Vector2.zero;
 
 			// Create drive quick links
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( drivesList != null && drivesList.Length > 0 )
 			{
 				bool defaultPathInitialized = false;
@@ -1335,7 +1335,7 @@ namespace SimpleFileBrowser
 
 		public void OnUpButtonPressed()
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( FileBrowserHelpers.ShouldUseSAF )
 			{
 				string parentPath = FileBrowserHelpers.GetDirectoryName( m_currentPath );
@@ -1593,7 +1593,7 @@ namespace SimpleFileBrowser
 								}
 								else
 								{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 									if( FileBrowserHelpers.ShouldUseSAFForPath( m_currentPath ) )
 									{
 										if( m_pickerMode == PickMode.Folders )
@@ -1750,7 +1750,7 @@ namespace SimpleFileBrowser
 
 			if( item is FileBrowserQuickLink )
 			{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 				if( ( (FileBrowserQuickLink) item ).TargetPath == SAF_PICK_FOLDER_QUICK_LINK_PATH )
 					FileBrowserHelpers.AJC.CallStatic( "PickSAFFolder", FileBrowserHelpers.Context, new FBDirectoryReceiveCallbackAndroid( OnSAFDirectoryPicked ) );
 				else
@@ -1848,7 +1848,7 @@ namespace SimpleFileBrowser
 				else
 				{
 					// Enter the directory
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 					if( FileBrowserHelpers.ShouldUseSAFForPath( m_currentPath ) )
 					{
 						for( int i = 0; i < validFileEntries.Count; i++ )
@@ -1895,7 +1895,7 @@ namespace SimpleFileBrowser
 			}
 		}
 
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 		private void OnSAFDirectoryPicked( string rawUri, string name )
 		{
 			if( !string.IsNullOrEmpty( rawUri ) )
@@ -2189,7 +2189,7 @@ namespace SimpleFileBrowser
 				}
 			}
 
-#if !UNITY_EDITOR && !UNITY_STANDALONE && !UNITY_WSA && !UNITY_WSA_10_0
+#if !UNITY_STANDALONE && !UNITY_WSA && !UNITY_WSA_10_0
 			MultiSelectionToggleSelectionMode = true;
 #endif
 
@@ -2368,7 +2368,7 @@ namespace SimpleFileBrowser
 			if( string.IsNullOrEmpty( path ) )
 				return false;
 
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( !FileBrowserHelpers.ShouldUseSAFForPath( path ) )
 #endif
 			{
@@ -2491,7 +2491,7 @@ namespace SimpleFileBrowser
 				middleViewSeparator.rectTransform.anchoredPosition = new Vector2( quickLinksWidth, 0f );
 			}
 
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			// Responsive layout doesn't affect any other visible UI elements on Storage Access Framework
 			if( FileBrowserHelpers.ShouldUseSAF )
 				return;
@@ -2531,7 +2531,7 @@ namespace SimpleFileBrowser
 			return m_skin.GetIconForFileEntry( fileInfo, !AllExtensionsHaveSingleSuffix );
 		}
 
-		internal static string GetExtensionFromFilename( string filename, bool extractOnlyLastSuffix )
+		public static string GetExtensionFromFilename( string filename, bool extractOnlyLastSuffix )
 		{
 			int length = filename.Length;
 
@@ -2819,7 +2819,7 @@ namespace SimpleFileBrowser
 
 		private bool CheckDirectoryWriteAccess( string path )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			if( FileBrowserHelpers.ShouldUseSAFForPath( path ) )
 				return true;
 #endif
@@ -2849,13 +2849,13 @@ namespace SimpleFileBrowser
 		private bool IsCtrlKeyHeld()
 		{
 #if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
-#if UNITY_EDITOR_OSX || ( !UNITY_EDITOR && UNITY_STANDALONE_OSX )
+#if UNITY_EDITOR_OSX || ( UNITY_STANDALONE_OSX )
 			return Keyboard.current != null && ( Keyboard.current.leftCommandKey.isPressed || Keyboard.current.rightCommandKey.isPressed );
 #else
 			return Keyboard.current != null && Keyboard.current.ctrlKey.isPressed;
 #endif
 #else
-#if UNITY_EDITOR_OSX || ( !UNITY_EDITOR && UNITY_STANDALONE_OSX )
+#if UNITY_EDITOR_OSX || ( UNITY_STANDALONE_OSX )
 			return Input.GetKey( KeyCode.LeftCommand ) || Input.GetKey( KeyCode.RightCommand );
 #else
 			return Input.GetKey( KeyCode.LeftControl ) || Input.GetKey( KeyCode.RightControl );
@@ -3110,7 +3110,7 @@ namespace SimpleFileBrowser
 
 		public static Permission CheckPermission()
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			Permission result = (Permission) FileBrowserHelpers.AJC.CallStatic<int>( "CheckPermission", FileBrowserHelpers.Context );
 			if( result == Permission.Denied && (Permission) PlayerPrefs.GetInt( "FileBrowserPermission", (int) Permission.ShouldAsk ) == Permission.ShouldAsk )
 				result = Permission.ShouldAsk;
@@ -3123,7 +3123,7 @@ namespace SimpleFileBrowser
 
 		public static Permission RequestPermission()
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_ANDROID
 			object threadLock = new object();
 			lock( threadLock )
 			{

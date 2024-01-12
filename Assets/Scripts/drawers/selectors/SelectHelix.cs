@@ -65,7 +65,7 @@ public class SelectHelix : MonoBehaviour
            && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
-            if (s_hit.collider.GetComponent<GridComponent>() && s_hit.collider.GetComponent<GridComponent>().Selected)
+            if (s_hit.collider.gameObject.GetComponent<GridComponent>() && s_hit.collider.gameObject.GetComponent<GridComponent>().Selected)
             {
                 UnhighlightHelix();
                 ResetNucleotides();
@@ -73,7 +73,7 @@ public class SelectHelix : MonoBehaviour
             }
         }
 
-            bool axisClick;
+        bool axisClick;
         if ((_device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out axisClick)
             && axisClick)
             && axisReleased)

@@ -44,5 +44,15 @@ public class ViewingPerspective : MonoBehaviour
             strand.DrawBezier();
         }
     }
+
+    public void EditMode()
+    {
+
+    }
+
+    public void VisualMode()
+    {
+
+    }
     public static void ViewHelix() { }
 }

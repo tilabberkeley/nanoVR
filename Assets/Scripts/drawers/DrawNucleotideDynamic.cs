@@ -102,7 +102,6 @@ public class DrawNucleotideDynamic : MonoBehaviour
         {
             if (hitFound && hitIsNucleotide && !isStartNucleotide && !isPrevNucleotide && creatingStrand && IsValidNucleotideSelection(s_startGO, hitGO))
             {
-                Debug.Log("Hit GameObject: " + hitGO);
                 s_endGO = hitGO;
                 UnhighlightNucleotideSelection(s_currentNucleotides);
                 s_currentNucleotides = MakeNuclList(s_startGO, s_endGO);
