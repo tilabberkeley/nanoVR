@@ -221,7 +221,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 114000012265032802}
         m_TargetAssemblyTypeName: SimpleFileBrowser.FileBrowserItem, SimpleFileBrowser.Runtime
-        m_MethodName: Test
+        m_MethodName: ItemClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

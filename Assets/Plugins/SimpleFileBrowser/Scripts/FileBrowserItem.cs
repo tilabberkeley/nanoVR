@@ -86,7 +86,7 @@ namespace SimpleFileBrowser
 			}
 		}
 		#endregion
-		public void Test()
+		public void ItemClick()
         {
 			Debug.Log("FileBrowserItem CLICK.");
 
