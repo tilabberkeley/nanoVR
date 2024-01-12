@@ -144,7 +144,7 @@ public class FileImport : MonoBehaviour
         }*/
 
         //Grid grid = DrawGrid.CreateGrid(s_numGrids, "XY", transform.position);
-        Grid grid = DrawGrid.CreateGrid(s_numGrids, "XY", transform.position, gridType);
+        DNAGrid grid = DrawGrid.CreateGrid(s_numGrids, "XY", transform.position, gridType);
 
         for (int i = 0; i < helices.Count; i++)
         {

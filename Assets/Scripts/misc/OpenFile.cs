@@ -36,9 +36,9 @@ public class OpenFile : MonoBehaviour
     public string getText() {
         if (path != null && path.Length != 0) {
             turnOnGenerateBtn();
-            WWW www = new WWW("file:///" + path);
+            // WWW www = new WWW("file:///" + path);
             FileName.text = Path.GetFileName(path);
-            return www.text;
+            return ""; // www.text ### commented out because getting compiler warnings. Revist script later.
         }
         else {
             turnOffGenerateBtn();

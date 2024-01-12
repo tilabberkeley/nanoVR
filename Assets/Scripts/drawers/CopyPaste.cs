@@ -211,7 +211,7 @@ public class CopyPaste : MonoBehaviour
 
         Helix newHelix = s_helixDict[newGO.GetComponent<NucleotideComponent>().HelixId];
         GridPoint newGP = newHelix._gridComponent.GridPoint;
-        Grid grid = newHelix._gridComponent.Grid;
+        DNAGrid grid = newHelix._gridComponent.Grid;
         int newX = newGP.X;
         int newY = newGP.Y;
         int offset = newGO.GetComponent<NucleotideComponent>().Id - head.GetComponent<NucleotideComponent>().Id;

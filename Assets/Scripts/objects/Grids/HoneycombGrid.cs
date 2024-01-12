@@ -1,16 +1,18 @@
+using Facebook.WitAi.Utilities;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
-public class HexGrid : Grid
+public class HoneycombGrid : DNAGrid
 {
     /// <summary>
-    /// Square grid constructor. 
+    /// Honeycomb grid constructor. 
     /// </summary>
     /// <param name="id">Id number of this grid.</param>
     /// <param name="plane">Plane defintion.</param>
     /// <param name="startPos">3D location of where this grid starts.</param>
-    public HexGrid(int id, string plane, Vector3 startPos) : base(id, plane, startPos) { }
+    public HoneycombGrid(int id, string plane, Vector3 startPos) : base(id, plane, startPos) { }
 
     /// <summary>
     /// Generates a grid circle at the specified grid point.
@@ -23,16 +25,21 @@ public class HexGrid : Grid
     protected override void CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j)
     {
         bool isXEven = gridPoint.X % 2 == 0;
-        // bool isYEven = gridPoint.Y % 2 == 0;
+        bool isYEven = gridPoint.Y % 2 == 0;
 
         float xPosition = xOffset * (RADIUS * Mathf.Sqrt(3.0f));
-        float yPosition = yOffset * DIAMETER;
+        // Doing the bit shift right once is the same as floor div 2, but C# has weird behavior with negatives, so bit shift fixes it. 
+        float yPosition = (yOffset >> 1) * RADIUS * 6 + (!isYEven ? 2 * RADIUS : 0);
 
-        if (!isXEven)
+        if (!isXEven && isYEven)
         {
             yPosition -= RADIUS;
         }
-
+        else if (!isXEven && !isYEven)
+        {
+            yPosition += RADIUS;
+        }
+            
         GameObject gridGO = DrawPoint.MakeGridCircleGO(_startPos, xPosition, yPosition, _plane);
         GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
         gridComponent.Grid = this;
@@ -45,7 +52,7 @@ public class HexGrid : Grid
     /// </summary>
     /// <param name="gridPoint">Location of grid component.</param>
     /// <returns>List of neighboring grid components.</returns>
-    public override List<GridComponent> GetNeighborGridComponents(GridPoint gridPoint)
+    public override List<GridComponent> GetNeighborGridComponents(GridPoint gridPoint) 
     {
         // TODO
         return null;

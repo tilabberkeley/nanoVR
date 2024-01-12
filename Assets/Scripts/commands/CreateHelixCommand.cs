@@ -19,9 +19,9 @@ public class CreateHelixCommand : ICommand
     private GridComponent _gridComp;
 
     // Grid that helix belongs to.
-    private Grid _grid;
+    private DNAGrid _grid;
 
-    public CreateHelixCommand(int id, Vector3 startPoint, int length, string orientation, GridComponent gridComponent, Grid grid)
+    public CreateHelixCommand(int id, Vector3 startPoint, int length, string orientation, GridComponent gridComponent, DNAGrid grid)
     {
         //_grid = grid;
         _id = id;
