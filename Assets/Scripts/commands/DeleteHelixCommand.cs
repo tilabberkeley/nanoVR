@@ -11,7 +11,7 @@ public class DeleteHelixCommand : ICommand
     private string _orientation;
     private int _length;
     private GridComponent _gridComponent;
-    private Grid _grid;
+    private DNAGrid _grid;
     public DeleteHelixCommand(int id)
     {
         _id = id;

@@ -23,7 +23,7 @@ public class MoveStrand : MonoBehaviour
     private static GameObject s_oldNucl = null;
     private static GameObject s_currNucl = null;
     private static List<GameObject> s_currNucleotides;
-    bool movingStrand = false;
+    // bool movingStrand = false;
 
 
     void GetDevice()

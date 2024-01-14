@@ -9,7 +9,7 @@ using static GlobalVariables;
 /// <summary>
 /// Abstract class for Grid objects.
 /// </summary>
-public abstract class Grid
+public abstract class DNAGrid
 {
     /* Constants. Increase GRIDCIRCLESIZEFACTOR to decrease distance between grid circles and vice versa. */
     protected const int STARTLENGTH = 5;
@@ -49,7 +49,7 @@ public abstract class Grid
     /// <param name="id">Id number of this grid.</param>
     /// <param name="plane">Plane defintion.</param>
     /// <param name="startPos">3D location of where this grid starts.</param>
-    public Grid(int id, string plane, Vector3 startPos)
+    public DNAGrid(int id, string plane, Vector3 startPos)
     {
         _id = id;
         _plane = plane;

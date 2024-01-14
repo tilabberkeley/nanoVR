@@ -1,8 +1,16 @@
-using System.Collections;
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
+ */
 using System.Collections.Generic;
+using System;
 using UnityEngine;
+using static GlobalVariables;
 
-public class HexGrid : Grid
+/// <summary>
+/// Grid object keeps track of its helices.
+/// </summary>
+public class SquareGrid : DNAGrid
 {
     /// <summary>
     /// Square grid constructor. 
@@ -10,7 +18,7 @@ public class HexGrid : Grid
     /// <param name="id">Id number of this grid.</param>
     /// <param name="plane">Plane defintion.</param>
     /// <param name="startPos">3D location of where this grid starts.</param>
-    public HexGrid(int id, string plane, Vector3 startPos) : base(id, plane, startPos) { }
+    public SquareGrid(int id, string plane, Vector3 startPos) : base(id, plane, startPos) { }
 
     /// <summary>
     /// Generates a grid circle at the specified grid point.
@@ -22,16 +30,8 @@ public class HexGrid : Grid
     /// <param name="j">j memory location of grid circle in grid 2D.</param>
     protected override void CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j)
     {
-        bool isXEven = gridPoint.X % 2 == 0;
-        // bool isYEven = gridPoint.Y % 2 == 0;
-
-        float xPosition = xOffset * (RADIUS * Mathf.Sqrt(3.0f));
+        float xPosition = xOffset * DIAMETER;
         float yPosition = yOffset * DIAMETER;
-
-        if (!isXEven)
-        {
-            yPosition -= RADIUS;
-        }
 
         GameObject gridGO = DrawPoint.MakeGridCircleGO(_startPos, xPosition, yPosition, _plane);
         GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
@@ -47,7 +47,20 @@ public class HexGrid : Grid
     /// <returns>List of neighboring grid components.</returns>
     public override List<GridComponent> GetNeighborGridComponents(GridPoint gridPoint)
     {
-        // TODO
-        return null;
+        List<GridComponent> gridComponents = new List<GridComponent>();
+        // COME BACK AND FIX EDGE CASES
+        int i = GridXToIndex(gridPoint.X);
+        int j = GridYToIndex(gridPoint.Y);
+        for (int k = i - 1; k <= i + 1; k++)
+        {
+            for (int l = j - 1; l <= j + 1; l++)
+            {
+                if (!(k == i && l == j))
+                {
+                    gridComponents.Add(_grid2D[k, l]);
+                }
+            }
+        }
+        return gridComponents;
     }
 }

@@ -14,7 +14,7 @@ public class SelectStrand : MonoBehaviour
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rayInteractor;
-    private bool triggerReleased = true;
+    // private bool triggerReleased = true; ### commented this out because getting warning saying that is was never used.
     private bool axisReleased = true;
     private const float DOUBLE_CLICK_TIME = 1f;
     private float lastClickTime;
@@ -115,7 +115,7 @@ public class SelectStrand : MonoBehaviour
         if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
             && triggerValue && !rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
-            triggerReleased = false;
+            //triggerReleased = false;
             UnhighlightStrand(s_strand);
             Reset();
         }
@@ -131,7 +131,7 @@ public class SelectStrand : MonoBehaviour
         if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
             && triggerValue))
         {
-            triggerReleased = true;
+            //triggerReleased = true;
         }
     }
 

@@ -18,7 +18,7 @@ public class GridComponent : MonoBehaviour
     // 2D point of grid component on grid.
     public GridPoint GridPoint { get; set; }
     // Grid that this grid component is apart of.
-    public Grid Grid { get; set; }
+    public DNAGrid Grid { get; set; }
 
     // Grid id that this grid component is apart of.
     private int _gridId;

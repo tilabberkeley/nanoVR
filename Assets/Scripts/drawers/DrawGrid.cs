@@ -114,9 +114,9 @@ public class DrawGrid : MonoBehaviour
         CreateGrid(s_numGrids, plane, currPoint, gridTypeDropdown.options[gridTypeDropdown.value].text);
     }
 
-    public static Grid CreateGrid(int gridId, string plane, Vector3 position, string gridType)
+    public static DNAGrid CreateGrid(int gridId, string plane, Vector3 position, string gridType)
     {
-        Grid grid;
+        DNAGrid grid;
         if (gridType.Equals("Square") || gridType.Equals("square"))
         {
             grid = new SquareGrid(s_numGrids, plane, position);

@@ -110,9 +110,6 @@ public class Helix
                 _lastPositionB = _gridComponent.Position + new Vector3(i * RISE, axisOneChangeB - ADJUSTMENT, axisTwoChangeB);
             }
 
-            Debug.Log(_orientation);
-
-
             GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, i, _id, 1);
             _nucleotidesA.Add(sphereA);
 

@@ -88,7 +88,7 @@ public class FileImport : MonoBehaviour
         string gridType = Clean(origami["grid"].ToString());
         JSONArray helices = origami["helices"].AsArray;
         JSONArray strands = origami["strands"].AsArray;
-        Grid grid = DrawGrid.CreateGrid(s_numGrids, PLANE, transform.position, gridType);
+        DNAGrid grid = DrawGrid.CreateGrid(s_numGrids, "XY", transform.position, gridType);
 
         for (int i = 0; i < helices.Count; i++)
         {
