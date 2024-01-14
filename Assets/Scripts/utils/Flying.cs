@@ -12,7 +12,7 @@ public class Flying : MonoBehaviour
     private XRNode _xrNode = XRNode.RightHand;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
-    private static float s_speed = 0.008f;
+    private const float SPEED = 0.01f;
 
     void GetDevice()
     {
@@ -43,11 +43,11 @@ public class Flying : MonoBehaviour
         {
             if (primary2DAxis.y > 0)
             {
-                transform.position += new Vector3(0, s_speed, 0);
+                transform.position += new Vector3(0, SPEED, 0);
             }
             if (primary2DAxis.y < 0)
             {
-                transform.position -= new Vector3(0, s_speed, 0);
+                transform.position -= new Vector3(0, SPEED, 0);
             }
         }
     }

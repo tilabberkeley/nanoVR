@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static GlobalVariables;
+using static Utils;
 
 public class CreateCommand : ICommand
 {
@@ -54,7 +55,7 @@ public class CreateCommand : ICommand
 
     public void Do()
     {
-        DrawCrossover.CreateStrand(_nucleotides, _xovers, _strandId);
+        CreateStrand(_nucleotides, _xovers, _strandId);
         _color = s_strandDict[_strandId].GetColor();
     }
 
@@ -88,7 +89,7 @@ public class CreateCommand : ICommand
             xover.GetComponent<XoverComponent>().NextGO = nextGO;
             xovers.Add(xover);
         }
-        DrawCrossover.CreateStrand(nucleotides, xovers, _strandId, _color);
+        CreateStrand(nucleotides, xovers, _strandId, _color);
     }
 
     public GameObject FindNucleotide(int id, int helixId, int direction, bool isBackbone)

@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
+using static Utils;
 
 /// <summary>
 /// Handles crossovers and necessary strand operations.
@@ -237,24 +238,6 @@ public class DrawCrossover : MonoBehaviour
             strand.RemoveXovers(xovers);
             CreateStrand(strand.SplitAfter(go, true), xovers, id, color);
         }
-    }
-
-    public static void CreateStrand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId)
-    {
-        Strand strand = new Strand(nucleotides, xovers, strandId);
-        strand.SetComponents();
-        s_strandDict.Add(strandId, strand);
-        DrawNucleotideDynamic.CreateButton(strandId);
-        s_numStrands += 1;
-    }
-
-    public static void CreateStrand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId, Color color)
-    {
-        Strand strand = new Strand(nucleotides, xovers, strandId, color);
-        strand.SetComponents();
-        s_strandDict.Add(strandId, strand);
-        DrawNucleotideDynamic.CreateButton(strandId);
-        s_numStrands += 1;
     }
 
     public static void MergeStrand(GameObject firstGO, GameObject secondGO, GameObject backbone)

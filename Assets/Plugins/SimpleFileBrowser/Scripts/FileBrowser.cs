@@ -349,7 +349,7 @@ namespace SimpleFileBrowser
 		}
 
 		private static FileBrowser m_instance = null;
-		private static FileBrowser Instance
+		public static FileBrowser Instance
 		{
 			get
 			{

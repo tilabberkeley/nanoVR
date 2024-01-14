@@ -232,22 +232,6 @@ public class DrawNucleotideDynamic : MonoBehaviour
         command.Do();
     }
 
-
-    /// <summary>
-    /// Creates a new strand with it's own id, color, and list of nucleotides.
-    /// Adds new strand to the global strand dictionary.
-    /// </summary>
-    /// <param name="nucleotides">List of nucleotides to use in new strand.</param>
-    public static void CreateStrand(GameObject startGO, GameObject endGO, int strandId)
-    {
-        List<GameObject> nucleotides = MakeNuclList(startGO, endGO);
-        Strand strand = new Strand(nucleotides, strandId);
-        //strand.SetComponents();
-        //s_strandDict.Add(strandId, strand);
-        CreateButton(strandId);
-        //s_numStrands += 1;
-    }
-
     /// <summary>
     /// Creates strand button in UI corresponding to each strand object.
     /// </summary>

@@ -88,8 +88,6 @@ namespace SimpleFileBrowser
 		#endregion
 		public void ItemClick()
         {
-			Debug.Log("FileBrowserItem CLICK.");
-
 			if (Time.realtimeSinceStartup - prevClickTime < DOUBLE_CLICK_TIME)
 			{
 				prevClickTime = 0f;
@@ -97,7 +95,6 @@ namespace SimpleFileBrowser
 			}
 			else
 			{
-				Debug.Log("FileBrowserItem Pointer click hit in else statement.");
 				prevClickTime = Time.realtimeSinceStartup;
 				fileBrowser.OnItemSelected(this, false);
 			}

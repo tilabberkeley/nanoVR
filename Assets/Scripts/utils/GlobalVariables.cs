@@ -40,5 +40,5 @@ public static class GlobalVariables
     public static int s_numStrands = 0;
     public static int s_numHelices = 0;
     public static int s_numGrids = 0;
-    public static Color32[] s_colors = { Color.blue, Color.magenta, Color.green, Color.red, Color.cyan, Color.yellow };
+    public static Color[] s_colors = { Color.blue, Color.magenta, Color.green, Color.red, Color.cyan, Color.yellow };
 }

@@ -11,7 +11,6 @@ public class DeletionCommand : ICommand
     private int _id;
     private int _helixId;
     private int _direction;
-    private int _length;
 
     public DeletionCommand(GameObject go)
     {

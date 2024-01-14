@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static GlobalVariables;
+using static Utils;
 
 public class DeleteCommand : ICommand
 {
@@ -13,6 +14,8 @@ public class DeleteCommand : ICommand
     private List<(int, int, int, bool)> _nucleotideIds = new List<(int, int, int, bool)>();
     private List<(int, int, int, bool)> _prevGOs = new List<(int, int, int, bool)>();
     private List<(int, int, int, bool)> _nextGOs = new List<(int, int, int, bool)>();
+    private List<(int, int, int)> _deletions = new List<(int, int, int)>();
+    private List<(int, int, int, int)> _insertions = new List<(int, int, int, int)>();
     //private List<int> _helixIds = new List<int>();
     private Color _color;
 
@@ -24,12 +27,24 @@ public class DeleteCommand : ICommand
         for (int i = 0; i < nucleotides.Count; i += 1)
         {
             DNAComponent dnaComponent = nucleotides[i].GetComponent<DNAComponent>();
-            
             int id = dnaComponent.Id;
             int helixId = dnaComponent.HelixId;
             int direction = dnaComponent.Direction;
             bool isBackbone = dnaComponent.IsBackbone;
             _nucleotideIds.Add((id, helixId, direction, isBackbone));
+
+            NucleotideComponent ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            if (ntc != null)
+            {
+                if (ntc.IsDeletion)
+                {
+                    _deletions.Add((id, helixId, direction));
+                }
+                if (ntc.IsInsertion)
+                {
+                    _insertions.Add((id, helixId, direction, ntc.Insertion));
+                }
+            }
         }
 
         for (int i = 0; i < xovers.Count; i++)
@@ -85,7 +100,19 @@ public class DeleteCommand : ICommand
             xovers.Add(xover);
             // Debug.Log("Drawing xover! " + xover);
         }
-        DrawCrossover.CreateStrand(nucleotides, xovers, _strandId, _color);
+        CreateStrand(nucleotides, xovers, _strandId, _color);
+
+        // Add back deletions/insertions.
+        for (int i = 0; i < _deletions.Count; i++)
+        {
+            GameObject nt = FindNucleotide(_deletions[i].Item1, _deletions[i].Item2, _deletions[i].Item3);
+            DrawDeletion.Deletion(nt);
+        }
+        for (int i = 0; i < _insertions.Count; i++)
+        {
+            GameObject nt = FindNucleotide(_insertions[i].Item1, _insertions[i].Item2, _insertions[i].Item3);
+            DrawInsertion.Insertion(nt, _insertions[i].Item4);
+        }
     }
 
     public GameObject FindGameObject(int id, int helixId, int direction, bool isBackbone)

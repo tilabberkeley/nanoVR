@@ -169,11 +169,8 @@ namespace SimpleFileBrowser
 
 		public static FileSystemEntry[] GetEntriesInDirectory( string path, bool extractOnlyLastSuffixFromExtensions )
 		{
-			Debug.Log("Entered GetEntries()");
-
 			if ( ShouldUseSAFForPath( path ) )
 			{
-				Debug.Log("GetEntries() if");
 				string resultRaw = AJC.CallStatic<string>( "OpenSAFFolder", Context, path );
 				int separatorIndex = resultRaw.IndexOf( "<>" );
 				if( separatorIndex <= 0 )
@@ -241,7 +238,6 @@ namespace SimpleFileBrowser
 			try
 			{
 				FileSystemInfo[] items = new DirectoryInfo( path ).GetFileSystemInfos();
-				Debug.Log("Items length: " + items.Length);
 				FileSystemEntry[] result = new FileSystemEntry[items.Length];
 				int index = 0;
 				for( int i = 0; i < items.Length; i++ )

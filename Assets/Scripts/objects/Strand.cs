@@ -25,7 +25,7 @@ public class Strand
     private int _strandId;
 
     // This strand's color.
-    private Color32 _color;
+    private Color _color;
 
     // GameObject at front of this strand (at index 0 of nucleotides list).
     private GameObject _head;
@@ -50,13 +50,7 @@ public class Strand
     //private List<int> _helixIds;
 
     // Strand constructor.
-    public Strand(List<GameObject> nucleotides, int strandId) : this(nucleotides, strandId, s_colors[s_numStrands % 6]) { }
-
-    public Strand(List<GameObject> nucleotides, int strandId, Color color) : this(nucleotides, new List<GameObject>(), strandId, color) { }
-
-    public Strand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId) : this(nucleotides, xovers, strandId, s_colors[s_numStrands % 6]) { }
-
-    public Strand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId, Color32 color)
+    public Strand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId, Color color)
     {
         _nucleotides = new List<GameObject>(nucleotides);
         _xovers = xovers;
@@ -363,10 +357,8 @@ public class Strand
         {
             toDirection = neighbor.transform.position - _head.transform.position;
         }
-
         _cone.transform.rotation = Quaternion.FromToRotation(Vector3.up, toDirection);
         _cone.transform.position = _head.transform.position;
-
     }
 
     // Sets crossover color based on length (color of strand if appropriate length, gray if questionable, black if undoable).
