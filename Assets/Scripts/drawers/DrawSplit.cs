@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
+using static Utils;
 
 /// <summary>
 /// Splits strand into two strands.
@@ -98,13 +99,13 @@ public class DrawSplit : MonoBehaviour
         {
             List<GameObject> xovers = strand.GetXoversAfterIndex(goIndex);
             strand.RemoveXovers(xovers);
-            CreateStrand(strand.SplitAfter(go, false), id, xovers, color);
+            CreateStrand(strand.SplitAfter(go, false), xovers, id, color);
         }
         else
         {
             List<GameObject> xovers = strand.GetXoversBeforeIndex(goIndex);
             strand.RemoveXovers(xovers);
-            CreateStrand(strand.SplitBefore(go, false), id, xovers, color);
+            CreateStrand(strand.SplitBefore(go, false), xovers, id, color);
         }
     }
 
@@ -132,18 +133,5 @@ public class DrawSplit : MonoBehaviour
         }
 
         return true;
-    }
-
-
-    /// <summary>
-    /// Creates a new strand with it's own id, color, and list of nucleotides.
-    /// Adds new strand to the global strand dictionary.
-    /// </summary>
-    /// <param name="nucleotides">List of nucleotides to use in new strand.</param>
-    public static void CreateStrand(List<GameObject> nucleotides, int strandId, List<GameObject> xovers, Color color)
-    {
-        Strand strand = new Strand(nucleotides, xovers, strandId, color);
-        DrawNucleotideDynamic.CreateButton(strandId);
-        //DrawNucleotideDynamic.AddStrandToHelix(nucleotides[0]);
     }
 }

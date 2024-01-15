@@ -119,15 +119,15 @@ public class DrawGrid : MonoBehaviour
         DNAGrid grid;
         if (gridType.Equals("Square") || gridType.Equals("square"))
         {
-            grid = new SquareGrid(s_numGrids, plane, position);
+            grid = new SquareGrid(gridId, plane, position);
         }
         else if (gridType.Equals("Honeycomb") || gridType.Equals("honeycomb"))
         {
-            grid = new HoneycombGrid(s_numGrids, plane, position);
+            grid = new HoneycombGrid(gridId, plane, position);
         }
         else
         {
-            grid = new HexGrid(s_numGrids, plane, position);
+            grid = new HexGrid(gridId, plane, position);
         }
         s_gridDict.Add(gridId, grid);
         s_numGrids += 1;

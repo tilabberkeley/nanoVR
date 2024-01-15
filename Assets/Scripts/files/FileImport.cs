@@ -1,18 +1,15 @@
 ﻿using System;
-using UnityEngine;
-using SimpleFileBrowser;
-using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Collections.Generic;
+using UnityEngine;
 using OVRSimpleJSON;
-using System.Reflection;
+using SimpleFileBrowser;
 using static GlobalVariables;
 using static Utils;
-using System.Linq;
 
 public class FileImport : MonoBehaviour
 {
-    // Warning: paths returned by FileBrowser dialogs do not contain a trailing '\' character
-    // Warning: FileBrowser can only show 1 dialog at a time
     private const string PLANE = "XY";
     void Awake()
     {
@@ -45,7 +42,7 @@ public class FileImport : MonoBehaviour
     public void OpenFile()
     {
         // Center File Browser with Camera
-        FileBrowser.Instance.transform.SetPositionAndRotation(Camera.main.transform.position, Camera.main.transform.rotation);
+        FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.9f;
         FileBrowser.ShowLoadDialog((paths) => { LoadFile(paths[0]); },
                               () => { Debug.Log("Canceled"); },
                               FileBrowser.PickMode.Files, false, null, null, "Select File", "Select");
@@ -85,27 +82,29 @@ public class FileImport : MonoBehaviour
     private void ParseSC(string fileContents)
     {
         JSONNode origami = JSON.Parse(fileContents);
-        string gridType = Clean(origami["grid"].ToString());
+        string gridType = CleanSlash(origami["grid"].ToString());
         JSONArray helices = origami["helices"].AsArray;
         JSONArray strands = origami["strands"].AsArray;
-        DNAGrid grid = DrawGrid.CreateGrid(s_numGrids, "XY", transform.position, gridType);
+        DNAGrid grid = DrawGrid.CreateGrid(s_numGrids, PLANE, transform.position, gridType);
+        int prevNumHelices = s_numHelices;
 
         for (int i = 0; i < helices.Count; i++)
         {
             JSONArray coord = helices[i]["grid_position"].AsArray;
             int length = helices[i]["max_offset"].AsInt;
+            Debug.Log(i + ": " + length);
             int xInd = grid.GridXToIndex(coord[0].AsInt);
             int yInd = grid.GridYToIndex(coord[1].AsInt * -1);
             GridComponent gc = grid.Grid2D[xInd, yInd];
-            grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, "XY", gc);
+            grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
             grid.CheckExpansion(gc);
         }
 
         for (int i = 0; i < strands.Count; i++)
         {
             JSONArray domains = strands[i]["domains"].AsArray;
-            string sequence = Clean(strands[i]["sequence"].ToString());
-            string hexColor = Clean(strands[i]["color"].ToString());
+            string sequence = CleanSlash(strands[i]["sequence"].ToString());
+            string hexColor = CleanSlash(strands[i]["color"].ToString());
             ColorUtility.TryParseHtmlString(hexColor, out Color color);
             int strandId = s_numStrands;
             List<GameObject> nucleotides = new List<GameObject>();
@@ -114,7 +113,7 @@ public class FileImport : MonoBehaviour
             List<(GameObject, int)> sInsertions = new List<(GameObject, int)>();
             for (int j = 0; j < domains.Count; j++)
             {
-                int helixId = domains[j]["helix"].AsInt;
+                int helixId = domains[j]["helix"].AsInt + prevNumHelices;
                 bool forward = domains[j]["forward"].AsBool;
                 int startId = domains[j]["start"].AsInt;
                 int endId = domains[j]["end"].AsInt - 1; // End id is exclusive in .sc file
@@ -133,8 +132,9 @@ public class FileImport : MonoBehaviour
                     GameObject nt = helix.GetNucleotide(insertions[k][0], Convert.ToInt32(forward));
                     sInsertions.Add((nt, insertions[k][1]));
                 }
-              
+
                 // Store domains of strand.
+                Debug.Log("Start: " + startId + ",   End: " + endId);
                 List<GameObject> domain = helix.GetHelixSub(startId, endId, Convert.ToInt32(forward));
                 nucleotides.AddRange(domain);
 
@@ -174,8 +174,8 @@ public class FileImport : MonoBehaviour
 
             // Assign DNA sequence to strand.
             Strand fullStrand = s_strandDict[strandId];
-            Debug.Log("# of nucleotides: " + fullStrand.Count);
-            Debug.Log("sequence length: " + sequence.Length);
+            //Debug.Log("# of nucleotides: " + fullStrand.Count);
+            //Debug.Log("sequence length: " + sequence.Length);
             /*int seqCount = 0;
             for (int j = fullStrand.Nucleotides.Count - 1; j >= 0; j--)
             {
@@ -201,7 +201,7 @@ public class FileImport : MonoBehaviour
     /// </summary>
     /// <param name="str">String to be cleaned.</param>
     /// <returns></returns>
-    public static string Clean(string str)
+    public static string CleanSlash(string str)
     {
         return str.Replace("\"", "");
     }

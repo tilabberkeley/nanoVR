@@ -96,23 +96,22 @@ public class Helix
 
             if (_orientation.Equals("XY"))
             {
-                _lastPositionA = _gridComponent.Position + new Vector3(axisOneChangeA, axisTwoChangeA - ADJUSTMENT, -i * RISE);
-                _lastPositionB = _gridComponent.Position + new Vector3(axisOneChangeB, axisTwoChangeB - ADJUSTMENT, -i * RISE);
+                _lastPositionA = _gridComponent.Position + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
+                _lastPositionB = _gridComponent.Position + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
             }
             else if (_orientation.Equals("XZ"))
             {
-                _lastPositionA = _gridComponent.Position + new Vector3(axisOneChangeA, i * RISE - ADJUSTMENT, axisTwoChangeA);
-                _lastPositionB = _gridComponent.Position + new Vector3(axisOneChangeB, i * RISE - ADJUSTMENT, axisTwoChangeB);
+                _lastPositionA = _gridComponent.Position + new Vector3(axisOneChangeA, i * RISE, axisTwoChangeA);
+                _lastPositionB = _gridComponent.Position + new Vector3(axisOneChangeB, i * RISE, axisTwoChangeB);
             }
             else
             {
-                _lastPositionA = _gridComponent.Position + new Vector3(i * RISE, axisOneChangeA - ADJUSTMENT, axisTwoChangeA);
-                _lastPositionB = _gridComponent.Position + new Vector3(i * RISE, axisOneChangeB - ADJUSTMENT, axisTwoChangeB);
+                _lastPositionA = _gridComponent.Position + new Vector3(i * RISE, axisOneChangeA, axisTwoChangeA);
+                _lastPositionB = _gridComponent.Position + new Vector3(i * RISE, axisOneChangeB, axisTwoChangeB);
             }
 
             GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, i, _id, 1);
             _nucleotidesA.Add(sphereA);
-
             GameObject sphereB = DrawPoint.MakeNucleotide(_lastPositionB, i, _id, 0);
             _nucleotidesB.Add(sphereB);
         }
@@ -160,13 +159,11 @@ public class Helix
     /// <returns>Returns sublist of nucleotides from helix spiral.</returns>
     public List<GameObject> GetHelixSub(int sIndex, int eIndex, int direction)
     {
-        if (sIndex < 0 || eIndex >= _backbonesA.Count)
+        if (sIndex < 0 || eIndex >= _nucleotidesA.Count)
         {
+            Debug.Log("Nucleotides A length: " + _nucleotidesA.Count);
             return null;
         }
-
-        Debug.Log("Indices passed.");
-
         List<GameObject> temp = new List<GameObject>();
         if (direction == 0)
         {
