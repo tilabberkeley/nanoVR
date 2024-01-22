@@ -42,7 +42,7 @@ public class FileImport : MonoBehaviour
     public void OpenFile()
     {
         // Center File Browser with Camera
-        FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.9f;
+        FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
         FileBrowser.ShowLoadDialog((paths) => { LoadFile(paths[0]); },
                               () => { Debug.Log("Canceled"); },
                               FileBrowser.PickMode.Files, false, null, null, "Select File", "Select");
@@ -174,6 +174,7 @@ public class FileImport : MonoBehaviour
 
             // Assign DNA sequence to strand.
             Strand fullStrand = s_strandDict[strandId];
+            fullStrand.Sequence = sequence;
             //Debug.Log("# of nucleotides: " + fullStrand.Count);
             //Debug.Log("sequence length: " + sequence.Length);
             /*int seqCount = 0;

@@ -46,6 +46,10 @@ public class Strand
 
     private GameObject _bezier;
 
+    private String _sequence;
+
+    public String Sequence { get { return _sequence; } set { _sequence = value; } }
+
     // List of helix ids this strand is on.
     //private List<int> _helixIds;
 
@@ -104,18 +108,6 @@ public class Strand
 
     // Returns number of nucleotides in strand, not including backbones.
     public int Count { get { return _nucleotides.Count / 2 + 1; } }
-
-    // Adds helix id to helix id list.
-    /*public void AddHelixId(int id)
-    {
-        _helixIds.Add(id);
-    }
-
-    // Returns list of helix ids.
-    public List<int> GetHelixIds()
-    {
-        return _helixIds;
-    }*/
 
     // Shows or hides cone based on input parameter.
     public void ShowHideCone(bool enabled)
@@ -190,7 +182,6 @@ public class Strand
             _head = _nucleotides[0];
             SetCone();
         }
-        
         ResetComponents(nucleotides);
     }
 
@@ -206,7 +197,6 @@ public class Strand
         {
             _tail = _nucleotides.Last();
         }
- 
         ResetComponents(nucleotides);
     }
 
@@ -215,10 +205,8 @@ public class Strand
     /// </summary>
     public void RemoveStrand()
     {
-        // ResetComponents(_nucleotides);
         GameObject.Destroy(_cone);
         s_strandDict.Remove(_strandId);
-        // s_numStrands -= 1;
     }
 
     public void DeleteStrand()

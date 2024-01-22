@@ -25,8 +25,9 @@ public class NucleotideComponent : DNAComponent
     public string Sequence { get { return _sequence; } set { _sequence = value; } }
 
     // Gameobject of xover attached to this nucleotide. Null if there isn't a xover.
-    private GameObject _xover;
+    private GameObject _xover = null;
     public GameObject Xover { get { return _xover;} set { _xover = value; } }
+    public bool HasXover() { return _xover != null; }
 
     // List of crossover suggestions connect to this nucleotide.
     private List<XoverSuggestionComponent> _xoverSuggestionComponents;
