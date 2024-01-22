@@ -92,7 +92,6 @@ public class FileImport : MonoBehaviour
         {
             JSONArray coord = helices[i]["grid_position"].AsArray;
             int length = helices[i]["max_offset"].AsInt;
-            Debug.Log(i + ": " + length);
             int xInd = grid.GridXToIndex(coord[0].AsInt);
             int yInd = grid.GridYToIndex(coord[1].AsInt * -1);
             GridComponent gc = grid.Grid2D[xInd, yInd];
@@ -134,9 +133,8 @@ public class FileImport : MonoBehaviour
                 }
 
                 // Store domains of strand.
-                Debug.Log("Start: " + startId + ",   End: " + endId);
                 List<GameObject> domain = helix.GetHelixSub(startId, endId, Convert.ToInt32(forward));
-                nucleotides.AddRange(domain);
+                nucleotides.InsertRange(0, domain);
 
                 // Store xover endpoints.
                 if (j == 0)
@@ -149,8 +147,8 @@ public class FileImport : MonoBehaviour
                 }
                 else
                 {
-                    xoverEndpoints.Add(domain[0]);
                     xoverEndpoints.Add(domain.Last());
+                    xoverEndpoints.Add(domain[0]);
                 }
             }
 
@@ -167,9 +165,10 @@ public class FileImport : MonoBehaviour
             }
 
             // Add xovers to strand object.
+            xoverEndpoints.Reverse();
             for (int j = 1; j < xoverEndpoints.Count; j += 2)
             {
-                DrawCrossover.CreateXover(xoverEndpoints[j - 1], xoverEndpoints[j]);
+                DrawCrossover.CreateXover(strandId, xoverEndpoints[j - 1], xoverEndpoints[j]);
             }
 
             // Assign DNA sequence to strand.

@@ -134,13 +134,17 @@ public class FileExport : MonoBehaviour
         string json = scadnano.ToString();
 
         FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
-        FileBrowser.ShowSaveDialog((paths) => { CreateFile(paths[0], json); }, 
+        FileBrowser.ShowSaveDialog((paths) => { CreateSCFile(paths[0], json); }, 
             () => { Debug.Log("Canceled"); }, 
             FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
     }
 
-    private void CreateFile(string path, string content)
+    private void CreateSCFile(string path, string content)
     {
+        if (!path.Contains(".sc"))
+        {
+            path += ".sc";
+        }
         File.WriteAllText(path, content);
     }
 }

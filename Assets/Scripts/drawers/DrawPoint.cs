@@ -23,7 +23,7 @@ public static class DrawPoint
     public static GameObject MakeNucleotide(Vector3 position, int id, int helixId, int direction)
     {
         GameObject sphere =
-                    Instantiate(Resources.Load("Icosphere"),
+                    Instantiate(Resources.Load("Nucleotide"),
                     position,
                     Quaternion.identity) as GameObject;
         sphere.name = "nucleotide" + id;

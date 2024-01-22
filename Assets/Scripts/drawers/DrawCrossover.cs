@@ -194,6 +194,17 @@ public class DrawCrossover : MonoBehaviour
         return xover;
     }
 
+    public static GameObject CreateXover(int strandId, GameObject startGO, GameObject endGO)
+    {
+        s_strandDict.TryGetValue(strandId, out Strand startStrand);
+
+        // Create crossover.
+        GameObject xover = DrawPoint.MakeXover(startGO, endGO, strandId);
+        startStrand.AddXover(xover);
+        startStrand.SetComponents();
+        return xover;
+    }
+
     public static void DoEraseXover(GameObject xover)
     {
         ICommand command = new EraseXoverCommand(xover, s_numStrands, xover.GetComponent<XoverComponent>().Color);
