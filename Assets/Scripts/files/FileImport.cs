@@ -168,7 +168,7 @@ public class FileImport : MonoBehaviour
             xoverEndpoints.Reverse();
             for (int j = 1; j < xoverEndpoints.Count; j += 2)
             {
-                DrawCrossover.CreateXover(strandId, xoverEndpoints[j - 1], xoverEndpoints[j]);
+                DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], xoverEndpoints[j]);
             }
 
             // Assign DNA sequence to strand.

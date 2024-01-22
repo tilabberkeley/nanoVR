@@ -183,25 +183,19 @@ public class DrawCrossover : MonoBehaviour
             return null;
         }
 
+        GameObject xover = CreateXoverHelper(startGO, endGO);
+        MergeStrand(startGO, endGO, xover);
+        return xover;
+    }
+
+    public static GameObject CreateXoverHelper(GameObject startGO, GameObject endGO)
+    {
         int strandId = startGO.GetComponent<NucleotideComponent>().StrandId;
         s_strandDict.TryGetValue(strandId, out Strand startStrand);
 
         // Create crossover.
         GameObject xover = DrawPoint.MakeXover(startGO, endGO, strandId);
         startStrand.AddXover(xover);
-
-        MergeStrand(startGO, endGO, xover);
-        return xover;
-    }
-
-    public static GameObject CreateXover(int strandId, GameObject startGO, GameObject endGO)
-    {
-        s_strandDict.TryGetValue(strandId, out Strand startStrand);
-
-        // Create crossover.
-        GameObject xover = DrawPoint.MakeXover(startGO, endGO, strandId);
-        startStrand.AddXover(xover);
-        startStrand.SetComponents();
         return xover;
     }
 
