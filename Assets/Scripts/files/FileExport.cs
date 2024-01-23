@@ -5,6 +5,7 @@ using static GlobalVariables;
 using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
+using System.Linq;
 
 public class FileExport : MonoBehaviour
 {
@@ -128,7 +129,7 @@ public class FileExport : MonoBehaviour
         JObject scadnano = new JObject
         {
             ["version"] = "0.19.1",
-            ["grid"] = s_helixDict[0]._gridComponent.Grid.Type,
+            ["grid"] = s_helixDict.Values.First()._gridComponent.Grid.Type,
             ["helices"] = helices,
             ["strands"] = strands,
         };
@@ -136,12 +137,12 @@ public class FileExport : MonoBehaviour
         string json = scadnano.ToString();
 
         FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
-        FileBrowser.ShowSaveDialog((paths) => { CreateSCFile(paths[0], json); }, 
+        FileBrowser.ShowSaveDialog((paths) => { CreateFile(paths[0], json); }, 
             () => { Debug.Log("Canceled"); }, 
             FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
     }
 
-    private void CreateSCFile(string path, string content)
+    private void CreateFile(string path, string content)
     {
         if (!path.Contains(".sc"))
         {
