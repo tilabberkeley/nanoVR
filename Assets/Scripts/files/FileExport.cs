@@ -40,12 +40,14 @@ public class FileExport : MonoBehaviour
     {
         // Creating helices data.
         JArray helices = new JArray();
-        for (int i = 0; i < s_helixDict.Count; i++)
+        foreach (var item in s_helixDict)
         {
-            Helix helix = s_helixDict[i];
+            int id = item.Key;
+            Helix helix = item.Value;
             JObject jsonHelix = new JObject
             {
                 ["grid_position"] = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y * -1 }, // Negative Y-axis for .sc format 
+                ["idx"] = id,
                 ["max_offset"] = helix.Length
             };
             helices.Add(jsonHelix);
@@ -126,7 +128,7 @@ public class FileExport : MonoBehaviour
         JObject scadnano = new JObject
         {
             ["version"] = "0.19.1",
-            ["grid"] = "square", // TODO: fix this to actual grid type
+            ["grid"] = s_helixDict[0]._gridComponent.Grid.Type,
             ["helices"] = helices,
             ["strands"] = strands,
         };

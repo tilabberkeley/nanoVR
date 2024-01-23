@@ -209,7 +209,7 @@ public class DrawCrossover : MonoBehaviour
     public static void EraseXover(GameObject xover, int strandId, Color color, bool splitBefore)
     {   
         var xoverComp = xover.GetComponent<XoverComponent>();
-        GameObject go = null;
+        GameObject go;
 
         if (splitBefore)
         {

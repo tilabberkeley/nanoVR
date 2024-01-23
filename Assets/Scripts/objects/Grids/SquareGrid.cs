@@ -3,15 +3,16 @@
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
-using System;
 using UnityEngine;
-using static GlobalVariables;
 
 /// <summary>
 /// Grid object keeps track of its helices.
 /// </summary>
 public class SquareGrid : DNAGrid
 {
+    private const string TYPE = "square";
+    public string Type { get { return TYPE; } }
+
     /// <summary>
     /// Square grid constructor. 
     /// </summary>
