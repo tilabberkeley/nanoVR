@@ -60,14 +60,12 @@ public class FileExport : MonoBehaviour
 
         if (exportType.Equals("scadnano"))
         {
-            FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
-            FileBrowser.ShowSaveDialog((paths) => { CreateFile(paths[0], GetSCJSON(), ".sc"); },
-                () => { Debug.Log("Canceled"); },
-                FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
+            WriteFile(GetSCJSON(), ".sc");
         }
         else
         {
-            StartCoroutine(CreateOxdnaFiles());
+            StartCoroutine(CreateOxdnaFile());
+            StartCoroutine(CreateTopFile());
         }
     }
 
@@ -178,7 +176,17 @@ public class FileExport : MonoBehaviour
         File.WriteAllText(path, content);
     }
 
-    IEnumerator CreateOxdnaFiles()
+    private void WriteFile(string content, string fileType)
+    {
+        FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
+        bool status = FileBrowser.ShowSaveDialog((paths) => { CreateFile(paths[0], content, fileType); },
+            () => { Debug.Log("Canceled"); },
+            FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
+
+        Debug.Log("Download status: " + status);
+    }
+
+    IEnumerator CreateTopFile()
     {
         // get scadnano file structure
         byte[] data = Encoding.UTF8.GetBytes(GetSCJSON());
@@ -196,10 +204,6 @@ public class FileExport : MonoBehaviour
             Debug.Log(request.error);
             yield break;
         }
-        else
-        {
-            Debug.Log(request.downloadHandler.text);
-        }
 
         string requestResult = request.downloadHandler.text;
         string pattern = @"(jobs[^""&]*)";
@@ -207,34 +211,9 @@ public class FileExport : MonoBehaviour
 
         /* the topology and oxdna file are downloaded from the second and third job links of the GET respone. */
 
-        // Download oxdna file
-        string oxdnaFileURL = matches[2].Value;
-        Debug.Log(oxdnaFileURL);
-        string oxdnaFileDownloadURL = tacoURL + "/" + oxdnaFileURL;
-
-        request = UnityWebRequest.Get(oxdnaFileDownloadURL);
-        yield return request.SendWebRequest();
-
-        if (request.result != UnityWebRequest.Result.Success)
-        {
-            Debug.Log(request.error);
-            yield break;
-        }
-        else
-        {
-            string dataInString = Encoding.UTF8.GetString(request.downloadHandler.data);
-
-            FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
-            FileBrowser.ShowSaveDialog((paths) => { CreateFile(paths[0], dataInString, ".oxdna"); },
-                () => { Debug.Log("Canceled"); },
-                FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
-
-            Debug.Log(".oxdna downloaded");
-        }
-
         // Download topology file
         string topFileURL = matches[1].Value;
-        Debug.Log(topFileURL);
+        // Debug.Log(topFileURL);
         string topFileDownloadURL = tacoURL + "/" + topFileURL;
 
         request = UnityWebRequest.Get(topFileDownloadURL);
@@ -249,14 +228,62 @@ public class FileExport : MonoBehaviour
         {
             string dataInString = Encoding.UTF8.GetString(request.downloadHandler.data);
 
-            Debug.Log("Starting .top download");
+            while (!FileBrowser.IsOpen)
+            {
+                yield return new WaitForSeconds(0.5f);
+            }
 
-            FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
-            FileBrowser.ShowSaveDialog((paths) => { CreateFile(paths[0], dataInString, ".top"); },
-                () => { Debug.Log("Canceled"); },
-                FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
+            WriteFile(dataInString, ".top");
 
             Debug.Log(".top downloaded");
+        }
+    }
+
+    IEnumerator CreateOxdnaFile()
+    {
+        // get scadnano file structure
+        byte[] data = Encoding.UTF8.GetBytes(GetSCJSON());
+
+        List<IMultipartFormSection> formData = new List<IMultipartFormSection>
+        {
+            new MultipartFormFileSection("scadnano_file", data, "", null)
+        };
+
+        UnityWebRequest request = UnityWebRequest.Post(postURL, formData);
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log(request.error);
+            yield break;
+        }
+
+        string requestResult = request.downloadHandler.text;
+        string pattern = @"(jobs[^""&]*)";
+        MatchCollection matches = Regex.Matches(requestResult, pattern);
+
+        /* the topology and oxdna file are downloaded from the second and third job links of the GET respone. */
+
+        // Download oxdna file
+        string oxdnaFileURL = matches[2].Value;
+        //Debug.Log(oxdnaFileURL);
+        string oxdnaFileDownloadURL = tacoURL + "/" + oxdnaFileURL;
+
+        request = UnityWebRequest.Get(oxdnaFileDownloadURL);
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log(request.error);
+            yield break;
+        }
+        else
+        {
+            string dataInString = Encoding.UTF8.GetString(request.downloadHandler.data);
+
+            WriteFile(dataInString, ".oxdna");
+
+            Debug.Log(".oxdna downloaded");
         }
     }
 }
