@@ -332,7 +332,7 @@ public class Strand
     // Sets cone direction (pointing left or right).
     public void SetCone()
     { 
-        _cone.GetComponent<Renderer>().material.SetColor("_Color", _color); // FIX: Abstract into Cone component
+        _cone.GetComponent<ConeComponent>().Color = _color; // FIX: Abstract into Cone component
         int helixId = _head.GetComponent<NucleotideComponent>().HelixId;
         GameObject neighbor = s_helixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
         Vector3 toDirection;
@@ -345,8 +345,7 @@ public class Strand
         {
             toDirection = neighbor.transform.position - _head.transform.position;
         }
-        _cone.transform.rotation = Quaternion.FromToRotation(Vector3.up, toDirection);
-        _cone.transform.position = _head.transform.position;
+        _cone.transform.SetPositionAndRotation(_head.transform.position, Quaternion.FromToRotation(Vector3.up, toDirection));
     }
 
     // Sets crossover color based on length (color of strand if appropriate length, gray if questionable, black if undoable).

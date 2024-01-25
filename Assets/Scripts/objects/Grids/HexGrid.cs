@@ -7,8 +7,8 @@ using UnityEngine;
 
 public class HexGrid : DNAGrid
 {
-    private const string TYPE = "hex";
-    public string Type { get { return TYPE; } }
+    private new const string TYPE = "hex";
+    public new string Type { get { return TYPE; } }
 
     /// <summary>
     /// Square grid constructor. 

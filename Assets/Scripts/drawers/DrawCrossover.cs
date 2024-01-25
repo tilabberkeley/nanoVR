@@ -196,6 +196,7 @@ public class DrawCrossover : MonoBehaviour
         // Create crossover.
         GameObject xover = DrawPoint.MakeXover(startGO, endGO, strandId);
         startStrand.AddXover(xover);
+        startStrand.SetXoverColor(xover);
         return xover;
     }
 
