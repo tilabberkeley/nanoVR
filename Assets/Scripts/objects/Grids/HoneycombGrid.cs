@@ -1,10 +1,15 @@
-using System.Collections;
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
+ */
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class HoneycombGrid : DNAGrid
 {
+    private const string TYPE = "honeycomb";
+    public override string Type { get { return TYPE; } }
+
     /// <summary>
     /// Honeycomb grid constructor. 
     /// </summary>

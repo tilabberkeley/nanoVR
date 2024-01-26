@@ -17,6 +17,7 @@ public abstract class DNAGrid
     protected const float GRIDCIRCLESIZEFACTOR = 7.0f;
     protected const float DIAMETER = 1 / GRIDCIRCLESIZEFACTOR;
     protected const float RADIUS = DIAMETER / 2;
+    public abstract string Type { get; }
 
     protected int _id;
     protected string _plane;
