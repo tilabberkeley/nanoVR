@@ -64,8 +64,7 @@ public class FileExport : MonoBehaviour
         }
         else
         {
-            StartCoroutine(CreateOxdnaFile());
-            StartCoroutine(CreateTopFile());
+            StartCoroutine(CreateOxdnaFiles());
         }
     }
 
@@ -173,6 +172,7 @@ public class FileExport : MonoBehaviour
         {
             path += fileType;
         }
+        Debug.Log("Downloading to: " + path);
         File.WriteAllText(path, content);
     }
 
@@ -186,60 +186,7 @@ public class FileExport : MonoBehaviour
         Debug.Log("Download status: " + status);
     }
 
-    IEnumerator CreateTopFile()
-    {
-        // get scadnano file structure
-        byte[] data = Encoding.UTF8.GetBytes(GetSCJSON());
-
-        List<IMultipartFormSection> formData = new List<IMultipartFormSection>
-        {
-            new MultipartFormFileSection("scadnano_file", data, "", null)
-        };
-
-        UnityWebRequest request = UnityWebRequest.Post(postURL, formData);
-        yield return request.SendWebRequest();
-
-        if (request.result != UnityWebRequest.Result.Success)
-        {
-            Debug.Log(request.error);
-            yield break;
-        }
-
-        string requestResult = request.downloadHandler.text;
-        string pattern = @"(jobs[^""&]*)";
-        MatchCollection matches = Regex.Matches(requestResult, pattern);
-
-        /* the topology and oxdna file are downloaded from the second and third job links of the GET respone. */
-
-        // Download topology file
-        string topFileURL = matches[1].Value;
-        // Debug.Log(topFileURL);
-        string topFileDownloadURL = tacoURL + "/" + topFileURL;
-
-        request = UnityWebRequest.Get(topFileDownloadURL);
-        yield return request.SendWebRequest();
-
-        if (request.result != UnityWebRequest.Result.Success)
-        {
-            Debug.Log(request.error);
-            yield break;
-        }
-        else
-        {
-            string dataInString = Encoding.UTF8.GetString(request.downloadHandler.data);
-
-            while (!FileBrowser.IsOpen)
-            {
-                yield return new WaitForSeconds(0.5f);
-            }
-
-            WriteFile(dataInString, ".top");
-
-            Debug.Log(".top downloaded");
-        }
-    }
-
-    IEnumerator CreateOxdnaFile()
+    IEnumerator CreateOxdnaFiles()
     {
         // get scadnano file structure
         byte[] data = Encoding.UTF8.GetBytes(GetSCJSON());
@@ -284,6 +231,34 @@ public class FileExport : MonoBehaviour
             WriteFile(dataInString, ".oxdna");
 
             Debug.Log(".oxdna downloaded");
+        }
+
+        // Download topology file
+        string topFileURL = matches[1].Value;
+        // Debug.Log(topFileURL);
+        string topFileDownloadURL = tacoURL + "/" + topFileURL;
+
+        request = UnityWebRequest.Get(topFileDownloadURL);
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log(request.error);
+            yield break;
+        }
+        else
+        {
+            string dataInString = Encoding.UTF8.GetString(request.downloadHandler.data);
+
+            while (FileBrowser.IsOpen)
+            {
+                yield return new WaitForSeconds(0.5f);
+                Debug.Log("Waiting!");
+            }
+
+            WriteFile(dataInString, ".top");
+
+            Debug.Log(".top downloaded");
         }
     }
 }
