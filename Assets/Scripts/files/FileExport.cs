@@ -139,7 +139,6 @@ public class FileExport : MonoBehaviour
                         ["start"] = Math.Min(ntc.Id, endId),
                         ["end"] = Math.Max(ntc.Id, endId) + 1, // +1 accounts for .sc endId being exclusive
                     };
-
                     if (insertions.Count > 0)
                     {
                         insertions.Sort();

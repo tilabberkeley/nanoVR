@@ -196,6 +196,7 @@ public class DrawCrossover : MonoBehaviour
         // Create crossover.
         GameObject xover = DrawPoint.MakeXover(startGO, endGO, strandId);
         startStrand.AddXover(xover);
+        startStrand.SetXoverColor(xover);
         return xover;
     }
 
@@ -209,7 +210,7 @@ public class DrawCrossover : MonoBehaviour
     public static void EraseXover(GameObject xover, int strandId, Color color, bool splitBefore)
     {   
         var xoverComp = xover.GetComponent<XoverComponent>();
-        GameObject go = null;
+        GameObject go;
 
         if (splitBefore)
         {

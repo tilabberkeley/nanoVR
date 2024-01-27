@@ -109,7 +109,6 @@ public static class DrawPoint
         nextGO.GetComponent<NucleotideComponent>().Xover = xover;
         xoverComp.PrevGO = prevGO;
         xoverComp.NextGO = nextGO;
-        xoverComp.Color = prevGO.GetComponent<NucleotideComponent>().Color;
         return xover;
     }
 
