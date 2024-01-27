@@ -59,6 +59,9 @@ public class FileExport : MonoBehaviour
         #endif
     }
 
+    /// <summary>
+    /// Initiates export of current DNA structure to the file browser.
+    /// </summary>
     public void Export()
     {
         string exportType = exportTypeDropdown.options[exportTypeDropdown.value].text;
@@ -73,6 +76,10 @@ public class FileExport : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Converts the current DNA structure into a .sc file.
+    /// </summary>
+    /// <returns>String representation of the DNA structure in .sc format.</returns>
     private string GetSCJSON()
     {
         // Creating helices data.
@@ -178,6 +185,11 @@ public class FileExport : MonoBehaviour
         return json;
     }
 
+    /// <summary>
+    /// Creates .sc file and writes to it given the file path and content.
+    /// </summary>
+    /// <param name="path">File path to write to.</param>
+    /// <param name="content">Content of the .sc file.</param>
     private void CreateSCFile(string path, string content)
     {
         if (!path.Contains(".sc"))
@@ -187,6 +199,10 @@ public class FileExport : MonoBehaviour
         File.WriteAllText(path, content);
     }
 
+    /// <summary>
+    /// Writes .sc file to file browser.
+    /// </summary>
+    /// <param name="content">Contennt of the .sc file.</param>
     private void WriteSCFile(string content)
     {
         FileBrowser.Instance.enabled = true;
@@ -198,15 +214,26 @@ public class FileExport : MonoBehaviour
         Debug.Log("Download result: " + result);
     }
 
+    /// <summary>
+    /// Creates .top and .oxdna files and writes to them given the file path and content.
+    /// </summary>
+    /// <param name="path">File path to write to.</param>
+    /// <param name="topContent">Content of .top file.</param>
+    /// <param name="oxdnaContent">Content of .oxdna file.</param>
     private void CreateOxdnaFiles(string path, byte[] topContent, byte[] oxdnaContent)
     {
         string topPath = path + ".top";
-        string oxdnaPath = path + "oxdna";
+        string oxdnaPath = path + ".oxdna";
 
         File.WriteAllBytes(topPath, topContent);
         File.WriteAllBytes(oxdnaPath, oxdnaContent);
     }
 
+    /// <summary>
+    /// Writes the .top and .oxdna files to file browser.
+    /// </summary>
+    /// <param name="topContent">Content of .top file.</param>
+    /// <param name="oxdnaContent">Content of .oxdna file.</param>
     private void WriteOxdnaFiles(byte[] topContent, byte[] oxdnaContent)
     {
         FileBrowser.Instance.enabled = true;
@@ -218,6 +245,10 @@ public class FileExport : MonoBehaviour
         Debug.Log("Download result: " + result);
     }
 
+    /// <summary>
+    /// Coroutine that downloads .top and .oxdna files from tacoxDNA using scandnano and writes them.
+    /// </summary>
+    /// <returns>Coroutine.</returns>
     IEnumerator CreateOxdnaFiles()
     {
         // get scadnano file structure
@@ -245,15 +276,18 @@ public class FileExport : MonoBehaviour
         string pattern = @"(jobs[^""&]*)";
         MatchCollection matches = Regex.Matches(requestResult, pattern);
 
+        if (matches.Count != 3)
+        {
+            Debug.Log("Conversion to oxdna files failed");
+            yield break;
+        }
+
         /* the topology and oxdna file are downloaded from the second and third job links of the GET respone. */
         byte[] topContent;
         byte[] oxdnaContent;
 
-        Debug.Log("Getting top file");
-
         // Download topology file
         string topFileURL = matches[1].Value;
-        // Debug.Log(topFileURL);
         string topFileDownloadURL = tacoURL + "/" + topFileURL;
 
         request = UnityWebRequest.Get(topFileDownloadURL);
@@ -268,14 +302,11 @@ public class FileExport : MonoBehaviour
         {
             topContent = request.downloadHandler.data;
 
-            Debug.Log(".top downloaded");
+            Debug.Log(".top file downloaded");
         }
-
-        Debug.Log("Getting oxdna file");
 
         // Download oxdna file
         string oxdnaFileURL = matches[2].Value;
-        //Debug.Log(oxdnaFileURL);
         string oxdnaFileDownloadURL = tacoURL + "/" + oxdnaFileURL;
 
         request = UnityWebRequest.Get(oxdnaFileDownloadURL);
@@ -290,7 +321,7 @@ public class FileExport : MonoBehaviour
         {
             oxdnaContent = request.downloadHandler.data;
 
-            Debug.Log(".oxdna downloaded");
+            Debug.Log(".oxdna file downloaded");
         }
 
         WriteOxdnaFiles(topContent, oxdnaContent);
