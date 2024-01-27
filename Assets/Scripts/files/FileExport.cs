@@ -189,11 +189,8 @@ public class FileExport : MonoBehaviour
 
     private void WriteSCFile(string content)
     {
-        Debug.Log("file browser set to true");
         FileBrowser.Instance.enabled = true;
-        Debug.Log("Moving file browser");
         FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
-        Debug.Log("trying to access path");
         bool result = FileBrowser.ShowSaveDialog((paths) => { CreateSCFile(paths[0], content); },
             () => { Debug.Log("Canceled"); },
             FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
@@ -203,7 +200,6 @@ public class FileExport : MonoBehaviour
 
     private void CreateOxdnaFiles(string path, byte[] topContent, byte[] oxdnaContent)
     {
-        Debug.Log("trying to create");
         string topPath = path + ".top";
         string oxdnaPath = path + "oxdna";
 
@@ -213,11 +209,8 @@ public class FileExport : MonoBehaviour
 
     private void WriteOxdnaFiles(byte[] topContent, byte[] oxdnaContent)
     {
-        Debug.Log("file browser set to true");
         FileBrowser.Instance.enabled = true;
-        Debug.Log("Moving file browser");
         FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
-        Debug.Log("trying to access path");
         bool result = FileBrowser.ShowSaveDialog((paths) => { CreateOxdnaFiles(paths[0], topContent, oxdnaContent); },
             () => { Debug.Log("Canceled"); },
             FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
