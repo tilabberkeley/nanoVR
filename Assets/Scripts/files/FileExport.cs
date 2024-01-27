@@ -1,17 +1,21 @@
-﻿using OVRSimpleJSON;
-using UnityEngine;
-using SimpleFileBrowser;
-using static GlobalVariables;
-using Newtonsoft.Json.Linq;
+﻿/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
+ */
 using System;
 using System.IO;
-using System.Reflection;
-using UnityEngine.UI;
+using System.Linq;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
+using UnityEngine;
 using UnityEngine.Networking;
+using SimpleFileBrowser;
+using Newtonsoft.Json.Linq;
+using static GlobalVariables;
+using UnityEngine.UI;
+using System.Reflection;
 using System.Collections;
 using System.Text;
+using System.Text.RegularExpressions;
 
 public class FileExport : MonoBehaviour
 {
@@ -25,6 +29,7 @@ public class FileExport : MonoBehaviour
     {
         FileBrowser.HideDialog();
         FileBrowser.SingleClickMode = true;
+        FileBrowser.Instance.enabled = false;
 
         // Code to get all file access on Oculus Quest 2 
         using var buildVersion = new AndroidJavaClass("android.os.Build$VERSION");
@@ -60,7 +65,7 @@ public class FileExport : MonoBehaviour
 
         if (exportType.Equals("scadnano"))
         {
-            WriteFile(GetSCJSON(), ".sc");
+            WriteSCFile(GetSCJSON());
         }
         else
         {
@@ -72,12 +77,14 @@ public class FileExport : MonoBehaviour
     {
         // Creating helices data.
         JArray helices = new JArray();
-        for (int i = 0; i < s_helixDict.Count; i++)
+        foreach (var item in s_helixDict)
         {
-            Helix helix = s_helixDict[i];
+            int id = item.Key;
+            Helix helix = item.Value;
             JObject jsonHelix = new JObject
             {
                 ["grid_position"] = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y * -1 }, // Negative Y-axis for .sc format 
+                ["idx"] = id,
                 ["max_offset"] = helix.Length
             };
             helices.Add(jsonHelix);
@@ -88,15 +95,14 @@ public class FileExport : MonoBehaviour
         foreach (var item in s_strandDict)
         {
             Strand strand = item.Value;
-            JObject domain = new JObject();
             JArray domains = new JArray();
-            JArray insertions = new JArray();
-            JArray deletions = new JArray();
-            bool endGO = false;
-            int startId = 0;
+            List<int> insertions = new List<int>();
+            List<int> deletions = new List<int>();
+            bool isStartGO = false;
+            int endId = 0;
 
             // Creating domains data for each strand.
-            for (int i = 0; i < strand.Nucleotides.Count; i++)
+            for (int i = strand.Nucleotides.Count - 1; i >= 0; i--)
             {
                 var nt = strand.Nucleotides[i];
                 var ntc = nt.GetComponent<NucleotideComponent>();
@@ -115,39 +121,44 @@ public class FileExport : MonoBehaviour
                     insertions.Add(ntc.Id);
                 }
 
-                if ((i == 0) || (ntc.HasXover() && !endGO))
+                if ((i == 0) || (ntc.HasXover() && !isStartGO))
                 {
-                    startId = ntc.Id;
-                    endGO = true;
+                    endId = ntc.Id;
+                    isStartGO = true;
                 }
                 else if ((i == strand.Nucleotides.Count - 1)
-                    || (ntc.HasXover() && endGO))
+                    || (ntc.HasXover() && isStartGO))
                 {
-                    Debug.Log("startId: " + startId);
-                    Debug.Log("endId: " + ntc.Id);
-                    endGO = false;
-                    domain["helix"] = ntc.HelixId;
-                    domain["forward"] = Convert.ToBoolean(ntc.Direction);
-                    domain["start"] = Math.Min(startId, ntc.Id);
-                    domain["end"] = Math.Max(startId, ntc.Id) + 1;
+                    Debug.Log("startId: " + ntc.Id);
+                    Debug.Log("endId: " + endId);
+                    isStartGO = false;
+                    JObject domain = new JObject
+                    {
+                        ["helix"] = ntc.HelixId,
+                        ["forward"] = Convert.ToBoolean(ntc.Direction),
+                        ["start"] = Math.Min(ntc.Id, endId),
+                        ["end"] = Math.Max(ntc.Id, endId) + 1, // +1 accounts for .sc endId being exclusive
+                    };
+
                     if (insertions.Count > 0)
                     {
-                        domain["insertions"] = insertions;
+                        insertions.Sort();
+                        domain["insertions"] = JArray.FromObject(insertions);
                     }
                     if (deletions.Count > 0)
                     {
-                        domain["deletions"] = deletions;
+                        deletions.Sort();
+                        domain["deletions"] = JArray.FromObject(deletions);
                     }
                     domains.Add(domain);
-                    domain = new JObject();
-                    insertions = new JArray();
-                    deletions = new JArray();
+                    insertions.Clear();
+                    deletions.Clear();
                 }
             }
 
             JObject jsonStrand = new JObject
             {
-                ["color"] = ColorUtility.ToHtmlStringRGB(strand.GetColor()).ToLower(),
+                ["color"] = "#" + ColorUtility.ToHtmlStringRGB(strand.GetColor()).ToLower(),
                 ["sequence"] = strand.Sequence,
                 ["domains"] = domains,
             };
@@ -158,32 +169,61 @@ public class FileExport : MonoBehaviour
         JObject scadnano = new JObject
         {
             ["version"] = "0.19.1",
-            ["grid"] = "square", // TODO: fix this to actual grid type
+            ["grid"] = s_helixDict.Values.First()._gridComponent.Grid.Type,
             ["helices"] = helices,
             ["strands"] = strands,
         };
 
-        return scadnano.ToString();
+        string json = scadnano.ToString();
+
+        return json;
     }
 
-    private void CreateFile(string path, string content, string fileType)
-    { 
-        if (!path.Contains(fileType))
+    private void CreateSCFile(string path, string content)
+    {
+        if (!path.Contains(".sc"))
         {
-            path += fileType;
+            path += ".sc";
         }
-        Debug.Log("Downloading to: " + path);
         File.WriteAllText(path, content);
     }
 
-    private void WriteFile(string content, string fileType)
+    private void WriteSCFile(string content)
     {
+        Debug.Log("file browser set to true");
+        FileBrowser.Instance.enabled = true;
+        Debug.Log("Moving file browser");
         FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
-        bool status = FileBrowser.ShowSaveDialog((paths) => { CreateFile(paths[0], content, fileType); },
+        Debug.Log("trying to access path");
+        bool result = FileBrowser.ShowSaveDialog((paths) => { CreateSCFile(paths[0], content); },
             () => { Debug.Log("Canceled"); },
             FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
 
-        Debug.Log("Download status: " + status);
+        Debug.Log("Download result: " + result);
+    }
+
+    private void CreateOxdnaFiles(string path, byte[] topContent, byte[] oxdnaContent)
+    {
+        Debug.Log("trying to create");
+        string topPath = path + ".top";
+        string oxdnaPath = path + "oxdna";
+
+        File.WriteAllBytes(topPath, topContent);
+        File.WriteAllBytes(oxdnaPath, oxdnaContent);
+    }
+
+    private void WriteOxdnaFiles(byte[] topContent, byte[] oxdnaContent)
+    {
+        Debug.Log("file browser set to true");
+        FileBrowser.Instance.enabled = true;
+        Debug.Log("Moving file browser");
+        FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
+        Debug.Log("trying to access path");
+        bool result = FileBrowser.ShowSaveDialog((paths) => { CreateOxdnaFiles(paths[0], topContent, oxdnaContent); },
+            () => { Debug.Log("Canceled"); },
+            FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
+
+        Debug.Log("Download result: " + result);
     }
 
     IEnumerator CreateOxdnaFiles()
@@ -204,34 +244,20 @@ public class FileExport : MonoBehaviour
             Debug.Log(request.error);
             yield break;
         }
+        else
+        {
+            Debug.Log(request.downloadHandler.text);
+        }
 
         string requestResult = request.downloadHandler.text;
         string pattern = @"(jobs[^""&]*)";
         MatchCollection matches = Regex.Matches(requestResult, pattern);
 
         /* the topology and oxdna file are downloaded from the second and third job links of the GET respone. */
+        byte[] topContent;
+        byte[] oxdnaContent;
 
-        // Download oxdna file
-        string oxdnaFileURL = matches[2].Value;
-        //Debug.Log(oxdnaFileURL);
-        string oxdnaFileDownloadURL = tacoURL + "/" + oxdnaFileURL;
-
-        request = UnityWebRequest.Get(oxdnaFileDownloadURL);
-        yield return request.SendWebRequest();
-
-        if (request.result != UnityWebRequest.Result.Success)
-        {
-            Debug.Log(request.error);
-            yield break;
-        }
-        else
-        {
-            string dataInString = Encoding.UTF8.GetString(request.downloadHandler.data);
-
-            WriteFile(dataInString, ".oxdna");
-
-            Debug.Log(".oxdna downloaded");
-        }
+        Debug.Log("Getting top file");
 
         // Download topology file
         string topFileURL = matches[1].Value;
@@ -248,17 +274,33 @@ public class FileExport : MonoBehaviour
         }
         else
         {
-            string dataInString = Encoding.UTF8.GetString(request.downloadHandler.data);
-
-            while (FileBrowser.IsOpen)
-            {
-                yield return new WaitForSeconds(0.5f);
-                Debug.Log("Waiting!");
-            }
-
-            WriteFile(dataInString, ".top");
+            topContent = request.downloadHandler.data;
 
             Debug.Log(".top downloaded");
         }
+
+        Debug.Log("Getting oxdna file");
+
+        // Download oxdna file
+        string oxdnaFileURL = matches[2].Value;
+        //Debug.Log(oxdnaFileURL);
+        string oxdnaFileDownloadURL = tacoURL + "/" + oxdnaFileURL;
+
+        request = UnityWebRequest.Get(oxdnaFileDownloadURL);
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log(request.error);
+            yield break;
+        }
+        else
+        {
+            oxdnaContent = request.downloadHandler.data;
+
+            Debug.Log(".oxdna downloaded");
+        }
+
+        WriteOxdnaFiles(topContent, oxdnaContent);
     }
 }
