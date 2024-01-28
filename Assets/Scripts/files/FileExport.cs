@@ -23,7 +23,8 @@ public class FileExport : MonoBehaviour
     private const string postURL = "http://tacoxdna.sissa.it/scadnano_oxDNA/submit";
     private const string tacoURL = "http://tacoxdna.sissa.it";
 
-    [SerializeField] Dropdown exportTypeDropdown;
+    [SerializeField] private GameObject _leftHandController;
+    [SerializeField] private Dropdown _exportTypeDropdown;
 
     void Awake()
     {
@@ -64,7 +65,9 @@ public class FileExport : MonoBehaviour
     /// </summary>
     public void Export()
     {
-        string exportType = exportTypeDropdown.options[exportTypeDropdown.value].text;
+        // Disable nanoVR UI
+        _leftHandController.GetComponent<Menu>().ToggleMenu();
+        string exportType = _exportTypeDropdown.options[_exportTypeDropdown.value].text;
 
         if (exportType.Equals("scadnano"))
         {
