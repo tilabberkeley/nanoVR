@@ -15,7 +15,7 @@ public class Menu : MonoBehaviour
     [SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
-    [SerializeField] private Canvas _menu;
+    [SerializeField] private GameObject _nanoVRUI;
     public Button[] tabButtons;
     public GameObject[] panels;
     bool primaryReleased = true;
@@ -31,7 +31,6 @@ public class Menu : MonoBehaviour
 
     private void Start()
     {
-        _menu = _menu.GetComponent<Canvas>();
         // Initialize the menu by setting up the button click events
         for (int i = 0; i < tabButtons.Length; i++)
         {
@@ -100,6 +99,6 @@ public class Menu : MonoBehaviour
 
     public void ToggleMenu()
     {
-        _menu.enabled = !_menu.enabled;
+        _nanoVRUI.SetActive(!_nanoVRUI.activeInHierarchy);
     }
 }

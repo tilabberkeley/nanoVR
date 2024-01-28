@@ -15,6 +15,9 @@ using static Utils;
 public class FileImport : MonoBehaviour
 {
     private const string PLANE = "XY";
+
+    [SerializeField] private GameObject _leftHandController;
+
     void Awake()
     {
         FileBrowser.HideDialog();
@@ -46,6 +49,9 @@ public class FileImport : MonoBehaviour
 
     public void OpenFile()
     {
+        // Disable nanoVR UI
+        _leftHandController.GetComponent<Menu>().ToggleMenu();
+
         // Center File Browser with Camera
         FileBrowser.Instance.GetComponent<Canvas>().enabled = true;
         FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
