@@ -90,12 +90,12 @@ public class FileExport : MonoBehaviour
                     insertions.Add(ntc.Id);
                 }
 
-                if ((i == 0) || (ntc.HasXover() && !isStartGO))
+                if ((i == strand.Nucleotides.Count - 1) || (ntc.HasXover() && !isStartGO))
                 {
                     endId = ntc.Id;
                     isStartGO = true;
                 }
-                else if ((i == strand.Nucleotides.Count - 1)
+                else if ((i == 0)
                     || (ntc.HasXover() && isStartGO))
                 {
                     Debug.Log("startId: " + ntc.Id);
@@ -127,7 +127,7 @@ public class FileExport : MonoBehaviour
 
             JObject jsonStrand = new JObject
             {
-                ["color"] = ColorUtility.ToHtmlStringRGB(strand.GetColor()).ToLower(),
+                ["color"] = "#" + ColorUtility.ToHtmlStringRGB(strand.GetColor()).ToLower(),
                 ["sequence"] = strand.Sequence,
                 ["domains"] = domains,
             };

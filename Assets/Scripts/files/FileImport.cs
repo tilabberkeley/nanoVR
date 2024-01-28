@@ -1,4 +1,5 @@
-﻿/*
+﻿
+/*
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
@@ -7,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using Newtonsoft.Json.Linq;
+using OVRSimpleJSON;
 using SimpleFileBrowser;
 using static GlobalVariables;
 using static Utils;
@@ -87,19 +88,19 @@ public class FileImport : MonoBehaviour
 
     private void ParseSC(string fileContents)
     {
-        JObject origami = JObject.Parse(fileContents);
+        JSONNode origami = JSON.Parse(fileContents);
         string gridType = CleanSlash(origami["grid"].ToString());
-        JArray helices = origami["helices"].ToObject<JArray>();
-        JArray strands = origami["strands"].ToObject<JArray>();
+        JSONArray helices = origami["helices"].AsArray;
+        JSONArray strands = origami["strands"].AsArray;
         DNAGrid grid = DrawGrid.CreateGrid(s_numGrids, PLANE, transform.position, gridType);
         int prevNumHelices = s_numHelices;
 
         for (int i = 0; i < helices.Count; i++)
         {
-            JArray coord = helices[i]["grid_position"].ToObject<JArray>();
-            int length = helices[i]["max_offset"].ToObject<int>();
-            int xInd = grid.GridXToIndex(coord[0].ToObject<int>());
-            int yInd = grid.GridYToIndex(coord[1].ToObject<int>() * -1);
+            JSONArray coord = helices[i]["grid_position"].AsArray;
+            int length = helices[i]["max_offset"].AsInt;
+            int xInd = grid.GridXToIndex(coord[0].AsInt);
+            int yInd = grid.GridYToIndex(coord[1].AsInt * -1);
             GridComponent gc = grid.Grid2D[xInd, yInd];
             grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
             grid.CheckExpansion(gc);
@@ -107,7 +108,7 @@ public class FileImport : MonoBehaviour
 
         for (int i = 0; i < strands.Count; i++)
         {
-            JArray domains = strands[i]["domains"].ToObject<JArray>();
+            JSONArray domains = strands[i]["domains"].AsArray;
             string sequence = CleanSlash(strands[i]["sequence"].ToString());
             string hexColor = CleanSlash(strands[i]["color"].ToString());
             ColorUtility.TryParseHtmlString(hexColor, out Color color);
@@ -118,24 +119,24 @@ public class FileImport : MonoBehaviour
             List<(GameObject, int)> sInsertions = new List<(GameObject, int)>();
             for (int j = 0; j < domains.Count; j++)
             {
-                int helixId = domains[j]["helix"].ToObject<int>() + prevNumHelices;
-                bool forward = domains[j]["forward"].ToObject<bool>();
-                int startId = domains[j]["start"].ToObject<int>();
-                int endId = domains[j]["end"].ToObject<int>() - 1; // End id is exclusive in .sc file
-                JArray deletions = domains[j]["deletions"].ToObject<JArray>();
-                JArray insertions = domains[j]["insertions"].ToObject<JArray>();
+                int helixId = domains[j]["helix"].AsInt + prevNumHelices;
+                bool forward = domains[j]["forward"].AsBool;
+                int startId = domains[j]["start"].AsInt;
+                int endId = domains[j]["end"].AsInt - 1; // End id is exclusive in .sc file
+                JSONArray deletions = domains[j]["deletions"].AsArray;
+                JSONArray insertions = domains[j]["insertions"].AsArray;
                 Helix helix = s_helixDict[helixId];
 
                 // Store deletions and insertions.
                 for (int k = 0; k < deletions.Count; k++)
                 {
-                    GameObject nt = helix.GetNucleotide(deletions[k].ToObject<int>(), Convert.ToInt32(forward));
+                    GameObject nt = helix.GetNucleotide(deletions[k], Convert.ToInt32(forward));
                     sDeletions.Add(nt);
                 }
                 for (int k = 0; k < insertions.Count; k++)
                 {
-                    GameObject nt = helix.GetNucleotide(insertions[k][0].ToObject<int>(), Convert.ToInt32(forward));
-                    sInsertions.Add((nt, insertions[k][1].ToObject<int>()));
+                    GameObject nt = helix.GetNucleotide(insertions[k][0], Convert.ToInt32(forward));
+                    sInsertions.Add((nt, insertions[k][1]));
                 }
 
                 // Store domains of strand.
