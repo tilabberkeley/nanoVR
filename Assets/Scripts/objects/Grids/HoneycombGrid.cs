@@ -8,7 +8,7 @@ using UnityEngine;
 public class HoneycombGrid : DNAGrid
 {
     private const string TYPE = "honeycomb";
-    public string Type { get { return TYPE; } }
+    public override string Type { get { return TYPE; } }
 
     /// <summary>
     /// Honeycomb grid constructor. 

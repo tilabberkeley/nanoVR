@@ -7,12 +7,24 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using SimpleFileBrowser;
 using Newtonsoft.Json.Linq;
 using static GlobalVariables;
+using UnityEngine.UI;
+using System.Reflection;
+using System.Collections;
+using System.Text;
+using System.Text.RegularExpressions;
 
 public class FileExport : MonoBehaviour
 {
+    // URLs for tacoxdna website.
+    private const string postURL = "http://tacoxdna.sissa.it/scadnano_oxDNA/submit";
+    private const string tacoURL = "http://tacoxdna.sissa.it";
+
+    [SerializeField] Dropdown exportTypeDropdown;
+
     void Awake()
     {
         FileBrowser.HideDialog();
@@ -40,9 +52,35 @@ public class FileExport : MonoBehaviour
                 currentActivity.Call("startActivity", intent);
             }
         }
+
+        // Added this because wasn't getting access to files.
+        #if !UNITY_EDITOR && UNITY_ANDROID
+        typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, (bool?)false);
+        #endif
     }
 
+    /// <summary>
+    /// Initiates export of current DNA structure to the file browser.
+    /// </summary>
     public void Export()
+    {
+        string exportType = exportTypeDropdown.options[exportTypeDropdown.value].text;
+
+        if (exportType.Equals("scadnano"))
+        {
+            WriteSCFile(GetSCJSON());
+        }
+        else
+        {
+            StartCoroutine(CreateOxdnaFiles());
+        }
+    }
+
+    /// <summary>
+    /// Converts the current DNA structure into a .sc file.
+    /// </summary>
+    /// <returns>String representation of the DNA structure in .sc format.</returns>
+    private string GetSCJSON()
     {
         // Creating helices data.
         JArray helices = new JArray();
@@ -58,7 +96,7 @@ public class FileExport : MonoBehaviour
             };
             helices.Add(jsonHelix);
         }
-       
+
         // Creating strands data.
         JArray strands = new JArray();
         foreach (var item in s_strandDict)
@@ -108,7 +146,6 @@ public class FileExport : MonoBehaviour
                         ["start"] = Math.Min(ntc.Id, endId),
                         ["end"] = Math.Max(ntc.Id, endId) + 1, // +1 accounts for .sc endId being exclusive
                     };
-                
                     if (insertions.Count > 0)
                     {
                         insertions.Sort();
@@ -145,19 +182,148 @@ public class FileExport : MonoBehaviour
 
         string json = scadnano.ToString();
 
-        FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
-        FileBrowser.Instance.enabled = true;
-        FileBrowser.ShowSaveDialog((paths) => { CreateFile(paths[0], json); }, 
-            () => { Debug.Log("Canceled"); }, 
-            FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
+        return json;
     }
 
-    private void CreateFile(string path, string content)
+    /// <summary>
+    /// Creates .sc file and writes to it given the file path and content.
+    /// </summary>
+    /// <param name="path">File path to write to.</param>
+    /// <param name="content">Content of the .sc file.</param>
+    private void CreateSCFile(string path, string content)
     {
         if (!path.Contains(".sc"))
         {
             path += ".sc";
         }
         File.WriteAllText(path, content);
+    }
+
+    /// <summary>
+    /// Writes .sc file to file browser.
+    /// </summary>
+    /// <param name="content">Contennt of the .sc file.</param>
+    private void WriteSCFile(string content)
+    {
+        FileBrowser.Instance.enabled = true;
+        FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
+        bool result = FileBrowser.ShowSaveDialog((paths) => { CreateSCFile(paths[0], content); },
+            () => { Debug.Log("Canceled"); },
+            FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
+
+        Debug.Log("Download result: " + result);
+    }
+
+    /// <summary>
+    /// Creates .top and .oxdna files and writes to them given the file path and content.
+    /// </summary>
+    /// <param name="path">File path to write to.</param>
+    /// <param name="topContent">Content of .top file.</param>
+    /// <param name="oxdnaContent">Content of .oxdna file.</param>
+    private void CreateOxdnaFiles(string path, byte[] topContent, byte[] oxdnaContent)
+    {
+        string topPath = path + ".top";
+        string oxdnaPath = path + ".oxdna";
+
+        File.WriteAllBytes(topPath, topContent);
+        File.WriteAllBytes(oxdnaPath, oxdnaContent);
+    }
+
+    /// <summary>
+    /// Writes the .top and .oxdna files to file browser.
+    /// </summary>
+    /// <param name="topContent">Content of .top file.</param>
+    /// <param name="oxdnaContent">Content of .oxdna file.</param>
+    private void WriteOxdnaFiles(byte[] topContent, byte[] oxdnaContent)
+    {
+        FileBrowser.Instance.enabled = true;
+        FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
+        bool result = FileBrowser.ShowSaveDialog((paths) => { CreateOxdnaFiles(paths[0], topContent, oxdnaContent); },
+            () => { Debug.Log("Canceled"); },
+            FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
+
+        Debug.Log("Download result: " + result);
+    }
+
+    /// <summary>
+    /// Coroutine that downloads .top and .oxdna files from tacoxDNA using scandnano and writes them.
+    /// </summary>
+    /// <returns>Coroutine.</returns>
+    IEnumerator CreateOxdnaFiles()
+    {
+        // get scadnano file structure
+        byte[] data = Encoding.UTF8.GetBytes(GetSCJSON());
+
+        List<IMultipartFormSection> formData = new List<IMultipartFormSection>
+        {
+            new MultipartFormFileSection("scadnano_file", data, "", null)
+        };
+
+        UnityWebRequest request = UnityWebRequest.Post(postURL, formData);
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log(request.error);
+            yield break;
+        }
+        else
+        {
+            Debug.Log(request.downloadHandler.text);
+        }
+
+        string requestResult = request.downloadHandler.text;
+        string pattern = @"(jobs[^""&]*)";
+        MatchCollection matches = Regex.Matches(requestResult, pattern);
+
+        if (matches.Count != 3)
+        {
+            Debug.Log("Conversion to oxdna files failed");
+            yield break;
+        }
+
+        /* the topology and oxdna file are downloaded from the second and third job links of the GET respone. */
+        byte[] topContent;
+        byte[] oxdnaContent;
+
+        // Download topology file
+        string topFileURL = matches[1].Value;
+        string topFileDownloadURL = tacoURL + "/" + topFileURL;
+
+        request = UnityWebRequest.Get(topFileDownloadURL);
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log(request.error);
+            yield break;
+        }
+        else
+        {
+            topContent = request.downloadHandler.data;
+
+            Debug.Log(".top file downloaded");
+        }
+
+        // Download oxdna file
+        string oxdnaFileURL = matches[2].Value;
+        string oxdnaFileDownloadURL = tacoURL + "/" + oxdnaFileURL;
+
+        request = UnityWebRequest.Get(oxdnaFileDownloadURL);
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log(request.error);
+            yield break;
+        }
+        else
+        {
+            oxdnaContent = request.downloadHandler.data;
+
+            Debug.Log(".oxdna file downloaded");
+        }
+
+        WriteOxdnaFiles(topContent, oxdnaContent);
     }
 }

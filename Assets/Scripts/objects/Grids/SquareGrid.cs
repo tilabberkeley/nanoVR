@@ -11,7 +11,7 @@ using UnityEngine;
 public class SquareGrid : DNAGrid
 {
     private const string TYPE = "square";
-    public string Type { get { return TYPE; } }
+    public override string Type { get { return TYPE; } }
 
     /// <summary>
     /// Square grid constructor. 
