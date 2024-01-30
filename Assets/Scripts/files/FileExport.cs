@@ -24,6 +24,7 @@ public class FileExport : MonoBehaviour
     private const string tacoURL = "http://tacoxdna.sissa.it";
 
     [SerializeField] Dropdown exportTypeDropdown;
+    [SerializeField] Canvas Menu;
 
     void Awake()
     {
@@ -64,6 +65,10 @@ public class FileExport : MonoBehaviour
     /// </summary>
     public void Export()
     {
+        // enable file browser, disable menu
+        FileBrowser.Instance.enabled = true;
+        Menu.enabled = false;
+
         string exportType = exportTypeDropdown.options[exportTypeDropdown.value].text;
 
         if (exportType.Equals("scadnano"))
@@ -205,8 +210,6 @@ public class FileExport : MonoBehaviour
     /// <param name="content">Contennt of the .sc file.</param>
     private void WriteSCFile(string content)
     {
-        FileBrowser.Instance.enabled = true;
-        FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
         bool result = FileBrowser.ShowSaveDialog((paths) => { CreateSCFile(paths[0], content); },
             () => { Debug.Log("Canceled"); },
             FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
@@ -236,8 +239,6 @@ public class FileExport : MonoBehaviour
     /// <param name="oxdnaContent">Content of .oxdna file.</param>
     private void WriteOxdnaFiles(byte[] topContent, byte[] oxdnaContent)
     {
-        FileBrowser.Instance.enabled = true;
-        FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
         bool result = FileBrowser.ShowSaveDialog((paths) => { CreateOxdnaFiles(paths[0], topContent, oxdnaContent); },
             () => { Debug.Log("Canceled"); },
             FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
