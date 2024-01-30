@@ -36,7 +36,7 @@ public static class GlobalVariables
     public static List<DNAGrid> s_gridList = new List<DNAGrid>();
     public static Dictionary<int, Helix> s_helixDict = new Dictionary<int, Helix>();
     public static Dictionary<int, Strand> s_strandDict = new Dictionary<int, Strand>();
-    public static Dictionary<int, DNAGrid> s_gridDict = new Dictionary<int, DNAGrid>();
+    public static Dictionary<object, DNAGrid> s_gridDict = new Dictionary<object, DNAGrid>();
     public static int s_numStrands = 0;
     public static int s_numHelices = 0;
     public static int s_numGrids = 0;

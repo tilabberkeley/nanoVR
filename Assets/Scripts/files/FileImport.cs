@@ -2,8 +2,7 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
- */
-using System;
+ */using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
@@ -43,6 +42,11 @@ public class FileImport : MonoBehaviour
                 currentActivity.Call("startActivity", intent);
             }
         }
+    }
+
+    private void Start()
+    {
+        FileBrowser.Instance.GetComponent<Canvas>().enabled = false;
     }
 
     public void OpenFile()
@@ -88,6 +92,9 @@ public class FileImport : MonoBehaviour
 
     private void ParseSC(string fileContents)
     {
+        // TODO: Support grid groups (multiple grids)
+        // TODO: Split these in different methods?
+
         JSONNode origami = JSON.Parse(fileContents);
         string gridType = CleanSlash(origami["grid"].ToString());
         JSONArray helices = origami["helices"].AsArray;

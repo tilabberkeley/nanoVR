@@ -1,6 +1,6 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
 using UnityEngine;
@@ -67,8 +67,8 @@ public class DrawSplit : MonoBehaviour
         }
 
         // Resets triggers to avoid multiple selections.                                              
-        if ((_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-                && !triggerValue))
+        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
+                && !triggerValue)
         {
             triggerReleased = true;
         }

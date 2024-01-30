@@ -496,5 +496,45 @@ public class Helix
             GameObject.Destroy(nucleotide);
         }
     }
+
+    public void SetParent(GameObject go)
+    {
+        foreach (GameObject nucleotide in NucleotidesA)
+        {
+            nucleotide.transform.parent = go.transform;
+        }
+        foreach (GameObject nucleotide in NucleotidesB)
+        {
+            nucleotide.transform.parent = go.transform;
+        }
+        foreach (GameObject nucleotide in BackbonesA)
+        {
+            nucleotide.transform.parent = go.transform;
+        }
+        foreach (GameObject nucleotide in BackbonesB)
+        {
+            nucleotide.transform.parent = go.transform;
+        }
+    }
+
+    public void ResetParent()
+    {
+        foreach (GameObject nucleotide in NucleotidesA)
+        {
+            nucleotide.transform.parent = null;
+        }
+        foreach (GameObject nucleotide in NucleotidesB)
+        {
+            nucleotide.transform.parent = null;
+        }
+        foreach (GameObject nucleotide in BackbonesA)
+        {
+            nucleotide.transform.parent = null;
+        }
+        foreach (GameObject nucleotide in BackbonesB)
+        {
+            nucleotide.transform.parent = null;
+        }
+    }
 }
 

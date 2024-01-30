@@ -65,8 +65,6 @@ public class MoveStrand : MonoBehaviour
             GameObject go = s_hit.collider.gameObject;
             if (go.GetComponent<NucleotideComponent>() != null && go.GetComponent<NucleotideComponent>().Selected)
             {
-                Debug.Log("Entered if+if");
-
                 s_oldNucl = go;
                 s_currNucl = go;
                 s_currNucleotides = GetNucleotides(s_oldNucl, s_oldNucl);
@@ -76,8 +74,6 @@ public class MoveStrand : MonoBehaviour
         else if (!gripReleased && _device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
             && gripValue && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
-            Debug.Log("Entered elseif");
-
             GameObject go = s_hit.collider.gameObject;
             if (go != s_currNucl && go.GetComponent<NucleotideComponent>() != null && go.GetComponent<NucleotideComponent>().Selected)
             {
@@ -98,8 +94,6 @@ public class MoveStrand : MonoBehaviour
         else if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
             && !gripValue && !gripReleased)
         {
-            Debug.Log("Entered elif #2");
-
             gripReleased = true;
             UnhighlightNucleotideSelection(s_currNucleotides);
             DoMove(s_oldNucl, s_currNucl);
@@ -116,6 +110,10 @@ public class MoveStrand : MonoBehaviour
     public void DoMove(GameObject oldNucl, GameObject newNucl)
     {
         Debug.Log("Entered DoMove()");
+        if (oldNucl == null || newNucl == null)
+        {
+            return;
+        }
 
         List<GameObject> nucleotides = GetNucleotides(oldNucl, newNucl);
         if (!IsValid(nucleotides, oldNucl))

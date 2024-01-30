@@ -22,7 +22,10 @@ public abstract class DNAGrid
     protected int _id;
     protected string _plane;
     public string Plane { get { return _plane; } }
+
     protected Vector3 _startPos;
+    public Vector3 StartPos { get { return _startPos; } set { _startPos = value; } }
+
     protected List<Vector3> _positions;
 
     protected GridComponent[,] _grid2D;
@@ -31,7 +34,11 @@ public abstract class DNAGrid
     protected List<Line> _lines;
     protected List<Helix> _helices;
     protected int _length;
+    public int Length { get { return _length; } }
+
     protected int _width;
+    public int Width { get { return _width; } }
+
     protected int _size;
     protected GridPoint _minimumBound;
     protected GridPoint _maximumBound;

@@ -59,6 +59,11 @@ public class FileExport : MonoBehaviour
         #endif
     }
 
+    private void Start()
+    {
+        FileBrowser.Instance.GetComponent<Canvas>().enabled = false;
+    }
+
     /// <summary>
     /// Initiates export of current DNA structure to the file browser.
     /// </summary>
@@ -82,6 +87,27 @@ public class FileExport : MonoBehaviour
     /// <returns>String representation of the DNA structure in .sc format.</returns>
     private string GetSCJSON()
     {
+        // TODO: Test "groups" works and converts to oxdna
+        JObject groups = new JObject();
+        foreach (var item in s_gridDict)
+        {
+            string name = item.Key.ToString();
+            DNAGrid grid = item.Value;
+            JObject position = new JObject // TODO: check if these position coordinates are correct
+            {
+                ["x"] = grid.StartPos.x,
+                ["y"] = grid.StartPos.y,
+                ["z"] = grid.StartPos.z,
+            };
+            JObject group = new JObject
+            {
+                ["position"] = position,
+                ["grid"] = grid.Type,
+            };
+            groups[name] = group;
+        }
+
+
         // Creating helices data.
         JArray helices = new JArray();
         foreach (var item in s_helixDict)
@@ -91,6 +117,7 @@ public class FileExport : MonoBehaviour
             JObject jsonHelix = new JObject
             {
                 ["grid_position"] = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y * -1 }, // Negative Y-axis for .sc format 
+                ["group"] = helix._gridComponent.GridId.ToString(),
                 ["idx"] = id,
                 ["max_offset"] = helix.Length
             };
@@ -180,9 +207,7 @@ public class FileExport : MonoBehaviour
             ["strands"] = strands,
         };
 
-        string json = scadnano.ToString();
-
-        return json;
+        return scadnano.ToString();
     }
 
     /// <summary>
@@ -205,7 +230,7 @@ public class FileExport : MonoBehaviour
     /// <param name="content">Contennt of the .sc file.</param>
     private void WriteSCFile(string content)
     {
-        FileBrowser.Instance.enabled = true;
+        FileBrowser.Instance.GetComponent<Canvas>().enabled = true;
         FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
         bool result = FileBrowser.ShowSaveDialog((paths) => { CreateSCFile(paths[0], content); },
             () => { Debug.Log("Canceled"); },
