@@ -17,12 +17,15 @@ public class FileImport : MonoBehaviour
     private const string PLANE = "XY";
 
     [SerializeField] private GameObject _leftHandController;
+    [SerializeField] private GameObject _fileBrowserWindow;
 
     void Awake()
     {
         FileBrowser.HideDialog();
         FileBrowser.SingleClickMode = true;
-        FileBrowser.Instance.GetComponent<Canvas>().enabled = false;
+
+        // Disable filebrowser on awake
+        _fileBrowserWindow.SetActive(false);
 
         // Code to get all file access on Oculus Quest 2 
         using var buildVersion = new AndroidJavaClass("android.os.Build$VERSION");
@@ -49,8 +52,9 @@ public class FileImport : MonoBehaviour
 
     public void OpenFile()
     {
-        // Disable nanoVR UI
+        // Disable nanoVR UI and enable file browser
         _leftHandController.GetComponent<Menu>().ToggleMenu();
+        _fileBrowserWindow.SetActive(true);
 
         // Center File Browser with Camera
         FileBrowser.Instance.GetComponent<Canvas>().enabled = true;
@@ -58,6 +62,11 @@ public class FileImport : MonoBehaviour
         FileBrowser.ShowLoadDialog((paths) => { LoadFile(paths[0]); },
                               () => { Debug.Log("Canceled"); },
                               FileBrowser.PickMode.Files, false, null, null, "Select File", "Select");
+
+
+        // Reenable canvas, but disable window
+        // FileBrowser.Instance.enabled = true;
+        // _fileBrowserWindow.SetActive(false);
     }
 
     private void LoadFile(string selectedFilePath)

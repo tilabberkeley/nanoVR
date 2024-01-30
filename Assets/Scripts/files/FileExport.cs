@@ -25,12 +25,15 @@ public class FileExport : MonoBehaviour
 
     [SerializeField] private GameObject _leftHandController;
     [SerializeField] private Dropdown _exportTypeDropdown;
+    [SerializeField] private GameObject _fileBrowserWindow;
 
     void Awake()
     {
         FileBrowser.HideDialog();
         FileBrowser.SingleClickMode = true;
-        FileBrowser.Instance.enabled = false;
+
+        // Disable filebrowser on awake
+        _fileBrowserWindow.SetActive(false);
 
         // Code to get all file access on Oculus Quest 2 
         using var buildVersion = new AndroidJavaClass("android.os.Build$VERSION");
@@ -65,8 +68,10 @@ public class FileExport : MonoBehaviour
     /// </summary>
     public void Export()
     {
-        // Disable nanoVR UI
+        // Disable nanoVR UI and enable file browser
         _leftHandController.GetComponent<Menu>().ToggleMenu();
+        _fileBrowserWindow.SetActive(true);
+
         string exportType = _exportTypeDropdown.options[_exportTypeDropdown.value].text;
 
         if (exportType.Equals("scadnano"))
@@ -77,6 +82,10 @@ public class FileExport : MonoBehaviour
         {
             StartCoroutine(CreateOxdnaFiles());
         }
+
+        // Reenable canvas, but disable window
+        // FileBrowser.Instance.enabled = true;
+        // _fileBrowserWindow.SetActive(false);
     }
 
     /// <summary>
