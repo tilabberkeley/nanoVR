@@ -15,13 +15,13 @@ using static Utils;
 public class FileImport : MonoBehaviour
 {
     [SerializeField] private Canvas Menu;
+    private Canvas fileBrowser;
 
     private const string PLANE = "XY";
     void Awake()
     {
         FileBrowser.HideDialog();
         FileBrowser.SingleClickMode = true;
-        FileBrowser.Instance.enabled = false;
 
         // Code to get all file access on Oculus Quest 2 
         using var buildVersion = new AndroidJavaClass("android.os.Build$VERSION");
@@ -46,10 +46,16 @@ public class FileImport : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        fileBrowser = FileBrowser.Instance.GetComponent<Canvas>();
+        fileBrowser.gameObject.SetActive(false);
+    }
+
     public void OpenFile()
     {
         // enable file browser, disable menu
-        FileBrowser.Instance.enabled = true;
+        fileBrowser.gameObject.SetActive(true);
         Menu.enabled = false;
 
         FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;

@@ -23,14 +23,14 @@ public class FileExport : MonoBehaviour
     private const string postURL = "http://tacoxdna.sissa.it/scadnano_oxDNA/submit";
     private const string tacoURL = "http://tacoxdna.sissa.it";
 
-    [SerializeField] Dropdown exportTypeDropdown;
-    [SerializeField] Canvas Menu;
+    [SerializeField] private Dropdown exportTypeDropdown;
+    [SerializeField] private Canvas Menu;
+    private Canvas fileBrowser;
 
     void Awake()
     {
         FileBrowser.HideDialog();
         FileBrowser.SingleClickMode = true;
-        FileBrowser.Instance.enabled = false;
 
         // Code to get all file access on Oculus Quest 2 
         using var buildVersion = new AndroidJavaClass("android.os.Build$VERSION");
@@ -60,13 +60,19 @@ public class FileExport : MonoBehaviour
         #endif
     }
 
+    private void Start()
+    {
+        fileBrowser = FileBrowser.Instance.GetComponent<Canvas>();
+        fileBrowser.gameObject.SetActive(false);
+    }
+
     /// <summary>
     /// Initiates export of current DNA structure to the file browser.
     /// </summary>
     public void Export()
     {
         // enable file browser, disable menu
-        FileBrowser.Instance.enabled = true;
+        fileBrowser.gameObject.SetActive(true);
         Menu.enabled = false;
 
         string exportType = exportTypeDropdown.options[exportTypeDropdown.value].text;
