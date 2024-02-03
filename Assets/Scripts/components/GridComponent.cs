@@ -20,9 +20,7 @@ public class GridComponent : MonoBehaviour
     // Grid that this grid component is apart of.
     public DNAGrid Grid { get; set; }
 
-    // Grid id that this grid component is apart of.
-    private int _gridId;
-    public int GridId { get { return _gridId; } set { _gridId = value; } }
+    public int GridId { get { return Grid.Id; } }
 
     /// <summary>
     /// Returns neighboring grid components of this grid component.

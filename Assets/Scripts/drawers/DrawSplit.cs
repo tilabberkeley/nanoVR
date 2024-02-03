@@ -95,6 +95,8 @@ public class DrawSplit : MonoBehaviour
 
 
         int goIndex = strand.GetIndex(go);
+
+        // TODO: Add logic for moving ins/del
         if (splitAfter)
         {
             List<GameObject> xovers = strand.GetXoversAfterIndex(goIndex);

@@ -20,11 +20,20 @@ public abstract class DNAGrid
     public abstract string Type { get; }
 
     protected int _id;
+    public int Id { get { return _id; } }
+
     protected string _plane;
     public string Plane { get { return _plane; } }
 
     protected Vector3 _startPos;
-    public Vector3 StartPos { get { return _startPos; } set { _startPos = value; } }
+    public Vector3 StartPos 
+    { get { return _startPos; } 
+        set 
+        {
+            Debug.Log("Setting grid start pos to " + value.ToString());
+            _startPos = value; 
+        } 
+    }
 
     protected List<Vector3> _positions;
 

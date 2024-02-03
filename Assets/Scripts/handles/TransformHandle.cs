@@ -103,7 +103,7 @@ public class TransformHandle : MonoBehaviour
     {
         Debug.Log("Creating Transform");
         gizmos.SetActive(true);
-        gizmos.transform.SetPositionAndRotation(go.transform.position + Vector3.back, go.transform.rotation);
+        gizmos.transform.SetPositionAndRotation(go.transform.position + 0.5f * Vector3.back, go.transform.rotation);
         go.transform.parent = gizmos.transform; 
         Debug.Log("Finished creating Transform");
     }

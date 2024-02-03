@@ -21,9 +21,9 @@ public class TransformGrid : MonoBehaviour
     [SerializeField] private GameObject yTransform;
     [SerializeField] private GameObject zTransform;
     [SerializeField] private GameObject originTransform;
-
-    private bool triggerReleased = true;
-    private static GameObject s_GO = null;
+    private Vector3 distanceFromRay = Vector3.zero;
+    private Vector3 normalDistance = Vector3.zero;
+    private Vector3 distanceToGrid = Vector3.zero;
     private static RaycastHit s_hit;
 
     void GetDevice()
@@ -54,6 +54,15 @@ public class TransformGrid : MonoBehaviour
         if (triggerValue && rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             rayInteractor.TryGetHitInfo(out Vector3 reticlePosition, out _, out _, out _);
+            if (distanceFromRay == Vector3.zero)
+            {
+                distanceFromRay = reticlePosition - gizmos.transform.position;
+            }
+            if (distanceToGrid == Vector3.zero)
+            {
+                distanceToGrid = gizmos.transform.position - gizmos.GetComponentInChildren<GridComponent>().Grid.StartPos;
+            }
+
             if (s_hit.collider.gameObject.Equals(xTransform))
             {
                 TransformX(reticlePosition);
@@ -66,10 +75,18 @@ public class TransformGrid : MonoBehaviour
             {
                 TransformZ(reticlePosition);
             }
-            if (s_hit.collider.gameObject.Equals(originTransform))
+/*            if (s_hit.collider.gameObject.Equals(originTransform))
             {
                 TransformOrigin(reticlePosition);
-            }
+            }*/
+        }
+
+        // When trigger is released
+        if (!triggerValue && distanceToGrid != Vector3.zero)
+        {
+            gizmos.GetComponentInChildren<GridComponent>().Grid.StartPos = gizmos.transform.position - distanceToGrid;
+            distanceFromRay = Vector3.zero;
+            distanceToGrid = Vector3.zero;
         }
     }
 
@@ -77,34 +94,29 @@ public class TransformGrid : MonoBehaviour
     // TODO: Test these work
     private void TransformX(Vector3 reticalPos)
     {
-        Vector3 distance = GetDistance(reticalPos);
-        gizmos.transform.position -= distance;
-        gizmos.transform.position = new Vector3(reticalPos.x, gizmos.transform.position.y, gizmos.transform.position.z);
+        float magnitude = GetDistance(reticalPos, gizmos.transform.position);
+        gizmos.transform.position += magnitude * gizmos.transform.right - distanceFromRay;
     }
 
     private void TransformY(Vector3 reticalPos)
     {
-        Vector3 distance = GetDistance(reticalPos);
-        gizmos.transform.position -= distance;
-        gizmos.transform.position = new Vector3(gizmos.transform.position.x, reticalPos.y, gizmos.transform.position.z);
+        float magnitude = GetDistance(reticalPos, gizmos.transform.position);
+        gizmos.transform.position += magnitude * gizmos.transform.up - distanceFromRay;
     }
 
     private void TransformZ(Vector3 reticalPos)
     {
-        Vector3 distance = GetDistance(reticalPos);
-        gizmos.transform.position -= distance;
-        gizmos.transform.position = new Vector3(gizmos.transform.position.x, gizmos.transform.position.y, reticalPos.z);
+        float magnitude = GetDistance(reticalPos, gizmos.transform.position);
+        gizmos.transform.position += magnitude * gizmos.transform.forward - distanceFromRay;
     }
 
     private void TransformOrigin(Vector3 reticalPos)
     {
-        Vector3 distance = GetDistance(reticalPos);
-        gizmos.transform.position -= distance;
         gizmos.transform.position = reticalPos;
     }
 
-    private Vector3 GetDistance(Vector3 reticalPos)
+    private float GetDistance(Vector3 v1, Vector3 v2)
     {
-        return gizmos.transform.position - reticalPos;
+        return Vector3.Distance(v1, v2);
     }
 }

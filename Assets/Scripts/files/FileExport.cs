@@ -87,13 +87,12 @@ public class FileExport : MonoBehaviour
     /// <returns>String representation of the DNA structure in .sc format.</returns>
     private string GetSCJSON()
     {
-        // TODO: Test "groups" works and converts to oxdna
         JObject groups = new JObject();
         foreach (var item in s_gridDict)
         {
             string name = item.Key.ToString();
             DNAGrid grid = item.Value;
-            JObject position = new JObject // TODO: check if these position coordinates are correct
+            JObject position = new JObject // TODO: These position values get converted to closely in oxDNA
             {
                 ["x"] = grid.StartPos.x,
                 ["y"] = grid.StartPos.y,
@@ -202,7 +201,7 @@ public class FileExport : MonoBehaviour
         JObject scadnano = new JObject
         {
             ["version"] = "0.19.1",
-            ["grid"] = s_helixDict.Values.First()._gridComponent.Grid.Type,
+            ["groups"] = groups,
             ["helices"] = helices,
             ["strands"] = strands,
         };
