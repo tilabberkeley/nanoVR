@@ -12,11 +12,11 @@ using static GlobalVariables;
 public class Utils : MonoBehaviour
 {
     // CONSTANTS
-    public const float SCALE = 20f;
+    public const float SCALE = 18f;
     public const float RADIUS = 1f / SCALE;
     public const float RISE = .34f / SCALE;
     public const float NUM_BASE_PAIRS = 10.5f;
-    public const float CROSSOVER_LENGTH = 7 * .34f / SCALE; // Ideal xover length of 7 base pairs.
+    public const float CROSSOVER_LENGTH = 7 * .34f / SCALE; // Ideal xover length of 7 base pairs??
 
     /// <summary>
     /// Returns nucleotide Gameobject given id, helixId, and direction.

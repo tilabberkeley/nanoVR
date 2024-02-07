@@ -88,7 +88,7 @@ public class Helix
         for (int i = prevLength; i < _length; i++)
         {
             float angleA = (float) (i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
-            float angleB = (float) ((i + 5) * (2 * Math.PI/ NUM_BASE_PAIRS));
+            float angleB = (float) ((i + 3.5f) * (2 * Math.PI/ NUM_BASE_PAIRS)); //TODO: check this new offset
             float axisOneChangeA = (float) (RADIUS * Mathf.Cos(angleA));
             float axisTwoChangeA = (float) (RADIUS * Mathf.Sin(angleA));
             float axisOneChangeB = (float) (RADIUS * Mathf.Cos(angleB));

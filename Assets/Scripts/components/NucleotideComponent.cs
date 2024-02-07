@@ -24,6 +24,15 @@ public class NucleotideComponent : DNAComponent
     private string _sequence;
     public string Sequence { get { return _sequence; } set { _sequence = value; } }
 
+    public GameObject Complement 
+    { 
+        get 
+        {
+            Helix helix = s_helixDict[HelixId];
+            return helix.GetNucleotide(Id, 1 - Direction);
+        } 
+    }
+
     // Gameobject of xover attached to this nucleotide. Null if there isn't a xover.
     private GameObject _xover = null;
     public GameObject Xover { get { return _xover;} set { _xover = value; } }

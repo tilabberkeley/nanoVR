@@ -50,6 +50,9 @@ public class Strand
 
     public String Sequence { get { return _sequence; } set { _sequence = value; } }
 
+    private bool _isScaffold;
+    public bool IsScaffold { get { return _isScaffold; } set { _isScaffold = value; } }
+
     // List of helix ids this strand is on.
     //private List<int> _helixIds;
 

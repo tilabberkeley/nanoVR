@@ -92,7 +92,7 @@ public class FileExport : MonoBehaviour
         {
             string name = item.Key.ToString();
             DNAGrid grid = item.Value;
-            JObject position = new JObject // TODO: These position values get converted to closely in oxDNA
+            JObject position = new JObject // TODO: These position values get converted too closely in oxDNA
             {
                 ["x"] = grid.StartPos.x,
                 ["y"] = grid.StartPos.y,
