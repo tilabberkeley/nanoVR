@@ -393,6 +393,22 @@ public abstract class DNAGrid
         //_helices.Add(helix);
     }
 
+    public void ChangeStencilView()
+    {
+        for (int i = 0; i < _length; i++)
+        {
+            for (int j = 0; j < _width; j++)
+            {
+                GameObject go = _grid2D[i, j].gameObject;
+                go.SetActive(s_hideStencils);
+                if (_grid2D[i, j].Helix != null)
+                {
+                    _grid2D[i, j].Helix.ChangeStencilView();
+                }
+            }
+        }
+    }
+
     /// <summary>
     /// Changes rendering of the lines and helixes in grid.
     /// 
