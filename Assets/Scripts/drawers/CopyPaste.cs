@@ -107,7 +107,7 @@ public class CopyPaste : MonoBehaviour
                     if (!valid) { return; }
 
                     //Make new xover list
-                    List<GameObject> xovers = new List<GameObject>();
+                    //List<GameObject> xovers = new List<GameObject>();
                     for (int i = 1; i < s_currNucleotides.Count; i++)
                     {
                         NucleotideComponent prevComp = s_currNucleotides[i - 1].GetComponent<NucleotideComponent>();
@@ -115,11 +115,12 @@ public class CopyPaste : MonoBehaviour
                         if (!prevComp.IsBackbone
                                 && !nextComp.IsBackbone)
                         {
-                            GameObject xover = DrawPoint.MakeXover(s_currNucleotides[i - 1], s_currNucleotides[i], s_numStrands);
-                            xovers.Add(xover);
+                            DrawPoint.MakeXover(s_currNucleotides[i - 1], s_currNucleotides[i], s_numStrands);
                         }
                     }
-                    DrawNucleotideDynamic.DoCreateStrand(s_currNucleotides, xovers, s_numStrands);
+                    DrawNucleotideDynamic.DoCreateStrand(s_currNucleotides, s_numStrands);
+
+                    //DrawNucleotideDynamic.DoCreateStrand(s_currNucleotides, xovers, s_numStrands);
                     Reset();
                 }
             }

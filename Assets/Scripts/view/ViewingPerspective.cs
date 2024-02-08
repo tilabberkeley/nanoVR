@@ -9,10 +9,14 @@ public class ViewingPerspective : MonoBehaviour
 {
     public void ChangeStencilsView()
     {
-        foreach (Helix helix in s_helixDict.Values)
+        foreach (DNAGrid grid in s_gridDict.Values)
+        {
+            grid.ChangeStencilView();
+        }
+      /*  foreach (Helix helix in s_helixDict.Values)
         {
             helix.ChangeStencilView();
-        }
+        }*/
     }
 
     public static void ViewNucleotide()

@@ -18,24 +18,38 @@ public class CreateCommand : ICommand
     private List<(int, int, int, bool)> _nextGOs = new List<(int, int, int, bool)>();
     private Color _color;
 
-    public CreateCommand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId)
+    public CreateCommand(List<GameObject> nucleotides, int strandId)
     {
         _strandId = strandId;
         _nucleotides = nucleotides;
-        _xovers = xovers;
 
         for (int i = 0; i < nucleotides.Count; i += 1)
         {
-            var ntc = nucleotides[i].GetComponent<DNAComponent>();
+            var dnaComp = nucleotides[i].GetComponent<DNAComponent>();
 
-            int id = ntc.Id;
-            int helixId = ntc.HelixId;
-            int direction = ntc.Direction;
-            bool isBackbone = ntc.IsBackbone;
+            int id = dnaComp.Id;
+            int helixId = dnaComp.HelixId;
+            int direction = dnaComp.Direction;
+            bool isBackbone = dnaComp.IsBackbone;
             _nucleotideIds.Add((id, helixId, direction, isBackbone));
+
+            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            if (ntc != null && ntc.HasXover)
+            {
+                var xoverComp = ntc.Xover.GetComponent<XoverComponent>();
+                if (xoverComp.PrevGO == nucleotides[i])
+                {
+                    _prevGOs.Add((id, helixId, direction, isBackbone));
+                } 
+                else if (xoverComp.NextGO == nucleotides[i])
+                {
+                    _nextGOs.Add((id, helixId, direction, isBackbone));
+                }
+            }
+
         }
 
-        for (int i = 0; i < xovers.Count; i++)
+        /*for (int i = 0; i < xovers.Count; i++)
         {
             var ntc = xovers[i].GetComponent<XoverComponent>().PrevGO.GetComponent<DNAComponent>();
             int id = ntc.Id;
@@ -50,12 +64,12 @@ public class CreateCommand : ICommand
             direction = ntc.Direction;
             isBackbone = ntc.IsBackbone;
             _nextGOs.Add((id, helixId, direction, isBackbone));
-        }
+        }*/
     }
 
     public void Do()
     {
-        CreateStrand(_nucleotides, _xovers, _strandId);
+        CreateStrand(_nucleotides, _strandId);
         _color = s_strandDict[_strandId].GetColor();
     }
 
@@ -68,7 +82,6 @@ public class CreateCommand : ICommand
 
     public void Redo()
     {
-        List<GameObject> xovers = new List<GameObject>();
         List<GameObject> nucleotides = new List<GameObject>();
 
         for (int i = 0; i < _nucleotideIds.Count; i++)
@@ -84,12 +97,9 @@ public class CreateCommand : ICommand
             GameObject prevGO = FindNucleotide(_prevGOs[i].Item1, _prevGOs[i].Item2, _prevGOs[i].Item3, _prevGOs[i].Item4);
             GameObject nextGO = FindNucleotide(_nextGOs[i].Item1, _nextGOs[i].Item2, _nextGOs[i].Item3, _nextGOs[i].Item4);
 
-            GameObject xover = DrawPoint.MakeXover(prevGO, nextGO, _strandId);
-            xover.GetComponent<XoverComponent>().PrevGO = prevGO;
-            xover.GetComponent<XoverComponent>().NextGO = nextGO;
-            xovers.Add(xover);
+            DrawPoint.MakeXover(prevGO, nextGO, _strandId);
         }
-        CreateStrand(nucleotides, xovers, _strandId, _color);
+        CreateStrand(nucleotides, _strandId, _color);
     }
 
     public GameObject FindNucleotide(int id, int helixId, int direction, bool isBackbone)

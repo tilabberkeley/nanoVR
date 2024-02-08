@@ -38,8 +38,19 @@ public class XoverComponent : MonoBehaviour
         }
         set
         {
-            _color = value;
-            _ntRenderer.material.SetColor("_Color", value);
+            if (_length <= 0.025)
+            {
+                _color = value;
+            }
+            else if (_length <= 0.035)
+            {
+                _color = Color.gray;
+            }
+            else
+            {
+                _color = Color.black;
+            }
+            _ntRenderer.material.SetColor("_Color", _color);
         }
     }
 

@@ -222,15 +222,23 @@ public class DrawNucleotideDynamic : MonoBehaviour
 
     public static void DoCreateStrand(GameObject startGO, GameObject endGO, int strandId)
     {
-        DoCreateStrand(MakeNuclList(startGO, endGO), new List<GameObject>(), strandId);
+        DoCreateStrand(MakeNuclList(startGO, endGO), strandId);
+        //DoCreateStrand(MakeNuclList(startGO, endGO), new List<GameObject>(), strandId);
+
+    }
+    public static void DoCreateStrand(List<GameObject> nucleotides, int strandId)
+    {
+        ICommand command = new CreateCommand(nucleotides, strandId);
+        CommandManager.AddCommand(command);
+        command.Do();
     }
 
-    public static void DoCreateStrand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId)
+    /*public static void DoCreateStrand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId)
     {
         ICommand command = new CreateCommand(nucleotides, xovers, strandId);
         CommandManager.AddCommand(command);
         command.Do();
-    }
+    }*/
 
     /// <summary>
     /// Creates strand button in UI corresponding to each strand object.

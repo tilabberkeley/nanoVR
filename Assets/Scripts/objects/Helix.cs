@@ -463,14 +463,10 @@ public class Helix
     public void MoveXover(GameObject nucleotide)
     {
         var ntc = nucleotide.GetComponent<NucleotideComponent>();
-        s_strandDict.TryGetValue(ntc.StrandId, out Strand strand);
         GameObject oldXover = ntc.Xover;
         var xoverComp = oldXover.GetComponent<XoverComponent>();
-        strand.DeleteXover(oldXover);
-        GameObject newXover = DrawPoint.MakeXover(xoverComp.PrevGO, xoverComp.NextGO, ntc.StrandId);
-        //newXover.
-        strand.AddXover(newXover);
-        strand.SetXoverColor(newXover);
+        DrawPoint.MakeXover(xoverComp.PrevGO, xoverComp.NextGO, ntc.StrandId);
+        GameObject.Destroy(oldXover);
     }
 
     // Deletes helix and destroys all of its GameObjects.

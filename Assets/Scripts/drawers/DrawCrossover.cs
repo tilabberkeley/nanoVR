@@ -174,7 +174,7 @@ public class DrawCrossover : MonoBehaviour
     }
 
     /// <summary>
-    /// Creates crossover and splits strands as necessary.
+    /// Creates crossover and merges strands.
     /// </summary>
     public static GameObject CreateXover(GameObject startGO, GameObject endGO)
     {
@@ -195,8 +195,8 @@ public class DrawCrossover : MonoBehaviour
 
         // Create crossover.
         GameObject xover = DrawPoint.MakeXover(startGO, endGO, strandId);
-        startStrand.AddXover(xover);
-        startStrand.SetXoverColor(xover);
+        //startStrand.AddXover(xover);
+        //startStrand.SetXoverColor(xover);
         return xover;
     }
 
@@ -220,7 +220,7 @@ public class DrawCrossover : MonoBehaviour
         {
             go = xoverComp.PrevGO;
         }
-        Strand strand = s_strandDict[go.GetComponent<NucleotideComponent>().StrandId];
+        Strand strand = s_strandDict[xoverComp.StrandId];
         strand.DeleteXover(xover);
         SplitStrand(go, strandId, color, splitBefore);
     }
@@ -234,14 +234,14 @@ public class DrawCrossover : MonoBehaviour
         int goIndex = strand.GetIndex(go);
         if (splitBefore)
         {
-            List<GameObject> xovers = strand.GetXoversBeforeIndex(goIndex);
-            strand.RemoveXovers(xovers);
+            /*List<GameObject> xovers = strand.GetXoversBeforeIndex(goIndex);
+            strand.RemoveXovers(xovers);*/
             CreateStrand(strand.SplitBefore(go, true), xovers, id, color);
         }
         else
         {
-            List<GameObject> xovers = strand.GetXoversAfterIndex(goIndex);
-            strand.RemoveXovers(xovers);
+            /*List<GameObject> xovers = strand.GetXoversAfterIndex(goIndex);
+            strand.RemoveXovers(xovers);*/
             CreateStrand(strand.SplitAfter(go, true), xovers, id, color);
         }
     }
@@ -263,7 +263,7 @@ public class DrawCrossover : MonoBehaviour
             return;
         } 
         */
-        firstStrand.AddXovers(secondStrand.GetXovers());
+        //firstStrand.AddXovers(secondStrand.GetXovers());
 
         if (firstStrand.GetHead() == firstGO)
         {
@@ -292,7 +292,7 @@ public class DrawCrossover : MonoBehaviour
         // Handles cycles in strand.
         if (firstStrand.GetStrandId() != secondStrand.GetStrandId())
         {
-            List<GameObject> nucleotides = secondStrand.GetNucleotides();
+            List<GameObject> nucleotides = secondStrand.Nucleotides;
             SelectStrand.RemoveStrand(nucleotides[0]);
             // Add second strand
             if (addToHead)

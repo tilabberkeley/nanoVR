@@ -87,7 +87,7 @@ public static class DrawPoint
         xover.name = "xover";
         var xoverComp = xover.GetComponent<XoverComponent>();
         xoverComp.StrandId = strandId;
-        //xoverComp.Color = prevGO.GetComponent<NucleotideComponent>().Color;
+        xoverComp.Color = prevGO.GetComponent<NucleotideComponent>().Color;
 
         Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
 
