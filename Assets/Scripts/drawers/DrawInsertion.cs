@@ -62,7 +62,7 @@ public class DrawInsertion : MonoBehaviour
 
     void Update()
     {
-        if (!s_gridTogOn || s_hideStencils || !s_insTogOn)
+        if (s_hideStencils || !s_insTogOn)
         {
             return;
         }

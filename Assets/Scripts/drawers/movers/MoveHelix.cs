@@ -40,7 +40,7 @@ public class MoveHelix : MonoBehaviour
 
     void Update()
     {
-        if (!s_gridTogOn || s_hideStencils)
+        if (s_hideStencils)
         {
             return;
         }

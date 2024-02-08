@@ -1,4 +1,4 @@
-using System.Collections;
+/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -118,7 +118,7 @@ public class DrawLoop : MonoBehaviour
     //Display without having to press play
 	void DrawGizmos()
 	{
-        /*List<Vector3> vectors = new List<Vector3>();
+        *//*List<Vector3> vectors = new List<Vector3>();
         GameObject newLine = new GameObject("Line");
         LineRenderer line= newLine.AddComponent<LineRenderer>();
         line.startColor = Color.red;
@@ -128,7 +128,7 @@ public class DrawLoop : MonoBehaviour
         for (int i = 0; i < DrawPoints.pointerList.Count; i++) {
             vectors.Add(DrawPoints.pointerList[i].getPosition());
         }
-        line.SetPositions(vectors.ToArray());*/
+        line.SetPositions(vectors.ToArray());*//*
   
 		//Draw the Catmull-Rom spline between the points
         if (!primaryPressed) 
@@ -235,14 +235,14 @@ public class DrawLoop : MonoBehaviour
 
 	void DrawLine(Vector3 startV, Vector3 endV) 
     {
-        /*GameObject newLine = new GameObject();
+        *//*GameObject newLine = new GameObject();
         LineRenderer line = newLine.AddComponent<LineRenderer>();
         line.startColor = Color.red;
         line.endColor = Color.red;
         line.SetWidth(0.01f, 0.01f);
         line.positionCount = 2;
         line.SetPosition(0, start);
-        line.SetPosition(1, end);*/
+        line.SetPosition(1, end);*//*
         GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         var cylRenderer = cylinder.GetComponent<Renderer>();
         cylRenderer.material.SetColor("_Color", Color.red);
@@ -283,3 +283,4 @@ public class DrawLoop : MonoBehaviour
 
     
 }
+*/

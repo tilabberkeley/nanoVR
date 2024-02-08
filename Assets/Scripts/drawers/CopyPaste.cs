@@ -43,10 +43,6 @@ public class CopyPaste : MonoBehaviour
 
     private void Update()
     {
-        if (!s_gridTogOn)
-        {
-            return;
-        }
         /*
         if (!s_drawTogOn && !s_eraseTogOn)
         {
@@ -62,7 +58,7 @@ public class CopyPaste : MonoBehaviour
         if (_device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryValue) && primaryValue && primaryReleased && !pasting)
         {
             primaryReleased = false;
-            s_copied = SelectStrand.s_strand;
+            s_copied = SelectStrand.Strand;
         }
 
         bool secondaryValue;

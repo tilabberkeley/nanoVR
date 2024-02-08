@@ -12,13 +12,15 @@ public static class GlobalVariables
 {
     public static string s_sequence;
 
-    public static bool s_lineTogOn = false;
+    /*public static bool s_lineTogOn = false;
     public static bool s_curveTogOn = false;
     public static bool s_loopTogOn = true;
     public static bool s_gridTogOn = true;
     public static bool s_honeycombTogOn = false;
-    public static bool s_cameraTogOn = false;
+    public static bool s_cameraTogOn = false;*/
 
+    // Toggle bools for Draw panel
+    public static bool s_selectTogOn = false;
     public static bool s_drawTogOn = true;
     public static bool s_eraseTogOn = false;
     public static bool s_splitTogOn = false;
@@ -35,7 +37,7 @@ public static class GlobalVariables
     public static List<Pointer> s_pointerList = new List<Pointer>();
     public static List<DNAGrid> s_gridList = new List<DNAGrid>();
     public static Dictionary<int, Helix> s_helixDict = new Dictionary<int, Helix>();
-    public static Dictionary<int, Strand> s_strandDict = new Dictionary<int, Strand>();
+    public static Dictionary<object, Strand> s_strandDict = new Dictionary<object, Strand>();
     public static Dictionary<object, DNAGrid> s_gridDict = new Dictionary<object, DNAGrid>();
     public static int s_numStrands = 0;
     public static int s_numHelices = 0;

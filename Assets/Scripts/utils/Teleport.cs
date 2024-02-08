@@ -62,29 +62,28 @@ public class Teleport : MonoBehaviour
         leftDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool leftTriggerValue);
         rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool rightTriggerValue);
 
-        if (s_cameraTogOn)
+        
+        // Setting camera position. Only when camera toggle is enabled.
+        if (rightTriggerValue && rightTriggerReleased)
         {
-            // Setting camera position. Only when camera toggle is enabled.
-            if (rightTriggerValue && rightTriggerReleased)
+            rightTriggerReleased = false;
+            cameraPosition = transform.position;
+            if (camera == null)
             {
-                rightTriggerReleased = false;
-                cameraPosition = transform.position;
-                if (camera == null)
-                {
-                    //create camera
-                    camera = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    camera.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-                    camera.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
-                    camera.transform.position = transform.position;
-                }
-                else
-                {
-                    //move camera to new position
-                    camera.transform.position = transform.position;
-                }
-
+                //create camera
+                camera = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                camera.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+                camera.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+                camera.transform.position = transform.position;
             }
+            else
+            {
+                //move camera to new position
+                camera.transform.position = transform.position;
+            }
+
         }
+        
         else
         {
             // Teleporting. Only when camera toggle is not enabled

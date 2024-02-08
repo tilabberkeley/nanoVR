@@ -14,14 +14,12 @@ public class SelectStrand : MonoBehaviour
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rayInteractor;
-    // private bool triggerReleased = true; ### commented this out because getting warning saying that is was never used.
+    private bool triggerReleased = true;
     private bool axisReleased = true;
-    private const float DOUBLE_CLICK_TIME = 1f;
-    private float lastClickTime;
-    private static bool strandSelected = false;
-    public static Strand s_strand = null;
     private static RaycastHit s_hit;
-    private static List<Strand> s_highlightedStrands = new List<Strand>();
+    private static Strand s_strand;
+    public static Strand Strand { get { return s_strand; } }
+    //private static List<Strand> s_highlightedStrands = new List<Strand>();
 
     private void GetDevice()
     {
@@ -42,124 +40,104 @@ public class SelectStrand : MonoBehaviour
 
     private void Update()
     {
-        if (!s_gridTogOn)
+        if (!s_selectTogOn)
         {
             return;
         }
-        /*
-        if (!s_drawTogOn && !s_eraseTogOn)
-        {
-            return;
-        }*/
 
         if (!_device.isValid)
         {
             GetDevice();
         }
 
-        bool triggerValue; 
-        /*if (_rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out rightTriggerValue)
-            && rightTriggerValue
-            && rightTriggerReleased
-            && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
+        if (triggerValue && triggerReleased && rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
-            rightTriggerReleased = false;
-            if (s_hit.collider.name.Contains("nucleotide"))
-            {
-                if (s_startGO == null)
-                {
-                    s_startGO = s_hit.collider.gameObject;
-                }
-                else if (s_hit.collider.gameObject == s_startGO)
-                {
-                    float timeSinceLastClick = Time.time - lastClickTime;
-                    if (timeSinceLastClick <= DOUBLE_CLICK_TIME)
-                    {
-                        // DOUBLE CLICK!
-                        HighlightStrand(s_startGO);
-                    }
-                    else
-                    {
-                        UnhighlightStrand(s_startGO);
-                        ResetNucleotides();
-                    }
-                }
-                else
-                {
-                    UnhighlightStrand(s_startGO);
-                    ResetNucleotides();
-                }
+            triggerReleased = false;
 
-                lastClickTime = Time.time;
-            }
-            else
+            // Check that hit Gameobject is part of strand
+            if (s_hit.collider.GetComponent<DNAComponent>() || s_hit.collider.GetComponent<XoverComponent>())
             {
-                UnhighlightStrand(s_startGO);
-                ResetNucleotides();
-            }
-        }*/
-        bool axisClick;
-        if ((_device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out axisClick)
-            && axisClick)
-            && axisReleased)
-        {
-            axisReleased = false;
-            if (strandSelected)
-            {
-                UnhighlightStrand(s_strand);
-                DoDeleteStrand(s_strand);
+                if (s_strand != null)
+                {
+                    UnhighlightStrand(s_strand);
+                }
+                HighlightStrand(s_hit.collider.gameObject);
             }
         }
 
-        // Resets nucleotide.
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue && !rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        _device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out bool axisClick);
+        if (axisClick && axisReleased)
         {
-            //triggerReleased = false;
+            axisReleased = false;
+            DeleteStrand(s_strand.GetHead());
+            /*if (s_highlightedStrands.Count > 0)
+            {
+                foreach (Strand strand in s_highlightedStrands)
+                {
+                    DeleteStrand(strand.GetHead());
+                }
+            }*/
+        }
+
+        // Resets selected strand.
+        if (triggerValue && !rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        {
+            triggerReleased = false;
             UnhighlightStrand(s_strand);
+            /*if (s_highlightedStrands.Count > 0)
+            {
+                foreach (Strand strand in s_highlightedStrands)
+                {
+                    UnhighlightStrand(strand);
+                }
+            }*/
             Reset();
         }
 
         // Resets axis click.
-        if (!(_device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out axisClick)
-            && axisClick))
+        if (!axisClick)
         {
             axisReleased = true;
         }
 
         // Resets trigger.                                          
-        if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue))
+        if (!triggerValue)
         {
-            //triggerReleased = true;
+            triggerReleased = true;
         }
     }
 
     /// <summary>
-    /// Resets the start and end nucleotides.
+    /// Resets the strand and strandSelected values.
     /// </summary>
-    public void Reset()
+    public static void Reset()
     {
         s_strand = null;
-        strandSelected = false;
     }
 
     public static void HighlightStrand(GameObject go)
     {
-        int strandId = go.GetComponent<NucleotideComponent>().StrandId;
+        int strandId = -1;
+        if (go.GetComponent<DNAComponent>())
+        {
+            strandId = go.GetComponent<DNAComponent>().StrandId;
+        }
+        if (go.GetComponent<XoverComponent>())
+        {
+            strandId = go.GetComponent<XoverComponent>().PrevGO.GetComponent<NucleotideComponent>().StrandId;
+        }
+        
         if (strandId == -1) { return; }
         HighlightStrand(strandId);
     }
 
     // TEST
-    public static void HighlightStrand(int strandId)
+    public static void HighlightStrand(object strandId)
     {
-        strandSelected = true;
         s_strandDict.TryGetValue(strandId, out Strand strand);
-        s_strand = strand;
-   
         Highlight.HighlightStrand(strand);
-        
+        s_strand = strand;
     }
 
     public static void UnhighlightStrand(Strand strand)

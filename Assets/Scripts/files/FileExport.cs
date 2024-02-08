@@ -23,13 +23,14 @@ public class FileExport : MonoBehaviour
     private const string postURL = "http://tacoxdna.sissa.it/scadnano_oxDNA/submit";
     private const string tacoURL = "http://tacoxdna.sissa.it";
 
-    [SerializeField] Dropdown exportTypeDropdown;
+    [SerializeField] private Dropdown exportTypeDropdown;
+    [SerializeField] private Canvas Menu;
+    private Canvas fileBrowser;
 
     void Awake()
     {
         FileBrowser.HideDialog();
         FileBrowser.SingleClickMode = true;
-        FileBrowser.Instance.enabled = false;
 
         // Code to get all file access on Oculus Quest 2 
         using var buildVersion = new AndroidJavaClass("android.os.Build$VERSION");
@@ -61,7 +62,8 @@ public class FileExport : MonoBehaviour
 
     private void Start()
     {
-        FileBrowser.Instance.GetComponent<Canvas>().enabled = false;
+        fileBrowser = FileBrowser.Instance.GetComponent<Canvas>();
+        fileBrowser.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -69,6 +71,10 @@ public class FileExport : MonoBehaviour
     /// </summary>
     public void Export()
     {
+        // enable file browser, disable menu
+        fileBrowser.gameObject.SetActive(true);
+        Menu.enabled = false;
+
         string exportType = exportTypeDropdown.options[exportTypeDropdown.value].text;
 
         if (exportType.Equals("scadnano"))
@@ -260,8 +266,6 @@ public class FileExport : MonoBehaviour
     /// <param name="oxdnaContent">Content of .oxdna file.</param>
     private void WriteOxdnaFiles(byte[] topContent, byte[] oxdnaContent)
     {
-        FileBrowser.Instance.enabled = true;
-        FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
         bool result = FileBrowser.ShowSaveDialog((paths) => { CreateOxdnaFiles(paths[0], topContent, oxdnaContent); },
             () => { Debug.Log("Canceled"); },
             FileBrowser.PickMode.Files, false, null, null, "Save", "Save");

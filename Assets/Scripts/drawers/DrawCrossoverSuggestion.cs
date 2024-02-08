@@ -43,11 +43,6 @@ public class DrawCrossoverSuggestion : MonoBehaviour
 
     void Update()
     {
-        if (!s_gridTogOn)
-        {
-            return;
-        }
-
         if (!s_drawTogOn)
         {
             return;

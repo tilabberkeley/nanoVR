@@ -43,7 +43,7 @@ public class DrawCrossover : MonoBehaviour
 
     private void Update()
     {
-        if (!s_gridTogOn || !s_drawTogOn || s_hideStencils)
+        if (!s_drawTogOn || s_hideStencils)
         {
             return;
         }

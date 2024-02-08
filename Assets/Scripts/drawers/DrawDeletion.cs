@@ -41,7 +41,7 @@ public class DrawDeletion : MonoBehaviour
 
     void Update()
     {
-        if (!s_gridTogOn || s_hideStencils || !s_delTogOn)
+        if (s_hideStencils || !s_delTogOn)
         {
             return;
         }

@@ -39,7 +39,7 @@ public class SelectHelix : MonoBehaviour
 
     private void Update()
     {
-        if (!s_gridTogOn)
+        if (s_hideStencils)
         {
             return;
         }
