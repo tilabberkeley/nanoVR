@@ -16,6 +16,8 @@ public class CreateCommand : ICommand
     private List<(int, int, int, bool)> _nucleotideIds = new List<(int, int, int, bool)>();
     private List<(int, int, int, bool)> _prevGOs = new List<(int, int, int, bool)>();
     private List<(int, int, int, bool)> _nextGOs = new List<(int, int, int, bool)>();
+    private List<(int, int, int)> _deletions = new List<(int, int, int)>();
+    private List<(int, int, int, int)> _insertions = new List<(int, int, int, int)>();
     private Color _color;
 
     public CreateCommand(List<GameObject> nucleotides, int strandId)
@@ -34,6 +36,17 @@ public class CreateCommand : ICommand
             _nucleotideIds.Add((id, helixId, direction, isBackbone));
 
             var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            if (ntc != null)
+            {
+                if (ntc.IsDeletion)
+                {
+                    _deletions.Add((id, helixId, direction));
+                }
+                if (ntc.IsInsertion)
+                {
+                    _insertions.Add((id, helixId, direction, ntc.Insertion));
+                }
+            }
             if (ntc != null && ntc.HasXover)
             {
                 var xoverComp = ntc.Xover.GetComponent<XoverComponent>();
@@ -70,13 +83,13 @@ public class CreateCommand : ICommand
     public void Do()
     {
         CreateStrand(_nucleotides, _strandId);
-        _color = s_strandDict[_strandId].GetColor();
+        _color = s_strandDict[_strandId].Color;
     }
 
     public void Undo()
     {
         // Delete entire strand.
-        GameObject start = FindNucleotide(_nucleotideIds[0].Item1, _nucleotideIds[0].Item2, _nucleotideIds[0].Item3, _nucleotideIds[0].Item4);
+        GameObject start = FindGameObject(_nucleotideIds[0].Item1, _nucleotideIds[0].Item2, _nucleotideIds[0].Item3, _nucleotideIds[0].Item4);
         SelectStrand.DeleteStrand(start);
     }
 
@@ -86,7 +99,7 @@ public class CreateCommand : ICommand
 
         for (int i = 0; i < _nucleotideIds.Count; i++)
         {
-            GameObject nucl = FindNucleotide(_nucleotideIds[i].Item1, _nucleotideIds[i].Item2, _nucleotideIds[i].Item3, _nucleotideIds[i].Item4);
+            GameObject nucl = FindGameObject(_nucleotideIds[i].Item1, _nucleotideIds[i].Item2, _nucleotideIds[i].Item3, _nucleotideIds[i].Item4);
             nucleotides.Add(nucl);
         }
 
@@ -94,15 +107,27 @@ public class CreateCommand : ICommand
         // of the new xover, and add it to the xover list. Use this list to create the new strand.
         for (int i = 0; i < _prevGOs.Count; i++)
         {
-            GameObject prevGO = FindNucleotide(_prevGOs[i].Item1, _prevGOs[i].Item2, _prevGOs[i].Item3, _prevGOs[i].Item4);
-            GameObject nextGO = FindNucleotide(_nextGOs[i].Item1, _nextGOs[i].Item2, _nextGOs[i].Item3, _nextGOs[i].Item4);
+            GameObject prevGO = FindGameObject(_prevGOs[i].Item1, _prevGOs[i].Item2, _prevGOs[i].Item3, _prevGOs[i].Item4);
+            GameObject nextGO = FindGameObject(_nextGOs[i].Item1, _nextGOs[i].Item2, _nextGOs[i].Item3, _nextGOs[i].Item4);
 
             DrawPoint.MakeXover(prevGO, nextGO, _strandId);
         }
         CreateStrand(nucleotides, _strandId, _color);
+
+        // Add back deletions/insertions.
+        for (int i = 0; i < _deletions.Count; i++)
+        {
+            GameObject nt = FindNucleotide(_deletions[i].Item1, _deletions[i].Item2, _deletions[i].Item3);
+            DrawDeletion.Deletion(nt);
+        }
+        for (int i = 0; i < _insertions.Count; i++)
+        {
+            GameObject nt = FindNucleotide(_insertions[i].Item1, _insertions[i].Item2, _insertions[i].Item3);
+            DrawInsertion.Insertion(nt, _insertions[i].Item4);
+        }
     }
 
-    public GameObject FindNucleotide(int id, int helixId, int direction, bool isBackbone)
+    public GameObject FindGameObject(int id, int helixId, int direction, bool isBackbone)
     {
         s_helixDict.TryGetValue(helixId, out Helix helix);
         if (isBackbone)

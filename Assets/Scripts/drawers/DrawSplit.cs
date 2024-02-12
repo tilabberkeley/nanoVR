@@ -59,7 +59,7 @@ public class DrawSplit : MonoBehaviour
                 && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
-            if (s_hit.collider.name.Contains("nucleotide"))
+            if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
             {
                 s_GO = s_hit.collider.gameObject;
                 DoSplitStrand(s_GO);
@@ -89,6 +89,7 @@ public class DrawSplit : MonoBehaviour
     /// <returns>Returns split off strand.</returns>
     public static void SplitStrand(GameObject go, int id, Color color, bool splitAfter)
     {
+        if (!IsValid(go)) { return; }
         var startNtc = go.GetComponent<NucleotideComponent>();
         int strandId = startNtc.StrandId;
         s_strandDict.TryGetValue(strandId, out Strand strand);
@@ -96,18 +97,17 @@ public class DrawSplit : MonoBehaviour
 
         int goIndex = strand.GetIndex(go);
 
-        // TODO: Add logic for moving ins/del
         if (splitAfter)
         {
-            List<GameObject> xovers = strand.GetXoversAfterIndex(goIndex);
-            strand.RemoveXovers(xovers);
-            CreateStrand(strand.SplitAfter(go, false), xovers, id, color);
+            //List<GameObject> xovers = strand.GetXoversAfterIndex(goIndex);
+            //strand.RemoveXovers(xovers);
+            CreateStrand(strand.SplitAfter(go), id, color);
         }
         else
         {
-            List<GameObject> xovers = strand.GetXoversBeforeIndex(goIndex);
-            strand.RemoveXovers(xovers);
-            CreateStrand(strand.SplitBefore(go, false), xovers, id, color);
+            //List<GameObject> xovers = strand.GetXoversBeforeIndex(goIndex);
+            //strand.RemoveXovers(xovers);
+            CreateStrand(strand.SplitBefore(go), id, color);
         }
     }
 
@@ -121,18 +121,24 @@ public class DrawSplit : MonoBehaviour
         int strandId = ntc.StrandId;
         Strand strand = s_strandDict[strandId];
 
-        if (strand.GetHead() == go)
+        if (strand.Head == go || strand.Tail == go)
         {
             return false;
         }
+
+        if (ntc.HasXover)
+        {
+            return false;
+        }
+
        
-        for (int i = 0; i < strand.GetXovers().Count; i++)
+        /*for (int i = 0; i < strand.GetXovers().Count; i++)
         {
             if (go == strand.GetXovers()[i].GetComponent<XoverComponent>().NextGO)
             {
                 return false;
             }
-        }
+        }*/
 
         return true;
     }

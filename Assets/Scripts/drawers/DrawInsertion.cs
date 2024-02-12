@@ -79,7 +79,7 @@ public class DrawInsertion : MonoBehaviour
                 && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
-            if (s_hit.collider.gameObject.GetComponent<NucleotideComponent>() != null)
+            if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
             {
                 s_GO = s_hit.collider.gameObject;
                 DoInsertion(s_GO, DEFAULT_LENGTH);

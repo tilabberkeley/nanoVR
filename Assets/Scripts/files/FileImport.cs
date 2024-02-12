@@ -1,8 +1,8 @@
-﻿
-/*
+﻿/*
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
- */using System;
+ */
+using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
@@ -11,6 +11,7 @@ using OVRSimpleJSON;
 using SimpleFileBrowser;
 using static GlobalVariables;
 using static Utils;
+using System.Reflection;
 
 public class FileImport : MonoBehaviour
 {
@@ -22,6 +23,11 @@ public class FileImport : MonoBehaviour
     {
         FileBrowser.HideDialog();
         FileBrowser.SingleClickMode = true;
+        FileBrowser.Instance.enabled = false;
+
+#if UNITY_ANDROID
+typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, (bool?)false);
+#endif
 
         // Code to get all file access on Oculus Quest 2 
         using var buildVersion = new AndroidJavaClass("android.os.Build$VERSION");
@@ -126,6 +132,11 @@ public class FileImport : MonoBehaviour
             string hexColor = CleanSlash(strands[i]["color"].ToString());
             ColorUtility.TryParseHtmlString(hexColor, out Color color);
             int strandId = s_numStrands;
+            bool isScaffold = false;
+            if (strands[i]["is_scaffold"] != null)
+            {
+                isScaffold = strands[i]["is_scaffold"].AsBool;
+            }
             List<GameObject> nucleotides = new List<GameObject>();
             List<GameObject> xoverEndpoints = new List<GameObject>();
             List<GameObject> sDeletions = new List<GameObject>();
@@ -172,7 +183,10 @@ public class FileImport : MonoBehaviour
                 }
             }
 
-            CreateStrand(nucleotides, strandId, color);
+            Strand strand = CreateStrand(nucleotides, strandId, color);
+
+            // Set as scaffold or staple
+            strand.IsScaffold = isScaffold;
 
             // Add deletions and insertions.
             for (int j = 0; j < sDeletions.Count; j++)
@@ -188,18 +202,17 @@ public class FileImport : MonoBehaviour
             xoverEndpoints.Reverse();
             for (int j = 1; j < xoverEndpoints.Count; j += 2)
             {
-                DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], xoverEndpoints[j]);
+                strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], xoverEndpoints[j]));
             }
 
             // Assign DNA sequence to strand.
-            Strand fullStrand = s_strandDict[strandId];
-            fullStrand.Sequence = sequence;
-            //Debug.Log("# of nucleotides: " + fullStrand.Count);
-            //Debug.Log("sequence length: " + sequence.Length);
-            /*int seqCount = 0;
-            for (int j = fullStrand.Nucleotides.Count - 1; j >= 0; j--)
+            strand.Sequence = sequence;
+            Debug.Log("# of nucleotides: " + strand.Length);
+            Debug.Log("sequence length: " + sequence.Length);
+            int seqCount = 0;
+            for (int j = strand.Nucleotides.Count - 1; j >= 0; j--)
             {
-                var ntc = fullStrand.Nucleotides[j].GetComponent<NucleotideComponent>();
+                var ntc = strand.Nucleotides[j].GetComponent<NucleotideComponent>();
                 if (ntc != null)
                 {
                     if (ntc.IsDeletion)
@@ -212,7 +225,7 @@ public class FileImport : MonoBehaviour
                         seqCount += ntc.Insertion + 1;
                     }
                 }
-            }*/
+            }
         }
     }
 

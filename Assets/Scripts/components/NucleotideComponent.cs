@@ -72,7 +72,7 @@ public class NucleotideComponent : DNAComponent
             return false;
         }
         s_strandDict.TryGetValue(_strandId, out Strand strand);
-        return ReferenceEquals(gameObject, strand.GetTail()) || ReferenceEquals(gameObject, strand.GetHead());
+        return ReferenceEquals(gameObject, strand.Tail) || ReferenceEquals(gameObject, strand.Head);
     }
 
     /// <summary>

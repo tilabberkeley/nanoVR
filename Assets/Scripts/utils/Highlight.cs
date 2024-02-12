@@ -138,16 +138,17 @@ public static class Highlight
     public static void HighlightStrand(Strand strand)
     {
         List<GameObject> nucleotides = strand.Nucleotides;
-        List<GameObject> xovers = strand.Xovers;
         GameObject cone = strand.Cone;
         for (int i = 0; i < nucleotides.Count; i++)
         {
             HighlightGO(nucleotides[i], strandHighlightColor);
+            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            if (ntc != null && ntc.HasXover)
+            {
+                HighlightGO(ntc.Xover, strandHighlightColor);
+            }
         }
-        for (int i = 0; i < xovers.Count; i++)
-        {
-            HighlightGO(xovers[i], strandHighlightColor);
-        }
+       
         HighlightGO(cone, strandHighlightColor);
     }
 
@@ -158,16 +159,17 @@ public static class Highlight
     public static void UnhighlightStrand(Strand strand)
     {
         List<GameObject> nucleotides = strand.Nucleotides;
-        List<GameObject> xovers = strand.Xovers;
         GameObject cone = strand.Cone;
         for (int i = 0; i < nucleotides.Count; i++)
         {
             UnhighlightGO(nucleotides[i]);
+            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            if (ntc != null && ntc.HasXover)
+            {
+                UnhighlightGO(ntc.Xover);
+            }
         }
-        for (int i = 0; i < xovers.Count; i++)
-        {
-            UnhighlightGO(xovers[i]);
-        }
+
         UnhighlightGO(cone);
     }
     

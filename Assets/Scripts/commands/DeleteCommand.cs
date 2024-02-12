@@ -19,7 +19,7 @@ public class DeleteCommand : ICommand
     //private List<int> _helixIds = new List<int>();
     private Color _color;
 
-    public DeleteCommand(int strandId, List<GameObject> nucleotides, List<GameObject> xovers, Color color)
+    public DeleteCommand(int strandId, List<GameObject> nucleotides, Color color)
     {
         _strandId = strandId;
         _nucleotides = nucleotides;
@@ -45,9 +45,22 @@ public class DeleteCommand : ICommand
                     _insertions.Add((id, helixId, direction, ntc.Insertion));
                 }
             }
+
+            if (ntc != null && ntc.HasXover)
+            {
+                var xoverComp = ntc.Xover.GetComponent<XoverComponent>();
+                if (xoverComp.PrevGO == nucleotides[i])
+                {
+                    _prevGOs.Add((id, helixId, direction, isBackbone));
+                }
+                else if (xoverComp.NextGO == nucleotides[i])
+                {
+                    _nextGOs.Add((id, helixId, direction, isBackbone));
+                }
+            }
         }
 
-        for (int i = 0; i < xovers.Count; i++)
+        /*for (int i = 0; i < xovers.Count; i++)
         {
             NucleotideComponent ntc = xovers[i].GetComponent<XoverComponent>().PrevGO.GetComponent<NucleotideComponent>();
             int id = ntc.Id;
@@ -62,7 +75,7 @@ public class DeleteCommand : ICommand
             direction = ntc.Direction;
             isBackbone = ntc.IsBackbone;
             _nextGOs.Add((id, helixId, direction, isBackbone));
-        }
+        }*/
         _color = color;
     }
     public void Do()
@@ -78,7 +91,7 @@ public class DeleteCommand : ICommand
 
     public void Undo()
     {
-        List<GameObject> xovers = new List<GameObject>();
+        //List<GameObject> xovers = new List<GameObject>();
         List<GameObject> nucleotides = new List<GameObject>();
 
         for (int i = 0; i < _nucleotideIds.Count; i++)
@@ -86,6 +99,13 @@ public class DeleteCommand : ICommand
             GameObject nucl = FindGameObject(_nucleotideIds[i].Item1, _nucleotideIds[i].Item2, _nucleotideIds[i].Item3, _nucleotideIds[i].Item4);
             nucleotides.Add(nucl);
         }
+
+        Debug.Log("Finished adding nucleotides");
+
+        CreateStrand(nucleotides, _strandId, _color);
+
+        Debug.Log("Finished creating strand");
+
 
         // Loop through the stored prevGOs and create new xovers using the prevGO and nextGO list. Then, set the prevGO and nextGO
         // of the new xover, and add it to the xover list. Use this list to create the new strand.
@@ -95,12 +115,13 @@ public class DeleteCommand : ICommand
             GameObject nextGO = FindGameObject(_nextGOs[i].Item1, _nextGOs[i].Item2, _nextGOs[i].Item3, _nextGOs[i].Item4);
 
             GameObject xover = DrawPoint.MakeXover(prevGO, nextGO, _strandId);
-            xover.GetComponent<XoverComponent>().PrevGO = prevGO;
+            /*xover.GetComponent<XoverComponent>().PrevGO = prevGO;
             xover.GetComponent<XoverComponent>().NextGO = nextGO;
-            xovers.Add(xover);
+            xovers.Add(xover);*/
             // Debug.Log("Drawing xover! " + xover);
         }
-        CreateStrand(nucleotides, xovers, _strandId, _color);
+
+        Debug.Log("Finished adding  xovers");
 
         // Add back deletions/insertions.
         for (int i = 0; i < _deletions.Count; i++)
@@ -108,11 +129,15 @@ public class DeleteCommand : ICommand
             GameObject nt = FindNucleotide(_deletions[i].Item1, _deletions[i].Item2, _deletions[i].Item3);
             DrawDeletion.Deletion(nt);
         }
+        Debug.Log("Finished adding deletions");
+
         for (int i = 0; i < _insertions.Count; i++)
         {
             GameObject nt = FindNucleotide(_insertions[i].Item1, _insertions[i].Item2, _insertions[i].Item3);
             DrawInsertion.Insertion(nt, _insertions[i].Item4);
         }
+        Debug.Log("Finished adding insertions");
+
     }
 
     public GameObject FindGameObject(int id, int helixId, int direction, bool isBackbone)

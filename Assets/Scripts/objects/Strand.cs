@@ -23,9 +23,13 @@ public class Strand
 
     // This strand's id.
     private int _strandId;
+    public int Id { get { return _strandId; } }
+
+    public int HelixId { get { return _head.GetComponent<NucleotideComponent>().HelixId; } }
 
     // This strand's color.
     private Color _color;
+    public Color Color { get { return _color; } }
 
     // GameObject at front of this strand (at index 0 of nucleotides list).
     private GameObject _head;
@@ -38,8 +42,8 @@ public class Strand
     public GameObject Cone { get { return _cone; } }
 
     // List of this strand's crossovers (needs testing).
-    //private List<GameObject> _xovers;
-    //public List<GameObject> Xovers { get { return _xovers; } }
+    private List<GameObject> _xovers = new List<GameObject>();
+    public List<GameObject> Xovers { get { return _xovers; } }
 
     // List of this strand's crossover suggestions.
     private List<GameObject> _xoverSuggestions;
@@ -52,6 +56,24 @@ public class Strand
 
     private bool _isScaffold;
     public bool IsScaffold { get { return _isScaffold; } set { _isScaffold = value; } }
+
+    public int Length 
+    { 
+        get 
+        {
+            int count = 0;
+            foreach (GameObject nucl in _nucleotides)
+            {
+                if (nucl.GetComponent<NucleotideComponent>() != null)
+                {
+                    count += 1;
+                }
+            }
+            return count;
+        }
+    }
+
+    public int Direction { get { return _head.GetComponent<NucleotideComponent>().Direction; } }
 
     // List of helix ids this strand is on.
     //private List<int> _helixIds;
@@ -88,8 +110,6 @@ public class Strand
         //s_numStrands += 1;
     }*/
 
-    // Returns strand id.
-    public int GetStrandId() { return _strandId; }
 
     // Returns nucleotide list.
     //public List<GameObject> GetNucleotides() { return _nucleotides; }
@@ -103,14 +123,12 @@ public class Strand
     }
 
     // Returns head GameObject.
-    public GameObject GetHead() { return _head; }
+    public GameObject Head { get { return _head; } }
 
     // Returns tail GameObject.
-    public GameObject GetTail() { return _tail; }
+    public GameObject Tail { get { return _tail; } }
 
-    // Returns strand color.
-    public Color GetColor() { return _color; }
-
+    
     // Returns the next GameObject in nucleotide list.
     public GameObject GetPrevGO(GameObject go)
     {
@@ -125,7 +143,7 @@ public class Strand
     }
 
     // Returns number of nucleotides in strand, not including backbones.
-    public int Count { get { return _nucleotides.Count / 2 + 1; } }
+    //public int Count { get { return _nucleotides.Count / 2 + 1; } }
 
     // Shows or hides cone based on input parameter.
     public void ShowHideCone(bool enabled)
@@ -169,6 +187,8 @@ public class Strand
         _head = _nucleotides[0];
         _cone.transform.position = _head.transform.position;
         SetCone();
+
+        UpdateXovers();
         //CheckForXoverSuggestions();
     }
 
@@ -177,6 +197,7 @@ public class Strand
     {
         _nucleotides.Add(newNucl);
         _tail = _nucleotides.Last();
+        UpdateXovers();
     }
 
     // Adds list of GameObjects to end of nucleotide list.
@@ -184,6 +205,7 @@ public class Strand
     {
         _nucleotides.AddRange(newNucls);
         _tail = _nucleotides.Last();
+        UpdateXovers();
         //CheckForXoverSuggestions();
     }
 
@@ -200,6 +222,7 @@ public class Strand
             _head = _nucleotides[0];
             SetCone();
         }
+        UpdateXovers();
         ResetComponents(nucleotides);
     }
 
@@ -215,11 +238,12 @@ public class Strand
         {
             _tail = _nucleotides.Last();
         }
+        UpdateXovers();
         ResetComponents(nucleotides);
     }
 
     /// <summary>
-    /// Deletes strand and resets all GameObjects.
+    /// Removes strand and resets all GameObjects.
     /// </summary>
     public void RemoveStrand()
     {
@@ -239,27 +263,34 @@ public class Strand
     /// </summary>
     /// <param name="go">GameObject that determines index of where strand is being split.</param>
     /// <returns>Returns list of nucleotides before split.</returns>
-    public List<GameObject> SplitBefore(GameObject go, bool isXover)
+    public List<GameObject> SplitBefore(GameObject go)
     {
         List<GameObject> splitList = new List<GameObject>();
         int splitIndex = _nucleotides.IndexOf(go);
 
-        if (isXover)
+       /* if (isXover)
         {
             splitList.AddRange(_nucleotides.GetRange(0, splitIndex));
         }
         else
-        {
+        {*/
             // Clears the backbone between the two split lists.
-            _nucleotides[splitIndex - 1].GetComponent<DNAComponent>().Color = Color.white;
-            splitList.AddRange(_nucleotides.GetRange(0, splitIndex - 1));
+            //_nucleotides[splitIndex - 1].GetComponent<DNAComponent>().Color = Color.white;
+            splitList.AddRange(_nucleotides.GetRange(0, splitIndex));
+        //}
+        if (splitList.Count % 2 == 0)
+        {
+            GameObject backbone = splitList[splitList.Count - 1];
+            splitList.Remove(backbone);
+            backbone.GetComponent<BackBoneComponent>().Color = Color.white;
         }
-        
+
         _nucleotides.RemoveRange(0, splitIndex);
         _head = _nucleotides[0];
         _cone.transform.position = _head.transform.position;
         ShowHideCone(true);
         SetCone();
+        UpdateXovers();
         return splitList;
     }
 
@@ -268,26 +299,33 @@ public class Strand
     /// </summary>
     /// <param name="go">GameObject that determines index of where strand is being split.</param>
     /// <returns>Returns list of nucleotides after split.</returns>
-    public List<GameObject> SplitAfter(GameObject go, bool isXover)
+    public List<GameObject> SplitAfter(GameObject go)
     {
         List<GameObject> splitList = new List<GameObject>();
         int splitIndex = _nucleotides.IndexOf(go);
         int count = _nucleotides.Count - splitIndex - 1;
-
-        if (isXover)
+        /*if (isXover)
         {
             splitList.AddRange(_nucleotides.GetRange(splitIndex + 1, count));
         }
         else
-        {
+        {*/
             // Clear backbone between the two split lists.
-            _nucleotides[splitIndex + 1].GetComponent<DNAComponent>().Color = Color.white;
-            splitList.AddRange(_nucleotides.GetRange(splitIndex + 2, count - 1));
+            //_nucleotides[splitIndex + 1].GetComponent<DNAComponent>().Color = Color.white;
+            splitList.AddRange(_nucleotides.GetRange(splitIndex + 1, count));
+        //}
+        if (splitList.Count % 2 == 0)
+        {
+            GameObject backbone = splitList[0];
+            splitList.Remove(backbone);
+            backbone.GetComponent<BackBoneComponent>().Color = Color.white;
         }
+      
         _nucleotides.RemoveRange(splitIndex + 1, count);
         _tail = _nucleotides.Last();
         ShowHideCone(true);
         SetCone();
+        UpdateXovers();
         return splitList;
     }
 
@@ -326,10 +364,11 @@ public class Strand
             var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
             if (ntc != null && ntc.HasXover)
             {
-                ntc.Xover = null;
                 GameObject.Destroy(ntc.Xover);
+                ntc.Xover = null;
             }
         }
+        _xovers.Clear();
     }
 
     public void DeleteXover(GameObject xover)
@@ -339,6 +378,8 @@ public class Strand
         var nextNtc = xoverComp.NextGO.GetComponent<NucleotideComponent>();
         prevNtc.Xover = null;
         nextNtc.Xover = null;
+        _xovers.Remove(xover);
+        _xovers.Remove(xover);
         GameObject.Destroy(xover);
     }
 
@@ -365,12 +406,13 @@ public class Strand
             SetXoverColor(_xovers[i]);
         }*/
         SetCone();
+        UpdateXovers();
     }
 
     // Sets cone direction (pointing left or right).
     public void SetCone()
     { 
-        _cone.GetComponent<ConeComponent>().Color = _color; // FIX: Abstract into Cone component
+        _cone.GetComponent<ConeComponent>().Color = _color;
         int helixId = _head.GetComponent<NucleotideComponent>().HelixId;
         GameObject neighbor = s_helixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
         Vector3 toDirection;
@@ -418,13 +460,27 @@ public class Strand
         }
     }
 
+    private void UpdateXovers()
+    {
+        _xovers.Clear();
+        for (int i = 0; i < _nucleotides.Count; i++)
+        {
+            var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+            if (ntc != null && ntc.HasXover)
+            {
+                _xovers.Add(ntc.Xover);
+                i++;
+            }
+        }
+    }
+
     /// <summary>
     /// Creates cross over suggestion game objects if there is a close enough strand in the opposite direction.
     /// </summary>
     private void CheckForXoverSuggestions()
     {
         // tail check
-        GameObject tail = GetTail();
+        GameObject tail = _tail;
         List<NucleotideComponent> neighborNucleotideComponents = tail.GetComponent<NucleotideComponent>().getNeighborNucleotides();
         foreach (NucleotideComponent nucleotideComponent in neighborNucleotideComponents)
         { 
@@ -435,7 +491,7 @@ public class Strand
         }
 
         // head check
-        GameObject head = GetHead();
+        GameObject head = _head;
         neighborNucleotideComponents = head.GetComponent<NucleotideComponent>().getNeighborNucleotides();
         foreach (NucleotideComponent nucleotideComponent in neighborNucleotideComponents)
         {

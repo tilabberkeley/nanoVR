@@ -96,8 +96,8 @@ public class Helix
 
             if (_orientation.Equals("XY"))
             {
-                _lastPositionA = _gridComponent.Position + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
-                _lastPositionB = _gridComponent.Position + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
+                _lastPositionA = _gridComponent.Position + new Vector3(axisOneChangeA, axisTwoChangeA - ADJUSTMENT, -i * RISE);
+                _lastPositionB = _gridComponent.Position + new Vector3(axisOneChangeB, axisTwoChangeB - ADJUSTMENT, -i * RISE);
             }
             else if (_orientation.Equals("XZ"))
             {
@@ -423,7 +423,7 @@ public class Helix
             {
                 MoveXover(nucleotide);
             }
-            if (strand != null && strand.GetHead() == nucleotide)
+            if (strand != null && strand.Head == nucleotide)
             {
                 strand.SetCone();
             }
@@ -441,7 +441,7 @@ public class Helix
             {
                 MoveXover(nucleotide);
             }
-            if (strand != null && strand.GetHead() == nucleotide)
+            if (strand != null && strand.Head == nucleotide)
             {
                 strand.SetCone();
             }

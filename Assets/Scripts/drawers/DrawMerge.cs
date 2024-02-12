@@ -58,7 +58,7 @@ public class DrawMerge : MonoBehaviour
                 && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
-            if (s_hit.collider.name.Contains("nucleotide"))
+            if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
             {
                 s_GO = s_hit.collider.gameObject;
                 DoMergeStrand(s_GO);
@@ -89,7 +89,7 @@ public class DrawMerge : MonoBehaviour
         // Check GameObject is a strand head or a strand tail.
         int strandId = startNtc.StrandId;
         Strand strand = s_strandDict[strandId];
-        if (strand.GetHead() != go && strand.GetTail() != go)
+        if (strand.Head != go && strand.Tail != go)
         {
             return -1;
         }
@@ -100,11 +100,11 @@ public class DrawMerge : MonoBehaviour
         int direction = startNtc.Direction;
         GameObject headNeighbor = helix.GetHeadNeighbor(go, direction);
         GameObject tailNeighbor = helix.GetTailNeighbor(go, direction);
-        if (strand.GetHead() == go && headNeighbor.GetComponent<NucleotideComponent>().Selected)
+        if (strand.Head == go && headNeighbor.GetComponent<NucleotideComponent>().Selected)
         {
             return 0;
         }
-        else if (strand.GetTail() == go && tailNeighbor.GetComponent<NucleotideComponent>().Selected)
+        else if (strand.Tail == go && tailNeighbor.GetComponent<NucleotideComponent>().Selected)
         {
             return 1;
         }
@@ -186,19 +186,19 @@ public class DrawMerge : MonoBehaviour
             return;
         }
         */
-        firstStrand.AddXovers(secondStrand.GetXovers());
+        //firstStrand.AddXovers(secondStrand.GetXovers());
 
         if (isHead)
         {
             //firstStrand.AddXov
             firstStrand.AddToHead(backbone);
-            firstStrand.AddToHead(secondStrand.GetNucleotides());
+            firstStrand.AddToHead(secondStrand.Nucleotides);
             // must add backbone between 2 strands
         }
         else
         {
             firstStrand.AddToTail(backbone);
-            firstStrand.AddToTail(secondStrand.GetNucleotides());
+            firstStrand.AddToTail(secondStrand.Nucleotides);
             // must add backbone between 2 strands
         }
         SelectStrand.RemoveStrand(secondGO);

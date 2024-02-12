@@ -174,8 +174,8 @@ public class MoveStrand : MonoBehaviour
         Helix helix = s_helixDict[newComp.HelixId];
         Debug.Log("Get newNucl helix");
 
-        int count = strand.Count;
-        int distToHead = oldComp.Id - strand.GetHead().GetComponent<NucleotideComponent>().Id;
+        int count = strand.Length;
+        int distToHead = oldComp.Id - strand.Head.GetComponent<NucleotideComponent>().Id;
         int startId = newComp.Id - distToHead;
 
         if (newComp.Direction == 0)

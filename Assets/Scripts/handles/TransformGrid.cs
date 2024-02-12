@@ -51,7 +51,7 @@ public class TransformGrid : MonoBehaviour
         }
 
         _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
-        if (triggerValue && rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        if (triggerValue && rayInteractor.TryGetCurrent3DRaycastHit(out s_hit) && s_hit.collider.gameObject.Equals(gizmos))
         {
             rayInteractor.TryGetHitInfo(out Vector3 reticlePosition, out _, out _, out _);
             if (distanceFromRay == Vector3.zero)
@@ -84,7 +84,11 @@ public class TransformGrid : MonoBehaviour
         // When trigger is released
         if (!triggerValue && distanceToGrid != Vector3.zero)
         {
-            gizmos.GetComponentInChildren<GridComponent>().Grid.StartPos = gizmos.transform.position - distanceToGrid;
+            var gc = gizmos.GetComponentInChildren<GridComponent>();
+            if (gc != null)
+            {
+                gc.Grid.StartPos = gizmos.transform.position - distanceToGrid;
+            }
             distanceFromRay = Vector3.zero;
             distanceToGrid = Vector3.zero;
         }

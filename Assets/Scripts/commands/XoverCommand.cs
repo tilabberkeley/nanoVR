@@ -3,17 +3,17 @@
  * author: David Yang <davidmyang@berkeley.edu>
  */
 using UnityEngine;
-using static GlobalVariables;
+using static Utils;
 
 public class XoverCommand : ICommand
 {
-    private GameObject _startGO;
-    private GameObject _endGO;
+    private GameObject _first;
+    private GameObject _second;
     private GameObject _xover;
-    private bool _isHead;
-    //private bool _isFirstEnd;
-    //private bool _isSecondEnd;
-    private Color _endColor;
+    private bool _firstIsHead;
+    private bool _firstIsEnd;
+    private bool _secondIsEnd;
+    private Color _secondColor;
 
     private int _startId;
     private int _startHelixId;
@@ -22,39 +22,42 @@ public class XoverCommand : ICommand
     private int _endHelixId;
     private int _endDirection;
 
-    public XoverCommand(GameObject startGO, GameObject endGO, bool isHead, bool isFirstEnd, bool isSecondEnd)
+    public XoverCommand(GameObject first, GameObject second, bool firstIsEnd, bool secondIsEnd, bool firstIsHead)
     {
-        _startGO = startGO;
-        _endGO = endGO;
-        _endColor = endGO.GetComponent<NucleotideComponent>().Color;
-        _isHead = isHead;
+        _first = first;
+        _second = second;
+        _secondColor = second.GetComponent<NucleotideComponent>().Color;
 
-        var startNtc = startGO.GetComponent<NucleotideComponent>();
+        var startNtc = first.GetComponent<NucleotideComponent>();
         _startId = startNtc.Id;
         _startHelixId = startNtc.HelixId;
         _startDirection = startNtc.Direction;
 
-        var endNtc = endGO.GetComponent<NucleotideComponent>();
+        var endNtc = second.GetComponent<NucleotideComponent>();
         _endId = endNtc.Id;
         _endHelixId = endNtc.HelixId;
         _endDirection = endNtc.Direction;
 
 
-        // _isFirstEnd = isFirstEnd;
-        // _isSecondEnd = isSecondEnd;
+        _firstIsEnd = firstIsEnd;
+        _secondIsEnd = secondIsEnd;
+        _firstIsHead = firstIsHead;
     }
 
     public void Do()
     {
-        DrawCrossover.CreateXover(_startGO, _endGO);
+        DrawCrossover.CreateXover(_first, _second);
     }
 
     public void Undo()
     {
         //DrawSplit.SplitStrand(_startGO, _endColor, _isHead);
         GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
+        GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
         _xover = startGO.GetComponent<NucleotideComponent>().Xover;
-        DrawCrossover.EraseXover(_xover, _endId, _endColor, _isHead);
+        DrawCrossover.EraseXover(_xover, _endId, _secondColor, _firstIsHead);
+        if (!_firstIsEnd) { DrawMerge.MergeStrand(startGO); }
+        if (!_secondIsEnd) { DrawMerge.MergeStrand(endGO); }
     }
 
     public void Redo()
@@ -62,11 +65,5 @@ public class XoverCommand : ICommand
         GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
         GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
         DrawCrossover.CreateXover(startGO, endGO);
-    }
-
-    public GameObject FindNucleotide(int id, int helixId, int direction)
-    {
-        s_helixDict.TryGetValue(helixId, out Helix helix);
-        return helix.GetNucleotide(id, direction);
     }
 }

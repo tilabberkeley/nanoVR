@@ -73,7 +73,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
         bool isPrevNucleotide = false;
         if (hitFound)
         {
-            nucComp = s_hit.transform.GetComponent<NucleotideComponent>();
+            nucComp = s_hit.collider.GetComponent<NucleotideComponent>();
             hitIsNucleotide = nucComp != null;
             hitGO = s_hit.collider.gameObject;
             isStartNucleotide = ReferenceEquals(hitGO, s_startGO);
@@ -273,13 +273,13 @@ public class DrawNucleotideDynamic : MonoBehaviour
         }
         Strand strand = s_strandDict[strandId];
 
-        if (newNucls.Last() == strand.GetHead())
+        if (newNucls.Last() == strand.Head)
         {
             // Add nucleotides to the beginning of 0 strand
             //newNucls.Remove(newNucls.Last());
             strand.AddToHead(newNucls.GetRange(0, newNucls.Count - 1));
         }
-        else if (newNucls[0] == strand.GetTail())
+        else if (newNucls[0] == strand.Tail)
         {
             // Add nucleotides ot the end of 0 strand
             //newNucls.Remove(newNucls[0]);
@@ -319,24 +319,24 @@ public class DrawNucleotideDynamic : MonoBehaviour
         int strandId = startNtc.StrandId;
         Strand strand = s_strandDict[strandId];
 
-        if (nucleotides.Last() == strand.GetTail() && nucleotides[0] == strand.GetHead())
+        if (nucleotides.Last() == strand.Tail && nucleotides[0] == strand.Head)
         {
-            if (startGO == strand.GetHead())
+            if (startGO == strand.Head)
             {
                 strand.RemoveFromHead(nucleotides.GetRange(0, nucleotides.Count - 1));
             }
-            else if (startGO == strand.GetTail())
+            else if (startGO == strand.Tail)
             {
                 strand.RemoveFromTail(nucleotides.GetRange(1, nucleotides.Count - 1));
             }
         }
 
-        else if (nucleotides.Last() == strand.GetTail())
+        else if (nucleotides.Last() == strand.Tail)
         {
             // Remove nucls from tail of strand with direction 0
             strand.RemoveFromTail(nucleotides.GetRange(1, nucleotides.Count - 1));
         }
-        else if (nucleotides[0] == strand.GetHead())
+        else if (nucleotides[0] == strand.Head)
         {
             // Remove nucls from head of strand with direction 0
             strand.RemoveFromHead(nucleotides.GetRange(0, nucleotides.Count - 1));

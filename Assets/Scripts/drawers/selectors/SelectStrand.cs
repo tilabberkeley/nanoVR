@@ -40,10 +40,10 @@ public class SelectStrand : MonoBehaviour
 
     private void Update()
     {
-        if (!s_selectTogOn)
+       /* if (!s_selectTogOn)
         {
             return;
-        }
+        }*/
 
         if (!_device.isValid)
         {
@@ -51,12 +51,12 @@ public class SelectStrand : MonoBehaviour
         }
 
         _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
-        if (triggerValue && triggerReleased && rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        if (s_selectTogOn && triggerValue && triggerReleased && rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
 
             // Check that hit Gameobject is part of strand
-            if (s_hit.collider.GetComponent<DNAComponent>() || s_hit.collider.GetComponent<XoverComponent>())
+            if (s_hit.collider.GetComponent<DNAComponent>() != null || s_hit.collider.GetComponent<XoverComponent>() != null)
             {
                 if (s_strand != null)
                 {
@@ -70,7 +70,8 @@ public class SelectStrand : MonoBehaviour
         if (axisClick && axisReleased)
         {
             axisReleased = false;
-            DeleteStrand(s_strand.GetHead());
+            UnhighlightStrand(s_strand);
+            DoDeleteStrand(s_strand);
             /*if (s_highlightedStrands.Count > 0)
             {
                 foreach (Strand strand in s_highlightedStrands)
@@ -148,7 +149,7 @@ public class SelectStrand : MonoBehaviour
 
     public static void DoDeleteStrand(Strand strand)
     {
-        ICommand command = new DeleteCommand(strand.GetStrandId(), strand.GetNucleotides(), strand.GetXovers(), strand.GetColor());
+        ICommand command = new DeleteCommand(strand.Id, strand.Nucleotides, strand.Color);
         CommandManager.AddCommand(command);
         command.Do();
     }
