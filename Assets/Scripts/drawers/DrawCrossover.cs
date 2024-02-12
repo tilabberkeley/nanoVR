@@ -44,7 +44,7 @@ public class DrawCrossover : MonoBehaviour
 
     private void Update()
     {
-        if (!s_drawTogOn || s_hideStencils)
+        if ((!s_drawTogOn && !s_eraseTogOn) || s_hideStencils)
         {
             return;
         }
@@ -227,35 +227,35 @@ public class DrawCrossover : MonoBehaviour
         command.Do();
     }
 
-    public static void EraseXover(GameObject xover, int strandId, Color color, bool splitBefore)
+    public static void EraseXover(GameObject xover, int strandId, Color color, bool splitAfter)
     {   
         var xoverComp = xover.GetComponent<XoverComponent>();
         GameObject go;
 
-        if (splitBefore)
-        {
-            go = xoverComp.NextGO;
-        }
-        else
+        if (splitAfter)
         {
             go = xoverComp.PrevGO;
         }
+        else
+        {
+            go = xoverComp.NextGO;
+        }
         Strand strand = s_strandDict[xoverComp.StrandId];
         strand.DeleteXover(xover);
-        SplitStrand(go, strandId, color, splitBefore);
+        SplitStrand(go, strandId, color, splitAfter);
     }
 
-    public static void SplitStrand(GameObject go, int id, Color color, bool splitBefore)
+    public static void SplitStrand(GameObject go, int id, Color color, bool splitAfter)
     {
         var startNtc = go.GetComponent<NucleotideComponent>();
         int strandId = startNtc.StrandId;
         s_strandDict.TryGetValue(strandId, out Strand strand);
 
-        if (splitBefore)
+        if (splitAfter)
         {
             /*List<GameObject> xovers = strand.GetXoversBeforeIndex(goIndex);
             strand.RemoveXovers(xovers);*/
-            CreateStrand(strand.SplitBefore(go), id, color);
+            CreateStrand(strand.SplitAfter(go), id, color);
         }
         else
         {
@@ -266,15 +266,15 @@ public class DrawCrossover : MonoBehaviour
             {
                 nucleotides.RemoveAt(nucleotides.Count - 1);
             }*/
-            CreateStrand(strand.SplitAfter(go), id, color);
+            CreateStrand(strand.SplitBefore(go), id, color);
         }
     }
 
-    public static void MergeStrand(GameObject firstGO, GameObject secondGO, GameObject backbone)
+    public static void MergeStrand(GameObject firstGO, GameObject secondGO, GameObject xover)
     {
         var firstNtc = firstGO.GetComponent<NucleotideComponent>();
         var secondNtc = secondGO.GetComponent<NucleotideComponent>();
-        var xoverComp = backbone.GetComponent<XoverComponent>();
+        var xoverComp = xover.GetComponent<XoverComponent>();
         int firstStrandId = firstNtc.StrandId;
         int secondStrandId = secondNtc.StrandId;
         Strand firstStrand = s_strandDict[firstStrandId];

@@ -33,10 +33,11 @@ public class Utils : MonoBehaviour
 
 
     // Create strand overloading methods.
-    public static Strand CreateStrand(List<GameObject> nucleotides, int strandId) { return CreateStrand(nucleotides, strandId, s_colors[s_numStrands % 6]); }
-    public static Strand CreateStrand(List<GameObject> nucleotides, int strandId, Color color)
+    public static Strand CreateStrand(List<GameObject> nucleotides, int strandId) { return CreateStrand(nucleotides, strandId, s_colors[s_numStrands % 6], ""); }
+    public static Strand CreateStrand(List<GameObject> nucleotides, int strandId, Color color) { return CreateStrand(nucleotides, strandId, color, ""); }
+    public static Strand CreateStrand(List<GameObject> nucleotides, int strandId, Color color, string sequence)
     {
-        Strand strand = new Strand(nucleotides, strandId, color);
+        Strand strand = new Strand(nucleotides, strandId, color, sequence);
         strand.SetComponents();
         s_strandDict.Add(strandId, strand);
         DrawNucleotideDynamic.CreateButton(strandId);

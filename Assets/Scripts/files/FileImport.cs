@@ -183,7 +183,7 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
                 }
             }
 
-            Strand strand = CreateStrand(nucleotides, strandId, color);
+            Strand strand = CreateStrand(nucleotides, strandId, color, sequence);
 
             // Set as scaffold or staple
             strand.IsScaffold = isScaffold;
@@ -206,10 +206,11 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
             }
 
             // Assign DNA sequence to strand.
-            strand.Sequence = sequence;
-            Debug.Log("# of nucleotides: " + strand.Length);
-            Debug.Log("sequence length: " + sequence.Length);
-            int seqCount = 0;
+            //strand.Sequence = sequence;
+            //Debug.Log("# of nucleotides: " + strand.Length);
+            //Debug.Log("sequence length: " + sequence.Length);
+            //strand.SetComponents();
+            /*int seqCount = 0;
             for (int j = strand.Nucleotides.Count - 1; j >= 0; j--)
             {
                 var ntc = strand.Nucleotides[j].GetComponent<NucleotideComponent>();
@@ -225,7 +226,7 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
                         seqCount += ntc.Insertion + 1;
                     }
                 }
-            }
+            }*/
         }
     }
 

@@ -55,7 +55,23 @@ public class Strand
     public String Sequence { get { return _sequence; } set { _sequence = value; } }
 
     private bool _isScaffold;
-    public bool IsScaffold { get { return _isScaffold; } set { _isScaffold = value; } }
+    public bool IsScaffold 
+    { 
+        get { return _isScaffold; } 
+        set 
+        { 
+            _isScaffold = value; 
+            if (value)
+            {
+                _color = Color.blue;
+            }
+            else
+            {
+                _color = s_colors[s_numStrands % s_colors.Length];
+            }
+            SetComponents(); // Updates all strand objects colors
+        } 
+    }
 
     public int Length 
     { 
@@ -79,11 +95,12 @@ public class Strand
     //private List<int> _helixIds;
 
     // Strand constructor.
-    public Strand(List<GameObject> nucleotides, int strandId, Color color)
+    public Strand(List<GameObject> nucleotides, int strandId, Color color, string sequence)
     {
         _nucleotides = new List<GameObject>(nucleotides);
         _strandId = strandId;
         _color = color;
+        _sequence = sequence;
         _head = _nucleotides[0];
         _tail = _nucleotides.Last();
         _cone = DrawPoint.MakeCone();
@@ -387,7 +404,8 @@ public class Strand
     // Sets variables of each GameObject's component (strandId, color, etc).
     public void SetComponents()
     {
-        for (int i = 0; i < _nucleotides.Count; i++)
+        int seqCount = 0;
+        for (int i = _nucleotides.Count - 1; i >= 0; i--)
         {
             var dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
             var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
@@ -399,6 +417,20 @@ public class Strand
             {
                 var xoverComp = ntc.Xover.GetComponent<XoverComponent>();
                 xoverComp.Color = _color;
+            }
+
+            // Sets DNA sequence to nucleotides
+            if (ntc != null && !ntc.Sequence.Equals(""))
+            {
+                if (ntc.IsDeletion)
+                {
+                    ntc.Sequence = "X";
+                }
+                else
+                {
+                    ntc.Sequence = _sequence.Substring(seqCount, ntc.Insertion + 1);
+                    seqCount += ntc.Insertion + 1;
+                }
             }
         }
         /*for (int i = 0; i < _xovers.Count; i++)
@@ -453,10 +485,18 @@ public class Strand
         if (nucleotides == null) { return; }
         for (int i = 0; i < nucleotides.Count; i++)
         {
-            var ntc = nucleotides[i].GetComponent<DNAComponent>();
-            ntc.Selected = false;
-            ntc.StrandId = -1;
-            ntc.Color = NucleotideComponent.s_defaultColor;
+            var dnaComp = nucleotides[i].GetComponent<DNAComponent>();
+            dnaComp.Selected = false;
+            dnaComp.StrandId = -1;
+            dnaComp.Color = NucleotideComponent.s_defaultColor;
+
+            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            if (ntc != null)
+            {
+                ntc.IsDeletion = false;
+                ntc.Sequence = "X";
+                ntc.Insertion = 0;
+            }
         }
     }
 

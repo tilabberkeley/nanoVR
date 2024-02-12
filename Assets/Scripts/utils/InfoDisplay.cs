@@ -41,20 +41,20 @@ public class InfoDisplay : MonoBehaviour
             GetDevice();
         }
 
-        rayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit s_hit);
-
-        if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
+        if (rayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit s_hit))
         {
-            DisplayNucleotideInfo(s_hit.collider.gameObject);
-        }
-        else if (s_hit.collider.GetComponent<BackBoneComponent>() != null)
-        {
-            DisplayBackboneInfo(s_hit.collider.gameObject);
-        }
-
-        else if (s_hit.collider.GetComponent<XoverComponent>() != null)
-        {
-            DisplayXoverInfo(s_hit.collider.gameObject);
+            if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
+            {
+                DisplayNucleotideInfo(s_hit.collider.gameObject);
+            }
+            else if (s_hit.collider.GetComponent<BackBoneComponent>() != null)
+            {
+                DisplayBackboneInfo(s_hit.collider.gameObject);
+            }
+            else if (s_hit.collider.GetComponent<XoverComponent>() != null)
+            {
+                DisplayXoverInfo(s_hit.collider.gameObject);
+            }
         }
     }
 
