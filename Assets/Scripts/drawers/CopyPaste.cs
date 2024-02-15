@@ -75,7 +75,7 @@ public class CopyPaste : MonoBehaviour
 
         if (pasting && !rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
-            UnhighlightNucleotideSelection(s_currNucleotides);
+            UnhighlightNucleotideSelection(s_currNucleotides, false);
         }
 
         bool triggerValue;
@@ -86,7 +86,7 @@ public class CopyPaste : MonoBehaviour
             {
                 List<GameObject> nucleotides = GetNucleotides(s_copied, go);
                 bool valid = IsValid(nucleotides);
-                UnhighlightNucleotideSelection(s_currNucleotides);
+                UnhighlightNucleotideSelection(s_currNucleotides, false);
                 s_currNucleotides = nucleotides;
 
                 /*if (valid)
@@ -103,7 +103,7 @@ public class CopyPaste : MonoBehaviour
                 if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue) && triggerValue && triggerReleased)
                 {
                     triggerReleased = false;
-                    UnhighlightNucleotideSelection(s_currNucleotides);
+                    UnhighlightNucleotideSelection(s_currNucleotides, false);
                     if (!valid) { return; }
 
                     //Make new xover list

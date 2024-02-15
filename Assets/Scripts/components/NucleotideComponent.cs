@@ -21,7 +21,8 @@ public class NucleotideComponent : DNAComponent
     public bool IsDeletion { get { return _deletion; } set { _deletion = value; } }
 
     // DNA base of this nucleotide. Longer than one if nucleotide is insertion.
-    private string _sequence;
+    // Default DNA is X (no base assigned yet)
+    private string _sequence = "X";
     public string Sequence { get { return _sequence; } set { _sequence = value; } }
 
     public GameObject Complement 
@@ -109,5 +110,13 @@ public class NucleotideComponent : DNAComponent
             Destroy(xoverSuggestionComponent.gameObject);
         }
         _xoverSuggestionComponents.Clear();
+    }
+
+    public override void ResetComponent()
+    {
+        base.ResetComponent();
+        _insertion = 0;
+        _deletion = false;
+        _sequence = "X";
     }
 }

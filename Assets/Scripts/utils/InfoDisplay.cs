@@ -63,7 +63,8 @@ public class InfoDisplay : MonoBehaviour
         var comp = go.GetComponent<NucleotideComponent>();
         string text = "<b>Nucleotide</b>\n";
         text += "DNA: " + comp.Sequence + "\n";
-        text += "Nucl Id: " + comp.Id + "\n\n";
+        text += "Nucl Id: " + comp.Id + "\n";
+        text += "Direction: " + (comp.Direction == 1 ? "Forward" : "Reverse") + "\n\n";
         DisplayStrandInfo(comp.StrandId, text);
     }
 
@@ -71,7 +72,8 @@ public class InfoDisplay : MonoBehaviour
     {
         var comp = go.GetComponent<BackBoneComponent>();
         string text = "<b>Backbone</b>\n";
-        text += "Backbone Id: " + comp.Id + "\n\n";
+        text += "Backbone Id: " + comp.Id + "\n";
+        text += "Direction: " + (comp.Direction == 1 ? "Forward" : "Reverse") + "\n\n";
         DisplayStrandInfo(comp.StrandId, text);
 
     }
@@ -99,7 +101,6 @@ public class InfoDisplay : MonoBehaviour
         text += "Strand Id: " + strand.Id + "\n";
         text += "Helix Id: " + strand.HelixId + "\n";
         text += "Length: " + strand.Length + "\n";
-        text += "Direction: " + (strand.Direction == 1 ? "Forward" : "Reverse") + "\n";
         text += "Xovers: " + strand.Xovers.Count;
         textBox.text = text;
     }

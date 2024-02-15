@@ -60,7 +60,7 @@ public class SelectStrand : MonoBehaviour
             {
                 if (s_strand != null)
                 {
-                    UnhighlightStrand(s_strand);
+                    UnhighlightStrand(s_strand, false);
                 }
                 HighlightStrand(s_hit.collider.gameObject);
             }
@@ -70,7 +70,7 @@ public class SelectStrand : MonoBehaviour
         if (axisClick && axisReleased)
         {
             axisReleased = false;
-            UnhighlightStrand(s_strand);
+            UnhighlightStrand(s_strand, true);
             DoDeleteStrand(s_strand);
             /*if (s_highlightedStrands.Count > 0)
             {
@@ -85,7 +85,7 @@ public class SelectStrand : MonoBehaviour
         if (triggerValue && !rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
-            UnhighlightStrand(s_strand);
+            UnhighlightStrand(s_strand, false);
             /*if (s_highlightedStrands.Count > 0)
             {
                 foreach (Strand strand in s_highlightedStrands)
@@ -141,10 +141,10 @@ public class SelectStrand : MonoBehaviour
         s_strand = strand;
     }
 
-    public static void UnhighlightStrand(Strand strand)
+    public static void UnhighlightStrand(Strand strand, bool isDelete)
     {
         if (strand == null) { return; }
-        Highlight.UnhighlightStrand(strand);
+        Highlight.UnhighlightStrand(strand, isDelete);
     }
 
     public static void DoDeleteStrand(Strand strand)

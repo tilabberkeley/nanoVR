@@ -11,6 +11,7 @@ using OVRSimpleJSON;
 using SimpleFileBrowser;
 using static GlobalVariables;
 using static Utils;
+using static Highlight;
 using System.Reflection;
 
 public class FileImport : MonoBehaviour
@@ -139,8 +140,8 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
             }
             List<GameObject> nucleotides = new List<GameObject>();
             List<GameObject> xoverEndpoints = new List<GameObject>();
-            List<GameObject> sDeletions = new List<GameObject>();
-            List<(GameObject, int)> sInsertions = new List<(GameObject, int)>();
+            //List<GameObject> sDeletions = new List<GameObject>();
+            //List<(GameObject, int)> sInsertions = new List<(GameObject, int)>();
             for (int j = 0; j < domains.Count; j++)
             {
                 int helixId = domains[j]["helix"].AsInt + prevNumHelices;
@@ -155,12 +156,14 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
                 for (int k = 0; k < deletions.Count; k++)
                 {
                     GameObject nt = helix.GetNucleotide(deletions[k], Convert.ToInt32(forward));
-                    sDeletions.Add(nt);
+                    nt.GetComponent<NucleotideComponent>().IsDeletion = true;
+                    HighlightDeletion(nt);
                 }
                 for (int k = 0; k < insertions.Count; k++)
                 {
                     GameObject nt = helix.GetNucleotide(insertions[k][0], Convert.ToInt32(forward));
-                    sInsertions.Add((nt, insertions[k][1]));
+                    nt.GetComponent<NucleotideComponent>().Insertion = insertions[k][1];
+                    HighlightInsertion(nt);
                 }
 
                 // Store domains of strand.
@@ -189,14 +192,14 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
             strand.IsScaffold = isScaffold;
 
             // Add deletions and insertions.
-            for (int j = 0; j < sDeletions.Count; j++)
+            /*for (int j = 0; j < sDeletions.Count; j++)
             {
                 DrawDeletion.Deletion(sDeletions[j]);
             }
             for (int j = 0; j < sInsertions.Count; j++)
             {
                 DrawInsertion.Insertion(sInsertions[j].Item1, sInsertions[j].Item2);
-            }
+            }*/
 
             // Add xovers to strand object.
             xoverEndpoints.Reverse();
@@ -204,6 +207,7 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
             {
                 strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], xoverEndpoints[j]));
             }
+
 
             // Assign DNA sequence to strand.
             //strand.Sequence = sequence;

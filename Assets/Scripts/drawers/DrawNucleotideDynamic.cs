@@ -73,7 +73,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
         bool isPrevNucleotide = false;
         if (hitFound)
         {
-            nucComp = s_hit.collider.GetComponent<NucleotideComponent>();
+            nucComp = s_hit.transform.GetComponent<NucleotideComponent>();
             hitIsNucleotide = nucComp != null;
             hitGO = s_hit.collider.gameObject;
             isStartNucleotide = ReferenceEquals(hitGO, s_startGO);
@@ -103,7 +103,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
             if (hitFound && hitIsNucleotide && !isStartNucleotide && !isPrevNucleotide && creatingStrand && IsValidNucleotideSelection(s_startGO, hitGO))
             {
                 s_endGO = hitGO;
-                UnhighlightNucleotideSelection(s_currentNucleotides);
+                UnhighlightNucleotideSelection(s_currentNucleotides, false);
                 s_currentNucleotides = MakeNuclList(s_startGO, s_endGO);
                 HighlightNucleotideSelection(s_currentNucleotides, !s_eraseTogOn);
             }
@@ -114,7 +114,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
             triggerReleased = true;
             if (creatingStrand)
             {
-                UnhighlightNucleotideSelection(s_currentNucleotides);
+                UnhighlightNucleotideSelection(s_currentNucleotides, false);
                 // Null if didn't select any other valid nucleotides
                 if (s_endGO != null)
                 {

@@ -38,11 +38,11 @@ public class XoverComponent : MonoBehaviour
         }
         set
         {
-            if (_length <= 0.025)
+            if (_length <= 0.05)
             {
                 _color = value;
             }
-            else if (_length <= 0.035)
+            else if (_length <= 0.07)
             {
                 _color = Color.gray;
             }
