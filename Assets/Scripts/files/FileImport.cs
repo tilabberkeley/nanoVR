@@ -140,8 +140,8 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
             }
             List<GameObject> nucleotides = new List<GameObject>();
             List<GameObject> xoverEndpoints = new List<GameObject>();
-            //List<GameObject> sDeletions = new List<GameObject>();
-            //List<(GameObject, int)> sInsertions = new List<(GameObject, int)>();
+            List<GameObject> sDeletions = new List<GameObject>();
+            List<(GameObject, int)> sInsertions = new List<(GameObject, int)>();
             for (int j = 0; j < domains.Count; j++)
             {
                 int helixId = domains[j]["helix"].AsInt + prevNumHelices;
@@ -156,14 +156,12 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
                 for (int k = 0; k < deletions.Count; k++)
                 {
                     GameObject nt = helix.GetNucleotide(deletions[k], Convert.ToInt32(forward));
-                    nt.GetComponent<NucleotideComponent>().IsDeletion = true;
-                    HighlightDeletion(nt);
+                    sDeletions.Add(nt);
                 }
                 for (int k = 0; k < insertions.Count; k++)
                 {
                     GameObject nt = helix.GetNucleotide(insertions[k][0], Convert.ToInt32(forward));
-                    nt.GetComponent<NucleotideComponent>().Insertion = insertions[k][1];
-                    HighlightInsertion(nt);
+                    sInsertions.Add((nt, insertions[k][1]));
                 }
 
                 // Store domains of strand.
@@ -186,10 +184,7 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
                 }
             }
 
-            Strand strand = CreateStrand(nucleotides, strandId, color, sequence);
-
-            // Set as scaffold or staple
-            strand.IsScaffold = isScaffold;
+            Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
 
             // Add deletions and insertions.
             /*for (int j = 0; j < sDeletions.Count; j++)

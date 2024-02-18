@@ -19,6 +19,8 @@ public class CreateCommand : ICommand
     private List<(int, int, int)> _deletions = new List<(int, int, int)>();
     private List<(int, int, int, int)> _insertions = new List<(int, int, int, int)>();
     private Color _color;
+    private string _sequence;
+    private bool _isScaffold;
 
     public CreateCommand(List<GameObject> nucleotides, int strandId)
     {
@@ -90,6 +92,8 @@ public class CreateCommand : ICommand
     {
         // Delete entire strand.
         GameObject start = FindGameObject(_nucleotideIds[0].Item1, _nucleotideIds[0].Item2, _nucleotideIds[0].Item3, _nucleotideIds[0].Item4);
+        _sequence = s_strandDict[start.GetComponent<NucleotideComponent>().StrandId].Sequence;
+        _isScaffold = s_strandDict[start.GetComponent<NucleotideComponent>().StrandId].IsScaffold;
         SelectStrand.DeleteStrand(start);
     }
 
@@ -112,19 +116,21 @@ public class CreateCommand : ICommand
 
             DrawPoint.MakeXover(prevGO, nextGO, _strandId);
         }
-        CreateStrand(nucleotides, _strandId, _color);
-
-        // Add back deletions/insertions.
-        for (int i = 0; i < _deletions.Count; i++)
-        {
-            GameObject nt = FindNucleotide(_deletions[i].Item1, _deletions[i].Item2, _deletions[i].Item3);
-            DrawDeletion.Deletion(nt);
-        }
+        List<(GameObject, int)> insertions = new List<(GameObject, int)>();
+        List<GameObject> deletions = new List<GameObject>();
         for (int i = 0; i < _insertions.Count; i++)
         {
             GameObject nt = FindNucleotide(_insertions[i].Item1, _insertions[i].Item2, _insertions[i].Item3);
-            DrawInsertion.Insertion(nt, _insertions[i].Item4);
+            insertions.Add((nt, _insertions[i].Item4));
         }
+
+        for (int i = 0; i < _deletions.Count; i++)
+        {
+            GameObject nt = FindNucleotide(_deletions[i].Item1, _deletions[i].Item2, _deletions[i].Item3);
+            deletions.Add(nt);
+        }
+      
+        CreateStrand(nucleotides, _strandId, _color, insertions, deletions, _sequence, _isScaffold);
     }
 
     public GameObject FindGameObject(int id, int helixId, int direction, bool isBackbone)

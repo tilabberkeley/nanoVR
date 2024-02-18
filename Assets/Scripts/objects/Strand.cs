@@ -50,9 +50,25 @@ public class Strand
 
     private GameObject _bezier;
 
-    private String _sequence;
+    //private String _sequence;
 
-    public String Sequence { get { return _sequence; } set { _sequence = value; SetSequence(); } }
+    public string Sequence 
+    { 
+        get 
+        {
+            string sequence = "";
+            foreach (GameObject nucl in _nucleotides)
+            {
+                var ntc = nucl.GetComponent<NucleotideComponent>();
+                if (ntc != null)
+                {
+                    sequence += ntc.Sequence;
+                }
+            }
+            return sequence;
+        } 
+        set { SetSequence(value); } 
+    }
 
     private bool _isScaffold;
     public bool IsScaffold 
@@ -80,9 +96,10 @@ public class Strand
             int count = 0;
             foreach (GameObject nucl in _nucleotides)
             {
-                if (nucl.GetComponent<NucleotideComponent>() != null)
+                var ntc = nucl.GetComponent<NucleotideComponent>();
+                if (ntc != null)
                 {
-                    count += 1;
+                    count += 1 + ntc.Insertion;
                 }
             }
             return count;
@@ -93,12 +110,12 @@ public class Strand
     //private List<int> _helixIds;
 
     // Strand constructor.
-    public Strand(List<GameObject> nucleotides, int strandId, Color color, string sequence)
+    public Strand(List<GameObject> nucleotides, int strandId, Color color)
     {
         _nucleotides = new List<GameObject>(nucleotides);
         _strandId = strandId;
         _color = color;
-        _sequence = sequence;
+        //_sequence = sequence;
         _head = _nucleotides[0];
         _tail = _nucleotides.Last();
         _cone = DrawPoint.MakeCone();
@@ -420,19 +437,19 @@ public class Strand
         {
             SetXoverColor(_xovers[i]);
         }*/
-        SetSequence();
+        //SetSequence();
         SetCone();
         UpdateXovers();
     }
 
-    private void SetSequence()
+    private void SetSequence(string sequence)
     {
         int seqCount = 0;
         for (int i = _nucleotides.Count - 1; i >= 0; i--)
         {
             var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
             // Sets DNA sequence to nucleotides
-            if (ntc != null && !_sequence.Equals(""))
+            if (ntc != null && !sequence.Equals(""))
             {
                 if (ntc.IsDeletion)
                 {
@@ -440,7 +457,7 @@ public class Strand
                 }
                 else
                 {
-                    ntc.Sequence = _sequence.Substring(seqCount, ntc.Insertion + 1);
+                    ntc.Sequence = sequence.Substring(seqCount, ntc.Insertion + 1);
                     seqCount += ntc.Insertion + 1;
                 }
             }

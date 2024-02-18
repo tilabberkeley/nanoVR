@@ -43,4 +43,11 @@ public static class GlobalVariables
     public static int s_numHelices = 0;
     public static int s_numGrids = 0;
     public static Color[] s_colors = { Color.blue, Color.magenta, Color.green, Color.red, Color.cyan, Color.yellow };
+
+
+    public static string DNA7249 = Resources.Load("dna7249").ToString();
+    public static string DNA7560 = Resources.Load("dna7560").ToString();
+    public static string DNA8064 = Resources.Load("dna8064").ToString();
+    public static string DNA8634 = Resources.Load("dna78634").ToString();
+
 }
