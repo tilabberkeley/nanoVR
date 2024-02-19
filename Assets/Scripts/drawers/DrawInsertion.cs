@@ -147,14 +147,16 @@ public class DrawInsertion : MonoBehaviour
         {
             ntc.Insertion = 0;
             UnhighlightInsertion(go);
-            return;
         }
-
-        if (ntc.Selected)
+        else if (ntc.Selected)
         {
             HighlightInsertion(go);
             ntc.Insertion = length;
         }
+
+        // Update strand DNA sequence
+        s_strandDict.TryGetValue(ntc.StrandId, out Strand strand);
+        strand.SetSequence(strand.Sequence);
     }
 
     /// <summary>

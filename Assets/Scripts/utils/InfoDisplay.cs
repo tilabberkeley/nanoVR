@@ -75,7 +75,6 @@ public class InfoDisplay : MonoBehaviour
         text += "Backbone Id: " + comp.Id + "\n";
         text += "Direction: " + (comp.Direction == 1 ? "Forward" : "Reverse") + "\n\n";
         DisplayStrandInfo(comp.StrandId, text);
-
     }
 
     private void DisplayXoverInfo(GameObject go)

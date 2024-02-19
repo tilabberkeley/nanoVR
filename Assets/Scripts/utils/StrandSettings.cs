@@ -30,12 +30,12 @@ public class StrandSettings : MonoBehaviour
     [SerializeField] private Toggle _scaffoldTog;
     [SerializeField] private Toggle _tog7249;
     [SerializeField] private Toggle _tog8064;
-    [SerializeField] private Toggle _customToggle;
+    [SerializeField] private Toggle _customTog;
+    [SerializeField] private Toggle _complementaryTog;
     [SerializeField] private Button _OKButton;
     [SerializeField] private Button _cancelButton;
     [SerializeField] private TMP_InputField _sequenceInput;
     [SerializeField] private TMP_InputField _rotationInput;
-
 
     private void Start()
     {
@@ -43,9 +43,9 @@ public class StrandSettings : MonoBehaviour
         _OKButton.onClick.AddListener(() => HideStrandSettings());
         _OKButton.onClick.AddListener(() => SetSettings());
         _cancelButton.onClick.AddListener(() => HideStrandSettings());
-        _sequenceInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
-        _rotationInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
-        _customToggle.onValueChanged.AddListener(delegate { ToggleInputFields(); });
+        //_sequenceInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
+        //_rotationInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
+        _customTog.onValueChanged.AddListener(delegate { ToggleInputFields(); });
     }
 
     private void GetDevice()
@@ -71,15 +71,17 @@ public class StrandSettings : MonoBehaviour
         {
             GetDevice();
         }
+
         // Checks grab button to show strand settings.
         _device.TryGetFeatureValue(CommonUsages.gripButton, out bool gripValue);
         if (gripValue && gripReleased
                 && rayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit s_hit))
         {
             gripReleased = false;
-            if (s_hit.collider.gameObject.GetComponent<NucleotideComponent>() != null
-                && !s_hit.collider.gameObject.GetComponent<NucleotideComponent>().IsInsertion
-                && !s_hit.collider.gameObject.GetComponent<NucleotideComponent>().IsDeletion)
+            if (s_hit.collider.GetComponent<NucleotideComponent>() != null
+                && s_hit.collider.GetComponent<NucleotideComponent>().Selected
+                && !s_hit.collider.GetComponent<NucleotideComponent>().IsInsertion
+                && !s_hit.collider.GetComponent<NucleotideComponent>().IsDeletion)
             {
                 s_GO = s_hit.collider.gameObject;
                 ShowStrandSettings();
@@ -100,14 +102,17 @@ public class StrandSettings : MonoBehaviour
         // Assigning DNA sequence to strand
         int length = s_strand.Length;
         int rotation = Convert.ToInt32(_rotationInput.text);
+        string sequence = "";
+        Debug.Log("Rotation: " + rotation);
 
         if (_tog7249.isOn)
         {
-            if (rotation + length > DNA8064.Length)
+            if (rotation + length > DNA7249.Length)
             {
                 Debug.Log("Rotation of DNA sequence out of bounds for strand length.");
                 return;
             }
+            sequence = DNA7249.Substring(rotation, length);
             s_strand.Sequence = DNA7249.Substring(rotation, length);
         }
         else if (_tog8064.isOn)
@@ -117,11 +122,17 @@ public class StrandSettings : MonoBehaviour
                 Debug.Log("Rotation of DNA sequence out of bounds for strand length.");
                 return;
             }
+            sequence = DNA8064.Substring(rotation, length);
             s_strand.Sequence = DNA8064.Substring(rotation, length);
         }
-        else if (_customToggle.isOn)
+        else if (_customTog.isOn)
         {
-            string sequence = _sequenceInput.text;
+            sequence = _sequenceInput.text;
+
+            if (!ValidateSequence(sequence))
+            {
+                return;
+            }
 
             if (sequence.Length < length)
             {
@@ -136,11 +147,60 @@ public class StrandSettings : MonoBehaviour
                 Debug.Log("Input sequence too long. Using first " + length + " bases of sequence.");
                 sequence = sequence.Substring(0, length);
             }
-            if (!ValidateSequence(sequence))
-            {
-                return;
-            }
             s_strand.Sequence = sequence.ToUpper();
+        }
+
+
+    }
+
+    private void SetComplementary(string sequence)
+    {
+        List<GameObject> nucleotides = s_strand.Nucleotides;
+        int seqCount = 0;
+
+        for (int i = nucleotides.Count - 1; i >= 0; i--)
+        {
+            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            if (ntc != null)
+            {
+                var complNtc = ntc.Complement.GetComponent<NucleotideComponent>();
+                if (complNtc.Selected)
+                {
+                    if (ntc.IsDeletion)
+                    {
+                        ntc.Sequence = "X";
+                    }
+                    else
+                    {
+                        ntc.Sequence = ComplementBase(sequence.Substring(seqCount, ntc.Insertion + 1));
+                        seqCount += ntc.Insertion + 1;
+                    }
+                }
+            }
+        }
+    }
+
+    private string ComplementBase(string dna)
+    {
+        if (dna.Equals("A"))
+        {
+            return "T";
+        }
+        else if (dna.Equals("T"))
+        {
+            return "A";
+        }
+        else if (dna.Equals("C"))
+        {
+            return "G";
+        }
+        else if (dna.Equals("G"))
+        {
+            return "C";
+        }
+        else
+        {
+            return "?";
         }
     }
 
@@ -164,8 +224,8 @@ public class StrandSettings : MonoBehaviour
 
     private void ToggleInputFields()
     {
-        _sequenceInput.interactable = _customToggle.isOn;
-        _rotationInput.interactable = !_customToggle.isOn;
+        _sequenceInput.interactable = _customTog.isOn;
+        _rotationInput.interactable = !_customTog.isOn;
     }
 
     private void ShowStrandSettings()

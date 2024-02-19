@@ -23,7 +23,6 @@ public class DrawCrossover : MonoBehaviour
     private static GameObject s_startGO = null;
     private static GameObject s_endGO = null;
     private static RaycastHit s_hit;
-    private static Color[] s_colors = { Color.blue, Color.magenta, Color.green, Color.red, Color.cyan, Color.yellow };
 
     private void GetDevice()
     {

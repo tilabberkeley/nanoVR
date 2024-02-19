@@ -50,7 +50,7 @@ public class Strand
 
     private GameObject _bezier;
 
-    //private String _sequence;
+    // private String _sequence;
 
     public string Sequence 
     { 
@@ -83,7 +83,7 @@ public class Strand
             }
             else
             {
-                _color = s_colors[s_numStrands % s_colors.Length];
+                _color = Colors[s_numStrands % Colors.Length];
             }
             SetComponents(); // Updates all strand objects colors
         } 
@@ -106,16 +106,12 @@ public class Strand
         }
     }
 
-    // List of helix ids this strand is on.
-    //private List<int> _helixIds;
-
     // Strand constructor.
     public Strand(List<GameObject> nucleotides, int strandId, Color color)
     {
         _nucleotides = new List<GameObject>(nucleotides);
         _strandId = strandId;
         _color = color;
-        //_sequence = sequence;
         _head = _nucleotides[0];
         _tail = _nucleotides.Last();
         _cone = DrawPoint.MakeCone();
@@ -125,28 +121,6 @@ public class Strand
         //CheckForXoverSuggestions();
         //s_numStrands += 1;
     }
-
-    /*public Strand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId, Color color)
-    {
-        _nucleotides = new List<GameObject>(nucleotides);
-        //_xovers = xovers;
-        _strandId = strandId;
-        _color = color;
-        _head = _nucleotides[0];
-        _tail = _nucleotides.Last();
-        _cone = DrawPoint.MakeCone();
-        _bezier = null;
-        //SetComponents();
-        //s_strandDict.Add(strandId, this);
-        //CheckForXoverSuggestions();
-        //s_numStrands += 1;
-    }*/
-
-
-    // Returns nucleotide list.
-    //public List<GameObject> GetNucleotides() { return _nucleotides; }
-
-    //public List<GameObject> GetXovers() { return _xovers; }
 
     public List<GameObject> GetNucleotides(int startIndex, int endIndex) 
     {
@@ -361,34 +335,7 @@ public class Strand
         return splitList;
     }
 
-    /*public List<GameObject> GetXoversBeforeIndex(int index)
-    {
-        List<GameObject> xovers = new List<GameObject>();
-        foreach (GameObject xover in _xovers)
-        {
-            var xoverComp = xover.GetComponent<XoverComponent>();
-            if (GetIndex(xoverComp.NextGO) < index)
-            {
-                xovers.Add(xover);
-            }
-        }
-        return xovers;
-    }
-    public List<GameObject> GetXoversAfterIndex(int index)
-    {
-        List<GameObject> xovers = new List<GameObject>();
-        foreach (GameObject xover in _xovers)
-        {
-            var xoverComp = xover.GetComponent<XoverComponent>();
-            if (GetIndex(xoverComp.NextGO) > index)
-            {
-                xovers.Add(xover);
-            }
-        }
-        return xovers;
-    }*/
-
-    // Removes crossover.
+    // Removes crossovers.
     public void DeleteXovers()
     {
         for (int i = 0; i < _nucleotides.Count; i++)
@@ -410,7 +357,6 @@ public class Strand
         var nextNtc = xoverComp.NextGO.GetComponent<NucleotideComponent>();
         prevNtc.Xover = null;
         nextNtc.Xover = null;
-        _xovers.Remove(xover);
         _xovers.Remove(xover);
         GameObject.Destroy(xover);
     }
@@ -442,14 +388,25 @@ public class Strand
         UpdateXovers();
     }
 
-    private void SetSequence(string sequence)
+    public void SetSequence(string sequence)
     {
+        if (sequence.Equals("")) { return; }
+
+        int strandLength = Length;
+        if (sequence.Length < strandLength)
+        {
+            for (int i = 0; i < strandLength - sequence.Length; i++)
+            {
+                sequence += "?";
+            }
+        }
+
         int seqCount = 0;
         for (int i = _nucleotides.Count - 1; i >= 0; i--)
         {
             var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
             // Sets DNA sequence to nucleotides
-            if (ntc != null && !sequence.Equals(""))
+            if (ntc != null)
             {
                 if (ntc.IsDeletion)
                 {

@@ -12,12 +12,12 @@ public class SelSequence : MonoBehaviour
     public Button GenerateBtn;
 
     public void Tog7249Sequence() {
-        GlobalVariables.s_sequence = dna7249.text;
+        //GlobalVariables.s_sequence = dna7249.text;
         turnOnGenerateBtn();
     }
 
     public void Tog8064Sequence() {
-        GlobalVariables.s_sequence = dna8064.text;
+        //GlobalVariables.s_sequence = dna8064.text;
         turnOnGenerateBtn();
     }
 

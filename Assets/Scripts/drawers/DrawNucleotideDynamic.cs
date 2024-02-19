@@ -226,6 +226,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
         //DoCreateStrand(MakeNuclList(startGO, endGO), new List<GameObject>(), strandId);
 
     }
+
     public static void DoCreateStrand(List<GameObject> nucleotides, int strandId)
     {
         ICommand command = new CreateCommand(nucleotides, strandId);

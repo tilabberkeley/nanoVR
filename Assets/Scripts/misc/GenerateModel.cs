@@ -10,7 +10,7 @@ public class GenerateModel : MonoBehaviour
     public void Generate() 
     {
         CloseMenu();
-        RenderModel(GlobalVariables.s_sequence);
+        //RenderModel(GlobalVariables.s_sequence);
     }
 
     void CloseMenu() 
