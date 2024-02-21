@@ -38,7 +38,7 @@ public class NucleotideComponent : DNAComponent
     public GameObject Xover { get { return _xover;} set { _xover = value; } }
     public bool HasXover { get { return _xover != null; } }
 
-    // List of crossover suggestions connect to this nucleotide.
+    // List of crossover suggestions connected to this nucleotide.
     private List<XoverSuggestionComponent> _xoverSuggestionComponents;
     public List<XoverSuggestionComponent> XoverSuggestionComponents { get { return _xoverSuggestionComponents; } }
 
