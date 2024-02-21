@@ -107,7 +107,8 @@ public class DrawCrossoverSuggestion : MonoBehaviour
                 _lookingAtXover = false;
                 xoverSuggestionComponent.CreateXover();
             }
-        }                                         
+        }
+        
         // Trigger is released                                       
         else if (gotTriggerValue && !triggerReleased && !triggerValue)
         {

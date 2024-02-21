@@ -53,7 +53,7 @@ public class XoverSuggestionComponent : MonoBehaviour
     /// </summary>
     public void CreateXover()
     {
-        DrawCrossover.DoCreateXover(_nucleotideComponent0.gameObject, _nucleotideComponent1.gameObject);
+        DrawCrossover.CreateXover(_nucleotideComponent0.gameObject, _nucleotideComponent1.gameObject);
         // Remove all the other crossover suggestions on both nucleotides.
         _nucleotideComponent0.RemoveXoverSuggestions();
         _nucleotideComponent1.RemoveXoverSuggestions();
