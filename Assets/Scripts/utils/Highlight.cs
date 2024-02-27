@@ -35,10 +35,11 @@ public static class Highlight
     /// Unhighlights given gameobject.
     /// </summary>
     /// <param name="go">GameObject to unhighlight.</param>
-    private static void UnhighlightGO(GameObject go)
+    /// <param name="isDelete">If strand is being deleted, insertions/deletions should be unhighlighted.</param>
+    private static void UnhighlightGO(GameObject go, bool isDelete)
     {
         NucleotideComponent ntc = go.GetComponent<NucleotideComponent>();
-        if (ntc != null && (ntc.IsInsertion || ntc.IsDeletion))
+        if (!isDelete && ntc != null && (ntc.IsInsertion || ntc.IsDeletion))
         {
             return;
         }
@@ -78,7 +79,7 @@ public static class Highlight
     {
         if (go.GetComponent<NucleotideComponent>() != null)
         {
-            UnhighlightGO(go);
+            UnhighlightGO(go, true);
         }
     }
 
@@ -90,7 +91,7 @@ public static class Highlight
     {
         if (go.GetComponent<NucleotideComponent>() != null)
         {
-            UnhighlightGO(go);
+            UnhighlightGO(go, true);
         }
     }
 
@@ -119,7 +120,7 @@ public static class Highlight
     /// Unhighlights given list of nucleotides and backbones.
     /// </summary>
     /// <param name="list">GameObject list of nucleotides and backbones.</param>
-    public static void UnhighlightNucleotideSelection(List<GameObject> list)
+    public static void UnhighlightNucleotideSelection(List<GameObject> list, bool isDelete)
     {
         if (list == null)
         {
@@ -127,7 +128,7 @@ public static class Highlight
         }
         for (int i = 0; i < list.Count; i++)
         {
-            UnhighlightGO(list[i]);
+            UnhighlightGO(list[i], isDelete);
         }
     }
 
@@ -156,21 +157,21 @@ public static class Highlight
     /// Unhighlights given strand.
     /// </summary>
     /// <param name="strand">Strand to unhighlight.</param>
-    public static void UnhighlightStrand(Strand strand)
+    public static void UnhighlightStrand(Strand strand, bool isDelete)
     {
         List<GameObject> nucleotides = strand.Nucleotides;
         GameObject cone = strand.Cone;
         for (int i = 0; i < nucleotides.Count; i++)
         {
-            UnhighlightGO(nucleotides[i]);
+            UnhighlightGO(nucleotides[i], isDelete);
             var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
             if (ntc != null && ntc.HasXover)
             {
-                UnhighlightGO(ntc.Xover);
+                UnhighlightGO(ntc.Xover, isDelete);
             }
         }
 
-        UnhighlightGO(cone);
+        UnhighlightGO(cone, isDelete);
     }
     
     /// <summary>
@@ -207,13 +208,13 @@ public static class Highlight
         List<GameObject> backbonesB = helix.BackbonesB;
         for (int i = 0; i < nucleotidesA.Count; i++)
         {
-            UnhighlightGO(nucleotidesA[i]);
-            UnhighlightGO(nucleotidesB[i]);
+            UnhighlightGO(nucleotidesA[i], false);
+            UnhighlightGO(nucleotidesB[i], false);
         }
         for (int i = 0; i < backbonesA.Count; i++)
         {
-            UnhighlightGO(backbonesA[i]);
-            UnhighlightGO(backbonesB[i]);
+            UnhighlightGO(backbonesA[i], false);
+            UnhighlightGO(backbonesB[i], false);
         }
     }
 
@@ -232,6 +233,6 @@ public static class Highlight
     /// <param name="xoverSuggestionComponent">Crossover suggestion to unhighlight.</param>
     public static void UnhighlightXoverSuggestion(XoverSuggestionComponent xoverSuggestionComponent)
     {
-        UnhighlightGO(xoverSuggestionComponent.gameObject);
+        UnhighlightGO(xoverSuggestionComponent.gameObject, false);
     }
 }

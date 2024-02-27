@@ -18,6 +18,8 @@ public class DeleteCommand : ICommand
     private List<(int, int, int, int)> _insertions = new List<(int, int, int, int)>();
     //private List<int> _helixIds = new List<int>();
     private Color _color;
+    private string _sequence;
+    private bool _isScaffold;
 
     public DeleteCommand(int strandId, List<GameObject> nucleotides, Color color)
     {
@@ -77,6 +79,8 @@ public class DeleteCommand : ICommand
             _nextGOs.Add((id, helixId, direction, isBackbone));
         }*/
         _color = color;
+        _sequence = s_strandDict[strandId].Sequence;
+        _isScaffold = s_strandDict[strandId].IsScaffold;
     }
     public void Do()
     {
@@ -86,6 +90,8 @@ public class DeleteCommand : ICommand
     public void Redo()
     {
         GameObject start = FindGameObject(_nucleotideIds[0].Item1, _nucleotideIds[0].Item2, _nucleotideIds[0].Item3, _nucleotideIds[0].Item4);
+        _sequence = s_strandDict[start.GetComponent<NucleotideComponent>().StrandId].Sequence;
+        _isScaffold = s_strandDict[start.GetComponent<NucleotideComponent>().StrandId].IsScaffold;
         SelectStrand.DeleteStrand(start);
     }
 
@@ -102,7 +108,7 @@ public class DeleteCommand : ICommand
 
         Debug.Log("Finished adding nucleotides");
 
-        CreateStrand(nucleotides, _strandId, _color);
+        Strand strand = CreateStrand(nucleotides, _strandId, _color);
 
         Debug.Log("Finished creating strand");
 
@@ -123,21 +129,21 @@ public class DeleteCommand : ICommand
 
         Debug.Log("Finished adding  xovers");
 
-        // Add back deletions/insertions.
-        for (int i = 0; i < _deletions.Count; i++)
-        {
-            GameObject nt = FindNucleotide(_deletions[i].Item1, _deletions[i].Item2, _deletions[i].Item3);
-            DrawDeletion.Deletion(nt);
-        }
-        Debug.Log("Finished adding deletions");
-
+        List<(GameObject, int)> insertions = new List<(GameObject, int)>();
+        List<GameObject> deletions = new List<GameObject>();
         for (int i = 0; i < _insertions.Count; i++)
         {
             GameObject nt = FindNucleotide(_insertions[i].Item1, _insertions[i].Item2, _insertions[i].Item3);
-            DrawInsertion.Insertion(nt, _insertions[i].Item4);
+            insertions.Add((nt, _insertions[i].Item4));
         }
-        Debug.Log("Finished adding insertions");
 
+        for (int i = 0; i < _deletions.Count; i++)
+        {
+            GameObject nt = FindNucleotide(_deletions[i].Item1, _deletions[i].Item2, _deletions[i].Item3);
+            deletions.Add(nt);
+        }
+
+        CreateStrand(nucleotides, _strandId, _color, insertions, deletions, _sequence, _isScaffold);
     }
 
     public GameObject FindGameObject(int id, int helixId, int direction, bool isBackbone)

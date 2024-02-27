@@ -85,7 +85,7 @@ public class MoveStrand : MonoBehaviour
                     Debug.Log("Entered elif + if + if");
 
                     s_currNucl = go;
-                    UnhighlightNucleotideSelection(s_currNucleotides);
+                    UnhighlightNucleotideSelection(s_currNucleotides, false);
                     s_currNucleotides = nucleotides;
                     HighlightNucleotideSelection(s_currNucleotides, true);
                 }
@@ -95,7 +95,7 @@ public class MoveStrand : MonoBehaviour
             && !gripValue && !gripReleased)
         {
             gripReleased = true;
-            UnhighlightNucleotideSelection(s_currNucleotides);
+            UnhighlightNucleotideSelection(s_currNucleotides, false);
             DoMove(s_oldNucl, s_currNucl);
             Reset();
         }

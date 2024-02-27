@@ -54,6 +54,13 @@ public abstract class DNAComponent : MonoBehaviour
     protected bool _isBackbone;
     public bool IsBackbone { get { return _isBackbone; } set { _isBackbone = value; } }
 
+    public virtual void ResetComponent()
+    {
+        _selected = false;
+        _strandId = -1;
+        _color = s_defaultColor;
+    }
+
     // Start is called before the first frame update
     protected virtual void Awake()
     {

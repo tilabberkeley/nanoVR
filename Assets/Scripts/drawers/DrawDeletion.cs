@@ -101,13 +101,15 @@ public class DrawDeletion : MonoBehaviour
         {
             ntc.IsDeletion = false;
             UnhighlightDeletion(go);
-            return;
         }
-
-        if (ntc.Selected)
+        else if (ntc.Selected)
         {
             HighlightDeletion(go);
             ntc.IsDeletion = true;
         }
+
+        // Update strand DNA sequence
+        s_strandDict.TryGetValue(ntc.StrandId, out Strand strand);
+        strand.SetSequence(strand.Sequence);
     }
 }

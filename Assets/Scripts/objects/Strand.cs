@@ -57,9 +57,25 @@ public class Strand
 
     private GameObject _bezier;
 
-    private String _sequence;
+    // private String _sequence;
 
-    public String Sequence { get { return _sequence; } set { _sequence = value; } }
+    public string Sequence 
+    { 
+        get 
+        {
+            string sequence = "";
+            foreach (GameObject nucl in _nucleotides)
+            {
+                var ntc = nucl.GetComponent<NucleotideComponent>();
+                if (ntc != null)
+                {
+                    sequence += ntc.Sequence;
+                }
+            }
+            return sequence;
+        } 
+        set { SetSequence(value); } 
+    }
 
     private bool _isScaffold;
     public bool IsScaffold 
@@ -74,7 +90,7 @@ public class Strand
             }
             else
             {
-                _color = s_colors[s_numStrands % s_colors.Length];
+                _color = Colors[s_numStrands % Colors.Length];
             }
             SetComponents(); // Updates all strand objects colors
         } 
@@ -87,27 +103,22 @@ public class Strand
             int count = 0;
             foreach (GameObject nucl in _nucleotides)
             {
-                if (nucl.GetComponent<NucleotideComponent>() != null)
+                var ntc = nucl.GetComponent<NucleotideComponent>();
+                if (ntc != null)
                 {
-                    count += 1;
+                    count += 1 + ntc.Insertion;
                 }
             }
             return count;
         }
     }
 
-    public int Direction { get { return _head.GetComponent<NucleotideComponent>().Direction; } }
-
-    // List of helix ids this strand is on.
-    //private List<int> _helixIds;
-
     // Strand constructor.
-    public Strand(List<GameObject> nucleotides, int strandId, Color color, string sequence)
+    public Strand(List<GameObject> nucleotides, int strandId, Color color)
     {
         _nucleotides = new List<GameObject>(nucleotides);
         _strandId = strandId;
         _color = color;
-        _sequence = sequence;
         _head = _nucleotides[0];
         _tail = _nucleotides.Last();
         _cone = DrawPoint.MakeCone();
@@ -118,28 +129,6 @@ public class Strand
         CheckForXoverSuggestions();
         //s_numStrands += 1;
     }
-
-    /*public Strand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId, Color color)
-    {
-        _nucleotides = new List<GameObject>(nucleotides);
-        //_xovers = xovers;
-        _strandId = strandId;
-        _color = color;
-        _head = _nucleotides[0];
-        _tail = _nucleotides.Last();
-        _cone = DrawPoint.MakeCone();
-        _bezier = null;
-        //SetComponents();
-        //s_strandDict.Add(strandId, this);
-        //CheckForXoverSuggestions();
-        //s_numStrands += 1;
-    }*/
-
-
-    // Returns nucleotide list.
-    //public List<GameObject> GetNucleotides() { return _nucleotides; }
-
-    //public List<GameObject> GetXovers() { return _xovers; }
 
     public List<GameObject> GetNucleotides(int startIndex, int endIndex) 
     {
@@ -307,7 +296,7 @@ public class Strand
         {
             GameObject backbone = splitList[splitList.Count - 1];
             splitList.Remove(backbone);
-            backbone.GetComponent<BackBoneComponent>().Color = Color.white;
+            backbone.GetComponent<BackBoneComponent>().ResetComponent();
         }
 
         _nucleotides.RemoveRange(0, splitIndex);
@@ -343,7 +332,7 @@ public class Strand
         {
             GameObject backbone = splitList[0];
             splitList.Remove(backbone);
-            backbone.GetComponent<BackBoneComponent>().Color = Color.white;
+            backbone.GetComponent<BackBoneComponent>().ResetComponent();
         }
       
         _nucleotides.RemoveRange(splitIndex + 1, count);
@@ -405,7 +394,6 @@ public class Strand
         prevNtc.Xover = null;
         nextNtc.Xover = null;
         _xovers.Remove(xover);
-        _xovers.Remove(xover);
         GameObject.Destroy(xover);
     }
 
@@ -413,7 +401,6 @@ public class Strand
     // Sets variables of each GameObject's component (strandId, color, etc).
     public void SetComponents()
     {
-        int seqCount = 0;
         for (int i = _nucleotides.Count - 1; i >= 0; i--)
         {
             var dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
@@ -427,9 +414,35 @@ public class Strand
                 var xoverComp = ntc.Xover.GetComponent<XoverComponent>();
                 xoverComp.Color = _color;
             }
+        }
+        /*for (int i = 0; i < _xovers.Count; i++)
+        {
+            SetXoverColor(_xovers[i]);
+        }*/
+        //SetSequence();
+        SetCone();
+        UpdateXovers();
+    }
 
+    public void SetSequence(string sequence)
+    {
+        if (sequence.Equals("")) { return; }
+
+        int strandLength = Length;
+        if (sequence.Length < strandLength)
+        {
+            for (int i = 0; i < strandLength - sequence.Length; i++)
+            {
+                sequence += "?";
+            }
+        }
+
+        int seqCount = 0;
+        for (int i = _nucleotides.Count - 1; i >= 0; i--)
+        {
+            var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
             // Sets DNA sequence to nucleotides
-            if (ntc != null && !ntc.Sequence.Equals(""))
+            if (ntc != null)
             {
                 if (ntc.IsDeletion)
                 {
@@ -437,17 +450,11 @@ public class Strand
                 }
                 else
                 {
-                    ntc.Sequence = _sequence.Substring(seqCount, ntc.Insertion + 1);
+                    ntc.Sequence = sequence.Substring(seqCount, ntc.Insertion + 1);
                     seqCount += ntc.Insertion + 1;
                 }
             }
         }
-        /*for (int i = 0; i < _xovers.Count; i++)
-        {
-            SetXoverColor(_xovers[i]);
-        }*/
-        SetCone();
-        UpdateXovers();
     }
 
     // Sets cone direction (pointing left or right).
@@ -495,16 +502,12 @@ public class Strand
         for (int i = 0; i < nucleotides.Count; i++)
         {
             var dnaComp = nucleotides[i].GetComponent<DNAComponent>();
-            dnaComp.Selected = false;
-            dnaComp.StrandId = -1;
-            dnaComp.Color = NucleotideComponent.s_defaultColor;
+            dnaComp.ResetComponent();
 
             var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
             if (ntc != null)
-            {
-                ntc.IsDeletion = false;
-                ntc.Sequence = "X";
-                ntc.Insertion = 0;
+            { 
+                ntc.ResetComponent(); 
             }
         }
     }

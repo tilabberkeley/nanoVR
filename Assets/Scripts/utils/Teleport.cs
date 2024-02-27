@@ -1,11 +1,10 @@
 /*
- * nanoVR, a VR application for DNA nanostructures.
+ * nanoVR, a VR application for building DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
-using static GlobalVariables;
 
 /// <summary>
 /// Handles Teleporting. When camera toggle is on, the user can use the right trigger to set their position as the camera (will create red cube in game). 
@@ -22,7 +21,7 @@ public class Teleport : MonoBehaviour
     private bool leftTriggerReleased = true;
     private bool rightTriggerReleased = true;
     Vector3? lastPosition = null;
-    Vector3? cameraPosition = null;
+    //Vector3? cameraPosition = null;
     private new GameObject camera = null;
     //not implemented yet
     List<Vector3> cameraPositions = new List<Vector3>();
@@ -63,50 +62,28 @@ public class Teleport : MonoBehaviour
         rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool rightTriggerValue);
 
         
-        // Setting camera position. Only when camera toggle is enabled.
-        if (rightTriggerValue && rightTriggerReleased)
+        
+        // Teleporting. Only when camera toggle is not enabled
+        if (leftTriggerValue && rightTriggerValue && leftTriggerReleased && rightTriggerReleased)
         {
+            leftTriggerReleased = false;
             rightTriggerReleased = false;
-            cameraPosition = transform.position;
-            if (camera == null)
+            if (camera != null)
             {
-                //create camera
-                camera = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                camera.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-                camera.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
-                camera.transform.position = transform.position;
-            }
-            else
-            {
-                //move camera to new position
-                camera.transform.position = transform.position;
+                if (lastPosition == null)
+                {
+                    lastPosition = transform.position;
+                    transform.position = (Vector3) camera.transform.position;
+                }
+                else
+                {
+                    transform.position = (Vector3) lastPosition;
+                    lastPosition = null;
+                }
             }
 
         }
         
-        else
-        {
-            // Teleporting. Only when camera toggle is not enabled
-            if (leftTriggerValue && rightTriggerValue && leftTriggerReleased && rightTriggerReleased)
-            {
-                leftTriggerReleased = false;
-                rightTriggerReleased = false;
-                if (cameraPosition != null)
-                {
-                    if (lastPosition == null)
-                    {
-                        lastPosition = transform.position;
-                        transform.position = (Vector3)cameraPosition;
-                    }
-                    else
-                    {
-                        transform.position = (Vector3)lastPosition;
-                        lastPosition = null;
-                    }
-                }
-
-            }
-        }
 
         if (!leftTriggerValue)
         {
@@ -116,6 +93,23 @@ public class Teleport : MonoBehaviour
         if (!rightTriggerValue)
         {
             rightTriggerReleased = true;
+        }
+    }
+
+    public void CreateCamera()
+    {
+        if (camera == null)
+        {
+            //create camera
+            camera = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            camera.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+            camera.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+            camera.transform.position = transform.position;
+        }
+        else
+        {
+            //move camera to new position
+            camera.transform.position = transform.position;
         }
     }
 }

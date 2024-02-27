@@ -11,6 +11,7 @@ using OVRSimpleJSON;
 using SimpleFileBrowser;
 using static GlobalVariables;
 using static Utils;
+using static Highlight;
 using System.Reflection;
 
 public class FileImport : MonoBehaviour
@@ -183,20 +184,17 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
                 }
             }
 
-            Strand strand = CreateStrand(nucleotides, strandId, color, sequence);
-
-            // Set as scaffold or staple
-            strand.IsScaffold = isScaffold;
+            Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
 
             // Add deletions and insertions.
-            for (int j = 0; j < sDeletions.Count; j++)
+            /*for (int j = 0; j < sDeletions.Count; j++)
             {
                 DrawDeletion.Deletion(sDeletions[j]);
             }
             for (int j = 0; j < sInsertions.Count; j++)
             {
                 DrawInsertion.Insertion(sInsertions[j].Item1, sInsertions[j].Item2);
-            }
+            }*/
 
             // Add xovers to strand object.
             xoverEndpoints.Reverse();
@@ -204,6 +202,7 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
             {
                 strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], xoverEndpoints[j]));
             }
+
 
             // Assign DNA sequence to strand.
             //strand.Sequence = sequence;

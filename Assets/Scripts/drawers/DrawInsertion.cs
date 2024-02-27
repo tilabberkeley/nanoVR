@@ -147,14 +147,16 @@ public class DrawInsertion : MonoBehaviour
         {
             ntc.Insertion = 0;
             UnhighlightInsertion(go);
-            return;
         }
-
-        if (ntc.Selected)
+        else if (ntc.Selected)
         {
             HighlightInsertion(go);
             ntc.Insertion = length;
         }
+
+        // Update strand DNA sequence
+        s_strandDict.TryGetValue(ntc.StrandId, out Strand strand);
+        strand.SetSequence(strand.Sequence);
     }
 
     /// <summary>
@@ -207,19 +209,6 @@ public class DrawInsertion : MonoBehaviour
             ntc.Insertion = length;
         }
         Debug.Log(ntc.Insertion);
-    }
-
-    public void ShowLength()
-    {
-        var go = new GameObject();
-        var text = go.AddComponent<Text>();
-        text.text = gameObject.GetComponent<NucleotideComponent>().Insertion.ToString();
-        go.transform.position = gameObject.transform.position + new Vector3(0, 0.01f, 0);
-    }
-
-    public void DeleteLength()
-    {
-
     }
 
     private void ShowEditPanel()
