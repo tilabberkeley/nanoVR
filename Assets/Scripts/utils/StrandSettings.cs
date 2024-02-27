@@ -22,6 +22,7 @@ public class StrandSettings : MonoBehaviour
     [SerializeField] private XRRayInteractor rayInteractor;
     private static GameObject s_GO;
     private static Strand s_strand;
+    private bool _isScaffold;
     private bool gripReleased = true;
 
     // UI elements
@@ -29,7 +30,9 @@ public class StrandSettings : MonoBehaviour
     [SerializeField] private Canvas _strandSettings;
     [SerializeField] private Toggle _scaffoldTog;
     [SerializeField] private Toggle _tog7249;
+    [SerializeField] private Toggle _tog7560;
     [SerializeField] private Toggle _tog8064;
+    [SerializeField] private Toggle _tog8634;
     [SerializeField] private Toggle _customTog;
     [SerializeField] private Toggle _complementaryTog;
     [SerializeField] private Button _OKButton;
@@ -97,33 +100,66 @@ public class StrandSettings : MonoBehaviour
 
     private void SetSettings()
     {
-        s_strand.IsScaffold = _scaffoldTog.isOn;
+        if ((_isScaffold && !_scaffoldTog.isOn)
+            || (!_isScaffold && _scaffoldTog.isOn)) // Only update strand.IsScaffold if there is a change
+        {
+            s_strand.IsScaffold = _scaffoldTog.isOn;
+        }
+
+        // Get rotation amount
+        int rotation;
+        if (_rotationInput.text.Length == 0)
+        {
+            rotation = 0;
+        }
+        else
+        {
+            rotation = Convert.ToInt32(_rotationInput.text);
+        }
+        Debug.Log("Rotation: " + rotation);
 
         // Assigning DNA sequence to strand
         int length = s_strand.Length;
-        int rotation = Convert.ToInt32(_rotationInput.text);
         string sequence = "";
-        Debug.Log("Rotation: " + rotation);
-
         if (_tog7249.isOn)
         {
             if (rotation + length > DNA7249.Length)
             {
-                Debug.Log("Rotation of DNA sequence out of bounds for strand length.");
+                Debug.Log("Rotation of DNA sequence out of bounds for strand length. DNA sequence not assigned.");
                 return;
             }
             sequence = DNA7249.Substring(rotation, length);
             s_strand.Sequence = DNA7249.Substring(rotation, length);
         }
+        else if (_tog7560.isOn)
+        {
+            if (rotation + length > DNA7560.Length)
+            {
+                Debug.Log("Rotation of DNA sequence out of bounds for strand length. DNA sequence not assigned.");
+                return;
+            }
+            sequence = DNA7560.Substring(rotation, length);
+            s_strand.Sequence = DNA7560.Substring(rotation, length);
+        }
         else if (_tog8064.isOn)
         {
             if (rotation + length > DNA8064.Length)
             {
-                Debug.Log("Rotation of DNA sequence out of bounds for strand length.");
+                Debug.Log("Rotation of DNA sequence out of bounds for strand length. DNA sequence not assigned.");
                 return;
             }
             sequence = DNA8064.Substring(rotation, length);
             s_strand.Sequence = DNA8064.Substring(rotation, length);
+        }
+        else if (_tog8634.isOn)
+        {
+            if (rotation + length > DNA8634.Length)
+            {
+                Debug.Log("Rotation of DNA sequence out of bounds for strand length. DNA sequence not assigned.");
+                return;
+            }
+            sequence = DNA8634.Substring(rotation, length);
+            s_strand.Sequence = DNA8634.Substring(rotation, length);
         }
         else if (_customTog.isOn)
         {
@@ -150,7 +186,10 @@ public class StrandSettings : MonoBehaviour
             s_strand.Sequence = sequence.ToUpper();
         }
 
-
+        if (_complementaryTog.isOn)
+        {
+            SetComplementary(sequence);
+        }
     }
 
     private void SetComplementary(string sequence)
@@ -163,16 +202,17 @@ public class StrandSettings : MonoBehaviour
             var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
             if (ntc != null)
             {
-                var complNtc = ntc.Complement.GetComponent<NucleotideComponent>();
-                if (complNtc.Selected)
+                // TODO: Need to throw error if there are unmatch insertions/deletions in complementary strand
+                var compNtc = ntc.Complement.GetComponent<NucleotideComponent>();
+                if (compNtc.Selected)
                 {
                     if (ntc.IsDeletion)
                     {
-                        ntc.Sequence = "X";
+                        compNtc.Sequence = "X";
                     }
                     else
                     {
-                        ntc.Sequence = ComplementBase(sequence.Substring(seqCount, ntc.Insertion + 1));
+                        compNtc.Sequence = ComplementBase(sequence.Substring(seqCount, ntc.Insertion + 1));
                         seqCount += ntc.Insertion + 1;
                     }
                 }
@@ -216,6 +256,7 @@ public class StrandSettings : MonoBehaviour
             if (sequence[i] != 'A' && sequence[i] != 'T' && sequence[i] != 'G' && sequence[i] != 'C'
                 && sequence[i] != 'a' && sequence[i] != 't' && sequence[i] != 'g' && sequence[i] != 'c')
             {
+                Debug.Log(sequence[i] + " is not a valid DNA base. DNA sequence not assigned.");
                 return false;
             }
         }
@@ -236,6 +277,7 @@ public class StrandSettings : MonoBehaviour
         _strandSettings.enabled = true;
         s_strand = s_strandDict[s_GO.GetComponent<NucleotideComponent>().StrandId];
         _scaffoldTog.isOn = s_strand.IsScaffold;
+        _isScaffold = s_strand.IsScaffold;
         _sequenceInput.text = s_strand.Sequence;
         _rotationInput.text = default;
     }
