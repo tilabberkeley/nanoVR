@@ -58,7 +58,7 @@ public abstract class DNAComponent : MonoBehaviour
     {
         _selected = false;
         _strandId = -1;
-        _color = s_defaultColor;
+        Color = s_defaultColor;
     }
 
     // Start is called before the first frame update
