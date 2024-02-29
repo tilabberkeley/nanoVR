@@ -490,6 +490,20 @@ public class Strand
         }
     }
 
+    public bool MoreThanOneGrid()
+    {
+        int gridId = _head.GetComponent<DNAComponent>().GridId;
+        for (int i = _nucleotides.Count - 1; i >= 0; i--)
+        {
+            var dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
+            if (dnaComp.GridId != gridId)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /// <summary>
     /// Creates cross over suggestion game objects if there is a close enough strand in the opposite direction.
     /// </summary>

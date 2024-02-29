@@ -10,6 +10,7 @@ TagManager:
   - loop
   - Nucleotide
   - StrandList
+  - GridList
   layers:
   - Default
   - TransparentFX

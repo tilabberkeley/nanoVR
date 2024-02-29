@@ -59,6 +59,11 @@ public class CopyPaste : MonoBehaviour
         {
             primaryReleased = false;
             s_copied = SelectStrand.Strand;
+            
+            if (s_copied != null)
+            {
+                Debug.Log("Copied strand!");
+            }
         }
 
         bool secondaryValue;
@@ -70,6 +75,7 @@ public class CopyPaste : MonoBehaviour
             if (s_copied != null)
             {
                 pasting = true;
+                Debug.Log("Pasting!");
             }
         }
 
@@ -78,7 +84,7 @@ public class CopyPaste : MonoBehaviour
             UnhighlightNucleotideSelection(s_currNucleotides, false);
         }
 
-        bool triggerValue;
+        _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
         if (pasting && rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             GameObject go = s_hit.collider.gameObject;
@@ -99,12 +105,16 @@ public class CopyPaste : MonoBehaviour
                 }*/
                 HighlightNucleotideSelection(s_currNucleotides, valid);
 
+                Debug.Log("Finished highlighting hovering strand!");
 
-                if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue) && triggerValue && triggerReleased)
+
+                if (triggerValue && triggerReleased)
                 {
                     triggerReleased = false;
                     UnhighlightNucleotideSelection(s_currNucleotides, false);
                     if (!valid) { return; }
+
+                    Debug.Log("About to create new strand!");
 
                     //Make new xover list
                     //List<GameObject> xovers = new List<GameObject>();
@@ -118,7 +128,12 @@ public class CopyPaste : MonoBehaviour
                             DrawPoint.MakeXover(s_currNucleotides[i - 1], s_currNucleotides[i], s_numStrands);
                         }
                     }
+                    Debug.Log("Finished drawing xovers of new strand!");
+
+
                     DrawNucleotideDynamic.DoCreateStrand(s_currNucleotides, s_numStrands);
+                    Debug.Log("Finished creating new strand!");
+
 
                     //DrawNucleotideDynamic.DoCreateStrand(s_currNucleotides, xovers, s_numStrands);
                     Reset();
@@ -126,15 +141,14 @@ public class CopyPaste : MonoBehaviour
             }
         }
 
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue) && triggerValue && triggerReleased)
+        if (triggerValue && triggerReleased && !rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
             Reset();
         }
 
         // Resets trigger button.                                            
-        if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-        && triggerValue))
+        if (!triggerValue)
         {
             triggerReleased = true;
         }
@@ -168,6 +182,9 @@ public class CopyPaste : MonoBehaviour
             return null;
         }
 
+        Debug.Log("Hovering over same direction!");
+
+
         List<GameObject> nucleotides = new List<GameObject>();
         List<(int, int)> xyDistances = new List<(int, int)>();
         List<(GameObject, GameObject)> endpoints = new List<(GameObject, GameObject)>();
@@ -177,6 +194,7 @@ public class CopyPaste : MonoBehaviour
         int x = gp.X;
         int y = gp.Y;
 
+        Debug.Log("Grabbing gridComp shit!");
 
         // Adds start and end point of each substrand to endpoints list.
         if (strand.Xovers.Count > 0)
@@ -196,6 +214,9 @@ public class CopyPaste : MonoBehaviour
             endpoints.Add((strand.Xovers.Last().GetComponent<XoverComponent>().NextGO, strand.Tail));
         }
 
+        Debug.Log("Finished getting xover endpoints!");
+
+
         // Calculates distances between each strand segment's gridPoint and the start segment's.
         xyDistances.Add((0, 0));
         for (int i = 0; i < strand.Xovers.Count; i++) {
@@ -205,6 +226,8 @@ public class CopyPaste : MonoBehaviour
             (int, int) distance = (gp.X - x, gp.Y - y);
             xyDistances.Add(distance);
         }
+
+        Debug.Log("Finished calculating distances from gridPoints to start gridPoint!");
 
         Helix newHelix = s_helixDict[newGO.GetComponent<NucleotideComponent>().HelixId];
         GridPoint newGP = newHelix._gridComponent.GridPoint;
@@ -228,6 +251,8 @@ public class CopyPaste : MonoBehaviour
             List<GameObject> subNucleotides = GetSubList(endpoints[i].Item1, endpoints[i].Item2, gc, offset);
             nucleotides.AddRange(subNucleotides);
         }
+        Debug.Log("Finished getting all new nucleotides!");
+
         return nucleotides;
     }
 
@@ -259,7 +284,7 @@ public class CopyPaste : MonoBehaviour
                 return false;
             }
             
-            var ntc = nucleotide.GetComponent<NucleotideComponent>();
+            var ntc = nucleotide.GetComponent<DNAComponent>();
             if (ntc.Selected)
             {
                 return false;

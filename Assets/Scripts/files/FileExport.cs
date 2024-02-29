@@ -87,17 +87,22 @@ public class FileExport : MonoBehaviour
         }
     }
 
+    private string GetSCJSON()
+    {
+        return GetSCJSON(new List<int>(s_gridDict.Keys));
+    }
+
     /// <summary>
     /// Converts the current DNA structure into a .sc file.
     /// </summary>
     /// <returns>String representation of the DNA structure in .sc format.</returns>
-    private string GetSCJSON()
+    public static string GetSCJSON(List<int> gridIds)
     {
         JObject groups = new JObject();
-        foreach (var item in s_gridDict)
+        foreach (int gridId in gridIds)
         {
-            string name = item.Key.ToString();
-            DNAGrid grid = item.Value;
+            DNAGrid grid = s_gridDict[gridId];
+            string name = gridId.ToString();
             JObject position = new JObject // TODO: These position values get converted too closely in oxDNA
             {
                 ["x"] = grid.StartPos.x,
@@ -119,6 +124,9 @@ public class FileExport : MonoBehaviour
         {
             int id = item.Key;
             Helix helix = item.Value;
+
+            if (!gridIds.Contains(helix.GridId)) continue;
+
             JObject jsonHelix = new JObject
             {
                 ["grid_position"] = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y * -1 }, // Negative Y-axis for .sc format 
@@ -134,6 +142,15 @@ public class FileExport : MonoBehaviour
         foreach (var item in s_strandDict)
         {
             Strand strand = item.Value;
+            if (!gridIds.Contains(strand.Head.GetComponent<NucleotideComponent>().GridId))
+            {
+                continue;
+            }
+            else if (strand.MoreThanOneGrid())
+            {
+                continue;
+            }
+
             JArray domains = new JArray();
             List<int> insertions = new List<int>();
             List<int> deletions = new List<int>();

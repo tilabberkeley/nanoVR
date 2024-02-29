@@ -18,6 +18,8 @@ public class Helix
     private int _id;
     public int Id { get { return _id; } set { _id = value; } }
 
+    public int GridId { get { return _gridComponent.GridId; } }
+
     private Vector3 _startPoint;
     public Vector3 StartPoint { get { return _startPoint; } set { _startPoint = value; } }
 

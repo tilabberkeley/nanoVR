@@ -27,8 +27,8 @@ public static class GlobalVariables
 
     // Dictionaries and counts to keep track of Strand, Helix, and DNAGrid objectss
     public static Dictionary<int, Helix> s_helixDict = new Dictionary<int, Helix>();
-    public static Dictionary<object, Strand> s_strandDict = new Dictionary<object, Strand>();
-    public static Dictionary<object, DNAGrid> s_gridDict = new Dictionary<object, DNAGrid>();
+    public static Dictionary<int, Strand> s_strandDict = new Dictionary<int, Strand>();
+    public static Dictionary<int, DNAGrid> s_gridDict = new Dictionary<int, DNAGrid>();
     public static int s_numStrands = 0;
     public static int s_numHelices = 0;
     public static int s_numGrids = 0;

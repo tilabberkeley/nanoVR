@@ -53,7 +53,7 @@ public class Utils : MonoBehaviour
         strand.Sequence = sequence;
         strand.IsScaffold = isScaffold;
         s_strandDict.Add(strandId, strand);
-        DrawNucleotideDynamic.CreateButton(strandId);
+        ObjectListManager.CreateStrandButton(strandId);
         s_numStrands += 1;
         return strand;
     }

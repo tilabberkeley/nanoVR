@@ -1,8 +1,9 @@
 /*
- * nanoVR, a VR application for DNA nanostructures.
+ * nanoVR, a VR application for building DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using UnityEngine;
+using static GlobalVariables;
 
 /// <summary>
 /// Abstract class for DNA buildings blocks - nucleotides and backbones.
@@ -46,6 +47,8 @@ public abstract class DNAComponent : MonoBehaviour
     protected int _strandId = -1;
     public int StrandId { get { return _strandId; } set { _strandId = value; } }
 
+    public int GridId { get { return s_helixDict[_helixId].GridId; } }
+
     // Direction of this DNA Component. 0 = 5' to 3' left<-right, 1 = left->right
     protected int _direction;
     public int Direction { get { return _direction; } set { _direction = value; } }
@@ -58,7 +61,7 @@ public abstract class DNAComponent : MonoBehaviour
     {
         _selected = false;
         _strandId = -1;
-        _color = NucleotideComponent.s_defaultColor;
+        Color = NucleotideComponent.s_defaultColor;
     }
 
     // Start is called before the first frame update

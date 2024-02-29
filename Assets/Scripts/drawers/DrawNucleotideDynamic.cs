@@ -241,15 +241,6 @@ public class DrawNucleotideDynamic : MonoBehaviour
         command.Do();
     }*/
 
-    /// <summary>
-    /// Creates strand button in UI corresponding to each strand object.
-    /// </summary>
-    /// <param name="strandId">Strand's id.</param>
-    public static void CreateButton(int strandId)
-    {
-        ObjectListManager.CreateButton(strandId);
-    }
-
     public void DoEditStrand(GameObject startGO, GameObject endGO)
     {
         ICommand command = new EditCommand(startGO, endGO);

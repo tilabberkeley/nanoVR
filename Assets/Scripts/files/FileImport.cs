@@ -102,7 +102,7 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
         }
     }
 
-    private void ParseSC(string fileContents)
+    public static void ParseSC(string fileContents)
     {
         // TODO: Support grid groups (multiple grids)
         // TODO: Split these in different methods?
@@ -112,7 +112,7 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
         JSONArray helices = origami["helices"].AsArray;
         JSONArray strands = origami["strands"].AsArray;
         JSONNode groups = origami["groups"].AsObject; // TODO: Check how to parse this
-        DNAGrid grid = DrawGrid.CreateGrid(s_numGrids, PLANE, transform.position, gridType);
+        DNAGrid grid = DrawGrid.CreateGrid(s_numGrids, PLANE, Camera.main.transform.position, gridType); // TODO: Check this camera positioning!!
         int prevNumHelices = s_numHelices;
 
         for (int i = 0; i < helices.Count; i++)
