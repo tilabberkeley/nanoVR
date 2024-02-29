@@ -8075,6 +8075,8 @@ GameObject:
   - component: {fileID: 337757937}
   - component: {fileID: 337757936}
   - component: {fileID: 337757939}
+  - component: {fileID: 337757926}
+  - component: {fileID: 337757940}
   m_Layer: 0
   m_Name: LeftHand Controller
   m_TagString: Untagged
@@ -8692,6 +8694,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _xrNode: 4
   rightRayInteractor: {fileID: 337757918}
+--- !u!114 &337757926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337757916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 781434e724d4c374491ceaf3e2f46e3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _XRNode: 4
+  rayInteractor: {fileID: 337757918}
 --- !u!114 &337757927
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8915,6 +8931,20 @@ MonoBehaviour:
   _cancelButton: {fileID: 288858052}
   _sequenceInput: {fileID: 3535006}
   _rotationInput: {fileID: 2140447607}
+--- !u!114 &337757940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337757916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e0fad2963a881342ba7fdc3455f2b8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _XRNode: 4
+  rayInteractor: {fileID: 337757918}
 --- !u!1 &357418052
 GameObject:
   m_ObjectHideFlags: 0
@@ -13108,7 +13138,7 @@ GameObject:
   - component: {fileID: 675404523}
   m_Layer: 0
   m_Name: Viewport
-  m_TagString: GridList
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -13724,6 +13754,7 @@ GameObject:
   - component: {fileID: 713889241}
   - component: {fileID: 713889242}
   - component: {fileID: 713889240}
+  - component: {fileID: 713889243}
   m_Layer: 0
   m_Name: RightHand Controller
   m_TagString: Untagged
@@ -14581,6 +14612,20 @@ MonoBehaviour:
   _cancelButton: {fileID: 288858052}
   _sequenceInput: {fileID: 3535006}
   _rotationInput: {fileID: 2140447607}
+--- !u!114 &713889243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 713889218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e0fad2963a881342ba7fdc3455f2b8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _XRNode: 5
+  rayInteractor: {fileID: 713889222}
 --- !u!1 &721356197
 GameObject:
   m_ObjectHideFlags: 0
@@ -17443,7 +17488,7 @@ GameObject:
   - component: {fileID: 923498903}
   m_Layer: 0
   m_Name: Content
-  m_TagString: StrandList
+  m_TagString: GridList
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -20881,7 +20926,7 @@ GameObject:
   - component: {fileID: 1275700402}
   m_Layer: 0
   m_Name: Viewport
-  m_TagString: StrandList
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

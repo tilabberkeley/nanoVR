@@ -36,13 +36,13 @@ public class ObjectListManager : MonoBehaviour
         button.transform.SetSiblingIndex(gridId);
     }
 
-    public static void SelectAll()
+    /*public static void SelectAll()
     {
         foreach (int i in s_strandDict.Keys)
         {
             SelStrand(i);
         }
-    }
+    }*/
 
     public static void SelStrand(int strandId)
     {

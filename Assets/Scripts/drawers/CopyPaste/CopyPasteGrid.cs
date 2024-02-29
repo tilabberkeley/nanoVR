@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
-using static GlobalVariables;
 
 
 public class CopyPasteGrid : MonoBehaviour
@@ -41,12 +40,6 @@ public class CopyPasteGrid : MonoBehaviour
 
     private void Update()
     {
-        /*
-        if (!s_drawTogOn && !s_eraseTogOn)
-        {
-            return;
-        }*/
-
         if (!_device.isValid)
         {
             GetDevice();
@@ -56,12 +49,12 @@ public class CopyPasteGrid : MonoBehaviour
         if (primaryValue && primaryReleased && !pasting)
         {
             primaryReleased = false;
-            s_copied = SelectGrid.s_grid;
+            s_copied = SelectGrid.Grid;
 
             if (s_copied != null)
             {
-                Debug.Log("Copied grid!");
                 s_json = CopyGrid(s_copied);
+                Debug.Log("Copied grid!");
             }
         }
 
@@ -72,8 +65,8 @@ public class CopyPasteGrid : MonoBehaviour
             if (s_json != null)
             {
                 pasting = true;
-                Debug.Log("Pasted!");
                 PasteGrid(s_json);
+                Debug.Log("Pasted grid!");
             }
         }
 
