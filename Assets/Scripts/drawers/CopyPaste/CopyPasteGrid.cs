@@ -105,7 +105,7 @@ public class CopyPasteGrid : MonoBehaviour
     private string CopyGrid(DNAGrid grid)
     {
         List<int> gridIds = new List<int>(grid.Id);
-        return FileExport.GetSCJSON(gridIds);
+        return FileExport.GetSCJSON(gridIds, true);
     }
 
     private void PasteGrid(string json)

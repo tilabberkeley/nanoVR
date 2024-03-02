@@ -11,8 +11,8 @@ using OVRSimpleJSON;
 using SimpleFileBrowser;
 using static GlobalVariables;
 using static Utils;
-using static Highlight;
 using System.Reflection;
+using Newtonsoft.Json.Linq;
 
 public class FileImport : MonoBehaviour
 {
@@ -110,7 +110,7 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
         JSONArray helices = origami["helices"].AsArray;
         JSONArray strands = origami["strands"].AsArray;
         Dictionary<string, DNAGrid> gridNameToGrid = new Dictionary<string, DNAGrid>();
-        IDictionary<string, JSONNode> groups = origami["groups"] as IDictionary<string, JSONNode>; // TODO: Check how to parse this
+        IDictionary<string, JSONNode> groups = origami["groups"].AsObject as IDictionary<string, JSONNode>; // TODO: Check how to parse this
 
         foreach (var item in groups)
         {
@@ -120,7 +120,7 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
             float y = info["position"]["y"].AsFloat;
             float z = info["position"]["z"].AsFloat;
             string gridType = CleanSlash(info["grid"].ToString());
-            DNAGrid grid = DrawGrid.CreateGrid(s_numGrids, PLANE, new Vector3(x, y, z), gridType);
+            DNAGrid grid = DrawGrid.CreateGrid(s_numGrids, PLANE, Camera.main.transform.position + new Vector3(x, y, z), gridType);
             gridNameToGrid.Add(gridName, grid);
         }
 
@@ -198,15 +198,122 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
 
             Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
 
+            // Add xovers to strand object.
+            xoverEndpoints.Reverse();
+            for (int j = 1; j < xoverEndpoints.Count; j += 2)
+            {
+                strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], xoverEndpoints[j]));
+            }
+        }
+    }
+
+
+    // Using LINQ JSON
+    /*public static void ParseSC(string fileContents)
+    {
+        // TODO: Support grid groups (multiple grids)
+        // TODO: Split these in different methods?
+        JObject origami = JObject.Parse(fileContents);
+        JArray helices = (JArray) origami["helices"]; // CHANGE THESE TO ILIST???
+        JArray strands = (JArray) origami["strands"];
+        Dictionary<string, DNAGrid> gridNameToGrid = new Dictionary<string, DNAGrid>();
+        IDictionary<string, JObject> groups = origami["groups"] as IDictionary<string, JObject>; // TODO: Check how to parse this
+
+        foreach (var item in groups)
+        {
+            string gridName = CleanSlash(item.Key);
+            JObject info = item.Value;
+            float x = (float) info["position"]["x"];
+            float y = (float) info["position"]["y"];
+            float z = (float) info["position"]["z"];
+            string gridType = CleanSlash((string) info["grid"]);
+            DNAGrid grid = DrawGrid.CreateGrid(s_numGrids, PLANE, new Vector3(x, y, z), gridType);
+            gridNameToGrid.Add(gridName, grid);
+        }
+
+        int prevNumHelices = s_numHelices;
+        for (int i = 0; i < helices.Count; i++)
+        {
+            JArray coord = (JArray) helices[i]["grid_position"];
+            int length = (int) helices[i]["max_offset"];
+            string gridName = CleanSlash((string) helices[i]["group"]);
+            DNAGrid grid = gridNameToGrid[gridName];
+            int xInd = grid.GridXToIndex((int) coord[0]);
+            int yInd = grid.GridYToIndex((int) (coord[1]) * -1);
+            GridComponent gc = grid.Grid2D[xInd, yInd];
+            grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
+            grid.CheckExpansion(gc);
+        }
+
+        for (int i = 0; i < strands.Count; i++)
+        {
+            JArray domains = (JArray) strands[i]["domains"];
+            string sequence = CleanSlash((string) strands[i]["sequence"]);
+            string hexColor = CleanSlash((string) strands[i]["color"]);
+            ColorUtility.TryParseHtmlString(hexColor, out Color color);
+            int strandId = s_numStrands;
+            bool isScaffold = false;
+            if (strands[i]["is_scaffold"] != null)
+            {
+                isScaffold = (bool) strands[i]["is_scaffold"];
+            }
+            List<GameObject> nucleotides = new List<GameObject>();
+            List<GameObject> xoverEndpoints = new List<GameObject>();
+            List<GameObject> sDeletions = new List<GameObject>();
+            List<(GameObject, int)> sInsertions = new List<(GameObject, int)>();
+            for (int j = 0; j < domains.Count; j++)
+            {
+                int helixId = (int) domains[j]["helix"] + prevNumHelices;
+                bool forward = (bool) domains[j]["forward"];
+                int startId = (int) domains[j]["start"];
+                int endId = (int) domains[j]["end"] - 1; // End id is exclusive in .sc file
+                JArray deletions = (JArray) domains[j]["deletions"];
+                JArray insertions = (JArray) domains[j]["insertions"];
+                Helix helix = s_helixDict[helixId];
+
+                // Store deletions and insertions.
+                for (int k = 0; k < deletions.Count; k++)
+                {
+                    GameObject nt = helix.GetNucleotide((int) deletions[k], Convert.ToInt32(forward));
+                    sDeletions.Add(nt);
+                }
+                for (int k = 0; k < insertions.Count; k++)
+                {
+                    GameObject nt = helix.GetNucleotide((int) insertions[k][0], Convert.ToInt32(forward));
+                    sInsertions.Add((nt, (int) insertions[k][1]));
+                }
+
+                // Store domains of strand.
+                List<GameObject> domain = helix.GetHelixSub(startId, endId, Convert.ToInt32(forward));
+                nucleotides.InsertRange(0, domain);
+
+                // Store xover endpoints.
+                if (j == 0)
+                {
+                    xoverEndpoints.Add(domain[0]);
+                }
+                else if (j == domains.Count - 1)
+                {
+                    xoverEndpoints.Add(domain.Last());
+                }
+                else
+                {
+                    xoverEndpoints.Add(domain.Last());
+                    xoverEndpoints.Add(domain[0]);
+                }
+            }
+
+            Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
+
             // Add deletions and insertions.
-            /*for (int j = 0; j < sDeletions.Count; j++)
+            *//*for (int j = 0; j < sDeletions.Count; j++)
             {
                 DrawDeletion.Deletion(sDeletions[j]);
             }
             for (int j = 0; j < sInsertions.Count; j++)
             {
                 DrawInsertion.Insertion(sInsertions[j].Item1, sInsertions[j].Item2);
-            }*/
+            }*//*
 
             // Add xovers to strand object.
             xoverEndpoints.Reverse();
@@ -214,32 +321,10 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
             {
                 strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], xoverEndpoints[j]));
             }
-
-
-            // Assign DNA sequence to strand.
-            //strand.Sequence = sequence;
-            //Debug.Log("# of nucleotides: " + strand.Length);
-            //Debug.Log("sequence length: " + sequence.Length);
-            //strand.SetComponents();
-            /*int seqCount = 0;
-            for (int j = strand.Nucleotides.Count - 1; j >= 0; j--)
-            {
-                var ntc = strand.Nucleotides[j].GetComponent<NucleotideComponent>();
-                if (ntc != null)
-                {
-                    if (ntc.IsDeletion)
-                    {
-                        ntc.Sequence = "X";
-                    }
-                    else
-                    {
-                        ntc.Sequence = sequence.Substring(seqCount, ntc.Insertion + 1);
-                        seqCount += ntc.Insertion + 1;
-                    }
-                }
-            }*/
         }
-    }
+    }*/
+
+
 
     /// <summary>
     /// Strips away slashes from scadnano files.

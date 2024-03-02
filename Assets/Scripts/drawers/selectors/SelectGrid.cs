@@ -47,13 +47,13 @@ public class SelectGrid : MonoBehaviour
 
         _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
             
-        // Resets selected strand.
-        if (triggerValue && !rayInteractor.TryGetCurrent3DRaycastHit(out _))
+        // Resets selected grid.
+        /*if (triggerValue && !rayInteractor.TryGetCurrent3DRaycastHit(out _))
         {
             triggerReleased = false;
             UnhighlightGrid(s_grid);
             Reset();
-        }
+        }*/
 
         // Resets trigger.                                          
         if (!triggerValue)
@@ -76,15 +76,22 @@ public class SelectGrid : MonoBehaviour
         s_grid = grid;
         foreach (GridComponent gc in grid.Grid2D)
         {
-            Highlight.HighlightHelix(gc.Helix);
+            if (gc.Helix != null)
+            {
+                Highlight.UnhighlightHelix(gc.Helix);
+            }
         }
     }
 
     private void UnhighlightGrid(DNAGrid grid)
     {
+        if (grid == null) { return; }
         foreach (GridComponent gc in grid.Grid2D)
         {
-            Highlight.UnhighlightHelix(gc.Helix);
+            if (gc.Helix != null)
+            {
+                Highlight.UnhighlightHelix(gc.Helix);
+            }
         }
     }
 }

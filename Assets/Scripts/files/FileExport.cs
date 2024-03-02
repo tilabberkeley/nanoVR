@@ -89,26 +89,34 @@ public class FileExport : MonoBehaviour
 
     private string GetSCJSON()
     {
-        return GetSCJSON(new List<int>(s_gridDict.Keys));
+        return GetSCJSON(new List<int>(s_gridDict.Keys), false);
     }
 
     /// <summary>
     /// Converts the current DNA structure into a .sc file.
     /// </summary>
     /// <returns>String representation of the DNA structure in .sc format.</returns>
-    public static string GetSCJSON(List<int> gridIds)
+    public static string GetSCJSON(List<int> gridIds, bool copyPaste)
     {
         JObject groups = new JObject();
         foreach (int gridId in gridIds)
         {
             DNAGrid grid = s_gridDict[gridId];
             string name = gridId.ToString();
-            JObject position = new JObject // TODO: These position values get converted too closely in oxDNA
+            JObject position = new JObject();
+            if (copyPaste)
             {
-                ["x"] = grid.StartPos.x,
-                ["y"] = grid.StartPos.y,
-                ["z"] = grid.StartPos.z,
-            };
+                position["x"] = 0.0;
+                position["y"] = 0.0;
+                position["z"] = 0.0;
+            }
+            else
+            {
+                position["x"] = grid.StartPos.x;
+                position["y"] = grid.StartPos.y;
+                position["z"] = grid.StartPos.z;
+            }
+            
             JObject group = new JObject
             {
                 ["position"] = position,
@@ -130,7 +138,7 @@ public class FileExport : MonoBehaviour
             JObject jsonHelix = new JObject
             {
                 ["grid_position"] = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y * -1 }, // Negative Y-axis for .sc format 
-                ["group"] = helix._gridComponent.GridId.ToString(),
+                ["group"] = helix.GridId.ToString(),
                 ["idx"] = id,
                 ["max_offset"] = helix.Length
             };
