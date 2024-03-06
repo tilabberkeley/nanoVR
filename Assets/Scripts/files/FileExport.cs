@@ -89,22 +89,25 @@ public class FileExport : MonoBehaviour
 
     private string GetSCJSON()
     {
-        return GetSCJSON(new List<int>(s_gridDict.Keys), false);
+        return GetSCJSON(new List<string>(s_gridDict.Keys), false);
     }
 
     /// <summary>
-    /// Converts the current DNA structure into a .sc file.
+    /// Returns scadnano JSON format of given grids. If isCopyPaste boolean is set to true, the position of the copied grid is 
+    /// set to (0, 0, 0). This accounts for the positioning when it is pasted back into the world.
     /// </summary>
-    /// <returns>String representation of the DNA structure in .sc format.</returns>
-    public static string GetSCJSON(List<int> gridIds, bool copyPaste)
+    /// <param name="gridIds">List of grid ids associated with the DNAGrid objects that are being written to JSON</param>
+    /// <param name="isCopyPaste">Whether or not we are copy pasting a DNAGrid object</param>
+    /// <returns>Returns JSON string in scadnano format</returns>
+    public static string GetSCJSON(List<string> gridIds, bool isCopyPaste)
     {
         JObject groups = new JObject();
-        foreach (int gridId in gridIds)
+        foreach (string gridId in gridIds)
         {
             DNAGrid grid = s_gridDict[gridId];
             string name = gridId.ToString();
             JObject position = new JObject();
-            if (copyPaste)
+            if (isCopyPaste)
             {
                 position["x"] = 0.0;
                 position["y"] = 0.0;
@@ -190,11 +193,8 @@ public class FileExport : MonoBehaviour
                     endId = ntc.Id;
                     isStartGO = true;
                 }
-                else if ((i == 0)
-                    || (ntc.HasXover && isStartGO))
+                else if ((i == 0) || (ntc.HasXover && isStartGO))
                 {
-                    Debug.Log("startId: " + ntc.Id);
-                    Debug.Log("endId: " + endId);
                     isStartGO = false;
                     JObject domain = new JObject
                     {
@@ -223,6 +223,7 @@ public class FileExport : MonoBehaviour
             {
                 ["color"] = "#" + ColorUtility.ToHtmlStringRGB(strand.Color).ToLower(),
                 ["sequence"] = strand.Sequence,
+                ["is_scaffold"] = strand.IsScaffold,
                 ["domains"] = domains,
             };
             strands.Add(jsonStrand);

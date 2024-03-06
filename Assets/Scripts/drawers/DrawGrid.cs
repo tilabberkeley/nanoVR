@@ -111,10 +111,10 @@ public class DrawGrid : MonoBehaviour
         plane = directionDropdown.options[directionDropdown.value].text;
         Vector3 direction = transform.rotation * Vector3.forward;
         Vector3 currPoint = transform.position + direction * 0.2f;
-        CreateGrid(s_numGrids, plane, currPoint, gridTypeDropdown.options[gridTypeDropdown.value].text);
+        CreateGrid(s_numGrids.ToString(), plane, currPoint, gridTypeDropdown.options[gridTypeDropdown.value].text);
     }
 
-    public static DNAGrid CreateGrid(int gridId, string plane, Vector3 position, string gridType)
+    public static DNAGrid CreateGrid(string gridId, string plane, Vector3 position, string gridType)
     {
         DNAGrid grid;
         if (gridType.Equals("Square") || gridType.Equals("square"))
@@ -130,8 +130,8 @@ public class DrawGrid : MonoBehaviour
             grid = new HexGrid(gridId, plane, position);
         }
         s_gridDict.Add(gridId, grid);
-        s_numGrids += 1;
         ObjectListManager.CreateGridButton(gridId);
+        s_numGrids += 1;
         return grid;
     }
 

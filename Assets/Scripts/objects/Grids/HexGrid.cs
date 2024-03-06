@@ -16,7 +16,7 @@ public class HexGrid : DNAGrid
     /// <param name="id">Id number of this grid.</param>
     /// <param name="plane">Plane defintion.</param>
     /// <param name="startPos">3D location of where this grid starts.</param>
-    public HexGrid(int id, string plane, Vector3 startPos) : base(id, plane, startPos) { }
+    public HexGrid(string id, string plane, Vector3 startPos) : base(id, plane, startPos) { }
 
     /// <summary>
     /// Generates a grid circle at the specified grid point.

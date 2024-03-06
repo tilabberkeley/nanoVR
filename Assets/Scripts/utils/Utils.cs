@@ -51,7 +51,10 @@ public class Utils : MonoBehaviour
         }
 
         strand.Sequence = sequence;
-        strand.IsScaffold = isScaffold;
+        if (isScaffold)
+        {
+            strand.Color = Color.blue;
+        }
         s_strandDict.Add(strandId, strand);
         ObjectListManager.CreateStrandButton(strandId);
         s_numStrands += 1;

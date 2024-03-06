@@ -46,14 +46,14 @@ public class SelectGrid : MonoBehaviour
         }
 
         _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
-            
+
         // Resets selected grid.
-        /*if (triggerValue && !rayInteractor.TryGetCurrent3DRaycastHit(out _))
+        if (triggerValue && triggerReleased && !rayInteractor.TryGetCurrent3DRaycastHit(out _))
         {
             triggerReleased = false;
             UnhighlightGrid(s_grid);
             Reset();
-        }*/
+        }
 
         // Resets trigger.                                          
         if (!triggerValue)
@@ -70,7 +70,7 @@ public class SelectGrid : MonoBehaviour
         s_grid = null;
     }
 
-    public static void HighlightGrid(int gridId)
+    public static void HighlightGrid(string gridId)
     {
         s_gridDict.TryGetValue(gridId, out DNAGrid grid);
         s_grid = grid;
@@ -78,7 +78,7 @@ public class SelectGrid : MonoBehaviour
         {
             if (gc.Helix != null)
             {
-                Highlight.UnhighlightHelix(gc.Helix);
+                Highlight.HighlightHelix(gc.Helix);
             }
         }
     }

@@ -29,7 +29,7 @@ public class Strand
 
     // This strand's color.
     private Color _color;
-    public Color Color { get { return _color; } }
+    public Color Color { get { return _color; } set { _color = value; SetComponents(); } }
 
     // GameObject at front of this strand (at index 0 of nucleotides list).
     private GameObject _head;
@@ -57,9 +57,9 @@ public class Strand
         get 
         {
             string sequence = "";
-            foreach (GameObject nucl in _nucleotides)
+            for (int i = _nucleotides.Count - 1; i >= 0; i--)
             {
-                var ntc = nucl.GetComponent<NucleotideComponent>();
+                var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
                 if (ntc != null)
                 {
                     sequence += ntc.Sequence;
@@ -492,11 +492,11 @@ public class Strand
 
     public bool MoreThanOneGrid()
     {
-        int gridId = _head.GetComponent<DNAComponent>().GridId;
+        string gridId = _head.GetComponent<DNAComponent>().GridId;
         for (int i = _nucleotides.Count - 1; i >= 0; i--)
         {
             var dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
-            if (dnaComp.GridId != gridId)
+            if (!dnaComp.GridId.Equals(gridId))
             {
                 return true;
             }
