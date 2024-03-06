@@ -530,7 +530,7 @@ public class Strand
     /// Gets all the nucleotides of the strand.
     /// </summary>
     /// <returns>List of nucleotides (their components, not as gameObjects).</returns>
-    private List<NucleotideComponent> GetNucleotidesOnly()
+    public List<NucleotideComponent> GetNucleotidesOnly()
     {
         List<NucleotideComponent> result = new List<NucleotideComponent>();
 
