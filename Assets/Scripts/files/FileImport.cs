@@ -102,23 +102,35 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
         }
     }
 
-    private void ParseSC(string fileContents)
+    public static void ParseSC(string fileContents)
     {
         // TODO: Support grid groups (multiple grids)
         // TODO: Split these in different methods?
-
         JSONNode origami = JSON.Parse(fileContents);
-        string gridType = CleanSlash(origami["grid"].ToString());
         JSONArray helices = origami["helices"].AsArray;
         JSONArray strands = origami["strands"].AsArray;
-        JSONNode groups = origami["groups"].AsObject; // TODO: Check how to parse this
-        DNAGrid grid = DrawGrid.CreateGrid(s_numGrids, PLANE, transform.position, gridType);
-        int prevNumHelices = s_numHelices;
+        Dictionary<string, DNAGrid> gridNameToGrid = new Dictionary<string, DNAGrid>();
+        IDictionary<string, JSONNode> groups = origami["groups"] as IDictionary<string, JSONNode>; // TODO: Check how to parse this
 
+        foreach (var item in groups)
+        {
+            string gridName = CleanSlash(item.Key);
+            JSONNode info = item.Value;
+            float x = info["position"]["x"].AsFloat;
+            float y = info["position"]["y"].AsFloat;
+            float z = info["position"]["z"].AsFloat;
+            string gridType = CleanSlash(info["grid"].ToString());
+            DNAGrid grid = DrawGrid.CreateGrid(s_numGrids, PLANE, new Vector3(x, y, z), gridType);
+            gridNameToGrid.Add(gridName, grid);
+        }
+
+        int prevNumHelices = s_numHelices;
         for (int i = 0; i < helices.Count; i++)
         {
             JSONArray coord = helices[i]["grid_position"].AsArray;
             int length = helices[i]["max_offset"].AsInt;
+            string gridName = CleanSlash(helices[i]["group"].ToString());
+            DNAGrid grid = gridNameToGrid[gridName];
             int xInd = grid.GridXToIndex(coord[0].AsInt);
             int yInd = grid.GridYToIndex(coord[1].AsInt * -1);
             GridComponent gc = grid.Grid2D[xInd, yInd];

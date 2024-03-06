@@ -134,7 +134,7 @@ public class SelectStrand : MonoBehaviour
     }
 
     // TEST
-    public static void HighlightStrand(object strandId)
+    public static void HighlightStrand(int strandId)
     {
         s_strandDict.TryGetValue(strandId, out Strand strand);
         Highlight.HighlightStrand(strand);
@@ -161,7 +161,7 @@ public class SelectStrand : MonoBehaviour
         //Debug.Log("Nucleotide head being deleted: " + go);
         s_strandDict.TryGetValue(strandId, out Strand strand);
         //DeleteStrandFromHelix(go);
-        ObjectListManager.DeleteButton(strandId);
+        ObjectListManager.DeleteStrandButton(strandId);
         strand.DeleteStrand();
     }
 
@@ -170,7 +170,7 @@ public class SelectStrand : MonoBehaviour
         int strandId = go.GetComponent<NucleotideComponent>().StrandId;
         s_strandDict.TryGetValue(strandId, out Strand strand);
         //DeleteStrandFromHelix(go);
-        ObjectListManager.DeleteButton(strandId);
+        ObjectListManager.DeleteStrandButton(strandId);
         strand.RemoveStrand();
     }
 

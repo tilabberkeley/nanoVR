@@ -526,6 +526,20 @@ public class Strand
         }
     }
 
+    public bool MoreThanOneGrid()
+    {
+        int gridId = _head.GetComponent<DNAComponent>().GridId;
+        for (int i = _nucleotides.Count - 1; i >= 0; i--)
+        {
+            var dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
+            if (dnaComp.GridId != gridId)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /// <summary>
     /// Gets all the nucleotides of the strand.
     /// </summary>
