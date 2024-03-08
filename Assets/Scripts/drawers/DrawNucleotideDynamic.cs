@@ -57,6 +57,8 @@ public class DrawNucleotideDynamic : MonoBehaviour
             return;
         }
 
+        if (s_visualMode) { return; }
+
         if (!_device.isValid)
         {
             GetDevice();

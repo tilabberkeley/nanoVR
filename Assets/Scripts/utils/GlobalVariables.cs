@@ -22,6 +22,7 @@ public static class GlobalVariables
     // adjust/add varibles when add helix view.
     public static bool s_nucleotideView = true;
     public static bool s_hideStencils = false;
+    public static bool s_visualMode = false;
     public static bool s_strandView = false;
     public static bool s_helixView = false;
 

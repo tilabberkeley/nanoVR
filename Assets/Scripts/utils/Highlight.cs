@@ -38,12 +38,20 @@ public static class Highlight
     /// <param name="isDelete">If strand is being deleted, insertions/deletions should be unhighlighted.</param>
     private static void UnhighlightGO(GameObject go, bool isDelete)
     {
-        NucleotideComponent ntc = go.GetComponent<NucleotideComponent>();
+        NucleotideComponent ntc = go.GetComponent<NucleotideComponent>(); 
+        Outline outline = go.GetComponent<Outline>();
+
         if (!isDelete && ntc != null && (ntc.IsInsertion || ntc.IsDeletion))
         {
+            if (ntc.IsInsertion)
+            {
+                outline.OutlineColor = drawNucleotideHighlightColor;
+            } else if (ntc.IsDeletion)
+            {
+                outline.OutlineColor = eraseNucleotideHighlightColor;
+            }
             return;
         }
-        Outline outline = go.GetComponent<Outline>();
         outline.enabled = false;
     }
 

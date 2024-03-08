@@ -29,7 +29,7 @@ public class Strand
 
     // This strand's color.
     private Color _color;
-    public Color Color { get { return _color; } set { _color = value; SetComponents(); } }
+    public Color Color { get { return _color; } }
 
     // GameObject at front of this strand (at index 0 of nucleotides list).
     private GameObject _head;
@@ -70,7 +70,7 @@ public class Strand
         set { SetSequence(value); } 
     }
 
-    private bool _isScaffold;
+    private bool _isScaffold = false;
     public bool IsScaffold 
     { 
         get { return _isScaffold; } 
