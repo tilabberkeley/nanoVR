@@ -13,6 +13,7 @@ using SimpleFileBrowser;
 using static GlobalVariables;
 using static Utils;
 using UnityEngine.XR.Interaction.Toolkit;
+using System.Collections;
 
 public class FileImport : MonoBehaviour
 {
@@ -87,7 +88,8 @@ public class FileImport : MonoBehaviour
             string fileType = FileBrowser.GetExtensionFromFilename(selectedFilePath, false);
             if (fileType.Equals(".sc") || fileType.Equals(".sc.txt"))
             {
-                ParseSC(@fileContent, false);
+                StartCoroutine(ParseSC(@fileContent, false));
+                //ParseSC(@fileContent, false);
             }
             else if (fileType.Equals(".json"))
             {
@@ -104,117 +106,8 @@ public class FileImport : MonoBehaviour
         }
     }
 
-    /*public static void ParseSC(string fileContents)
-    {
-        // TODO: Support grid groups (multiple grids)
-        // TODO: Split these in different methods?
-        JSONNode origami = JSON.Parse(fileContents);
-        JSONArray helices = origami["helices"].AsArray;
-        JSONArray strands = origami["strands"].AsArray;
-        Dictionary<string, DNAGrid> gridNameToGrid = new Dictionary<string, DNAGrid>();
-        IDictionary<string, JSONNode> groups = origami["groups"].AsObject as IDictionary<string, JSONNode>; // TODO: Check how to parse this
-        Debug.Log("Parsed groups tag in scadnano file");
-
-        foreach (var item in groups)
-        {
-            string gridName = CleanSlash(item.Key);
-            JSONNode info = item.Value;
-            float x = info["position"]["x"].AsFloat;
-            float y = info["position"]["y"].AsFloat;
-            float z = info["position"]["z"].AsFloat;
-            string gridType = CleanSlash(info["grid"].ToString());
-            DNAGrid grid = DrawGrid.CreateGrid(s_numGrids, PLANE, Camera.main.transform.position + new Vector3(x, y, z), gridType);
-            gridNameToGrid.Add(gridName, grid);
-        }
-        Debug.Log("Finished looping through grids in group");
-
-        int prevNumHelices = s_numHelices;
-        for (int i = 0; i < helices.Count; i++)
-        {
-            JSONArray coord = helices[i]["grid_position"].AsArray;
-            int length = helices[i]["max_offset"].AsInt;
-            string gridName = CleanSlash(helices[i]["group"].ToString());
-            DNAGrid grid = gridNameToGrid[gridName];
-            int xInd = grid.GridXToIndex(coord[0].AsInt);
-            int yInd = grid.GridYToIndex(coord[1].AsInt * -1);
-            GridComponent gc = grid.Grid2D[xInd, yInd];
-            grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
-            grid.CheckExpansion(gc);
-        }
-        Debug.Log("Finished looping through helices");
-
-        for (int i = 0; i < strands.Count; i++)
-        {
-            JSONArray domains = strands[i]["domains"].AsArray;
-            string sequence = CleanSlash(strands[i]["sequence"].ToString());
-            string hexColor = CleanSlash(strands[i]["color"].ToString());
-            ColorUtility.TryParseHtmlString(hexColor, out Color color);
-            int strandId = s_numStrands;
-            bool isScaffold = false;
-            if (strands[i]["is_scaffold"] != null)
-            {
-                isScaffold = strands[i]["is_scaffold"].AsBool;
-            }
-            List<GameObject> nucleotides = new List<GameObject>();
-            List<GameObject> xoverEndpoints = new List<GameObject>();
-            List<GameObject> sDeletions = new List<GameObject>();
-            List<(GameObject, int)> sInsertions = new List<(GameObject, int)>();
-            for (int j = 0; j < domains.Count; j++)
-            {
-                int helixId = domains[j]["helix"].AsInt + prevNumHelices;
-                bool forward = domains[j]["forward"].AsBool;
-                int startId = domains[j]["start"].AsInt;
-                int endId = domains[j]["end"].AsInt - 1; // End id is exclusive in .sc file
-                JSONArray deletions = domains[j]["deletions"].AsArray;
-                JSONArray insertions = domains[j]["insertions"].AsArray;
-                Helix helix = s_helixDict[helixId];
-
-                // Store deletions and insertions.
-                for (int k = 0; k < deletions.Count; k++)
-                {
-                    GameObject nt = helix.GetNucleotide(deletions[k], Convert.ToInt32(forward));
-                    sDeletions.Add(nt);
-                }
-                for (int k = 0; k < insertions.Count; k++)
-                {
-                    GameObject nt = helix.GetNucleotide(insertions[k][0], Convert.ToInt32(forward));
-                    sInsertions.Add((nt, insertions[k][1]));
-                }
-
-                // Store domains of strand.
-                List<GameObject> domain = helix.GetHelixSub(startId, endId, Convert.ToInt32(forward));
-                nucleotides.InsertRange(0, domain);
-
-                // Store xover endpoints.
-                if (j == 0)
-                {
-                    xoverEndpoints.Add(domain[0]);
-                }
-                else if (j == domains.Count - 1)
-                {
-                    xoverEndpoints.Add(domain.Last());
-                }
-                else
-                {
-                    xoverEndpoints.Add(domain.Last());
-                    xoverEndpoints.Add(domain[0]);
-                }
-            }
-
-            Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
-
-            // Add xovers to strand object.
-            xoverEndpoints.Reverse();
-            for (int j = 1; j < xoverEndpoints.Count; j += 2)
-            {
-                strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], xoverEndpoints[j]));
-            }
-        }
-    }*/
-
-
     // Using LINQ JSON
-    public static void ParseSC(string fileContents, bool isCopyPaste)
+    public static IEnumerator ParseSC(string fileContents, bool isCopyPaste, bool visualMode = false)
     {
         // TODO: Split these in different methods?
         JObject origami = JObject.Parse(fileContents);
@@ -245,6 +138,7 @@ public class FileImport : MonoBehaviour
                     gridName += " (" + (numDuplicates + 1) + ")";
                 }
                 DrawGrid.CreateGrid(gridName, PLANE, rayInteractor.transform.position + new Vector3(x, y, z), gridType);
+                yield return new WaitForSeconds(0.1f);
             }
         }
         else
@@ -272,13 +166,14 @@ public class FileImport : MonoBehaviour
             {
                 gridName = (s_numGrids - 1).ToString();
             }
-       
+
             DNAGrid grid = s_gridDict[gridName];
             int xInd = grid.GridXToIndex((int)coord[0]);
             int yInd = grid.GridYToIndex((int)(coord[1]) * -1);
             GridComponent gc = grid.Grid2D[xInd, yInd];
             grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
             grid.CheckExpansion(gc);
+            yield return new WaitForSeconds(0.1f);
         }
 
         for (int i = 0; i < strands.Count; i++)
@@ -359,7 +254,10 @@ public class FileImport : MonoBehaviour
             {
                 strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], xoverEndpoints[j]));
             }
+            yield return new WaitForSeconds(0.1f);
+
         }
+        yield return new WaitForSeconds(0.1f);
     }
 
 

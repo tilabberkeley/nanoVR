@@ -111,6 +111,7 @@ public class CopyPasteGrid : MonoBehaviour
 
     private void PasteGrid(string json)
     {
-        FileImport.ParseSC(json, true);
+        StartCoroutine(FileImport.ParseSC(json, true));
+        //FileImport.ParseSC(json, true);
     }
 }

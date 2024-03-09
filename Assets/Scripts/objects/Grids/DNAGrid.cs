@@ -382,13 +382,23 @@ public abstract class DNAGrid
         command.Do();
     }
 
-    public void AddHelix(int id, Vector3 startPoint, int length, string orientation, GridComponent gridComponent)
+    public void AddHelix(int id, Vector3 startPoint, int length, string orientation, GridComponent gridComponent, bool visualMode = false)
     {
         Helix helix = new Helix(id, startPoint, orientation, length, gridComponent);
-        s_helixDict.Add(id, helix);
         gridComponent.Helix = helix;
         gridComponent.Selected = true;
-        s_numHelices += 1;
+
+        if (visualMode)
+        {
+            s_visHelixDict.Add(id, helix);
+            s_numVisHelices += 1;
+        }
+        else
+        {
+            s_helixDict.Add(id, helix);
+            s_numHelices += 1;
+        }
+        
 
         //_helices.Add(helix);
     }
