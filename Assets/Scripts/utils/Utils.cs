@@ -35,7 +35,8 @@ public class Utils : MonoBehaviour
     // Create strand overloading methods.
     public static Strand CreateStrand(List<GameObject> nucleotides, int strandId) { return CreateStrand(nucleotides, strandId, Colors[s_numStrands % Colors.Length], new List<(GameObject, int)>(), new List<GameObject>(), "", false); }
     public static Strand CreateStrand(List<GameObject> nucleotides, int strandId, Color color) { return CreateStrand(nucleotides, strandId, color, new List<(GameObject, int)>(), new List<GameObject>(), "", false); }
-    public static Strand CreateStrand(List<GameObject> nucleotides, int strandId, Color color, List<(GameObject, int)> insertions, List<GameObject> deletions, string sequence, bool isScaffold)
+    public static Strand CreateStrand(List<GameObject> nucleotides, int strandId, Color color, List<(GameObject, int)> insertions, 
+                                      List<GameObject> deletions, string sequence, bool isScaffold)
     {
         Strand strand = new Strand(nucleotides, strandId, color);
         strand.SetComponents();
@@ -55,9 +56,17 @@ public class Utils : MonoBehaviour
         {
             strand.IsScaffold = isScaffold;
         }
-        s_strandDict.Add(strandId, strand);
-        ObjectListManager.CreateStrandButton(strandId);
-        s_numStrands += 1;
+        if (s_visualMode)
+        {
+            s_visStrandDict.Add(strandId, strand);
+            s_numVisStrands += 1;
+        }
+        else
+        {
+            s_strandDict.Add(strandId, strand);
+            ObjectListManager.CreateStrandButton(strandId);
+            s_numStrands += 1;
+        }
         return strand;
     }
 

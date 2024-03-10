@@ -17,13 +17,13 @@ public class ExpandStrands : MonoBehaviour
     {
         if (toggle.isOn)
         {
-            Expand();
             s_visualMode = true;
+            Expand();
         }
         else
         {
-            Contract();
             s_visualMode = false;
+            Contract();
         }
     }
 
@@ -32,7 +32,7 @@ public class ExpandStrands : MonoBehaviour
         string json = GetSCJSON(); // FIX: This is a copy so need to figure out a way to not get key collisions in dictionaries!
                                    // Maybe have temp dictionaries in GlobalVariables to help with visual mode?
         scene = GameObject.FindGameObjectsWithTag("Nucleotide");
-        foreach (var go in scene)
+        foreach (GameObject go in scene)
         {
             go.SetActive(false);
         }
@@ -42,15 +42,26 @@ public class ExpandStrands : MonoBehaviour
 
     public void Contract()
     {
-        var rootObjects = GameObject.FindGameObjectsWithTag("Nucleotide");
-        foreach (var go in rootObjects)
+        GameObject[] rootObjects = GameObject.FindGameObjectsWithTag("Nucleotide");
+        foreach (GameObject go in rootObjects)
         {
             GameObject.Destroy(go);
         }
-        foreach (var go in scene)
+        foreach (GameObject go in scene)
         {
             go.SetActive(true);
         }
+        ResetVisualGlobalVariables();
+    }
+
+    private void ResetVisualGlobalVariables()
+    {
+        s_visGridDict.Clear();
+        s_visHelixDict.Clear();
+        s_visStrandDict.Clear();
+        s_numVisGrids = 0;
+        s_numVisHelices = 0;
+        s_numVisStrands = 0;
     }
 
     private IEnumerator ParseSC(string fileContents)
@@ -77,11 +88,11 @@ public class ExpandStrands : MonoBehaviour
                     z = (float)info["position"]["z"];
                 }
                 string gridType = CleanSlash(info["grid"].ToString());
-
-                DrawGrid.CreateGrid(gridName, "XY", new Vector3(x, y, z), gridType, true);
-                yield return new WaitForSeconds(0.1f);
+                DrawGrid.CreateGrid(gridName, "XY", new Vector3(x, y, z), gridType);
             }
         }
+        yield return null;
+
         /*else
         {
             string gridType = CleanSlash(origami["grid"].ToString());
@@ -92,7 +103,7 @@ public class ExpandStrands : MonoBehaviour
         for (int i = 0; i < helices.Count; i++)
         {
             JArray coord = JArray.Parse(helices[i]["grid_position"].ToString());
-            int length = (int)helices[i]["max_offset"];
+            int length = (int) helices[i]["max_offset"];
             string gridName;
             if (helices[i]["group"] != null)
             {
@@ -101,17 +112,17 @@ public class ExpandStrands : MonoBehaviour
             }
             else
             {
-                gridName = (s_numGrids - 1).ToString();
+                gridName = (s_numVisGrids - 1).ToString();
             }
 
             DNAGrid grid = s_visGridDict[gridName];
             int xInd = grid.GridXToIndex((int)coord[0]);
             int yInd = grid.GridYToIndex((int)(coord[1]) * -1);
             GridComponent gc = grid.Grid2D[xInd, yInd];
-            grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, "XY", gc, true);
+            grid.AddHelix(s_numVisHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, "XY", gc);
             grid.CheckExpansion(gc);
-            yield return new WaitForSeconds(0.1f);
         }
+        yield return null;
 
         for (int i = 0; i < strands.Count; i++)
         {
@@ -119,11 +130,11 @@ public class ExpandStrands : MonoBehaviour
             string sequence = CleanSlash(strands[i]["sequence"].ToString());
             string hexColor = CleanSlash(strands[i]["color"].ToString());
             ColorUtility.TryParseHtmlString(hexColor, out Color color);
-            int strandId = s_numStrands;
+            int strandId = s_numVisStrands;
             bool isScaffold = false;
             if (strands[i]["is_scaffold"] != null)
             {
-                isScaffold = (bool)strands[i]["is_scaffold"];
+                isScaffold = (bool) strands[i]["is_scaffold"];
             }
             List<GameObject> nucleotides = new List<GameObject>();
             List<GameObject> xoverEndpoints = new List<GameObject>();
@@ -131,15 +142,15 @@ public class ExpandStrands : MonoBehaviour
             List<(GameObject, int)> sInsertions = new List<(GameObject, int)>();
             for (int j = 0; j < domains.Count; j++)
             {
-                int helixId = (int)domains[j]["helix"] + prevNumHelices;
-                bool forward = (bool)domains[j]["forward"];
-                int startId = (int)domains[j]["start"];
-                int endId = (int)domains[j]["end"] - 1; // End id is exclusive in .sc file
+                int helixId = (int) domains[j]["helix"] + prevNumHelices;
+                bool forward = (bool) domains[j]["forward"];
+                int startId = (int) domains[j]["start"];
+                int endId = (int) domains[j]["end"] - 1; // End id is exclusive in .sc file
                 JArray deletions = new JArray();
                 JArray insertions = new JArray();
                 if (domains[j]["deletions"] != null) { deletions = JArray.Parse(domains[j]["deletions"].ToString()); }
                 if (domains[j]["insertions"] != null) { deletions = JArray.Parse(domains[j]["insertions"].ToString()); }
-                Helix helix = s_helixDict[helixId];
+                Helix helix = s_visHelixDict[helixId];
 
                 // Store deletions and insertions.
                 for (int k = 0; k < deletions.Count; k++)
@@ -191,10 +202,10 @@ public class ExpandStrands : MonoBehaviour
             {
                 strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], xoverEndpoints[j]));
             }
-            yield return new WaitForSeconds(0.1f);
+            yield return null;
 
         }
-        yield return new WaitForSeconds(0.1f);
+        yield return null;
     }
 
 
@@ -209,6 +220,10 @@ public class ExpandStrands : MonoBehaviour
         return str.Replace("\"", "");
     }
 
+    /// <summary>
+    /// Gets Scadnano JSON of all grids and expands/contracts the insertions/deletions to get true visual view of structure.
+    /// </summary>
+    /// <returns>Returns scadnano JSON string</returns>
     private string GetSCJSON()
     {
         JObject groups = new JObject();
@@ -259,10 +274,8 @@ public class ExpandStrands : MonoBehaviour
             }
 
             JArray domains = new JArray();
-            int numDeletions = 0;
-            int numInsertions = 0;
             bool isStartGO = false;
-            int endId = 0;
+            NucleotideComponent firstNtc = null;
 
             // Creating domains data for each strand.
             for (int i = strand.Nucleotides.Count - 1; i >= 0; i--)
@@ -274,32 +287,37 @@ public class ExpandStrands : MonoBehaviour
                     continue;
                 }
 
-                if (ntc.IsDeletion)
-                {
-                    numDeletions += 1;
-                }
-
-                if (ntc.IsInsertion)
-                {
-                    numInsertions += ntc.Insertion;
-                }
-
                 if ((i == strand.Nucleotides.Count - 1) || (ntc.HasXover && !isStartGO))
                 {
-                    endId = ntc.Id - numDeletions + numInsertions;
+                    firstNtc = ntc; //- numDeletions + numInsertions;
                     isStartGO = true;
                 }
                 else if ((i == 0) || (ntc.HasXover && isStartGO))
                 {
                     isStartGO = false;
+                    int startId = Math.Min(ntc.Id, firstNtc.Id);
+                    int endId = Math.Max(ntc.Id, firstNtc.Id);
+                    int ntcShift = ntc.NumModsToLeft();
+                    int firstNtcShift = firstNtc.NumModsToLeft();
+
+                    if (ntc.Id < firstNtc.Id)
+                    {
+                        startId += ntcShift;
+                        endId += firstNtcShift;
+                    } 
+                    else
+                    {
+                        startId += firstNtcShift;
+                        endId += ntcShift;
+                    }
+
                     JObject domain = new JObject
                     {
                         ["helix"] = ntc.HelixId,
                         ["forward"] = Convert.ToBoolean(ntc.Direction),
-                        ["start"] = Math.Min(ntc.Id, endId),
-                        ["end"] = Math.Max(ntc.Id, endId) + 1, // +1 accounts for .sc endId being exclusive
+                        ["start"] = startId,
+                        ["end"] = endId + 1, // +1 accounts for .sc endId being exclusive
                     };
-                    
                     domains.Add(domain);
                 }
             }

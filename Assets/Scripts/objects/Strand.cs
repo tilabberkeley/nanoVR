@@ -426,7 +426,15 @@ public class Strand
     { 
         _cone.GetComponent<ConeComponent>().Color = _color;
         int helixId = _head.GetComponent<NucleotideComponent>().HelixId;
-        GameObject neighbor = s_helixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
+        GameObject neighbor;
+        if (s_visualMode)
+        {
+            neighbor = s_visHelixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
+        }
+        else
+        {
+            neighbor = s_helixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
+        }
         Vector3 toDirection;
 
         // If strand head is index 0 of nucleotide, recalculate direction of cone with next nucleotide.

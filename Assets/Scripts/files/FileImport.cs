@@ -107,7 +107,7 @@ public class FileImport : MonoBehaviour
     }
 
     // Using LINQ JSON
-    public static IEnumerator ParseSC(string fileContents, bool isCopyPaste, bool visualMode = false)
+    public static IEnumerator ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
     {
         // TODO: Split these in different methods?
         JObject origami = JObject.Parse(fileContents);
@@ -138,7 +138,6 @@ public class FileImport : MonoBehaviour
                     gridName += " (" + (numDuplicates + 1) + ")";
                 }
                 DrawGrid.CreateGrid(gridName, PLANE, rayInteractor.transform.position + new Vector3(x, y, z), gridType);
-                yield return new WaitForSeconds(0.1f);
             }
         }
         else
@@ -146,6 +145,7 @@ public class FileImport : MonoBehaviour
             string gridType = CleanSlash(origami["grid"].ToString());
             DrawGrid.CreateGrid(s_numGrids.ToString(), PLANE, rayInteractor.transform.position + new Vector3(0, 0, 0), gridType);
         }
+        yield return null;
 
         int prevNumHelices = s_numHelices;
         for (int i = 0; i < helices.Count; i++)
@@ -173,8 +173,9 @@ public class FileImport : MonoBehaviour
             GridComponent gc = grid.Grid2D[xInd, yInd];
             grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
             grid.CheckExpansion(gc);
-            yield return new WaitForSeconds(0.1f);
         }
+        yield return null;
+
 
         for (int i = 0; i < strands.Count; i++)
         {
@@ -254,10 +255,9 @@ public class FileImport : MonoBehaviour
             {
                 strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], xoverEndpoints[j]));
             }
-            yield return new WaitForSeconds(0.1f);
 
         }
-        yield return new WaitForSeconds(0.1f);
+        yield return null;
     }
 
 
