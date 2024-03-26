@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using static UnityEngine.Object;
+using static GlobalVariables;
 
 /// <summary>
 /// Creates needed gameobjects like nucleotides, backbones, cones, Xovers, spheres, and grids.
@@ -23,7 +24,7 @@ public static class DrawPoint
     public static GameObject MakeNucleotide(Vector3 position, int id, int helixId, int direction)
     {
         GameObject sphere =
-                    Instantiate(Resources.Load("Nucleotide"),
+                    Instantiate(nucleotide,
                     position,
                     Quaternion.identity) as GameObject;
         sphere.name = "nucleotide" + id;
@@ -33,12 +34,14 @@ public static class DrawPoint
         ntc.HelixId = helixId;
         ntc.Direction = direction;
         ntc.IsBackbone = false;
+        SaveGameObject(sphere);
         return sphere;
     }
 
     public static GameObject MakeCone()
     {
-        GameObject cone = Instantiate(Resources.Load("Cone")) as GameObject;
+        GameObject cone = Instantiate(Cone) as GameObject;
+        SaveGameObject(cone);
         return cone;
     }
 
@@ -51,7 +54,7 @@ public static class DrawPoint
     /// <returns>GameObject of backbone.</returns>
     public static GameObject MakeBackbone(int id, int helixId, int direction, Vector3 start, Vector3 end)
     {
-        GameObject cylinder = Instantiate(Resources.Load("Backbone"),
+        GameObject cylinder = Instantiate(Backbone,
                                     Vector3.zero,
                                     Quaternion.identity) as GameObject;
         cylinder.name = "Backbone" + id;
@@ -75,13 +78,15 @@ public static class DrawPoint
         // Scale        
         float dist = Vector3.Distance(end, start);
         cylinder.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
+        SaveGameObject(cylinder);
+
         return cylinder;
     }
 
     public static GameObject MakeXover(GameObject prevGO, GameObject nextGO, int strandId)
     {
         GameObject xover =
-                   Instantiate(Resources.Load("Xover"),
+                   Instantiate(Xover,
                    Vector3.zero,
                    Quaternion.identity) as GameObject;
         xover.name = "xover";
@@ -107,13 +112,15 @@ public static class DrawPoint
         nextGO.GetComponent<NucleotideComponent>().Xover = xover;
         xoverComp.PrevGO = prevGO;
         xoverComp.NextGO = nextGO;
+        SaveGameObject(xover);
+
         return xover;
     }
 
     public static GameObject MakeXoverSuggestion(GameObject prevGO, GameObject nextGO)
     {
         GameObject xoverSuggestion =
-                 Instantiate(Resources.Load("XoverSuggestion"),
+                 Instantiate(XoverSuggestion,
                  Vector3.zero,
                  Quaternion.identity) as GameObject;
         xoverSuggestion.name = "xoverSuggestion";
@@ -138,26 +145,6 @@ public static class DrawPoint
         //xoverComp.SetLength(dist);
 
         return xoverSuggestion;
-    }
-
-    public static GameObject MakeSphere(Vector3 position, string name)
-    {
-        // make sphere
-        GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        sphere.name = name;
-        sphere.transform.position = position;
-        sphere.transform.localScale = new Vector3(0.015f, 0.015f, 0.015f);
-
-        sphere.AddComponent<XRGrabInteractable>();
-
-        var sphereRigidbody = sphere.GetComponent<Rigidbody>();
-        sphereRigidbody.useGravity = false;
-        sphereRigidbody.isKinematic = true;
-
-        var sphereRenderer = sphere.GetComponent<Renderer>();
-        sphereRenderer.material.SetColor("_Color", Color.gray);
-
-        return sphere;
     }
 
     /// <summary>
@@ -185,7 +172,7 @@ public static class DrawPoint
             gamePosition = new Vector3(startPosition.x + xOffset, startPosition.y, startPosition.z + yOffset);
         }
 
-        GameObject gridCircle = Instantiate(Resources.Load("GridCircle"),
+        GameObject gridCircle = Instantiate(GridCircle,
                    gamePosition,
                    Quaternion.identity) as GameObject;
 
@@ -202,10 +189,12 @@ public static class DrawPoint
         gridCircle.name = "gridPoint";
         GridComponent gridComponent = gridCircle.GetComponent<GridComponent>();
         gridComponent.Position = gamePosition;
+        SaveGameObject(gridCircle);
+
         return gridCircle;
     }
 
-    public static GameObject MakeStrandCylinder(List<GameObject> nucleotides, Color32 color)
+    public static GameObject MakeBezier(List<GameObject> nucleotides, Color32 color)
     {
         GameObject tube = new GameObject("tube");
         var tubeRend = tube.AddComponent<TubeRenderer>();
@@ -217,8 +206,19 @@ public static class DrawPoint
         {
             tubeRend.points[i] = nucleotides[i].transform.position;
         }
-        
         return tube;
+    }
+
+    private static void SaveGameObject(GameObject go)
+    {
+        if (s_visualMode)
+        {
+            allVisGameObjects.Add(go);
+        }
+        else
+        {
+            allGameObjects.Add(go);
+        }
     }
 }
 

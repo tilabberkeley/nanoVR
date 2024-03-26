@@ -33,6 +33,10 @@ public static class GlobalVariables
     public static int s_numStrands = 0;
     public static int s_numHelices = 0;
     public static int s_numGrids = 0;
+    public static List<GameObject> allGameObjects = new List<GameObject>();
+
+    // Tracks how many copies of each gridName have been made
+    public static Dictionary<string, int> s_gridCopies = new Dictionary<string, int>();
 
     // Dictionaries and counts to to keep track of alternate Strand, Helix, and DNAGrid objects when switching to visual mode
     public static Dictionary<int, Helix> s_visHelixDict = new Dictionary<int, Helix>();
@@ -41,6 +45,8 @@ public static class GlobalVariables
     public static int s_numVisStrands = 0;
     public static int s_numVisHelices = 0;
     public static int s_numVisGrids = 0;
+    public static List<GameObject> allVisGameObjects = new List<GameObject>();
+
 
     // M13 DNA sequences
     private static TextAsset _DNA7249 = Resources.Load("Sequences/dna7249") as TextAsset;
@@ -51,6 +57,27 @@ public static class GlobalVariables
     public static string DNA7560 { get { return _DNA7560.text; } }
     public static string DNA8064 { get { return _DNA8064.text; } }
     public static string DNA8634 { get { return _DNA8634.text; } }
+
+    // GameObjects to build structures
+    private static GameObject _nucleotide = Resources.Load("Nucleotide") as GameObject;
+    private static GameObject _cone = Resources.Load("Cone") as GameObject;
+    private static GameObject _backbone = Resources.Load("Backbone") as GameObject;
+    private static GameObject _xover = Resources.Load("Xover") as GameObject;
+    private static GameObject _xoverSuggestion = Resources.Load("XoverSuggestion") as GameObject;
+    private static GameObject _gridCircle = Resources.Load("GridCircle") as GameObject;
+
+    public static GameObject nucleotide { get { return _nucleotide; } }
+    public static GameObject Cone { get { return _cone; } }
+    public static GameObject Backbone { get { return _backbone; } }
+    public static GameObject Xover { get { return _xover; } }
+    public static GameObject XoverSuggestion { get { return _xoverSuggestion; } }
+    public static GameObject GridCircle { get { return _gridCircle; } }
+
+
+
+
+
+
 
 
     // Strand colors

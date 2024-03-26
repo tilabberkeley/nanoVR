@@ -384,7 +384,7 @@ public abstract class DNAGrid
 
     public void AddHelix(int id, Vector3 startPoint, int length, string orientation, GridComponent gridComponent)
     {
-        Helix helix = new Helix(id, startPoint, orientation, length, gridComponent);
+        Helix helix = new Helix(id, orientation, length, gridComponent);
         gridComponent.Helix = helix;
         gridComponent.Selected = true;
 

@@ -76,6 +76,7 @@ public class SelectGrid : MonoBehaviour
         s_grid = grid;
         foreach (GridComponent gc in grid.Grid2D)
         {
+            Highlight.HighlightGridCircle(gc);
             if (gc.Helix != null)
             {
                 Highlight.HighlightHelix(gc.Helix);
@@ -88,6 +89,7 @@ public class SelectGrid : MonoBehaviour
         if (grid == null) { return; }
         foreach (GridComponent gc in grid.Grid2D)
         {
+            Highlight.UnhighlightGridCircle(gc);
             if (gc.Helix != null)
             {
                 Highlight.UnhighlightHelix(gc.Helix);

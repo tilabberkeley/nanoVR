@@ -118,7 +118,7 @@ public class MoveHelix : MonoBehaviour
         oldComp.Helix = null;
         oldComp.Selected = false;
         newComp.Selected = true;
-        newComp.Helix.StartPoint = oldCircle.transform.position;
+        //newComp.Helix.StartPoint = oldCircle.transform.position;
         newComp.Helix._gridComponent = newComp;
     }
 

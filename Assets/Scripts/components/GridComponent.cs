@@ -6,15 +6,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GridComponent : MonoBehaviour
-{ 
+{
+    protected Renderer _ntRenderer;
+    protected Outline _outline;
+
     // Whether or not this grid component has been clicked on before.
     public bool Selected { get; set; }
-    // Line on grid component.
-    public Line Line { get; set; }
+  
     // Helix on grid component.
     public Helix Helix { get; set; }
     // 3D position of grid component.
-    public Vector3 Position { get; set; }
+    private Vector3 _position;
+    public Vector3 Position { get { return gameObject.transform.position; } set { _position = value; } }
     // 2D point of grid component on grid.
     public GridPoint GridPoint { get; set; }
     // Grid that this grid component is apart of.
@@ -29,5 +32,12 @@ public class GridComponent : MonoBehaviour
     public List<GridComponent> getNeighborGridComponents()
     {
         return Grid.GetNeighborGridComponents(GridPoint);
+    }
+
+    protected virtual void Awake()
+    {
+        _ntRenderer = GetComponent<Renderer>();
+        _outline = GetComponent<Outline>();
+        _outline.enabled = false;
     }
 }

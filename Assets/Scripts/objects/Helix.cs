@@ -20,8 +20,8 @@ public class Helix
 
     public string GridId { get { return _gridComponent.GridId; } }
 
-    private Vector3 _startPoint;
-    public Vector3 StartPoint { get { return _startPoint; } set { _startPoint = value; } }
+    //private Vector3 _startPoint;
+    public Vector3 StartPoint { get { return _gridComponent.Position ; } }
 
     private Vector3 _endPoint;
     public Vector3 EndPoint { get { return _endPoint; } set { _endPoint = value; } }
@@ -62,10 +62,9 @@ public class Helix
     private Vector3 _lastPositionB;
 
     // Helix constructor.
-    public Helix(int id, Vector3 startPoint, string orientation, int length, GridComponent gridComponent)
+    public Helix(int id, string orientation, int length, GridComponent gridComponent)
     {
         _id = id;
-        _startPoint = startPoint;
         _length = 0;
         _orientation = orientation;
         _gridComponent = gridComponent;
@@ -89,7 +88,28 @@ public class Helix
         _length += length;
         for (int i = prevLength; i < _length; i++)
         {
+            Vector3 position = StartPoint;
+            Vector3 direction = Vector3.Normalize(_gridComponent.gameObject.transform.rotation.eulerAngles);
             float angleA = (float) (i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
+            float angleB = (float) ((i + 4.5f) * (2 * Math.PI / NUM_BASE_PAIRS)); //TODO: check this new offset
+            float cosAngleA = (float) Math.Cos(angleA);
+            float sinAngleA = (float) Math.Sin(angleA);
+            float cosAngleB = (float) Math.Cos(angleB);
+            float sinAngleB = (float) Math.Sin(angleB);
+
+            float xPointA = position.x + RADIUS * (cosAngleA * direction.x + sinAngleA * direction.y);
+            float yPointA = position.y + RADIUS * (-sinAngleA * direction.x + cosAngleA * direction.y);
+            float zPointA = position.z + RADIUS * direction.z * i;
+
+            float xPointB = position.x + RADIUS * (cosAngleB * direction.x + sinAngleB * direction.y);
+            float yPointB = position.y + RADIUS * (-sinAngleB * direction.x + cosAngleB * direction.y);
+            float zPointB = position.z + RADIUS * direction.z * i;
+
+            _lastPositionA = new Vector3(xPointA, yPointA, zPointA);
+            _lastPositionB = new Vector3(xPointB, yPointB, zPointB);
+
+
+            /*float angleA = (float) (i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
             float angleB = (float) ((i + 4.5f) * (2 * Math.PI/ NUM_BASE_PAIRS)); //TODO: check this new offset
             float axisOneChangeA = (float) (RADIUS * Mathf.Cos(angleA));
             float axisTwoChangeA = (float) (RADIUS * Mathf.Sin(angleA));
@@ -98,19 +118,19 @@ public class Helix
 
             if (_orientation.Equals("XY"))
             {
-                _lastPositionA = _gridComponent.Position + new Vector3(axisOneChangeA, axisTwoChangeA - ADJUSTMENT, -i * RISE);
-                _lastPositionB = _gridComponent.Position + new Vector3(axisOneChangeB, axisTwoChangeB - ADJUSTMENT, -i * RISE);
+                _lastPositionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA - ADJUSTMENT, -i * RISE);
+                _lastPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB - ADJUSTMENT, -i * RISE);
             }
             else if (_orientation.Equals("XZ"))
             {
-                _lastPositionA = _gridComponent.Position + new Vector3(axisOneChangeA, i * RISE, axisTwoChangeA);
-                _lastPositionB = _gridComponent.Position + new Vector3(axisOneChangeB, i * RISE, axisTwoChangeB);
+                _lastPositionA = StartPoint + new Vector3(axisOneChangeA, i * RISE, axisTwoChangeA);
+                _lastPositionB = StartPoint + new Vector3(axisOneChangeB, i * RISE, axisTwoChangeB);
             }
             else
             {
-                _lastPositionA = _gridComponent.Position + new Vector3(i * RISE, axisOneChangeA, axisTwoChangeA);
-                _lastPositionB = _gridComponent.Position + new Vector3(i * RISE, axisOneChangeB, axisTwoChangeB);
-            }
+                _lastPositionA = StartPoint + new Vector3(i * RISE, axisOneChangeA, axisTwoChangeA);
+                _lastPositionB = StartPoint + new Vector3(i * RISE, axisOneChangeB, axisTwoChangeB);
+            }*/
 
             GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, i, _id, 1);
             _nucleotidesA.Add(sphereA);

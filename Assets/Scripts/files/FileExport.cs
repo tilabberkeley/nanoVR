@@ -1,5 +1,5 @@
 ﻿/*
- * nanoVR, a VR application for DNA nanostructures.
+ * nanoVR, a VR application for building DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System;
@@ -10,12 +10,12 @@ using UnityEngine;
 using UnityEngine.Networking;
 using SimpleFileBrowser;
 using Newtonsoft.Json.Linq;
-using static GlobalVariables;
 using UnityEngine.UI;
 using System.Reflection;
 using System.Collections;
 using System.Text;
 using System.Text.RegularExpressions;
+using static GlobalVariables;
 
 public class FileExport : MonoBehaviour
 {
@@ -105,7 +105,7 @@ public class FileExport : MonoBehaviour
         foreach (string gridId in gridIds)
         {
             DNAGrid grid = s_gridDict[gridId];
-            string name = gridId.ToString();
+            
             JObject position = new JObject();
             if (isCopyPaste)
             {
@@ -125,7 +125,7 @@ public class FileExport : MonoBehaviour
                 ["position"] = position,
                 ["grid"] = grid.Type,
             };
-            groups[name] = group;
+            groups[gridId] = group;
         }
 
 
@@ -141,7 +141,7 @@ public class FileExport : MonoBehaviour
             JObject jsonHelix = new JObject
             {
                 ["grid_position"] = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y * -1 }, // Negative Y-axis for .sc format 
-                ["group"] = helix.GridId.ToString(),
+                ["group"] = helix.GridId,
                 ["idx"] = id,
                 ["max_offset"] = helix.Length
             };

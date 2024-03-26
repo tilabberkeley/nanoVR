@@ -154,9 +154,17 @@ public class Strand
     // Shows or hides cone based on input parameter.
     public void ShowHideCone(bool enabled)
     {
-        _cone.GetComponent<Renderer>().enabled = enabled;
+        _cone.SetActive(enabled);
     }
-    
+
+    public void ShowHideXovers(bool enabled)
+    {
+        foreach (GameObject xover in _xovers)
+        {
+            xover.SetActive(enabled);
+        }
+    }
+
     // Adds crossover to crossover list.
     /*public void AddXover(GameObject xover) 
     { 
@@ -544,7 +552,7 @@ public class Strand
     {
         if (_bezier == null)
         {
-            _bezier = DrawPoint.MakeStrandCylinder(_nucleotides, _color);
+            _bezier = DrawPoint.MakeBezier(_nucleotides, _color);
         }
     }
 

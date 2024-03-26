@@ -36,17 +36,18 @@ public static class Highlight
     /// </summary>
     /// <param name="go">GameObject to unhighlight.</param>
     /// <param name="isDelete">If strand is being deleted, insertions/deletions should be unhighlighted.</param>
-    private static void UnhighlightGO(GameObject go, bool isDelete)
+    private static void UnhighlightGO(GameObject go, bool unhighlightInsAndDel)
     {
         NucleotideComponent ntc = go.GetComponent<NucleotideComponent>(); 
         Outline outline = go.GetComponent<Outline>();
 
-        if (!isDelete && ntc != null && (ntc.IsInsertion || ntc.IsDeletion))
+        if (!unhighlightInsAndDel && ntc != null && (ntc.IsInsertion || ntc.IsDeletion))
         {
             if (ntc.IsInsertion)
             {
                 outline.OutlineColor = drawNucleotideHighlightColor;
-            } else if (ntc.IsDeletion)
+            } 
+            else if (ntc.IsDeletion)
             {
                 outline.OutlineColor = eraseNucleotideHighlightColor;
             }
@@ -224,6 +225,16 @@ public static class Highlight
             UnhighlightGO(backbonesA[i], false);
             UnhighlightGO(backbonesB[i], false);
         }
+    }
+
+    public static void HighlightGridCircle(GridComponent gc)
+    {
+        HighlightGO(gc.gameObject, helixHighlightColor);
+    }
+
+    public static void UnhighlightGridCircle(GridComponent gc)
+    {
+        UnhighlightGO(gc.gameObject, false);
     }
 
     /// <summary>

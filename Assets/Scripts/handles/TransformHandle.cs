@@ -74,7 +74,7 @@ public class TransformHandle : MonoBehaviour
             {
                 Debug.Log("Hitting GridComponent");
                 s_GO = s_hit.collider.gameObject;
-                //AttachChildren(s_GO);
+                AttachChildren(s_GO);
                 CreateTransform(s_GO);
             }
         }
@@ -102,16 +102,18 @@ public class TransformHandle : MonoBehaviour
 
     private void CreateTransform(GameObject go)
     {
-        /*Debug.Log("Creating Transform");
+        Debug.Log("Creating Transform");
         gizmos.SetActive(true);
-        gizmos.transform.SetPositionAndRotation(go.transform.position + 0.5f * Vector3.back, go.transform.rotation);
-        go.transform.parent = gizmos.transform; 
-        Debug.Log("Finished creating Transform");*/
+        GridComponent gc = go.GetComponent<GridComponent>();
+        GameObject bottomLeftCorner = gc.Grid.Grid2D[0, 0].gameObject;
+        gizmos.transform.SetPositionAndRotation(bottomLeftCorner.transform.position + 0.5f * Vector3.back, bottomLeftCorner.transform.rotation);
+        //go.transform.parent = gizmos.transform;
+        Debug.Log("Finished creating Transform");
 
-        ObjectTransformGizmo objectMoveGizmo = RTGizmosEngine.Get.CreateObjectMoveGizmo();
+        /*ObjectTransformGizmo objectMoveGizmo = RTGizmosEngine.Get.CreateObjectMoveGizmo();
         List<GameObject> targets = GetTargets(go);
         objectMoveGizmo.SetTargetObjects(targets);
-        objectMoveGizmo.SetTargetPivotObject(go); // CHECK THIS WORKS?
+        objectMoveGizmo.SetTargetPivotObject(go); // CHECK THIS WORKS?*/
     }
 
     private void HideTransform(GameObject go)
@@ -147,6 +149,22 @@ public class TransformHandle : MonoBehaviour
         }
         return targets;
         //Debug.Log("Finished attaching children");
+    }
+
+    private void AttachChildren(GameObject go)
+    {
+        DNAGrid grid = go.GetComponent<GridComponent>().Grid;
+        for (int i = 0; i < grid.Length; i++)
+        {
+            for (int j = 0; j < grid.Width; j++)
+            {
+                grid.Grid2D[i, j].gameObject.transform.parent = go.transform;
+                if (grid.Grid2D[i, j].Helix != null)
+                {
+                    grid.Grid2D[i, j].Helix.SetParent(go);
+                }
+            }
+        }
     }
 
     private void DetachChildren(GameObject go)

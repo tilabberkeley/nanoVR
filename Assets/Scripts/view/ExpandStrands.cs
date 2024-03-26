@@ -1,3 +1,7 @@
+/*
+ * nanoVR, a VR application for building DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
+ */
 using System;
 using System.Linq;
 using System.Collections;
@@ -10,47 +14,48 @@ using static Utils;
 
 public class ExpandStrands : MonoBehaviour
 {
-    private static GameObject[] scene;
     [SerializeField] private Toggle toggle;
 
     public void ShowFullStrandToggle()
     {
+        if (s_hideStencils) { return; } // Cannot handle no stencil conversion yet
+        if (s_strandView) { return; }
         if (toggle.isOn)
         {
             s_visualMode = true;
-            Expand();
+            ConvertToVisualMode();
         }
         else
         {
             s_visualMode = false;
-            Contract();
+            ConvertToEditMode();
         }
     }
 
-    private void Expand()
+    private void ConvertToVisualMode()
     {
         string json = GetSCJSON(); // FIX: This is a copy so need to figure out a way to not get key collisions in dictionaries!
                                    // Maybe have temp dictionaries in GlobalVariables to help with visual mode?
-        scene = GameObject.FindGameObjectsWithTag("Nucleotide");
-        foreach (GameObject go in scene)
+        foreach (GameObject go in allGameObjects)
         {
             go.SetActive(false);
         }
-        StartCoroutine(ParseSC(json));
-        //FileImport.ParseSC(json, false);
+        //StartCoroutine(ParseSC(json));
+        ParseSC(json);
     }
 
-    public void Contract()
+    public void ConvertToEditMode()
     {
-        GameObject[] rootObjects = GameObject.FindGameObjectsWithTag("Nucleotide");
-        foreach (GameObject go in rootObjects)
+        foreach (GameObject go in allVisGameObjects)
         {
-            GameObject.Destroy(go);
+            go.SetActive(false);
         }
-        foreach (GameObject go in scene)
+        foreach (GameObject go in allGameObjects)
         {
             go.SetActive(true);
         }
+        //StartCoroutine(DestroyVisGameObjects());
+        DestroyVisGameObjects();
         ResetVisualGlobalVariables();
     }
 
@@ -64,7 +69,15 @@ public class ExpandStrands : MonoBehaviour
         s_numVisStrands = 0;
     }
 
-    private IEnumerator ParseSC(string fileContents)
+    private void DestroyVisGameObjects()
+    {
+        foreach (GameObject go in allVisGameObjects)
+        {
+            Destroy(go);
+        }
+    }
+
+    private void ParseSC(string fileContents)
     {
         // TODO: Split these in different methods?
         JObject origami = JObject.Parse(fileContents);
@@ -91,7 +104,6 @@ public class ExpandStrands : MonoBehaviour
                 DrawGrid.CreateGrid(gridName, "XY", new Vector3(x, y, z), gridType);
             }
         }
-        yield return null;
 
         /*else
         {
@@ -122,7 +134,6 @@ public class ExpandStrands : MonoBehaviour
             grid.AddHelix(s_numVisHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, "XY", gc);
             grid.CheckExpansion(gc);
         }
-        yield return null;
 
         for (int i = 0; i < strands.Count; i++)
         {
@@ -202,10 +213,8 @@ public class ExpandStrands : MonoBehaviour
             {
                 strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], xoverEndpoints[j]));
             }
-            yield return null;
 
         }
-        yield return null;
     }
 
 

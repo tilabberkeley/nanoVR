@@ -88,8 +88,8 @@ public class FileImport : MonoBehaviour
             string fileType = FileBrowser.GetExtensionFromFilename(selectedFilePath, false);
             if (fileType.Equals(".sc") || fileType.Equals(".sc.txt"))
             {
-                StartCoroutine(ParseSC(@fileContent, false));
-                //ParseSC(@fileContent, false);
+                //StartCoroutine(ParseSC(@fileContent, false));
+                ParseSC(@fileContent, false);
             }
             else if (fileType.Equals(".json"))
             {
@@ -107,7 +107,7 @@ public class FileImport : MonoBehaviour
     }
 
     // Using LINQ JSON
-    public static IEnumerator ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
+    public static void ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
     {
         // TODO: Split these in different methods?
         JObject origami = JObject.Parse(fileContents);
@@ -119,7 +119,9 @@ public class FileImport : MonoBehaviour
             Dictionary<string, JObject> groups = groupObject.ToObject<Dictionary<string, JObject>>();
             foreach (var item in groups)
             {
-                string gridName = CleanSlash(item.Key);
+                string origName = CleanSlash(item.Key);
+                string gridName = GetGridName(origName);
+                UpdateGridCopies(origName);
                 JObject info = item.Value;
                 float x = 0;
                 float y = 0;
@@ -131,12 +133,6 @@ public class FileImport : MonoBehaviour
                     z = (float)info["position"]["z"];
                 }
                 string gridType = CleanSlash(info["grid"].ToString());
-
-                if (isCopyPaste) // Creates unique key for grid dictionary
-                {
-                    int numDuplicates = CountDuplicates(gridName);
-                    gridName += " (" + (numDuplicates + 1) + ")";
-                }
                 DrawGrid.CreateGrid(gridName, PLANE, rayInteractor.transform.position + new Vector3(x, y, z), gridType);
             }
         }
@@ -145,7 +141,7 @@ public class FileImport : MonoBehaviour
             string gridType = CleanSlash(origami["grid"].ToString());
             DrawGrid.CreateGrid(s_numGrids.ToString(), PLANE, rayInteractor.transform.position + new Vector3(0, 0, 0), gridType);
         }
-        yield return null;
+
 
         int prevNumHelices = s_numHelices;
         for (int i = 0; i < helices.Count; i++)
@@ -155,12 +151,8 @@ public class FileImport : MonoBehaviour
             string gridName;
             if (helices[i]["group"]!= null)
             {
-                gridName = CleanSlash(helices[i]["group"].ToString());
-                if (isCopyPaste) // Finds the copied gridId key in grid dictionary
-                {
-                    int numDuplicates = CountDuplicates(gridName);
-                    gridName += " (" + numDuplicates + ")";
-                }
+                string origName = CleanSlash(helices[i]["group"].ToString());
+                gridName = GetGridName(origName);
             }
             else
             {
@@ -174,7 +166,6 @@ public class FileImport : MonoBehaviour
             grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
             grid.CheckExpansion(gc);
         }
-        yield return null;
 
 
         for (int i = 0; i < strands.Count; i++)
@@ -257,7 +248,6 @@ public class FileImport : MonoBehaviour
             }
 
         }
-        yield return null;
     }
 
 
@@ -272,16 +262,38 @@ public class FileImport : MonoBehaviour
         return str.Replace("\"", "");
     }
 
-    private static int CountDuplicates(string gridName)
+    private static string GetGridName(string origName)
     {
-        int count = 0;
-        foreach (string gridId in s_gridDict.Keys)
+        int numCopies = s_gridCopies.ContainsKey(origName) ? s_gridCopies[origName] : 0;
+        if (numCopies == 0)
         {
-            if (gridId.StartsWith(gridName + " ("))
-            {
-                count += 1;
-            }
+            return origName;
         }
-        return count;
+        else
+        {
+            return origName + " (" + numCopies + ")";
+        }
     }
+
+    private static void UpdateGridCopies(string origName)
+    {
+        int numCopies = s_gridCopies.ContainsKey(origName) ? s_gridCopies[origName] : 0;
+        if (numCopies > 0)
+        {
+            s_gridCopies[origName] = numCopies + 1;
+        }
+    }
+
+    /* private static int CountDuplicates(string gridName)
+     {
+         int count = 0;
+         foreach (string gridId in s_gridDict.Keys)
+         {
+             if (gridId.StartsWith(gridName + " ("))
+             {
+                 count += 1;
+             }
+         }
+         return count;
+     }*/
 }
