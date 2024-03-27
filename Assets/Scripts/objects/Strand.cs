@@ -126,7 +126,7 @@ public class Strand
         _direction = nucleotides[0].GetComponent<NucleotideComponent>().Direction;
         //SetComponents();
         //s_strandDict.Add(strandId, this);
-        CheckForXoverSuggestions();
+        //CheckForXoverSuggestions();
         //s_numStrands += 1;
     }
 

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static Highlight;
+using static GlobalVariables;
 
 /// <summary>
 /// Component for crossover suggestion game object.
@@ -53,8 +54,8 @@ public class XoverSuggestionComponent : MonoBehaviour
     /// </summary>
     public void CreateXover()
     {
-        DrawCrossover.CreateXover(_nucleotideComponent0.gameObject, _nucleotideComponent1.gameObject);
-        // Remove all the other crossover suggestions on both nucleotides.
+        DrawCrossover.CreateXover(_nucleotideComponent1.gameObject, _nucleotideComponent0.gameObject);
+        // Remove all the crossover suggestions on both nucleotides.
         _nucleotideComponent0.RemoveXoverSuggestions();
         _nucleotideComponent1.RemoveXoverSuggestions();
     }

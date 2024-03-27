@@ -29,6 +29,7 @@ public static class GlobalVariables
     public static Dictionary<int, Helix> s_helixDict = new Dictionary<int, Helix>();
     public static Dictionary<int, Strand> s_strandDict = new Dictionary<int, Strand>();
     public static Dictionary<int, DNAGrid> s_gridDict = new Dictionary<int, DNAGrid>();
+    public static HashSet<XoverSuggestionComponent> s_xoverSuggestions = new HashSet<XoverSuggestionComponent>();
     public static int s_numStrands = 0;
     public static int s_numHelices = 0;
     public static int s_numGrids = 0;

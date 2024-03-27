@@ -11,7 +11,7 @@ using static Highlight;
 /// </summary>
 public class DrawCrossoverSuggestion : MonoBehaviour
 {
-    private const double SUGGESTION_LENGTH = 1.0;
+    private const double SUGGESTION_LENGTH = 0.053;
 
     // Input controller variables
     [SerializeField] private XRNode _xrNode;
@@ -119,17 +119,30 @@ public class DrawCrossoverSuggestion : MonoBehaviour
     }
 
     /// <summary>
+    /// Returns whether there can be a crossover between the two inputted nucleotides.
+    /// All conditions for a crossover must meet.
+    /// </summary>
+    /// <param name="nucleotide0">First nucleotide to create suggestion between.</param>
+    /// <param name="nucleotide1">Second nucleotide to create suggestion between.</param>
+    /// <returns>True is there can be a crossover suggestion. False otherwise.</returns>
+    public static bool IsValid(NucleotideComponent nucleotide0, NucleotideComponent nucleotide1)
+    {
+        return DrawCrossover.IsValid(nucleotide0.gameObject, nucleotide1.gameObject);
+    }
+
+    /// <summary>
     /// Checks for valid crossover suggestions and creates them is they're valid. Valid crossover suggestions
-    /// come in pairs and must average below a predefined distance.
+    /// come in pairs and must average below a predefined distance. This method looks through every possible
+    /// nucleotide pair in every strand.
     /// </summary>
     public static void CheckForCrossoverSuggestions()
     {
-        foreach (KeyValuePair<object, Strand> pair0 in s_strandDict)
+        foreach (KeyValuePair<int, Strand> pair0 in s_strandDict)
         {
             List<NucleotideComponent> nucleotides0 = pair0.Value.GetNucleotidesOnly();
             for (int i = 0; i < nucleotides0.Count - 1; i++)
             {
-                foreach (KeyValuePair<object, Strand> pair1 in s_strandDict)
+                foreach (KeyValuePair<int, Strand> pair1 in s_strandDict)
                 {
                     List<NucleotideComponent> nucleotides1 = pair1.Value.GetNucleotidesOnly();
                     for (int j = 0; j < nucleotides1.Count - 1; j++)
@@ -144,24 +157,44 @@ public class DrawCrossoverSuggestion : MonoBehaviour
                         // (0, 1), (1, 0) pair
                         float disJointPairDistance = ((nucleotide0i.transform.position - nucleotide1j.transform.position).magnitude + (nucleotide1i.transform.position - nucleotide0j.transform.position).magnitude) / 2.0f;
 
-                        if (matchPairDistance > SUGGESTION_LENGTH && disJointPairDistance > SUGGESTION_LENGTH)
+                        //Debug.Log("Match pair distance: " + matchPairDistance);
+                        //Debug.Log("Disjoint pair distance: " + disJointPairDistance);
+
+                        if (disJointPairDistance > SUGGESTION_LENGTH)
                         {
                             continue;
                         }
-                        if (matchPairDistance < disJointPairDistance)
-                        {
-                            DrawPoint.MakeXoverSuggestion(nucleotide0i.gameObject, nucleotide0j.gameObject);
-                            DrawPoint.MakeXoverSuggestion(nucleotide1i.gameObject, nucleotide1j.gameObject);
-                        }
-                        else
+                        else if (IsValid(nucleotide0i, nucleotide1j) && IsValid(nucleotide1i, nucleotide0j))
                         {
                             DrawPoint.MakeXoverSuggestion(nucleotide0i.gameObject, nucleotide1j.gameObject);
                             DrawPoint.MakeXoverSuggestion(nucleotide1i.gameObject, nucleotide0j.gameObject);
                         }
+                        /* if (matchPairDistance <= disJointPairDistance
+                            && IsValid(nucleotide0i, nucleotide0j)
+                            && IsValid(nucleotide1i, nucleotide1j))
+                        {
+                            DrawPoint.MakeXoverSuggestion(nucleotide0i.gameObject, nucleotide0j.gameObject);
+                            DrawPoint.MakeXoverSuggestion(nucleotide1i.gameObject, nucleotide1j.gameObject);
+                        }
+                        else if (matchPairDistance > disJointPairDistance
+                            && IsValid(nucleotide0i, nucleotide1j)
+                            && IsValid(nucleotide1i, nucleotide0j))
+                        {
+                            DrawPoint.MakeXoverSuggestion(nucleotide0i.gameObject, nucleotide1j.gameObject);
+                            DrawPoint.MakeXoverSuggestion(nucleotide1i.gameObject, nucleotide0j.gameObject);
+                        } */
                     }
-
                 }
             }
         }
+    }
+
+    public static void ClearCrossoverSuggestions()
+    {
+        foreach (XoverSuggestionComponent xoverSuggestion in s_xoverSuggestions)
+        {
+            Destroy(xoverSuggestion.gameObject);
+        }
+        s_xoverSuggestions.Clear();
     }
 }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using static UnityEngine.Object;
+using static GlobalVariables;
 
 /// <summary>
 /// Creates needed gameobjects like nucleotides, backbones, cones, Xovers, spheres, and grids.
@@ -136,6 +137,8 @@ public static class DrawPoint
         float dist = Vector3.Distance(nextGO.transform.position, prevGO.transform.position);
         xoverSuggestion.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
         //xoverComp.SetLength(dist);
+
+        s_xoverSuggestions.Add(xoverSuggestion.GetComponent<XoverSuggestionComponent>());
 
         return xoverSuggestion;
     }

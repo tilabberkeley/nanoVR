@@ -19,7 +19,7 @@ public static class CommandManager
     {
         s_undoStack.Push(command);
         s_redoStack.Clear();
-        ActionUpdate();
+        CommandUpdate();
     }
 
     /// <summary>
@@ -32,7 +32,7 @@ public static class CommandManager
             ICommand command = s_undoStack.Pop();
             if (command != null) { command.Undo(); }
             s_redoStack.Push(command);
-            ActionUpdate();
+            CommandUpdate();
         }
     }
 
@@ -46,15 +46,16 @@ public static class CommandManager
             ICommand command = s_redoStack.Pop();
             if (command != null) { command.Redo(); }
             s_undoStack.Push(command);
-            ActionUpdate();
+            CommandUpdate();
         }
     }
 
     /// <summary>
-    /// Whenever a command is done, undone, or redone, ActionUpdate will be called.
+    /// Whenever a command is done, undone, or redone, CommandUpdate will be called.
     /// </summary>
-    private static void ActionUpdate()
+    private static void CommandUpdate()
     {
-
+        DrawCrossoverSuggestion.ClearCrossoverSuggestions();
+        DrawCrossoverSuggestion.CheckForCrossoverSuggestions();
     }
 }
