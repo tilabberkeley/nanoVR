@@ -26,14 +26,14 @@ public class ObjectListManager : MonoBehaviour
         button.transform.SetSiblingIndex(strandId);
     }
 
-    public static void CreateGridButton(int gridId)
+    public static void CreateGridButton(string gridId)
     {
         GameObject button = Instantiate(Resources.Load("Button")) as GameObject;
         button.transform.SetParent(GameObject.FindWithTag("GridList").transform, false);
         button.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Grid " + gridId;
         button.name = "GridButton" + gridId;
         button.GetComponent<Button>().onClick.AddListener(() => SelGrid(gridId));
-        button.transform.SetSiblingIndex(gridId);
+        button.transform.SetSiblingIndex(s_numGrids);
     }
 
     /*public static void SelectAll()
@@ -49,7 +49,7 @@ public class ObjectListManager : MonoBehaviour
         SelectStrand.HighlightStrand(strandId);
     }
 
-    public static void SelGrid(int gridId)
+    public static void SelGrid(string gridId)
     {
         SelectGrid.HighlightGrid(gridId);
     }

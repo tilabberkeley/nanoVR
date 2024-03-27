@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 746427054482158947}
   m_Layer: 0
   m_Name: Backbone
-  m_TagString: Untagged
+  m_TagString: Nucleotide
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

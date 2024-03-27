@@ -22,17 +22,26 @@ public static class GlobalVariables
     // adjust/add varibles when add helix view.
     public static bool s_nucleotideView = true;
     public static bool s_hideStencils = false;
+    public static bool s_visualMode = false;
     public static bool s_strandView = false;
     public static bool s_helixView = false;
 
-    // Dictionaries and counts to keep track of Strand, Helix, and DNAGrid objectss
+    // Dictionaries and counts to keep track of Strand, Helix, and DNAGrid objects
     public static Dictionary<int, Helix> s_helixDict = new Dictionary<int, Helix>();
     public static Dictionary<int, Strand> s_strandDict = new Dictionary<int, Strand>();
-    public static Dictionary<int, DNAGrid> s_gridDict = new Dictionary<int, DNAGrid>();
+    public static Dictionary<string, DNAGrid> s_gridDict = new Dictionary<string, DNAGrid>();
     public static HashSet<XoverSuggestionComponent> s_xoverSuggestions = new HashSet<XoverSuggestionComponent>();
     public static int s_numStrands = 0;
     public static int s_numHelices = 0;
     public static int s_numGrids = 0;
+
+    // Dictionaries and counts to to keep track of alternate Strand, Helix, and DNAGrid objects when switching to visual mode
+    public static Dictionary<int, Helix> s_visHelixDict = new Dictionary<int, Helix>();
+    public static Dictionary<int, Strand> s_visStrandDict = new Dictionary<int, Strand>();
+    public static Dictionary<string, DNAGrid> s_visGridDict = new Dictionary<string, DNAGrid>();
+    public static int s_numVisStrands = 0;
+    public static int s_numVisHelices = 0;
+    public static int s_numVisGrids = 0;
 
     // M13 DNA sequences
     private static TextAsset _DNA7249 = Resources.Load("Sequences/dna7249") as TextAsset;

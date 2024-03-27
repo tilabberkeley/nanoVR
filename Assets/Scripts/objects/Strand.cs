@@ -64,9 +64,9 @@ public class Strand
         get 
         {
             string sequence = "";
-            foreach (GameObject nucl in _nucleotides)
+            for (int i = _nucleotides.Count - 1; i >= 0; i--)
             {
-                var ntc = nucl.GetComponent<NucleotideComponent>();
+                var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
                 if (ntc != null)
                 {
                     sequence += ntc.Sequence;
@@ -77,7 +77,7 @@ public class Strand
         set { SetSequence(value); } 
     }
 
-    private bool _isScaffold;
+    private bool _isScaffold = false;
     public bool IsScaffold 
     { 
         get { return _isScaffold; } 
@@ -462,7 +462,15 @@ public class Strand
     { 
         _cone.GetComponent<ConeComponent>().Color = _color;
         int helixId = _head.GetComponent<NucleotideComponent>().HelixId;
-        GameObject neighbor = s_helixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
+        GameObject neighbor;
+        if (s_visualMode)
+        {
+            neighbor = s_visHelixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
+        }
+        else
+        {
+            neighbor = s_helixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
+        }
         Vector3 toDirection;
 
         // If strand head is index 0 of nucleotide, recalculate direction of cone with next nucleotide.
@@ -528,11 +536,11 @@ public class Strand
 
     public bool MoreThanOneGrid()
     {
-        int gridId = _head.GetComponent<DNAComponent>().GridId;
+        string gridId = _head.GetComponent<DNAComponent>().GridId;
         for (int i = _nucleotides.Count - 1; i >= 0; i--)
         {
             var dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
-            if (dnaComp.GridId != gridId)
+            if (!dnaComp.GridId.Equals(gridId))
             {
                 return true;
             }

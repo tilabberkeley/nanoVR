@@ -19,8 +19,8 @@ public abstract class DNAGrid
     protected const float RADIUS = DIAMETER / 2;
     public abstract string Type { get; }
 
-    protected int _id;
-    public int Id { get { return _id; } }
+    protected string _id;
+    public string Id { get { return _id; } }
 
     protected string _plane;
     public string Plane { get { return _plane; } }
@@ -66,7 +66,7 @@ public abstract class DNAGrid
     /// <param name="id">Id number of this grid.</param>
     /// <param name="plane">Plane defintion.</param>
     /// <param name="startPos">3D location of where this grid starts.</param>
-    public DNAGrid(int id, string plane, Vector3 startPos)
+    public DNAGrid(string id, string plane, Vector3 startPos)
     {
         _id = id;
         _plane = plane;
@@ -385,10 +385,20 @@ public abstract class DNAGrid
     public void AddHelix(int id, Vector3 startPoint, int length, string orientation, GridComponent gridComponent)
     {
         Helix helix = new Helix(id, startPoint, orientation, length, gridComponent);
-        s_helixDict.Add(id, helix);
         gridComponent.Helix = helix;
         gridComponent.Selected = true;
-        s_numHelices += 1;
+
+        if (s_visualMode)
+        {
+            s_visHelixDict.Add(id, helix);
+            s_numVisHelices += 1;
+        }
+        else
+        {
+            s_helixDict.Add(id, helix);
+            s_numHelices += 1;
+        }
+        
 
         //_helices.Add(helix);
     }

@@ -100,16 +100,18 @@ public class CopyPasteGrid : MonoBehaviour
     {
         pasting = false;
         s_copied = null;
+        s_json = null;
     }
 
     private string CopyGrid(DNAGrid grid)
     {
-        List<int> gridIds = new List<int>(grid.Id);
-        return FileExport.GetSCJSON(gridIds);
+        List<string> gridIds = new List<string> { grid.Id };
+        return FileExport.GetSCJSON(gridIds, true);
     }
 
     private void PasteGrid(string json)
     {
-        FileImport.ParseSC(json);
+        StartCoroutine(FileImport.ParseSC(json, true));
+        //FileImport.ParseSC(json, true);
     }
 }

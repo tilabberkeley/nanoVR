@@ -1,23 +1,25 @@
 ﻿/*
- * nanoVR, a VR application for DNA nanostructures.
+ * nanoVR, a VR application for building DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Collections.Generic;
 using UnityEngine;
-using OVRSimpleJSON;
+using Newtonsoft.Json.Linq;
 using SimpleFileBrowser;
 using static GlobalVariables;
 using static Utils;
-using static Highlight;
-using System.Reflection;
+using UnityEngine.XR.Interaction.Toolkit;
+using System.Collections;
 
 public class FileImport : MonoBehaviour
 {
     [SerializeField] private Canvas Menu;
     private Canvas fileBrowser;
+    private static XRRayInteractor rayInteractor;
 
     private const string PLANE = "XY";
     void Awake()
@@ -27,7 +29,7 @@ public class FileImport : MonoBehaviour
         FileBrowser.Instance.enabled = false;
 
 #if UNITY_ANDROID
-typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, (bool?)false);
+        typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, (bool?)false);
 #endif
 
         // Code to get all file access on Oculus Quest 2 
@@ -57,6 +59,7 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
     {
         fileBrowser = FileBrowser.Instance.GetComponent<Canvas>();
         fileBrowser.gameObject.SetActive(false);
+        rayInteractor = GameObject.Find("RightHand Controller").GetComponent<XRRayInteractor>();
     }
 
     public void OpenFile()
@@ -79,13 +82,14 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
         }
 
         if (File.Exists(selectedFilePath))
-        { 
+        {
             StreamReader sr = File.OpenText(selectedFilePath);
             string fileContent = sr.ReadToEnd();
             string fileType = FileBrowser.GetExtensionFromFilename(selectedFilePath, false);
             if (fileType.Equals(".sc") || fileType.Equals(".sc.txt"))
             {
-                ParseSC(@fileContent);
+                StartCoroutine(ParseSC(@fileContent, false));
+                //ParseSC(@fileContent, false);
             }
             else if (fileType.Equals(".json"))
             {
@@ -102,45 +106,80 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
         }
     }
 
-    public static void ParseSC(string fileContents)
+    // Using LINQ JSON
+    public static IEnumerator ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
     {
-        // TODO: Support grid groups (multiple grids)
         // TODO: Split these in different methods?
-        JSONNode origami = JSON.Parse(fileContents);
-        JSONArray helices = origami["helices"].AsArray;
-        JSONArray strands = origami["strands"].AsArray;
-        Dictionary<string, DNAGrid> gridNameToGrid = new Dictionary<string, DNAGrid>();
-        IDictionary<string, JSONNode> groups = origami["groups"] as IDictionary<string, JSONNode>; // TODO: Check how to parse this
-
-        foreach (var item in groups)
+        JObject origami = JObject.Parse(fileContents);
+        JArray helices = JArray.Parse(origami["helices"].ToString());
+        JArray strands = JArray.Parse(origami["strands"].ToString());
+        if (origami["groups"] != null)
         {
-            string gridName = CleanSlash(item.Key);
-            JSONNode info = item.Value;
-            float x = info["position"]["x"].AsFloat;
-            float y = info["position"]["y"].AsFloat;
-            float z = info["position"]["z"].AsFloat;
-            string gridType = CleanSlash(info["grid"].ToString());
-            DNAGrid grid = DrawGrid.CreateGrid(s_numGrids, PLANE, new Vector3(x, y, z), gridType);
-            gridNameToGrid.Add(gridName, grid);
+            JObject groupObject = JObject.Parse(origami["groups"].ToString());
+            Dictionary<string, JObject> groups = groupObject.ToObject<Dictionary<string, JObject>>();
+            foreach (var item in groups)
+            {
+                string gridName = CleanSlash(item.Key);
+                JObject info = item.Value;
+                float x = 0;
+                float y = 0;
+                float z = 0;
+                if (info["position"] != null)
+                {
+                    x = (float)info["position"]["x"];
+                    y = (float)info["position"]["y"];
+                    z = (float)info["position"]["z"];
+                }
+                string gridType = CleanSlash(info["grid"].ToString());
+
+                if (isCopyPaste) // Creates unique key for grid dictionary
+                {
+                    int numDuplicates = CountDuplicates(gridName);
+                    gridName += " (" + (numDuplicates + 1) + ")";
+                }
+                DrawGrid.CreateGrid(gridName, PLANE, rayInteractor.transform.position + new Vector3(x, y, z), gridType);
+            }
         }
+        else
+        {
+            string gridType = CleanSlash(origami["grid"].ToString());
+            DrawGrid.CreateGrid(s_numGrids.ToString(), PLANE, rayInteractor.transform.position + new Vector3(0, 0, 0), gridType);
+        }
+        yield return null;
 
         int prevNumHelices = s_numHelices;
         for (int i = 0; i < helices.Count; i++)
         {
-            JSONArray coord = helices[i]["grid_position"].AsArray;
-            int length = helices[i]["max_offset"].AsInt;
-            string gridName = CleanSlash(helices[i]["group"].ToString());
-            DNAGrid grid = gridNameToGrid[gridName];
-            int xInd = grid.GridXToIndex(coord[0].AsInt);
-            int yInd = grid.GridYToIndex(coord[1].AsInt * -1);
+            JArray coord = JArray.Parse(helices[i]["grid_position"].ToString());
+            int length = (int)helices[i]["max_offset"];
+            string gridName;
+            if (helices[i]["group"]!= null)
+            {
+                gridName = CleanSlash(helices[i]["group"].ToString());
+                if (isCopyPaste) // Finds the copied gridId key in grid dictionary
+                {
+                    int numDuplicates = CountDuplicates(gridName);
+                    gridName += " (" + numDuplicates + ")";
+                }
+            }
+            else
+            {
+                gridName = (s_numGrids - 1).ToString();
+            }
+
+            DNAGrid grid = s_gridDict[gridName];
+            int xInd = grid.GridXToIndex((int)coord[0]);
+            int yInd = grid.GridYToIndex((int)(coord[1]) * -1);
             GridComponent gc = grid.Grid2D[xInd, yInd];
             grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
             grid.CheckExpansion(gc);
         }
+        yield return null;
+
 
         for (int i = 0; i < strands.Count; i++)
         {
-            JSONArray domains = strands[i]["domains"].AsArray;
+            JArray domains = JArray.Parse(strands[i]["domains"].ToString());
             string sequence = CleanSlash(strands[i]["sequence"].ToString());
             string hexColor = CleanSlash(strands[i]["color"].ToString());
             ColorUtility.TryParseHtmlString(hexColor, out Color color);
@@ -148,7 +187,7 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
             bool isScaffold = false;
             if (strands[i]["is_scaffold"] != null)
             {
-                isScaffold = strands[i]["is_scaffold"].AsBool;
+                isScaffold = (bool) strands[i]["is_scaffold"];
             }
             List<GameObject> nucleotides = new List<GameObject>();
             List<GameObject> xoverEndpoints = new List<GameObject>();
@@ -156,24 +195,26 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
             List<(GameObject, int)> sInsertions = new List<(GameObject, int)>();
             for (int j = 0; j < domains.Count; j++)
             {
-                int helixId = domains[j]["helix"].AsInt + prevNumHelices;
-                bool forward = domains[j]["forward"].AsBool;
-                int startId = domains[j]["start"].AsInt;
-                int endId = domains[j]["end"].AsInt - 1; // End id is exclusive in .sc file
-                JSONArray deletions = domains[j]["deletions"].AsArray;
-                JSONArray insertions = domains[j]["insertions"].AsArray;
+                int helixId = (int) domains[j]["helix"] + prevNumHelices;
+                bool forward = (bool) domains[j]["forward"];
+                int startId = (int) domains[j]["start"];
+                int endId = (int) domains[j]["end"] - 1; // End id is exclusive in .sc file
+                JArray deletions = new JArray();
+                JArray insertions = new JArray();
+                if (domains[j]["deletions"] != null) { deletions = JArray.Parse(domains[j]["deletions"].ToString()); }
+                if (domains[j]["insertions"] != null) { deletions = JArray.Parse(domains[j]["insertions"].ToString()); }
                 Helix helix = s_helixDict[helixId];
 
                 // Store deletions and insertions.
                 for (int k = 0; k < deletions.Count; k++)
                 {
-                    GameObject nt = helix.GetNucleotide(deletions[k], Convert.ToInt32(forward));
+                    GameObject nt = helix.GetNucleotide((int) deletions[k], Convert.ToInt32(forward));
                     sDeletions.Add(nt);
                 }
                 for (int k = 0; k < insertions.Count; k++)
                 {
-                    GameObject nt = helix.GetNucleotide(insertions[k][0], Convert.ToInt32(forward));
-                    sInsertions.Add((nt, insertions[k][1]));
+                    GameObject nt = helix.GetNucleotide((int) insertions[k][0], Convert.ToInt32(forward));
+                    sInsertions.Add((nt, (int) insertions[k][1]));
                 }
 
                 // Store domains of strand.
@@ -198,8 +239,8 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
 
             Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
 
-            // Add deletions and insertions.
-            /*for (int j = 0; j < sDeletions.Count; j++)
+            /*// Add deletions and insertions.
+            for (int j = 0; j < sDeletions.Count; j++)
             {
                 DrawDeletion.Deletion(sDeletions[j]);
             }
@@ -215,39 +256,32 @@ typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingF
                 strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], xoverEndpoints[j]));
             }
 
-
-            // Assign DNA sequence to strand.
-            //strand.Sequence = sequence;
-            //Debug.Log("# of nucleotides: " + strand.Length);
-            //Debug.Log("sequence length: " + sequence.Length);
-            //strand.SetComponents();
-            /*int seqCount = 0;
-            for (int j = strand.Nucleotides.Count - 1; j >= 0; j--)
-            {
-                var ntc = strand.Nucleotides[j].GetComponent<NucleotideComponent>();
-                if (ntc != null)
-                {
-                    if (ntc.IsDeletion)
-                    {
-                        ntc.Sequence = "X";
-                    }
-                    else
-                    {
-                        ntc.Sequence = sequence.Substring(seqCount, ntc.Insertion + 1);
-                        seqCount += ntc.Insertion + 1;
-                    }
-                }
-            }*/
         }
+        yield return null;
     }
+
+
 
     /// <summary>
     /// Strips away slashes from scadnano files.
     /// </summary>
     /// <param name="str">String to be cleaned.</param>
     /// <returns></returns>
-    public static string CleanSlash(string str)
+    private static string CleanSlash(string str)
     {
         return str.Replace("\"", "");
+    }
+
+    private static int CountDuplicates(string gridName)
+    {
+        int count = 0;
+        foreach (string gridId in s_gridDict.Keys)
+        {
+            if (gridId.StartsWith(gridName + " ("))
+            {
+                count += 1;
+            }
+        }
+        return count;
     }
 }

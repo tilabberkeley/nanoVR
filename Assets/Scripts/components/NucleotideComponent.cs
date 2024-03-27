@@ -12,7 +12,7 @@ using static GlobalVariables;
 public class NucleotideComponent : DNAComponent
 {
     // Length of insertion. If nucleotide is not insertion, length is 0.
-    private int _insertion;
+    private int _insertion = 0;
     public int Insertion { get { return _insertion; } set { _insertion = value; } }
     public bool IsInsertion { get { return _insertion != 0; } }
 
@@ -135,5 +135,11 @@ public class NucleotideComponent : DNAComponent
         _insertion = 0;
         _deletion = false;
         _sequence = "X";
+    }
+
+    public int NumModsToLeft()
+    {
+        Helix helix = s_helixDict[_helixId];
+        return helix.NumModsToLeft(_id, _direction);
     }
 }

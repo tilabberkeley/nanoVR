@@ -18,7 +18,7 @@ public class Helix
     private int _id;
     public int Id { get { return _id; } set { _id = value; } }
 
-    public int GridId { get { return _gridComponent.GridId; } }
+    public string GridId { get { return _gridComponent.GridId; } }
 
     private Vector3 _startPoint;
     public Vector3 StartPoint { get { return _startPoint; } set { _startPoint = value; } }
@@ -309,6 +309,32 @@ public class Helix
         {
             int index = _nucleotidesA.IndexOf(go);
             return _backbonesA[index - 1];
+        }
+    }
+
+    public int NumModsToLeft(int id, int direction)
+    {
+        if (direction == 0)
+        {
+            int shiftCount = 0;
+            for (int i = 0; i < id; i++)
+            {
+                var ntc = _nucleotidesB[i].GetComponent<NucleotideComponent>();
+                shiftCount += ntc.Insertion;
+                if (ntc.IsDeletion) { shiftCount -= 1; }
+            }
+            return shiftCount;
+        }
+        else
+        {
+            int shiftCount = 0;
+            for (int i = 0; i < id; i++)
+            {
+                var ntc = _nucleotidesA[i].GetComponent<NucleotideComponent>();
+                shiftCount += ntc.Insertion;
+                if (ntc.IsDeletion) { shiftCount -= 1; }
+            }
+            return shiftCount;
         }
     }
 

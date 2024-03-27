@@ -47,7 +47,7 @@ public abstract class DNAComponent : MonoBehaviour
     protected int _strandId = -1;
     public int StrandId { get { return _strandId; } set { _strandId = value; } }
 
-    public int GridId { get { return s_helixDict[_helixId].GridId; } }
+    public string GridId { get { return s_helixDict[_helixId].GridId; } }
 
     // Direction of this DNA Component. 0 = 5' to 3' left<-right, 1 = left->right
     protected int _direction;

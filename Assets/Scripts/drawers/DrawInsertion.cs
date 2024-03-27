@@ -155,8 +155,8 @@ public class DrawInsertion : MonoBehaviour
         }
 
         // Update strand DNA sequence
-        s_strandDict.TryGetValue(ntc.StrandId, out Strand strand);
-        strand.SetSequence(strand.Sequence);
+        /*s_strandDict.TryGetValue(ntc.StrandId, out Strand strand);
+        strand.SetSequence(strand.Sequence);*/
     }
 
     /// <summary>
