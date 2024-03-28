@@ -78,6 +78,11 @@ public class DrawCrossoverSuggestion : MonoBehaviour
             {
                 if (!isPrevXoverSuggestion)
                 {
+                    // handles case where user looks at different suggestion on the very next frame, so must unhighlight old suggesiton.
+                    if (_lookingAtXover)
+                    {
+                        UnhighlightXoverSuggestion(_currentXoverSuggestion.GetComponent<XoverSuggestionComponent>());
+                    }
                     _lookingAtXover = true;
                     _currentXoverSuggestion = hitGO;
                     HighlightXoverSuggestion(xoverSuggestionComponent);
