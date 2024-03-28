@@ -96,7 +96,6 @@ public class MoveHelix : MonoBehaviour
         }
         ICommand command = new MoveHelixCommand(oldCircle, newCircle);
         CommandManager.AddCommand(command);
-        command.Do();
     }
 
     // Moves helix's nucleotide objects to a new Grid Circle's position.

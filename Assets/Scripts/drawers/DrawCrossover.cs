@@ -133,7 +133,6 @@ public class DrawCrossover : MonoBehaviour
         bool firstIsHead = first == firstStr.Head;
         ICommand command = new XoverCommand(first, second, firstIsEnd, secondIsEnd, firstIsHead);
         CommandManager.AddCommand(command);
-        command.Do();
     }
 
     /// <summary>
@@ -222,7 +221,6 @@ public class DrawCrossover : MonoBehaviour
     {
         ICommand command = new EraseXoverCommand(xover, s_numStrands, xover.GetComponent<XoverComponent>().Color);
         CommandManager.AddCommand(command);
-        command.Do();
     }
 
     public static void EraseXover(GameObject xover, int strandId, Color color, bool splitAfter)

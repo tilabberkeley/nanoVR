@@ -80,7 +80,6 @@ public class DrawSplit : MonoBehaviour
         Color color = Colors[s_numStrands % Colors.Length];
         ICommand command = new SplitCommand(go, s_numStrands, color);
         CommandManager.AddCommand(command);
-        command.Do();
     }
 
     /// <summary>

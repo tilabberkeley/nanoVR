@@ -81,7 +81,6 @@ public class DrawDeletion : MonoBehaviour
     {
         ICommand command = new DeletionCommand(go);
         CommandManager.AddCommand(command);
-        command.Do();
     }
 
     /// <summary>

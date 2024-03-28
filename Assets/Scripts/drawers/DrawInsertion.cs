@@ -126,7 +126,6 @@ public class DrawInsertion : MonoBehaviour
     {
         ICommand command = new InsertionCommand(go, length);
         CommandManager.AddCommand(command);
-        command.Do();
     }
 
     /// <summary>
@@ -192,7 +191,6 @@ public class DrawInsertion : MonoBehaviour
             int newLength = Int32.Parse(_inputField.text);
             ICommand command = new EditInsertionCommand(s_GO, newLength);
             CommandManager.AddCommand(command);
-            command.Do();
         }
     }
 

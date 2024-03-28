@@ -11,12 +11,13 @@ public static class CommandManager
     private static Stack<ICommand> s_redoStack = new Stack<ICommand>();
 
     /// <summary>
-    /// Adds a command to the undo stack. Expects that command is done after being added.
+    /// Adds a command to the undo stack and does the command.
     /// Also clears the redo stack.
     /// </summary>
     /// <param name="command">Command to be added to the undo stakc.</param>
     public static void AddCommand(ICommand command)
     {
+        command.Do();
         s_undoStack.Push(command);
         s_redoStack.Clear();
         CommandUpdate();

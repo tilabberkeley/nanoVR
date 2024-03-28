@@ -151,7 +151,6 @@ public class SelectStrand : MonoBehaviour
     {
         ICommand command = new DeleteCommand(strand.Id, strand.Nucleotides, strand.Color);
         CommandManager.AddCommand(command);
-        command.Do();
     }
 
     public static void DeleteStrand(GameObject go)

@@ -233,7 +233,6 @@ public class DrawNucleotideDynamic : MonoBehaviour
     {
         ICommand command = new CreateCommand(nucleotides, strandId);
         CommandManager.AddCommand(command);
-        command.Do();
     }
 
     /*public static void DoCreateStrand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId)
@@ -247,7 +246,6 @@ public class DrawNucleotideDynamic : MonoBehaviour
     {
         ICommand command = new EditCommand(startGO, endGO);
         CommandManager.AddCommand(command);
-        command.Do();
     }
 
     /// <summary>
@@ -296,7 +294,6 @@ public class DrawNucleotideDynamic : MonoBehaviour
         {
             ICommand command = new EraseCommand(s_startGO, s_endGO);
             CommandManager.AddCommand(command);
-            command.Do();
         }
     }
 
