@@ -609,4 +609,19 @@ public class Strand
             _bezier = null;
         }
     }
+
+    /// <summary>
+    /// Provides a different strand color than the one inputted.
+    /// </summary>
+    /// <param name="color">Color that is different than the output.</param>
+    /// <returns>Color that is different than the input.</returns>
+    public static Color GetDifferentColor(Color color)
+    {
+        Color nextColor = Colors[s_numStrands % Colors.Length];
+        if (nextColor.Equals(color))
+        {
+            return Colors[(s_numStrands + 1) % Colors.Length];
+        }
+        return nextColor;
+    }
 }

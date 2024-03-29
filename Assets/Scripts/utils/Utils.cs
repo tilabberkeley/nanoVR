@@ -9,7 +9,7 @@ using static GlobalVariables;
 /// <summary>
 /// Useful methods for multiple files.
 /// </summary>
-public class Utils : MonoBehaviour
+public static class Utils
 {
     // CONSTANTS
     public const float SCALE = 18f;
