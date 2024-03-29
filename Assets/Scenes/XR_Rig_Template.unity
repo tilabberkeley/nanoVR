@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028305, g: 0.22571313, b: 0.3069213, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -20482,7 +20482,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1555935031}
   m_HandleRect: {fileID: 1555935029}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -22354,8 +22354,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1377871040}
   m_HandleRect: {fileID: 1377871039}
   m_Direction: 2
-  m_Value: 1.0000058
-  m_Size: 0.90959096
+  m_Value: 1.0000023
+  m_Size: 0.9095908
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -23825,8 +23825,8 @@ Camera:
   m_GameObject: {fileID: 1456715984}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.5849056, g: 0.5849056, b: 0.5849056, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.7830189, g: 0.7571645, b: 0.7571645, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -29501,7 +29501,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1697840658}
   m_HandleRect: {fileID: 1697840657}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
