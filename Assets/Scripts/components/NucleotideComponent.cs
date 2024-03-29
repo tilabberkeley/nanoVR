@@ -39,16 +39,16 @@ public class NucleotideComponent : DNAComponent
     public GameObject Xover { get { return _xover;} set { _xover = value; } }
     public bool HasXover { get { return _xover != null; } }
 
-    // List of crossover suggestions connected to this nucleotide.
-    private List<XoverSuggestionComponent> _xoverSuggestionComponents;
-    public List<XoverSuggestionComponent> XoverSuggestionComponents { get { return _xoverSuggestionComponents; } }
+    // Set of crossover suggestions connected to this nucleotide.
+    private HashSet<XoverSuggestionComponent> _xoverSuggestionComponents;
+    public HashSet<XoverSuggestionComponent> XoverSuggestionComponents { get { return _xoverSuggestionComponents; } }
 
     // Start is called before the first frame update
     protected override void Awake()
     {
         base.Awake();
         _isBackbone = false;
-        _xoverSuggestionComponents = new List<XoverSuggestionComponent>();
+        _xoverSuggestionComponents = new HashSet<XoverSuggestionComponent>();
     }
 
     /// <summary>

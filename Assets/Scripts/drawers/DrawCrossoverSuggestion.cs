@@ -158,12 +158,9 @@ public class DrawCrossoverSuggestion : MonoBehaviour
                         NucleotideComponent nucleotide1j = nucleotides1[j + 1];
 
                         // (0, 0), (1, 1) pair
-                        float matchPairDistance = ((nucleotide0i.transform.position - nucleotide0j.transform.position).magnitude + (nucleotide1i.transform.position - nucleotide1j.transform.position).magnitude) / 2.0f;
+                        // float matchPairDistance = ((nucleotide0i.transform.position - nucleotide0j.transform.position).magnitude + (nucleotide1i.transform.position - nucleotide1j.transform.position).magnitude) / 2.0f;
                         // (0, 1), (1, 0) pair
                         float disJointPairDistance = ((nucleotide0i.transform.position - nucleotide1j.transform.position).magnitude + (nucleotide1i.transform.position - nucleotide0j.transform.position).magnitude) / 2.0f;
-
-                        //Debug.Log("Match pair distance: " + matchPairDistance);
-                        //Debug.Log("Disjoint pair distance: " + disJointPairDistance);
 
                         if (disJointPairDistance > SUGGESTION_LENGTH)
                         {
@@ -171,35 +168,46 @@ public class DrawCrossoverSuggestion : MonoBehaviour
                         }
                         else if (IsValid(nucleotide0i, nucleotide1j) && IsValid(nucleotide1i, nucleotide0j))
                         {
-                            DrawPoint.MakeXoverSuggestion(nucleotide0i.gameObject, nucleotide1j.gameObject);
-                            DrawPoint.MakeXoverSuggestion(nucleotide1i.gameObject, nucleotide0j.gameObject);
+                            
+                            // Create crossover suggesitons
+                            if (!XoverSuggestionComponent.NucleotidesShareSuggestion(nucleotide0i, nucleotide1j))
+                            {
+                                XoverSuggestionComponent suggestion0 = DrawPoint.MakeXoverSuggestion(nucleotide0i.gameObject, nucleotide1j.gameObject).GetComponent<XoverSuggestionComponent>();
+                                suggestion0.SplitLeft = true;
+                            }
+                            if (!XoverSuggestionComponent.NucleotidesShareSuggestion(nucleotide1i, nucleotide0j))
+                            {
+                                XoverSuggestionComponent suggestion1 = DrawPoint.MakeXoverSuggestion(nucleotide1i.gameObject, nucleotide0j.gameObject).GetComponent<XoverSuggestionComponent>();
+                                suggestion1.SplitLeft = false;
+                            }
                         }
-                        /* if (matchPairDistance <= disJointPairDistance
-                            && IsValid(nucleotide0i, nucleotide0j)
-                            && IsValid(nucleotide1i, nucleotide1j))
-                        {
-                            DrawPoint.MakeXoverSuggestion(nucleotide0i.gameObject, nucleotide0j.gameObject);
-                            DrawPoint.MakeXoverSuggestion(nucleotide1i.gameObject, nucleotide1j.gameObject);
-                        }
-                        else if (matchPairDistance > disJointPairDistance
-                            && IsValid(nucleotide0i, nucleotide1j)
-                            && IsValid(nucleotide1i, nucleotide0j))
-                        {
-                            DrawPoint.MakeXoverSuggestion(nucleotide0i.gameObject, nucleotide1j.gameObject);
-                            DrawPoint.MakeXoverSuggestion(nucleotide1i.gameObject, nucleotide0j.gameObject);
-                        } */
                     }
                 }
             }
         }
     }
 
+    /// <summary>
+    /// Removes all crossover suggestions that are invalid in the scene.
+    /// </summary>
     public static void ClearCrossoverSuggestions()
     {
+        HashSet<XoverSuggestionComponent> validXovers = new HashSet<XoverSuggestionComponent>();
         foreach (XoverSuggestionComponent xoverSuggestion in s_xoverSuggestions)
         {
-            Destroy(xoverSuggestion.gameObject);
+            if (!xoverSuggestion.IsValid())
+            {
+                xoverSuggestion.NucleotideComponent0.XoverSuggestionComponents.Remove(xoverSuggestion);
+                xoverSuggestion.NucleotideComponent1.XoverSuggestionComponents.Remove(xoverSuggestion);
+                Destroy(xoverSuggestion.gameObject);
+            }
+            else
+            {
+                validXovers.Add(xoverSuggestion);
+            }
         }
         s_xoverSuggestions.Clear();
+        // Add valid xovers back
+        s_xoverSuggestions.UnionWith(validXovers);
     }
 }

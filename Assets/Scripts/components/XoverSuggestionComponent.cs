@@ -39,6 +39,10 @@ public class XoverSuggestionComponent : MonoBehaviour
         }
     }
 
+    // Boolean to keep track of how to split strand on crossover creation
+    private bool _splitLeft;
+    public bool SplitLeft { get { return _splitLeft; } set { _splitLeft = value; } }
+
     // Outline component
     private Outline _outline;
 
@@ -50,13 +54,52 @@ public class XoverSuggestionComponent : MonoBehaviour
     }
 
     /// <summary>
+    /// Returns whether this crossover suggestion is valid, which is defined by
+    /// whether on crossover suggestion could be currently drawn between this crossover suggestion's
+    /// nucleotides (validity may change on some operations).
+    /// </summary>
+    /// <returns>True if valid. False otherwise.</returns>
+    public bool IsValid()
+    {
+        return DrawCrossoverSuggestion.IsValid(_nucleotideComponent0, _nucleotideComponent1);
+    }
+
+    /// <summary>
+    /// Returns whether the given nucleotides have a crossover suggestion between them.
+    /// </summary>
+    /// <param name="nucleotideComponent0">First nucleotide.</param>
+    /// <param name="nucleotideComponent1">Second nucleotide.</param>
+    /// <returns>True if there is a suggestion between the given nucleotides. False otherwise.</returns>
+    public static bool NucleotidesShareSuggestion(NucleotideComponent nucleotideComponent0, NucleotideComponent nucleotideComponent1)
+    {
+        foreach (XoverSuggestionComponent xoverSuggestionComponent in nucleotideComponent0.XoverSuggestionComponents)
+        {
+            if (nucleotideComponent1.XoverSuggestionComponents.Contains(xoverSuggestionComponent))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
     /// Creates crossover in place of this crossover suggestion, destroying this crossover suggestion.
     /// </summary>
     public void CreateXover()
     {
-        DrawCrossover.CreateXover(_nucleotideComponent1.gameObject, _nucleotideComponent0.gameObject);
-        // Remove all the crossover suggestions on both nucleotides.
+        if (!_splitLeft)
+        {
+            DrawCrossover.DoCreateXover(_nucleotideComponent0.gameObject, _nucleotideComponent1.gameObject);
+        }
+        else
+        {
+            DrawCrossover.DoCreateXover(_nucleotideComponent1.gameObject, _nucleotideComponent0.gameObject);
+        }
+
         _nucleotideComponent0.RemoveXoverSuggestions();
         _nucleotideComponent1.RemoveXoverSuggestions();
+
+        s_xoverSuggestions.Remove(this);
+        Destroy(gameObject);
     }
 }

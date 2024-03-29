@@ -137,7 +137,8 @@ public class DrawCrossover : MonoBehaviour
 
     /// <summary>
     /// Returns whether there can be a crossover between the two inputted nucleotides.
-    /// The nucleotides must be going in different directions.
+    /// The nucleotides must be going in different directions and be apart of a strand.
+    /// TODO: Nucleotides must also not have a crossover on them already.
     /// </summary>
     /// <param name="startGO">First nucleotide game object.</param>
     /// <param name="endGO">Second nucleotide game object.</param>
