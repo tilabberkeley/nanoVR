@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
 using static Utils;
 using static DrawCrossover;
+using TMPro;
+using System;
 
 public class DrawLoopout : MonoBehaviour
 {
@@ -13,9 +16,15 @@ public class DrawLoopout : MonoBehaviour
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rightRayInteractor;
+    [SerializeField] private Canvas _menu;
+    [SerializeField] private Canvas _editPanel;
+    [SerializeField] private TMP_InputField _inputField;
+    [SerializeField] private Button _OKButton;
+    [SerializeField] private Button _cancelButton;
     private bool triggerReleased = true;
     private static GameObject s_startGO = null;
     private static GameObject s_endGO = null;
+    private static bool s_menuEnabled;
     private static RaycastHit s_hit;
 
     private void GetDevice()
@@ -33,6 +42,15 @@ public class DrawLoopout : MonoBehaviour
         {
             GetDevice();
         }
+    }
+
+    private void Start()
+    {
+        _editPanel.enabled = false;
+        _OKButton.onClick.AddListener(() => HideEditPanel());
+        _OKButton.onClick.AddListener(() => CreateLoopout(s_startGO, s_endGO));
+        _cancelButton.onClick.AddListener(() => HideEditPanel());
+        _inputField.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
     }
 
     private void Update()
@@ -67,8 +85,7 @@ public class DrawLoopout : MonoBehaviour
                     s_endGO = s_hit.collider.gameObject;
                     //Unhighlight(s_startGO);
 
-                    CreateLoopout(s_startGO, s_endGO);
-                    ResetNucleotides();
+                    ShowEditPanel();
                 }
             }
             else if (s_hit.collider.GetComponent<LoopoutComponent>() != null && s_eraseTogOn)
@@ -109,6 +126,29 @@ public class DrawLoopout : MonoBehaviour
         s_endGO = null;
     }
 
+    /// <summary>
+    /// Returns whether loopout length is valid.
+    /// </summary>
+    /// <returns></returns>
+    private bool ValidLoopout()
+    {
+        try
+        {
+            int newLength = int.Parse(_inputField.text);
+            if (newLength <= 0)
+            {
+                Debug.Log("Loopout length must be positive.");
+                return false;
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.Log(e.Message);
+            return false;
+        }
+        return true;
+    }
+
     public static void DoCreateLoopout(GameObject first, GameObject second)
     {
         // TODO: Add command
@@ -130,7 +170,7 @@ public class DrawLoopout : MonoBehaviour
     /// <summary>
     /// Splits strands, creates crossover, and merges strands.
     /// </summary>
-    public static GameObject CreateLoopout(GameObject firstGO, GameObject secondGO)
+    public GameObject CreateLoopout(GameObject firstGO, GameObject secondGO)
     {
         if (!IsValid(firstGO, secondGO))
         {
@@ -143,19 +183,23 @@ public class DrawLoopout : MonoBehaviour
         DrawSplit.SplitStrand(firstGO, s_numStrands, Strand.GetDifferentColor(firstNtc.Color), false);
         DrawSplit.SplitStrand(secondGO, s_numStrands, Strand.GetDifferentColor(secondNtc.Color), true);
 
-        GameObject loopout = CreateLoopoutHelper(firstGO, secondGO);
+        int length = int.Parse(_inputField.text);
+        GameObject loopout = CreateLoopoutHelper(firstGO, secondGO, length);
         MergeStrand(firstGO, secondGO, loopout);
+
+        ResetNucleotides();
+
         return loopout;
     }
 
-    public static GameObject CreateLoopoutHelper(GameObject startGO, GameObject endGO)
+    public static GameObject CreateLoopoutHelper(GameObject startGO, GameObject endGO, int length)
     {
         int strandId = startGO.GetComponent<NucleotideComponent>().StrandId;
         NucleotideComponent startNucleotide = startGO.GetComponent<NucleotideComponent>();
         NucleotideComponent endNucleotide = endGO.GetComponent<NucleotideComponent>();
 
         // Create crossover.
-        LoopoutComponent loopout = DrawPoint.MakeLoopout(0, startNucleotide, endNucleotide, strandId);
+        LoopoutComponent loopout = DrawPoint.MakeLoopout(length, startNucleotide, endNucleotide, strandId);
         return loopout.gameObject;
     }
 
@@ -208,5 +252,48 @@ public class DrawLoopout : MonoBehaviour
             }*/
             CreateStrand(strand.SplitBefore(go), id, color);
         }
+    }
+
+    // TODO: Edit stuff
+
+    /// <summary>
+    /// Edits insertion length to something other than default of 1.
+    /// </summary>
+    private void DoEditLoopout()
+    {
+        //if (ValidLoopout())
+        //{
+        //    int newLength = Int32.Parse(_inputField.text);
+        //    ICommand command = new EditInsertionCommand(s_GO, newLength);
+        //    CommandManager.AddCommand(command);
+        //}
+    }
+
+    /// <summary>
+    /// Actual method that edits insertion.
+    /// </summary>
+    /// <param name="go">Gameobject that is being edited.</param>
+    /// <param name="length">New length of insertion.</param>
+    public static void EditLoopout(GameObject go, int length)
+    {
+        //var ntc = go.GetComponent<NucleotideComponent>();
+        //if (ntc.IsInsertion)
+        //{
+        //    ntc.Insertion = length;
+        //}
+        //Debug.Log(ntc.Insertion);
+    }
+
+    private void ShowEditPanel()
+    {
+        s_menuEnabled = _menu.enabled;
+        _menu.enabled = false;
+        _editPanel.enabled = true;
+    }
+
+    private void HideEditPanel()
+    {
+        _menu.enabled = s_menuEnabled;
+        _editPanel.enabled = false;
     }
 }

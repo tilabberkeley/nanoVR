@@ -222,6 +222,7 @@ public static class DrawPoint
         tubeRend.radius = TUBE_SIZE;
         meshRend.material.SetColor("_Color", color);
 
+        // TODO: figure out how to make this smoother. Increase resolution? 
         SplineMaker splineMaker = tube.AddComponent<SplineMaker>();
         splineMaker.onUpdated.AddListener((points) => tubeRend.points = points); // updates tube renderer points when anchorPoints is changed.
         splineMaker.pointsPerSegment = SPLINE_RESOLUTION;
