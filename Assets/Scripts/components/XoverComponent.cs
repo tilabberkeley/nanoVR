@@ -29,8 +29,8 @@ public class XoverComponent : MonoBehaviour
     private GameObject _nextGO = null;
     public GameObject NextGO { get { return _nextGO; } set { _nextGO = value; } }
 
-    private Color _color = s_defaultColor;
-    public Color Color
+    protected Color _color = s_defaultColor;
+    public virtual Color Color
     {
         get
         {

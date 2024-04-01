@@ -18,6 +18,7 @@ public static class GlobalVariables
     public static bool s_mergeTogOn = false;
     public static bool s_insTogOn = false;
     public static bool s_delTogOn = false;
+    public static bool s_loopoutOn = false;
 
     // adjust/add varibles when add helix view.
     public static bool s_nucleotideView = true;

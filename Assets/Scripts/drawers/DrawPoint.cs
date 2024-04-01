@@ -13,6 +13,12 @@ using static GlobalVariables;
 /// </summary>
 public static class DrawPoint
 {
+    private const int SPLINE_RESOLUTION = 16;
+    private const float TUBE_SIZE = 0.01f;
+    private const float LOOPOUT_SIZE = 0.005f;
+    // Ratio determines how much loopout "bends." Higher ratio, more bending.
+    private const float LOOPOUT_BEND_RATIO = 0.15f;
+
     /// <summary>
     /// Creates nucleotide at given position.
     /// </summary>
@@ -213,15 +219,69 @@ public static class DrawPoint
         GameObject tube = new GameObject("tube");
         var tubeRend = tube.AddComponent<TubeRenderer>();
         var meshRend = tube.GetComponent<MeshRenderer>();
-        tubeRend.radius = 0.01f;
-        tubeRend.points = new Vector3[nucleotides.Count];
+        tubeRend.radius = TUBE_SIZE;
         meshRend.material.SetColor("_Color", color);
+
+        SplineMaker splineMaker = tube.AddComponent<SplineMaker>();
+        splineMaker.onUpdated.AddListener((points) => tubeRend.points = points); // updates tube renderer points when anchorPoints is changed.
+        splineMaker.pointsPerSegment = SPLINE_RESOLUTION;
+        Vector3[] anchorPoints = new Vector3[nucleotides.Count];
+
         for (int i = 0; i < nucleotides.Count; i += 1)
         {
-            tubeRend.points[i] = nucleotides[i].transform.position;
+            anchorPoints[i] = nucleotides[i].transform.position;
         }
+
+        splineMaker.anchorPoints = anchorPoints;
         
         return tube;
+    }
+
+    /// <summary>
+    /// Creates a loopout between the given two nucleotides.
+    /// </summary>
+    /// <param name="length">Sequence length of the loopout.</param>
+    /// <param name="nucleotide0">Nucleotide that loopout begins on.</param>
+    /// <param name="nucleotide1">Nucleotide that loopout ends on.</param>
+    /// <param name="color">Color of the loopout.</param>
+    /// <returns>Loopout component of the created loopout in scene.</returns>
+    public static LoopoutComponent MakeLoopout(int length, NucleotideComponent nucleotide0, NucleotideComponent nucleotide1, int strandId)
+    {
+        GameObject loopout = new GameObject("loopout");
+
+        TubeRenderer tubeRenderer = loopout.AddComponent<TubeRenderer>();
+        tubeRenderer.radius = LOOPOUT_SIZE;
+
+        SplineMaker splineMaker = loopout.AddComponent<SplineMaker>();
+        splineMaker.onUpdated.AddListener((points) => tubeRenderer.points = points); // updates tube renderer points when anchorPoints is changed.
+        splineMaker.pointsPerSegment = SPLINE_RESOLUTION;
+        Vector3[] anchorPoints = new Vector3[3];
+        
+        anchorPoints[0] = nucleotide0.transform.position;
+        // Calculate middle point that determines bend
+        float distance = (nucleotide0.transform.position - nucleotide1.transform.position).magnitude;
+        Vector3 midpoint = (nucleotide0.transform.position + nucleotide1.transform.position) / 2;
+        Vector3 midpointToNucleotide1 = nucleotide1.transform.position - midpoint;
+        float a = midpointToNucleotide1.x;
+        float b = midpointToNucleotide1.y;
+        float c = midpointToNucleotide1.z;
+        Vector3 orthogonalVector = new Vector3(b + c, c - a, -a - b).normalized;
+        Vector3 bendPoint = midpoint + orthogonalVector * distance * LOOPOUT_BEND_RATIO;
+        anchorPoints[1] = bendPoint;
+        anchorPoints[2] = nucleotide1.transform.position;
+
+        splineMaker.anchorPoints = anchorPoints;
+
+        MeshRenderer meshRenderer = loopout.GetComponent<MeshRenderer>();
+        meshRenderer.material.SetColor("_Color", nucleotide0.Color);
+
+        LoopoutComponent loopoutComponent = loopout.AddComponent<LoopoutComponent>();
+        loopoutComponent.Length = length;
+        loopoutComponent.PrevGO = nucleotide0.gameObject;
+        loopoutComponent.NextGO = nucleotide1.gameObject;
+        loopoutComponent.StrandId = strandId;
+
+        return loopoutComponent;
     }
 }
 
