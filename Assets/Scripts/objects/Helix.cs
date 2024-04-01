@@ -541,6 +541,7 @@ public class Helix
         }
     }
 
+
     public void SetParent(GameObject go)
     {
         foreach (GameObject nucleotide in NucleotidesA)

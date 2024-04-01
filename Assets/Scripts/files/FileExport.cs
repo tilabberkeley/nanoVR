@@ -119,10 +119,13 @@ public class FileExport : MonoBehaviour
                 position["y"] = grid.StartPos.y;
                 position["z"] = grid.StartPos.z;
             }
-            
+
             JObject group = new JObject
             {
                 ["position"] = position,
+                ["pitch"] = grid.Grid2D[0, 0].transform.eulerAngles.x,
+                ["roll"] = grid.Grid2D[0, 0].transform.eulerAngles.z,
+                ["yaw"] = grid.Grid2D[0, 0].transform.eulerAngles.y,
                 ["grid"] = grid.Type,
             };
             groups[gridId] = group;

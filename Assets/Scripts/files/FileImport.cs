@@ -128,12 +128,29 @@ public class FileImport : MonoBehaviour
                 float z = 0;
                 if (info["position"] != null)
                 {
-                    x = (float)info["position"]["x"];
-                    y = (float)info["position"]["y"];
-                    z = (float)info["position"]["z"];
+                    x = (float) info["position"]["x"];
+                    y = (float) info["position"]["y"];
+                    z = (float) info["position"]["z"];
                 }
                 string gridType = CleanSlash(info["grid"].ToString());
-                DrawGrid.CreateGrid(gridName, PLANE, rayInteractor.transform.position + new Vector3(x, y, z), gridType);
+                DNAGrid grid = DrawGrid.CreateGrid(gridName, PLANE, rayInteractor.transform.position + new Vector3(x, y, z), gridType);
+
+                float pitch = 0f;
+                float roll = 0f;
+                float yaw = 0f;
+                if (info["pitch"] != null)
+                {
+                    yaw = (float) info["pitch"];
+                }
+                if (info["roll"] != null)
+                {
+                    roll = (float)info["roll"];
+                }
+                if (info["yaw"] != null)
+                {
+                    pitch = (float)info["yaw"];
+                }
+                grid.Rotate(pitch, roll, yaw);
             }
         }
         else

@@ -148,9 +148,6 @@ public class Strand
         return _nucleotides.IndexOf(go);
     }
 
-    // Returns number of nucleotides in strand, not including backbones.
-    //public int Count { get { return _nucleotides.Count / 2 + 1; } }
-
     // Shows or hides cone based on input parameter.
     public void ShowHideCone(bool enabled)
     {
@@ -191,6 +188,8 @@ public class Strand
     {
         _nucleotides.Insert(0, newNucl);
         _head = _nucleotides[0];
+        SetCone();
+        UpdateXovers();
         //_cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
     }
 
@@ -199,9 +198,8 @@ public class Strand
     {
         _nucleotides.InsertRange(0, newNucls);
         _head = _nucleotides[0];
-        _cone.transform.position = _head.transform.position;
+        //_cone.transform.position = _head.transform.position;
         SetCone();
-
         UpdateXovers();
         //CheckForXoverSuggestions();
     }

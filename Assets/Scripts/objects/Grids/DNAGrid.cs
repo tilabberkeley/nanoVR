@@ -27,7 +27,7 @@ public abstract class DNAGrid
 
     protected Vector3 _startPos;
     public Vector3 StartPos 
-    { get { return _startPos; } 
+    { get { return _grid2D[0, 0].transform.position; } 
         set 
         {
             Debug.Log("Setting grid start pos to " + value.ToString());
@@ -71,9 +71,9 @@ public abstract class DNAGrid
         _id = id;
         _plane = plane;
         _startPos = startPos;
-        _positions = new List<Vector3>();
-        _lines = new List<Line>();
-        _helices = new List<Helix>();
+        //_positions = new List<Vector3>();
+        //_lines = new List<Line>();
+        //_helices = new List<Helix>();
         _size = 0;
         SetBounds();
         // 2D array with _length rows and _width columns
@@ -419,18 +419,36 @@ public abstract class DNAGrid
         }
     }
 
-    /// <summary>
-    /// Changes rendering of the lines and helixes in grid.
-    /// 
-    /// Note: Only method that changes value of s_nucleotideView.
-    /// </summary>
-    public void ChangeRendering()
+    public void Rotate(float pitch, float roll, float yaw)
     {
-        s_nucleotideView = !s_nucleotideView;
-        for (int i = 0; i < _lines.Count; i++)
+        // Attach parent transforms
+        GameObject gridStart = Grid2D[0, 0].gameObject;
+        for (int i = 0; i < Length; i++)
         {
-            _lines[i].ChangeRendering();
-            _helices[i].ChangeRendering();
+            for (int j = 0; j < Width; j++)
+            {
+                Grid2D[i, j].gameObject.transform.parent = gridStart.transform;
+                if (Grid2D[i, j].Helix != null)
+                {
+                    Grid2D[i, j].Helix.SetParent(gridStart);
+                }
+            }
+        }
+
+        // Rotate grid
+        gridStart.transform.Rotate(new Vector3(pitch, yaw, roll));
+
+        // Detach parent transforms
+        for (int i = 0; i < Length; i++)
+        {
+            for (int j = 0; j < Width; j++)
+            {
+                Grid2D[i, j].gameObject.transform.parent = null;
+                if (Grid2D[i, j].Helix != null)
+                {
+                    Grid2D[i, j].Helix.ResetParent();
+                }
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * nanoVR, a VR application for DNA nanostructures.
+ * nanoVR, a VR application for building DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using RTG;
@@ -74,8 +74,8 @@ public class TransformHandle : MonoBehaviour
             {
                 Debug.Log("Hitting GridComponent");
                 s_GO = s_hit.collider.gameObject;
-                AttachChildren(s_GO);
-                CreateTransform(s_GO);
+                ShowTransform();
+                AttachChildren();
             }
         }
 
@@ -85,8 +85,8 @@ public class TransformHandle : MonoBehaviour
         {
             leftGripReleased = false;
             rightGripReleased = false;
-            DetachChildren(s_GO);
-            HideTransform(s_GO);
+            DetachChildren();
+            HideTransform();
         }
 
         if (!leftGripValue)
@@ -100,14 +100,16 @@ public class TransformHandle : MonoBehaviour
         }
     }
 
-    private void CreateTransform(GameObject go)
+    /// <summary>
+    /// Shows transform gizmo at the lower left corner of selected grid.
+    /// </summary>
+    private void ShowTransform()
     {
         Debug.Log("Creating Transform");
         gizmos.SetActive(true);
-        GridComponent gc = go.GetComponent<GridComponent>();
+        GridComponent gc = s_GO.GetComponent<GridComponent>();
         GameObject bottomLeftCorner = gc.Grid.Grid2D[0, 0].gameObject;
-        gizmos.transform.SetPositionAndRotation(bottomLeftCorner.transform.position + 0.5f * Vector3.back, bottomLeftCorner.transform.rotation);
-        //go.transform.parent = gizmos.transform;
+        gizmos.transform.SetPositionAndRotation(bottomLeftCorner.transform.position + 0.2f * Vector3.back, bottomLeftCorner.transform.rotation);
         Debug.Log("Finished creating Transform");
 
         /*ObjectTransformGizmo objectMoveGizmo = RTGizmosEngine.Get.CreateObjectMoveGizmo();
@@ -116,13 +118,15 @@ public class TransformHandle : MonoBehaviour
         objectMoveGizmo.SetTargetPivotObject(go); // CHECK THIS WORKS?*/
     }
 
-    private void HideTransform(GameObject go)
+    /// <summary>
+    /// Hides transform gizmo.
+    /// </summary>
+    private void HideTransform()
     {
         gizmos.SetActive(false);
-        go.transform.parent = null;
     }
 
-    private List<GameObject> GetTargets(GameObject go)
+    /*private List<GameObject> GetTargets(GameObject go)
     {
         List<GameObject> targets = new List<GameObject>();
         targets.Add(go);
@@ -149,27 +153,28 @@ public class TransformHandle : MonoBehaviour
         }
         return targets;
         //Debug.Log("Finished attaching children");
-    }
+    }*/
 
-    private void AttachChildren(GameObject go)
+
+    private void AttachChildren()
     {
-        DNAGrid grid = go.GetComponent<GridComponent>().Grid;
+        DNAGrid grid = s_GO.GetComponent<GridComponent>().Grid;
         for (int i = 0; i < grid.Length; i++)
         {
             for (int j = 0; j < grid.Width; j++)
             {
-                grid.Grid2D[i, j].gameObject.transform.parent = go.transform;
+                grid.Grid2D[i, j].gameObject.transform.parent = gizmos.transform;
                 if (grid.Grid2D[i, j].Helix != null)
                 {
-                    grid.Grid2D[i, j].Helix.SetParent(go);
+                    grid.Grid2D[i, j].Helix.SetParent(gizmos);
                 }
             }
         }
     }
 
-    private void DetachChildren(GameObject go)
+    private void DetachChildren()
     {
-        DNAGrid grid = go.GetComponent<GridComponent>().Grid;
+        DNAGrid grid = s_GO.GetComponent<GridComponent>().Grid;
         for (int i = 0; i < grid.Length; i++)
         {
             for (int j = 0; j < grid.Width; j++)
