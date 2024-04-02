@@ -48,7 +48,7 @@ public class DrawLoopout : MonoBehaviour
     {
         _editPanel.enabled = false;
         _OKButton.onClick.AddListener(() => HideEditPanel());
-        _OKButton.onClick.AddListener(() => CreateLoopout(s_startGO, s_endGO));
+        _OKButton.onClick.AddListener(() => DoCreateLoopout());
         _cancelButton.onClick.AddListener(() => HideEditPanel());
         _inputField.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
     }
@@ -149,22 +149,24 @@ public class DrawLoopout : MonoBehaviour
         return true;
     }
 
-    public static void DoCreateLoopout(GameObject first, GameObject second)
+    public void DoCreateLoopout()
     {
+        Debug.Log("Doing loopout");
+        CreateLoopout(s_startGO, s_endGO);
         // TODO: Add command
-        if (!IsValid(first, second))
-        {
-            return;
-        }
-        Strand firstStr = s_strandDict[first.GetComponent<NucleotideComponent>().StrandId];
-        Strand secondStr = s_strandDict[second.GetComponent<NucleotideComponent>().StrandId];
+        //if (!IsValid(first, second))
+        //{
+        //    return;
+        //}
+        //Strand firstStr = s_strandDict[first.GetComponent<NucleotideComponent>().StrandId];
+        //Strand secondStr = s_strandDict[second.GetComponent<NucleotideComponent>().StrandId];
 
-        // Bools help check if strands should merge with neighbors when xover is deleted or undo.
-        bool firstIsEnd = first == firstStr.Head || first == firstStr.Tail;
-        bool secondIsEnd = second == secondStr.Head || second == secondStr.Tail;
-        bool firstIsHead = first == firstStr.Head;
-        ICommand command = new XoverCommand(first, second, firstIsEnd, secondIsEnd, firstIsHead);
-        CommandManager.AddCommand(command);
+        //// Bools help check if strands should merge with neighbors when xover is deleted or undo.
+        //bool firstIsEnd = first == firstStr.Head || first == firstStr.Tail;
+        //bool secondIsEnd = second == secondStr.Head || second == secondStr.Tail;
+        //bool firstIsHead = first == firstStr.Head;
+        //ICommand command = new XoverCommand(first, second, firstIsEnd, secondIsEnd, firstIsHead);
+        //CommandManager.AddCommand(command);
     }
 
     /// <summary>
@@ -174,11 +176,16 @@ public class DrawLoopout : MonoBehaviour
     {
         if (!IsValid(firstGO, secondGO))
         {
+            Debug.Log("Invalid");
             return null;
         }
 
+        Debug.Log("Valid");
+
         var firstNtc = firstGO.GetComponent<NucleotideComponent>();
         var secondNtc = secondGO.GetComponent<NucleotideComponent>();
+
+        Debug.Log("Splitting");
 
         DrawSplit.SplitStrand(firstGO, s_numStrands, Strand.GetDifferentColor(firstNtc.Color), false);
         DrawSplit.SplitStrand(secondGO, s_numStrands, Strand.GetDifferentColor(secondNtc.Color), true);
@@ -194,6 +201,9 @@ public class DrawLoopout : MonoBehaviour
 
     public static GameObject CreateLoopoutHelper(GameObject startGO, GameObject endGO, int length)
     {
+        Debug.Log("Creating Loopout");
+        Debug.Log("Nuc 0 id:" + startGO.GetComponent<NucleotideComponent>().Id);
+        Debug.Log("Nuc 1 id:" + startGO.GetComponent<NucleotideComponent>().Id);
         int strandId = startGO.GetComponent<NucleotideComponent>().StrandId;
         NucleotideComponent startNucleotide = startGO.GetComponent<NucleotideComponent>();
         NucleotideComponent endNucleotide = endGO.GetComponent<NucleotideComponent>();
@@ -286,6 +296,7 @@ public class DrawLoopout : MonoBehaviour
 
     private void ShowEditPanel()
     {
+        Debug.Log("Openging edit menu");
         s_menuEnabled = _menu.enabled;
         _menu.enabled = false;
         _editPanel.enabled = true;
