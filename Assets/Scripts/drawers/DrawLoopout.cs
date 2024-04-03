@@ -129,9 +129,11 @@ public class DrawLoopout : MonoBehaviour
                 && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             gripReleased = false;
-            if (s_hit.collider.gameObject.GetComponent<LoopoutComponent>() != null)
+            LoopoutInteractableComponent loopoutInteractableComponent = s_hit.collider.gameObject.GetComponent<LoopoutInteractableComponent>();
+            Debug.Log(loopoutInteractableComponent != null);
+            if (loopoutInteractableComponent != null)
             {
-                s_loopout = s_hit.collider.gameObject;
+                s_loopout = loopoutInteractableComponent.Loopout.gameObject;
                 ShowEditPanel();
             }
         }
