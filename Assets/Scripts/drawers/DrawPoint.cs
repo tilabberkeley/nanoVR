@@ -250,6 +250,13 @@ public static class DrawPoint
     {
         GameObject loopout = new GameObject("loopout");
 
+        // Add mesh collider, rigidbody, xr simple interactable to interact with rays.
+        MeshCollider meshCollider = loopout.AddComponent<MeshCollider>();
+        meshCollider.convex = true;
+        MeshFilter meshFilter = loopout.AddComponent<MeshFilter>();
+        Rigidbody rigidbody = loopout.AddComponent<Rigidbody>();
+        rigidbody.useGravity = false;
+
         TubeRenderer tubeRenderer = loopout.AddComponent<TubeRenderer>();
         tubeRenderer.radius = LOOPOUT_SIZE;
 
@@ -273,14 +280,19 @@ public static class DrawPoint
 
         splineMaker.anchorPoints = anchorPoints;
 
+        meshFilter.mesh = tubeRenderer.mesh;
+        meshCollider.sharedMesh = tubeRenderer.mesh;
+
         MeshRenderer meshRenderer = loopout.GetComponent<MeshRenderer>();
         meshRenderer.material.SetColor("_Color", nucleotide0.Color);
 
         LoopoutComponent loopoutComponent = loopout.AddComponent<LoopoutComponent>();
-        loopoutComponent.Length = length;
+        loopoutComponent.SequenceLength = length;
         loopoutComponent.PrevGO = nucleotide0.gameObject;
         loopoutComponent.NextGO = nucleotide1.gameObject;
         loopoutComponent.StrandId = strandId;
+
+        XRSimpleInteractable xRSimpleInteractable = loopout.AddComponent<XRSimpleInteractable>();
 
         return loopoutComponent;
     }
