@@ -12,6 +12,10 @@ using UnityEngine.UIElements;
 /// </summary>
 public class LoopoutComponent : XoverComponent
 {
+    // Sequence length of this loopout.
+    private int _sequenceLength;
+    public int SequenceLength { get { return _sequenceLength; } set { _sequenceLength = value; } }
+
     // Sequence of this loopout.
     private string _sequence;
     public string Sequence { get { return _sequence; } set { _sequence = value; } }

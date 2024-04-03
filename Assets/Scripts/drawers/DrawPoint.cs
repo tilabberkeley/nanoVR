@@ -248,16 +248,12 @@ public static class DrawPoint
     /// <returns>Loopout component of the created loopout in scene.</returns>
     public static LoopoutComponent MakeLoopout(int length, NucleotideComponent nucleotide0, NucleotideComponent nucleotide1, int strandId)
     {
-        GameObject loopout = new GameObject("loopout");
+        GameObject loopout =
+                 Instantiate(Resources.Load("Loopout"),
+                 Vector3.zero,
+                 Quaternion.identity) as GameObject;
 
-        // Add mesh collider, rigidbody, xr simple interactable to interact with rays.
-        MeshCollider meshCollider = loopout.AddComponent<MeshCollider>();
-        meshCollider.convex = true;
-        MeshFilter meshFilter = loopout.AddComponent<MeshFilter>();
-        Rigidbody rigidbody = loopout.AddComponent<Rigidbody>();
-        rigidbody.useGravity = false;
-
-        TubeRenderer tubeRenderer = loopout.AddComponent<TubeRenderer>();
+        TubeRenderer tubeRenderer = loopout.GetComponent<TubeRenderer>();
         tubeRenderer.radius = LOOPOUT_SIZE;
 
         SplineMaker splineMaker = loopout.AddComponent<SplineMaker>();
@@ -278,12 +274,15 @@ public static class DrawPoint
         anchorPoints[1] = bendPoint;
         anchorPoints[2] = nucleotide1.transform.position;
 
+        
         splineMaker.anchorPoints = anchorPoints;
 
-        meshFilter.mesh = tubeRenderer.mesh;
-        meshCollider.sharedMesh = tubeRenderer.mesh;
-
+        MeshFilter meshFilter = loopout.GetComponent<MeshFilter>();
+        MeshCollider meshCollider = loopout.GetComponent<MeshCollider>();
         MeshRenderer meshRenderer = loopout.GetComponent<MeshRenderer>();
+
+        // meshFilter.mesh = tubeRenderer.mesh;
+        meshCollider.sharedMesh = tubeRenderer.mesh;
         meshRenderer.material.SetColor("_Color", nucleotide0.Color);
 
         LoopoutComponent loopoutComponent = loopout.AddComponent<LoopoutComponent>();
@@ -292,7 +291,8 @@ public static class DrawPoint
         loopoutComponent.NextGO = nucleotide1.gameObject;
         loopoutComponent.StrandId = strandId;
 
-        XRSimpleInteractable xRSimpleInteractable = loopout.AddComponent<XRSimpleInteractable>();
+        GameObject interactable = loopout.transform.GetChild(0).gameObject;
+        interactable.transform.position = bendPoint;
 
         return loopoutComponent;
     }

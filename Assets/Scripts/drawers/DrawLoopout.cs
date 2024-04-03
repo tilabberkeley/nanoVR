@@ -12,6 +12,9 @@ using System;
 
 public class DrawLoopout : MonoBehaviour
 {
+    private const int DEFAULT_LENGTH = 1;
+    private const string CURRENT_LENGTH_PREFIX = "Current Loopout Length: ";
+
     [SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
@@ -19,11 +22,14 @@ public class DrawLoopout : MonoBehaviour
     [SerializeField] private Canvas _menu;
     [SerializeField] private Canvas _editPanel;
     [SerializeField] private TMP_InputField _inputField;
+    [SerializeField] private TMP_Text _currLengthText;
     [SerializeField] private Button _OKButton;
     [SerializeField] private Button _cancelButton;
     private bool triggerReleased = true;
+    private bool gripReleased = true;
     private static GameObject s_startGO = null;
     private static GameObject s_endGO = null;
+    private static GameObject s_loopout = null;
     private static bool s_menuEnabled;
     private static RaycastHit s_hit;
 
@@ -48,7 +54,7 @@ public class DrawLoopout : MonoBehaviour
     {
         _editPanel.enabled = false;
         _OKButton.onClick.AddListener(() => HideEditPanel());
-        _OKButton.onClick.AddListener(() => DoCreateLoopout());
+        _OKButton.onClick.AddListener(() => DoEditLoopout());
         _cancelButton.onClick.AddListener(() => HideEditPanel());
         _inputField.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
     }
@@ -65,7 +71,7 @@ public class DrawLoopout : MonoBehaviour
             GetDevice();
         }
 
-        // SELECT CROSSOVER NUCLEOTIDE
+        // SELECT LOOPOUT NUCLEOTIDE
         bool triggerValue;
         if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
             && triggerValue
@@ -85,7 +91,7 @@ public class DrawLoopout : MonoBehaviour
                     s_endGO = s_hit.collider.gameObject;
                     //Unhighlight(s_startGO);
 
-                    ShowEditPanel();
+                    DoCreateLoopout();
                 }
             }
             else if (s_hit.collider.GetComponent<LoopoutComponent>() != null && s_eraseTogOn)
@@ -114,6 +120,28 @@ public class DrawLoopout : MonoBehaviour
             triggerReleased = false;
             ResetNucleotides();
         }
+
+        // Grip handling
+        bool gripValue;
+        if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
+                && gripValue
+                && gripReleased
+                && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        {
+            gripReleased = false;
+            if (s_hit.collider.gameObject.GetComponent<LoopoutComponent>() != null)
+            {
+                s_loopout = s_hit.collider.gameObject;
+                ShowEditPanel();
+            }
+        }
+
+        // Resets grips to avoid multiple selections.                                              
+        if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
+                && !gripValue)
+        {
+            gripReleased = true;
+        }
     }
 
     /// <summary>
@@ -127,26 +155,34 @@ public class DrawLoopout : MonoBehaviour
     }
 
     /// <summary>
-    /// Returns whether loopout length is valid.
+    /// Returns whether the loopout length is valid. A valid length is strictly positive.
     /// </summary>
-    /// <returns></returns>
-    private bool ValidLoopout()
+    /// <param name="length"></param>
+    /// <returns>True if length is valid. Throws exception otherwise.</returns>
+    private bool ValidLoopoutLength(int length)
     {
-        try
+        if (length <= 0)
         {
-            int newLength = int.Parse(_inputField.text);
-            if (newLength <= 0)
-            {
-                Debug.Log("Loopout length must be positive.");
-                return false;
-            }
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e.Message);
-            return false;
+            throw new Exception("Loopout length must be positive");
         }
         return true;
+    }
+
+    /// <summary>
+    /// Returns inputted loopout length. Additionally, the input text is cleared.
+    /// </summary>
+    /// <returns>Loopout length. 0 if invalid.</returns>
+    private int GetLengthFromText()
+    {
+        int length = int.Parse(_inputField.text);
+        // Clears input field.
+        _inputField.Select();
+        _inputField.text = "";
+        if (ValidLoopoutLength(length))
+        {
+            return length;
+        }
+        return 0;
     }
 
     public void DoCreateLoopout()
@@ -190,8 +226,7 @@ public class DrawLoopout : MonoBehaviour
         DrawSplit.SplitStrand(firstGO, s_numStrands, Strand.GetDifferentColor(firstNtc.Color), false);
         DrawSplit.SplitStrand(secondGO, s_numStrands, Strand.GetDifferentColor(secondNtc.Color), true);
 
-        int length = int.Parse(_inputField.text);
-        GameObject loopout = CreateLoopoutHelper(firstGO, secondGO, length);
+        GameObject loopout = CreateLoopoutHelper(firstGO, secondGO, DEFAULT_LENGTH);
         MergeStrand(firstGO, secondGO, loopout);
 
         ResetNucleotides();
@@ -208,7 +243,7 @@ public class DrawLoopout : MonoBehaviour
         NucleotideComponent startNucleotide = startGO.GetComponent<NucleotideComponent>();
         NucleotideComponent endNucleotide = endGO.GetComponent<NucleotideComponent>();
 
-        // Create crossover.
+        // Create loopout.
         LoopoutComponent loopout = DrawPoint.MakeLoopout(length, startNucleotide, endNucleotide, strandId);
         return loopout.gameObject;
     }
@@ -277,6 +312,8 @@ public class DrawLoopout : MonoBehaviour
         //    ICommand command = new EditInsertionCommand(s_GO, newLength);
         //    CommandManager.AddCommand(command);
         //}
+        int length = GetLengthFromText();
+        EditLoopout(s_loopout, length);
     }
 
     /// <summary>
@@ -292,14 +329,16 @@ public class DrawLoopout : MonoBehaviour
         //    ntc.Insertion = length;
         //}
         //Debug.Log(ntc.Insertion);
+        s_loopout.GetComponent<LoopoutComponent>().SequenceLength = length;
     }
 
     private void ShowEditPanel()
     {
-        Debug.Log("Openging edit menu");
+        Debug.Log("Opening edit menu");
         s_menuEnabled = _menu.enabled;
         _menu.enabled = false;
         _editPanel.enabled = true;
+        _currLengthText.SetText(CURRENT_LENGTH_PREFIX + s_loopout.GetComponent<LoopoutComponent>().SequenceLength);
     }
 
     private void HideEditPanel()
