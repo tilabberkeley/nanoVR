@@ -61,7 +61,7 @@ public abstract class DNAComponent : MonoBehaviour
     {
         _selected = false;
         _strandId = -1;
-        Color = NucleotideComponent.s_defaultColor;
+        Color = s_defaultColor;
     }
 
     // Start is called before the first frame update
@@ -70,5 +70,14 @@ public abstract class DNAComponent : MonoBehaviour
         _ntRenderer = GetComponent<Renderer>();
         _outline = GetComponent<Outline>();
         _outline.enabled = false;
+    }
+
+    /// <summary>
+    /// Returns whether this DNA component is apart of a strand.
+    /// </summary>
+    /// <returns>True if this DNA component is apart of a strand. False otherwise.</returns>
+    public bool IsInStrand()
+    {
+        return _strandId != -1;
     }
 }

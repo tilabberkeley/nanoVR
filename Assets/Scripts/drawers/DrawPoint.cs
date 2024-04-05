@@ -144,6 +144,8 @@ public static class DrawPoint
         xoverSuggestion.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
         //xoverComp.SetLength(dist);
 
+        s_xoverSuggestions.Add(xoverSuggestion.GetComponent<XoverSuggestionComponent>());
+
         return xoverSuggestion;
     }
 

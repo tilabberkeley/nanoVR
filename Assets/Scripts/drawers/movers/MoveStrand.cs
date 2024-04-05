@@ -122,7 +122,6 @@ public class MoveStrand : MonoBehaviour
         }
         ICommand command = new MoveStrandCommand(oldNucl, newNucl);
         CommandManager.AddCommand(command);
-        command.Do();
         Debug.Log("Finished DoMove()");
 
     }

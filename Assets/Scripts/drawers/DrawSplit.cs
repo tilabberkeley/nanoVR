@@ -84,9 +84,12 @@ public class DrawSplit : MonoBehaviour
     }
 
     /// <summary>
-    /// Splits a strand into two substrands at selected nucleotide.
+    /// 
     /// </summary>
-    /// <returns>Returns split off strand.</returns>
+    /// <param name="go"></param>
+    /// <param name="id"></param>
+    /// <param name="color"></param>
+    /// <param name="splitAfter"></param>
     public static void SplitStrand(GameObject go, int id, Color color, bool splitAfter)
     {
         if (!IsValid(go)) { return; }

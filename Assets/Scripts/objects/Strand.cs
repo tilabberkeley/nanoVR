@@ -13,6 +13,10 @@ using static GlobalVariables;
 /// </summary>
 public class Strand
 {
+    private const int PERIOD = 10;
+    private const int START_OFFSET_3_5 = 3; // First crossover suggestion begins on the fourth nucleotide of helix going from 3->5.
+    private const int START_OFFSET_5_3 = 8; // First crossover suggestion begins on the fourth nucleotide of helix going from 5->3.
+
     // List of nucleotide and backbone GameObjects included in this strand.
     private List<GameObject> _nucleotides;
     public List<GameObject> Nucleotides 
@@ -36,6 +40,9 @@ public class Strand
 
     // GameObject at end of this strand (at last index of nucleotides list).
     private GameObject _tail;
+
+    // Direction of strand
+    private int _direction; 
 
     // Indicates this strand's direction.
     private GameObject _cone;
@@ -121,6 +128,7 @@ public class Strand
         _tail = _nucleotides.Last();
         _cone = DrawPoint.MakeCone();
         _bezier = null;
+        _direction = nucleotides[0].GetComponent<NucleotideComponent>().Direction;
         //SetComponents();
         //s_strandDict.Add(strandId, this);
         //CheckForXoverSuggestions();
@@ -335,7 +343,35 @@ public class Strand
         return splitList;
     }
 
-    // Removes crossovers.
+    /*public List<GameObject> GetXoversBeforeIndex(int index)
+    {
+        List<GameObject> xovers = new List<GameObject>();
+        foreach (GameObject xover in _xovers)
+        {
+            var xoverComp = xover.GetComponent<XoverComponent>();
+            if (GetIndex(xoverComp.NextGO) < index)
+            {
+                xovers.Add(xover);
+            }
+        }
+        return xovers;
+    }
+
+    public List<GameObject> GetXoversAfterIndex(int index)
+    {
+        List<GameObject> xovers = new List<GameObject>();
+        foreach (GameObject xover in _xovers)
+        {
+            var xoverComp = xover.GetComponent<XoverComponent>();
+            if (GetIndex(xoverComp.NextGO) > index)
+            {
+                xovers.Add(xover);
+            }
+        }
+        return xovers;
+    }*/
+
+    // Removes crossover.
     public void DeleteXovers()
     {
         for (int i = 0; i < _nucleotides.Count; i++)
@@ -513,29 +549,46 @@ public class Strand
     }
 
     /// <summary>
+    /// Gets all the nucleotides of the strand.
+    /// </summary>
+    /// <returns>List of nucleotides (their components, not as gameObjects).</returns>
+    public List<NucleotideComponent> GetNucleotidesOnly()
+    {
+        List<NucleotideComponent> result = new List<NucleotideComponent>();
+
+        foreach (GameObject gameObject in _nucleotides)
+        {
+            DNAComponent dnaComponent = gameObject.GetComponent<DNAComponent>();
+            if (!dnaComponent.IsBackbone)
+            {
+                result.Add((NucleotideComponent) dnaComponent);
+            }
+        }
+        return result;
+    }
+
+    /// <summary>
     /// Creates cross over suggestion game objects if there is a close enough strand in the opposite direction.
+    /// Closeness is defined by the period of when the nucleotides are close to each other. 
     /// </summary>
     private void CheckForXoverSuggestions()
     {
-        // tail check
-        GameObject tail = _tail;
-        List<NucleotideComponent> neighborNucleotideComponents = tail.GetComponent<NucleotideComponent>().getNeighborNucleotides();
-        foreach (NucleotideComponent nucleotideComponent in neighborNucleotideComponents)
-        { 
-            if (DrawCrossover.IsValid(tail, nucleotideComponent.gameObject))
-            {
-                DrawPoint.MakeXoverSuggestion(tail, nucleotideComponent.gameObject);
-            }
-        }
+        List<NucleotideComponent> nucleotides = GetNucleotidesOnly();
 
-        // head check
-        GameObject head = _head;
-        neighborNucleotideComponents = head.GetComponent<NucleotideComponent>().getNeighborNucleotides();
-        foreach (NucleotideComponent nucleotideComponent in neighborNucleotideComponents)
+        foreach (NucleotideComponent nucleotide in nucleotides)
         {
-            if (DrawCrossover.IsValid(head, nucleotideComponent.gameObject))
+            int periodIndex = _direction == 0 ? (nucleotide.Id - START_OFFSET_5_3) % PERIOD : (nucleotide.Id - START_OFFSET_3_5) % PERIOD;
+            bool isOnPeriod = periodIndex % PERIOD == 0;
+            if (isOnPeriod)
             {
-                DrawPoint.MakeXoverSuggestion(head, nucleotideComponent.gameObject);
+                List<NucleotideComponent> neighborNucleotideComponents = nucleotide.getNeighborNucleotides();
+                foreach (NucleotideComponent neighborNucleotideComponent in neighborNucleotideComponents)
+                {
+                    if (neighborNucleotideComponent.IsInStrand())
+                    {
+                        DrawPoint.MakeXoverSuggestion(nucleotide.gameObject, neighborNucleotideComponent.gameObject);
+                    }
+                }
             }
         }
     }

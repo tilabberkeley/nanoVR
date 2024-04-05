@@ -136,7 +136,6 @@ public class SelectHelix : MonoBehaviour
     {
         ICommand command = new DeleteHelixCommand(id);
         CommandManager.AddCommand(command);
-        command.Do();
     }
 
     public static void DeleteHelix(int id)

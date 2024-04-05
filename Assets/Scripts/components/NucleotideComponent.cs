@@ -39,16 +39,16 @@ public class NucleotideComponent : DNAComponent
     public GameObject Xover { get { return _xover;} set { _xover = value; } }
     public bool HasXover { get { return _xover != null; } }
 
-    // List of crossover suggestions connect to this nucleotide.
-    private List<XoverSuggestionComponent> _xoverSuggestionComponents;
-    public List<XoverSuggestionComponent> XoverSuggestionComponents { get { return _xoverSuggestionComponents; } }
+    // Set of crossover suggestions connected to this nucleotide.
+    private HashSet<XoverSuggestionComponent> _xoverSuggestionComponents;
+    public HashSet<XoverSuggestionComponent> XoverSuggestionComponents { get { return _xoverSuggestionComponents; } }
 
     // Start is called before the first frame update
     protected override void Awake()
     {
         base.Awake();
         _isBackbone = false;
-        _xoverSuggestionComponents = new List<XoverSuggestionComponent>();
+        _xoverSuggestionComponents = new HashSet<XoverSuggestionComponent>();
     }
 
     /// <summary>
@@ -99,6 +99,23 @@ public class NucleotideComponent : DNAComponent
         }
         return nucleotideComponents;
     }
+    
+    /// <summary>
+    /// Returns whether this nucleotide component has a crossover suggestion with the inputted nucleotide.
+    /// </summary>
+    /// <param name="nucleotideComponent">Nucleotide to check where there is a crossover suggestion.</param>
+    /// <returns>True is there is a crossover suggestion between this nucleotide and the given one. False otherwise.</returns>
+    public bool HasXoverSuggestion(NucleotideComponent nucleotideComponent)
+    {
+        foreach (XoverSuggestionComponent xoverSuggestionComponent in _xoverSuggestionComponents)
+        {
+            if (xoverSuggestionComponent.NucleotideComponent0 == nucleotideComponent || xoverSuggestionComponent.NucleotideComponent1 == nucleotideComponent)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /// <summary>
     /// Removes all crossover suggestions on this nucleotide.
@@ -107,9 +124,9 @@ public class NucleotideComponent : DNAComponent
     {
         foreach (XoverSuggestionComponent xoverSuggestionComponent in _xoverSuggestionComponents)
         {
+            s_xoverSuggestions.Remove(xoverSuggestionComponent);
             Destroy(xoverSuggestionComponent.gameObject);
         }
-        _xoverSuggestionComponents.Clear();
     }
 
     public override void ResetComponent()

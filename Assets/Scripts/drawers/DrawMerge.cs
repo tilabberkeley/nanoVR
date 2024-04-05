@@ -138,7 +138,6 @@ public class DrawMerge : MonoBehaviour
         int id = neighbor.GetComponent<NucleotideComponent>().StrandId;
         ICommand command = new MergeCommand(go, id, color, false);
         CommandManager.AddCommand(command);
-        command.Do();
     }
 
     public static void MergeStrand(GameObject go)

@@ -426,7 +426,6 @@ public abstract class DNAGrid
     {
         ICommand command = new CreateHelixCommand(id, startPoint, length, orientation, gridComponent, this);
         CommandManager.AddCommand(command);
-        command.Do();
     }
 
     public void AddHelix(int id, Vector3 startPoint, int length, string orientation, GridComponent gridComponent)
