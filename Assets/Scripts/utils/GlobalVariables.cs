@@ -65,6 +65,7 @@ public static class GlobalVariables
     private static GameObject _xover = Resources.Load("Xover") as GameObject;
     private static GameObject _xoverSuggestion = Resources.Load("XoverSuggestion") as GameObject;
     private static GameObject _gridCircle = Resources.Load("GridCircle") as GameObject;
+    private static GameObject _gizmos = Resources.Load("Gizmos") as GameObject;
 
     public static GameObject nucleotide { get { return _nucleotide; } }
     public static GameObject Cone { get { return _cone; } }
@@ -72,6 +73,8 @@ public static class GlobalVariables
     public static GameObject Xover { get { return _xover; } }
     public static GameObject XoverSuggestion { get { return _xoverSuggestion; } }
     public static GameObject GridCircle { get { return _gridCircle; } }
+
+    public static GameObject Gizmos { get { return _gizmos; } }
 
 
 

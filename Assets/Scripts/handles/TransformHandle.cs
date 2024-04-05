@@ -63,6 +63,8 @@ public class TransformHandle : MonoBehaviour
 
         _leftDevice.TryGetFeatureValue(CommonUsages.gripButton, out bool leftGripValue);
         _rightDevice.TryGetFeatureValue(CommonUsages.gripButton, out bool rightGripValue);
+        _leftDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool leftTriggerValue);
+        _rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool rightTriggerValue);
 
         if (leftGripValue && rightGripValue
                 && leftGripReleased && rightGripReleased
@@ -79,12 +81,8 @@ public class TransformHandle : MonoBehaviour
             }
         }
 
-        if (leftGripValue && rightGripValue
-               && leftGripReleased && rightGripReleased
-               && (!rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit) && !leftRayInteractor.TryGetCurrent3DRaycastHit(out s_hit)))
+        if (leftTriggerValue || rightTriggerValue)
         {
-            leftGripReleased = false;
-            rightGripReleased = false;
             DetachChildren();
             HideTransform();
         }

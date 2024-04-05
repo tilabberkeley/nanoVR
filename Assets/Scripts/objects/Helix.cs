@@ -88,8 +88,8 @@ public class Helix
         _length += length;
         for (int i = prevLength; i < _length; i++)
         {
-            Vector3 position = StartPoint;
-            Vector3 direction = Vector3.Normalize(_gridComponent.gameObject.transform.rotation.eulerAngles);
+            /*Vector3 position = StartPoint;
+            Vector3 direction = Vector3.Normalize(_gridComponent.gameObject.transform.forward);
             float angleA = (float) (i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
             float angleB = (float) ((i + 4.5f) * (2 * Math.PI / NUM_BASE_PAIRS)); //TODO: check this new offset
             float cosAngleA = (float) Math.Cos(angleA);
@@ -99,24 +99,26 @@ public class Helix
 
             float xPointA = position.x + RADIUS * (cosAngleA * direction.x + sinAngleA * direction.y);
             float yPointA = position.y + RADIUS * (-sinAngleA * direction.x + cosAngleA * direction.y);
-            float zPointA = position.z + RADIUS * direction.z * i;
+            float zPointA = position.z + RISE * direction.z * i;
 
             float xPointB = position.x + RADIUS * (cosAngleB * direction.x + sinAngleB * direction.y);
             float yPointB = position.y + RADIUS * (-sinAngleB * direction.x + cosAngleB * direction.y);
-            float zPointB = position.z + RADIUS * direction.z * i;
+            float zPointB = position.z + RISE * direction.z * i;
 
             _lastPositionA = new Vector3(xPointA, yPointA, zPointA);
-            _lastPositionB = new Vector3(xPointB, yPointB, zPointB);
+            _lastPositionB = new Vector3(xPointB, yPointB, zPointB);*/
 
 
-            /*float angleA = (float) (i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
-            float angleB = (float) ((i + 4.5f) * (2 * Math.PI/ NUM_BASE_PAIRS)); //TODO: check this new offset
-            float axisOneChangeA = (float) (RADIUS * Mathf.Cos(angleA));
-            float axisTwoChangeA = (float) (RADIUS * Mathf.Sin(angleA));
-            float axisOneChangeB = (float) (RADIUS * Mathf.Cos(angleB));
-            float axisTwoChangeB = (float) (RADIUS * Mathf.Sin(angleB));
+            float angleA = (float)(i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
+            float angleB = (float)((i + 4.5f) * (2 * Math.PI / NUM_BASE_PAIRS)); //TODO: check this new offset
+            float axisOneChangeA = (float)(RADIUS * Mathf.Cos(angleA));
+            float axisTwoChangeA = (float)(RADIUS * Mathf.Sin(angleA));
+            float axisOneChangeB = (float)(RADIUS * Mathf.Cos(angleB));
+            float axisTwoChangeB = (float)(RADIUS * Mathf.Sin(angleB));
+            _lastPositionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
+            _lastPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
 
-            if (_orientation.Equals("XY"))
+            /*if (_orientation.Equals("XY"))
             {
                 _lastPositionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA - ADJUSTMENT, -i * RISE);
                 _lastPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB - ADJUSTMENT, -i * RISE);
@@ -130,12 +132,21 @@ public class Helix
             {
                 _lastPositionA = StartPoint + new Vector3(i * RISE, axisOneChangeA, axisTwoChangeA);
                 _lastPositionB = StartPoint + new Vector3(i * RISE, axisOneChangeB, axisTwoChangeB);
-            }*/
-
+            }
+*/
             GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, i, _id, 1);
             _nucleotidesA.Add(sphereA);
             GameObject sphereB = DrawPoint.MakeNucleotide(_lastPositionB, i, _id, 0);
             _nucleotidesB.Add(sphereB);
+
+            // Rotate nucleotides to correct position based on grid's rotation
+            sphereA.transform.RotateAround(StartPoint, Vector3.right, _gridComponent.transform.eulerAngles.x);
+            sphereA.transform.RotateAround(StartPoint, Vector3.up, _gridComponent.transform.eulerAngles.y);
+            sphereA.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
+            sphereB.transform.RotateAround(StartPoint, Vector3.right, _gridComponent.transform.eulerAngles.x);
+            sphereB.transform.RotateAround(StartPoint, Vector3.up, _gridComponent.transform.eulerAngles.y);
+            sphereB.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
+
         }
 
         if (prevLength == 0) 

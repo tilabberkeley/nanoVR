@@ -27,7 +27,15 @@ public abstract class DNAGrid
 
     protected Vector3 _startPos;
     public Vector3 StartPos 
-    { get { return _grid2D[0, 0].transform.position; } 
+    { 
+        get 
+        { 
+            if (_grid2D[0, 0] == null)
+            {
+                return _startPos;
+            }
+            return _grid2D[0, 0].transform.position; 
+        } 
         set 
         {
             Debug.Log("Setting grid start pos to " + value.ToString());
@@ -102,7 +110,7 @@ public abstract class DNAGrid
     /// <param name="yOffset">y direction offset (depends on expansions).</param>
     /// <param name="i">x memory location of grid circle in grid 2D.</param>
     /// <param name="j">j memory location of grid circle in grid 2D.</param>
-    protected abstract void CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j);
+    protected abstract GameObject CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j);
 
     /// <summary>
     /// Draws the grid in the XY direction.
@@ -168,6 +176,7 @@ public abstract class DNAGrid
     protected void ExpandNorth()
     {
         CopyNorth();
+        List<GameObject> gridCircles = new List<GameObject>();
 
         // create new grid components
         for (int i = 0; i < _length; i++)
@@ -178,9 +187,12 @@ public abstract class DNAGrid
             int x = IndexToGridX(i);
             int y = IndexToGridY(newJ);
             GridPoint gridPoint = new GridPoint(x, y);
-            CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, i, newJ);
+            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, i, newJ);
+            gridCircles.Add(gridCircle);
             _size++;
         }
+
+        Tilt(gridCircles);
     }
 
     /// <summary>
@@ -189,7 +201,7 @@ public abstract class DNAGrid
     protected void ExpandEast()
     {
         CopyEast();
-
+        List<GameObject> gridCircles = new List<GameObject>();
         // create new grid components
         for (int j = 0; j < _width; j++)
         {
@@ -199,9 +211,12 @@ public abstract class DNAGrid
             int x = IndexToGridX(newI);
             int y = IndexToGridY(j);
             GridPoint gridPoint = new GridPoint(x, y);
-            CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, newI, j);
+            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, newI, j);
+            gridCircles.Add(gridCircle);
             _size++;
         }
+
+        Tilt(gridCircles);
     }
 
     /// <summary>
@@ -210,6 +225,7 @@ public abstract class DNAGrid
     protected void ExpandSouth()
     {
         CopySouth();
+        List<GameObject> gridCircles = new List<GameObject>();
 
         // create new grid components
         for (int i = 0; i < _length; i++)
@@ -220,9 +236,12 @@ public abstract class DNAGrid
             int x = IndexToGridX(i);
             int y = IndexToGridY(newJ);
             GridPoint gridPoint = new GridPoint(x, y);
-            CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, i, newJ);
+            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, i, newJ);
+            gridCircles.Add(gridCircle);
             _size++;
         }
+
+        Tilt(gridCircles);
         _numSouthExpansions++;
     }
 
@@ -232,6 +251,7 @@ public abstract class DNAGrid
     protected void ExpandWest()
     {
         CopyWest();
+        List<GameObject> gridCircles = new List<GameObject>();
 
         // create new grid components
         for (int j = 0; j < _width; j++)
@@ -242,9 +262,12 @@ public abstract class DNAGrid
             int x = IndexToGridX(newI);
             int y = IndexToGridY(j);
             GridPoint gridPoint = new GridPoint(x, y);
-            CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, newI, j);
+            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, newI, j);
+            gridCircles.Add(gridCircle);
             _size++;
         }
+
+        Tilt(gridCircles);
         _numWestExpansions++;
     }
 
@@ -362,18 +385,42 @@ public abstract class DNAGrid
         }
     }
 
+    private void Tilt(List<GameObject> gridCircles)
+    {
+        GameObject bottomLeftCorner = _grid2D[0, 0].gameObject;
+        GameObject gizmos = Transform.Instantiate(GlobalVariables.Gizmos,
+                   bottomLeftCorner.transform.position + 0.2f * Vector3.back,
+                   gridCircles[0].transform.rotation);
+     
+        for (int i = 0; i < gridCircles.Count; i++)
+        {
+            gridCircles[i].transform.parent = gizmos.transform;
+            if (gridCircles[i].GetComponent<GridComponent>().Helix != null)
+            {
+                gridCircles[i].GetComponent<GridComponent>().Helix.SetParent(gizmos);
+            }
+        }
+
+        gizmos.transform.SetPositionAndRotation(bottomLeftCorner.transform.position + 0.2f * Vector3.back, bottomLeftCorner.transform.rotation);
+
+        for (int i = 0; i < gridCircles.Count; i++)
+        {
+            gridCircles[i].transform.parent = null;
+            if (gridCircles[i].GetComponent<GridComponent>().Helix != null)
+            {
+                gridCircles[i].GetComponent<GridComponent>().Helix.ResetParent();
+            }
+        }
+
+        GameObject.Destroy(gizmos);
+    }
+
     /// <summary>
     /// Returns neighboring grid components of provided grid component.
     /// </summary>
     /// <param name="gridPoint">Location of grid component.</param>
     /// <returns>List of neighboring grid components.</returns>
     public abstract List<GridComponent> GetNeighborGridComponents(GridPoint gridPoint);
-
-    public void AddLine(int id, Vector3 startPoint, Vector3 endPoint)
-    {
-        Line line = new Line(id, startPoint, endPoint);
-        //_lines.Add(line);
-    }
 
     public void DoAddHelix(int id, Vector3 startPoint, int length, string orientation, GridComponent gridComponent)
     {

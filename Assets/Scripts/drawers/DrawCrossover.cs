@@ -159,11 +159,6 @@ public class DrawCrossover : MonoBehaviour
             return false;
         }
 
-        if (startId == endId)
-        {
-            return false;
-        }
-
         if (startDir == endDir)
         {
             return false;
@@ -203,7 +198,16 @@ public class DrawCrossover : MonoBehaviour
         DrawSplit.SplitStrand(secondGO, s_numStrands, secondNtc.Color, true);
 
         GameObject xover = CreateXoverHelper(firstGO, secondGO);
-        MergeStrand(firstGO, secondGO, xover);
+
+        // Create circular strand
+        if (firstNtc.Id == secondNtc.Id)
+        {
+            HandleCycle(firstGO);
+        }
+        else
+        {
+            MergeStrand(firstGO, secondGO, xover);
+        }
         return xover;
     }
 
@@ -317,26 +321,13 @@ public class DrawCrossover : MonoBehaviour
         //DrawNucleotideDynamic.AddStrandToHelix(secondGO);
     }
 
-   /* public static void HandleCycle(Strand firstStrand, Strand secondStrand, bool addToHead)
+
+    public static void HandleCycle(GameObject go)
     {
-        // Handles cycles in strand.
-        if (firstStrand.GetStrandId() != secondStrand.GetStrandId())
-        {
-            List<GameObject> nucleotides = secondStrand.Nucleotides;
-            SelectStrand.RemoveStrand(nucleotides[0]);
-            // Add second strand
-            if (addToHead)
-            {
-                firstStrand.AddToHead(nucleotides);
-            }
-            else
-            {
-                firstStrand.AddToTail(nucleotides);
-            }
-        }
-        else
-        {
-            firstStrand.ShowHideCone(false);
-        }
-    }*/
+        var ntc = go.GetComponent<NucleotideComponent>();
+        s_strandDict.TryGetValue(ntc.StrandId, out Strand strand);
+        strand.ShowHideCone(false);
+        strand.IsCircular = true;
+
+    }
 }

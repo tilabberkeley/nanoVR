@@ -177,13 +177,13 @@ public static class DrawPoint
                    Quaternion.identity) as GameObject;
 
         // Calculate rotation
-        if (plane.Equals("XY"))
+        if (plane.Equals("XZ"))
         {
-            gridCircle.transform.Rotate(90f, 0f, 0f, 0);
+            gridCircle.transform.Rotate(0f, 0f, 90f, 0);
         }
         else if (plane.Equals("YZ"))
         {
-            gridCircle.transform.Rotate(90f, 90f, 0f, 0);
+            gridCircle.transform.Rotate(0f, 90f, 0f, 0);
         }
        
         gridCircle.name = "gridPoint";

@@ -29,16 +29,17 @@ public class SquareGrid : DNAGrid
     /// <param name="yOffset">y direction offset (depends on expansions).</param>
     /// <param name="i">x memory location of grid circle in grid 2D.</param>
     /// <param name="j">j memory location of grid circle in grid 2D.</param>
-    protected override void CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j)
+    protected override GameObject CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j)
     {
         float xPosition = xOffset * DIAMETER;
         float yPosition = yOffset * DIAMETER;
 
-        GameObject gridGO = DrawPoint.MakeGridCircleGO(_startPos, xPosition, yPosition, _plane);
+        GameObject gridGO = DrawPoint.MakeGridCircleGO(StartPos, xPosition, yPosition, _plane);
         GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
         gridComponent.Grid = this;
         gridComponent.GridPoint = gridPoint;
         _grid2D[i, j] = gridComponent;
+        return gridGO;
     }
 
     /// <summary>

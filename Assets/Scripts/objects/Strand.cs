@@ -106,6 +106,11 @@ public class Strand
         }
     }
 
+    // Whether or not strand is circular
+    private bool _isCircular = false;
+    public bool IsCircular { get { return _isCircular; } set { _isCircular = value; } }
+
+
     // Strand constructor.
     public Strand(List<GameObject> nucleotides, int strandId, Color color)
     {
@@ -280,24 +285,21 @@ public class Strand
         List<GameObject> splitList = new List<GameObject>();
         int splitIndex = _nucleotides.IndexOf(go);
 
-       /* if (isXover)
-        {
-            splitList.AddRange(_nucleotides.GetRange(0, splitIndex));
-        }
-        else
-        {*/
-            // Clears the backbone between the two split lists.
-            //_nucleotides[splitIndex - 1].GetComponent<DNAComponent>().Color = Color.white;
-            splitList.AddRange(_nucleotides.GetRange(0, splitIndex));
-        //}
+        splitList.AddRange(_nucleotides.GetRange(0, splitIndex));
         if (splitList.Count % 2 == 0)
         {
             GameObject backbone = splitList[splitList.Count - 1];
             splitList.Remove(backbone);
             backbone.GetComponent<BackBoneComponent>().ResetComponent();
         }
+        if (_isCircular)
+        {
 
-        _nucleotides.RemoveRange(0, splitIndex);
+        }
+        else
+        {
+            _nucleotides.RemoveRange(0, splitIndex);
+        }
         _head = _nucleotides[0];
         _cone.transform.position = _head.transform.position;
         ShowHideCone(true);
@@ -316,16 +318,8 @@ public class Strand
         List<GameObject> splitList = new List<GameObject>();
         int splitIndex = _nucleotides.IndexOf(go);
         int count = _nucleotides.Count - splitIndex - 1;
-        /*if (isXover)
-        {
-            splitList.AddRange(_nucleotides.GetRange(splitIndex + 1, count));
-        }
-        else
-        {*/
-            // Clear backbone between the two split lists.
-            //_nucleotides[splitIndex + 1].GetComponent<DNAComponent>().Color = Color.white;
-            splitList.AddRange(_nucleotides.GetRange(splitIndex + 1, count));
-        //}
+        
+        splitList.AddRange(_nucleotides.GetRange(splitIndex + 1, count));
         if (splitList.Count % 2 == 0)
         {
             GameObject backbone = splitList[0];
