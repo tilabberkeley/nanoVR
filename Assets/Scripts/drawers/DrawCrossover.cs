@@ -2,13 +2,11 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
-using static Utils;
 
 /// <summary>
 /// Handles crossovers and necessary strand operations.
@@ -118,6 +116,11 @@ public class DrawCrossover : MonoBehaviour
         s_endGO = null;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="first"></param>
+    /// <param name="second"></param>
     public static void DoCreateXover(GameObject first, GameObject second)
     {
         if (!IsValid(first, second))
@@ -138,7 +141,6 @@ public class DrawCrossover : MonoBehaviour
     /// <summary>
     /// Returns whether there can be a crossover between the two inputted nucleotides.
     /// The nucleotides must be going in different directions and be apart of a strand.
-    /// TODO: Nucleotides must also not have a crossover on them already.
     /// </summary>
     /// <param name="startGO">First nucleotide game object.</param>
     /// <param name="endGO">Second nucleotide game object.</param>
@@ -163,19 +165,10 @@ public class DrawCrossover : MonoBehaviour
             return false;
         }
 
-        /*Strand startStrand = s_strandDict[startNtc.StrandId];
-        Strand endStrand = s_strandDict[endNtc.StrandId];
-
-
-        //if (startDir != endDir && startHelix != endHelix)
-        if (startGO == startStrand.GetHead() && endGO == endStrand.GetTail()
-            || startGO == startStrand.GetTail() && endGO == endStrand.GetHead())
+        if (startNtc.Xover != null || endNtc.Xover != null)
         {
-            if (startDir != endDir)
-            {
-                return true;
-            }
-        }*/
+            return false;
+        }
 
         return true;
     }
@@ -243,33 +236,24 @@ public class DrawCrossover : MonoBehaviour
         }
         Strand strand = s_strandDict[xoverComp.StrandId];
         strand.DeleteXover(xover);
-        SplitStrand(go, strandId, color, splitAfter);
+        DrawSplit.SplitStrand(go, strandId, color, splitAfter); // CHECK THIS
     }
 
-    public static void SplitStrand(GameObject go, int id, Color color, bool splitAfter)
-    {
-        var startNtc = go.GetComponent<NucleotideComponent>();
-        int strandId = startNtc.StrandId;
-        s_strandDict.TryGetValue(strandId, out Strand strand);
+    /* public static void SplitStrand(GameObject go, int id, Color color, bool splitAfter)
+     {
+         var startNtc = go.GetComponent<NucleotideComponent>();
+         int strandId = startNtc.StrandId;
+         s_strandDict.TryGetValue(strandId, out Strand strand);
 
-        if (splitAfter)
-        {
-            /*List<GameObject> xovers = strand.GetXoversBeforeIndex(goIndex);
-            strand.RemoveXovers(xovers);*/
-            CreateStrand(strand.SplitAfter(go), id, color);
-        }
-        else
-        {
-            /*List<GameObject> xovers = strand.GetXoversAfterIndex(goIndex);
-            strand.RemoveXovers(xovers);*/
-            /*List<GameObject> nucleotides = strand.SplitAfter(go);
-            if (nucleotides.Count % 2 == 0) // Remove the trailing backbone
-            {
-                nucleotides.RemoveAt(nucleotides.Count - 1);
-            }*/
-            CreateStrand(strand.SplitBefore(go), id, color);
-        }
-    }
+         if (splitAfter)
+         {
+             CreateStrand(strand.SplitAfter(go), id, color);
+         }
+         else
+         {
+             CreateStrand(strand.SplitBefore(go), id, color);
+         }
+     }*/
 
     public static void MergeStrand(GameObject firstGO, GameObject secondGO, GameObject xover)
     {
@@ -281,44 +265,24 @@ public class DrawCrossover : MonoBehaviour
         Strand firstStrand = s_strandDict[firstStrandId];
         Strand secondStrand = s_strandDict[secondStrandId];
 
-        /*
-        if (secondGO == null)
-        {
-            firstStrand.SetComponents();
-            return;
-        } 
-        */
-        //firstStrand.AddXovers(secondStrand.GetXovers());
-
         if (firstStrand.Head == firstGO && secondStrand.Tail == secondGO)
         {
-            // Must add backbone between 2 strands.
-            //firstStrand.AddToHead(backbone);
             xoverComp.PrevGO = secondGO;
             xoverComp.NextGO = firstGO;
             List<GameObject> nucleotides = secondStrand.Nucleotides;
             SelectStrand.RemoveStrand(nucleotides[0]);
             firstStrand.AddToHead(nucleotides);
-
-            //HandleCycle(firstStrand, secondStrand, true);
         }
         else if (firstStrand.Tail == firstGO && secondStrand.Head == secondGO)
         {
-            // Must add backbone between 2 strands.
-            //firstStrand.AddToTail(backbone);
             xoverComp.PrevGO = firstGO;
             xoverComp.NextGO = secondGO;
             List<GameObject> nucleotides = secondStrand.Nucleotides;
             SelectStrand.RemoveStrand(nucleotides[0]);
             firstStrand.AddToTail(nucleotides);
-            //HandleCycle(firstStrand, secondStrand, false);
         }
-        //secondStrand.RemoveStrand();
         firstStrand.SetComponents();
-        //firstStrand.AddHelixId(secondGO.GetComponent<NucleotideComponent>().HelixId);
-        //DrawNucleotideDynamic.AddStrandToHelix(secondGO);
     }
-
 
     public static void HandleCycle(GameObject go)
     {
@@ -326,6 +290,5 @@ public class DrawCrossover : MonoBehaviour
         s_strandDict.TryGetValue(ntc.StrandId, out Strand strand);
         strand.ShowHideCone(false);
         strand.IsCircular = true;
-
     }
 }

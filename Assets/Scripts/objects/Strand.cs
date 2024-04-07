@@ -300,20 +300,27 @@ public class Strand
             splitList.Remove(backbone);
             backbone.GetComponent<BackBoneComponent>().ResetComponent();
         }
-        if (_isCircular)
-        {
-
-        }
-        else
-        {
-            _nucleotides.RemoveRange(0, splitIndex);
-        }
+      
+        _nucleotides.RemoveRange(0, splitIndex);
         _head = _nucleotides[0];
-        _cone.transform.position = _head.transform.position;
-        ShowHideCone(true);
         SetCone();
         UpdateXovers();
         return splitList;
+    }
+
+    public void SplitCircularBefore(GameObject go)
+    {
+        int splitIndex = _nucleotides.IndexOf(go);
+        int tailIndex = _nucleotides.IndexOf(_tail);
+        GameObject backbone = _nucleotides[splitIndex - 1];
+        backbone.GetComponent<BackBoneComponent>().ResetComponent();
+        List<GameObject> removed = _nucleotides.GetRange(splitIndex, tailIndex - splitIndex + 1);
+        _nucleotides.RemoveRange(splitIndex, tailIndex - splitIndex + 1);
+        _nucleotides.InsertRange(0, removed);
+        _head = _nucleotides[0];
+        _tail = _nucleotides.Last();
+        ShowHideCone(true);
+        SetCone();
     }
 
     /// <summary>
@@ -337,41 +344,25 @@ public class Strand
       
         _nucleotides.RemoveRange(splitIndex + 1, count);
         _tail = _nucleotides.Last();
-        ShowHideCone(true);
-        SetCone();
         UpdateXovers();
         return splitList;
     }
 
-    /*public List<GameObject> GetXoversBeforeIndex(int index)
+    public void SplitCircularAfter(GameObject go)
     {
-        List<GameObject> xovers = new List<GameObject>();
-        foreach (GameObject xover in _xovers)
-        {
-            var xoverComp = xover.GetComponent<XoverComponent>();
-            if (GetIndex(xoverComp.NextGO) < index)
-            {
-                xovers.Add(xover);
-            }
-        }
-        return xovers;
+        int splitIndex = _nucleotides.IndexOf(go);
+        int tailIndex = _nucleotides.IndexOf(_tail);
+        GameObject backbone = _nucleotides[splitIndex + 1];
+        backbone.GetComponent<BackBoneComponent>().ResetComponent();
+        List<GameObject> removed = _nucleotides.GetRange(splitIndex + 2, tailIndex - (splitIndex + 2) + 1);
+        _nucleotides.RemoveRange(splitIndex + 2, tailIndex - (splitIndex + 2) + 1);
+        _nucleotides.InsertRange(0, removed);
+        _head = _nucleotides[0];
+        _tail = _nucleotides.Last();
+        ShowHideCone(true);
+        SetCone();
     }
 
-    public List<GameObject> GetXoversAfterIndex(int index)
-    {
-        List<GameObject> xovers = new List<GameObject>();
-        foreach (GameObject xover in _xovers)
-        {
-            var xoverComp = xover.GetComponent<XoverComponent>();
-            if (GetIndex(xoverComp.NextGO) > index)
-            {
-                xovers.Add(xover);
-            }
-        }
-        return xovers;
-    }*/
-
-    // Removes crossover.
     public void DeleteXovers()
     {
         for (int i = 0; i < _nucleotides.Count; i++)

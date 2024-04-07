@@ -120,8 +120,12 @@ public class FileImport : MonoBehaviour
             foreach (var item in groups)
             {
                 string origName = CleanSlash(item.Key);
-                string gridName = GetGridName(origName);
-                UpdateGridCopies(origName);
+                string gridName = origName;
+                if (!visualMode)
+                {
+                    gridName = GetGridName(origName);
+                    UpdateGridCopies(origName);
+                }
                 JObject info = item.Value;
                 float x = 0;
                 float y = 0;
@@ -133,8 +137,18 @@ public class FileImport : MonoBehaviour
                     z = (float) info["position"]["z"];
                 }
                 string gridType = CleanSlash(info["grid"].ToString());
-                DNAGrid grid = DrawGrid.CreateGrid(gridName, PLANE, rayInteractor.transform.position + new Vector3(x, y, z), gridType);
+                Vector3 startPos;
+                if (isCopyPaste)
+                {
+                    startPos = rayInteractor.transform.position;
+                }
+                else
+                {
+                    startPos = new Vector3(x, y, z);
+                }
+                DNAGrid grid = DrawGrid.CreateGrid(gridName, PLANE, startPos, gridType);
 
+                // Handle rotation
                 float pitch = 0f;
                 float roll = 0f;
                 float yaw = 0f;
@@ -144,11 +158,11 @@ public class FileImport : MonoBehaviour
                 }
                 if (info["roll"] != null)
                 {
-                    roll = (float)info["roll"];
+                    roll = (float) info["roll"];
                 }
                 if (info["yaw"] != null)
                 {
-                    pitch = (float)info["yaw"];
+                    pitch = (float) info["yaw"];
                 }
                 grid.Rotate(pitch, roll, yaw);
             }
@@ -156,7 +170,7 @@ public class FileImport : MonoBehaviour
         else
         {
             string gridType = CleanSlash(origami["grid"].ToString());
-            DrawGrid.CreateGrid(s_numGrids.ToString(), PLANE, rayInteractor.transform.position + new Vector3(0, 0, 0), gridType);
+            DrawGrid.CreateGrid(s_numGrids.ToString(), PLANE, rayInteractor.transform.position, gridType);
         }
 
 
@@ -164,7 +178,7 @@ public class FileImport : MonoBehaviour
         for (int i = 0; i < helices.Count; i++)
         {
             JArray coord = JArray.Parse(helices[i]["grid_position"].ToString());
-            int length = (int)helices[i]["max_offset"];
+            int length = (int) helices[i]["max_offset"];
             string gridName;
             if (helices[i]["group"]!= null)
             {
@@ -247,23 +261,12 @@ public class FileImport : MonoBehaviour
 
             Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
 
-            /*// Add deletions and insertions.
-            for (int j = 0; j < sDeletions.Count; j++)
-            {
-                DrawDeletion.Deletion(sDeletions[j]);
-            }
-            for (int j = 0; j < sInsertions.Count; j++)
-            {
-                DrawInsertion.Insertion(sInsertions[j].Item1, sInsertions[j].Item2);
-            }*/
-
             // Add xovers to strand object.
             xoverEndpoints.Reverse();
             for (int j = 1; j < xoverEndpoints.Count; j += 2)
             {
                 strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], xoverEndpoints[j]));
             }
-
         }
     }
 

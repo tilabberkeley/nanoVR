@@ -29,12 +29,14 @@ public abstract class DNAGrid
     public Vector3 StartPos 
     { 
         get 
-        { 
-            if (_grid2D[0, 0] == null)
+        {
+            /*if (_grid2D[-2, -2] == null)
             {
                 return _startPos;
-            }
-            return _grid2D[0, 0].transform.position; 
+            }*/
+            int i = GridXToIndex(-2);
+            int j = GridYToIndex(-2);
+            return _grid2D[i, j].transform.position; 
         } 
         set 
         {
@@ -43,13 +45,13 @@ public abstract class DNAGrid
         } 
     }
 
-    protected List<Vector3> _positions;
+    protected Vector3 _rotation;
+    public Vector3 Rotation { get { return _rotation; } }
 
     protected GridComponent[,] _grid2D;
     public GridComponent[,] Grid2D { get { return _grid2D; } }
 
-    protected List<Line> _lines;
-    protected List<Helix> _helices;
+ 
     protected int _length;
     public int Length { get { return _length; } }
 
@@ -79,9 +81,6 @@ public abstract class DNAGrid
         _id = id;
         _plane = plane;
         _startPos = startPos;
-        //_positions = new List<Vector3>();
-        //_lines = new List<Line>();
-        //_helices = new List<Helix>();
         _size = 0;
         SetBounds();
         // 2D array with _length rows and _width columns
@@ -192,7 +191,7 @@ public abstract class DNAGrid
             _size++;
         }
 
-        Tilt(gridCircles);
+        //Tilt(gridCircles);
     }
 
     /// <summary>
@@ -216,7 +215,7 @@ public abstract class DNAGrid
             _size++;
         }
 
-        Tilt(gridCircles);
+        //Tilt(gridCircles);
     }
 
     /// <summary>
@@ -241,7 +240,7 @@ public abstract class DNAGrid
             _size++;
         }
 
-        Tilt(gridCircles);
+        //Tilt(gridCircles);
         _numSouthExpansions++;
     }
 
@@ -267,7 +266,7 @@ public abstract class DNAGrid
             _size++;
         }
 
-        Tilt(gridCircles);
+        //Tilt(gridCircles);
         _numWestExpansions++;
     }
 
@@ -385,7 +384,7 @@ public abstract class DNAGrid
         }
     }
 
-    private void Tilt(List<GameObject> gridCircles)
+    /*private void Tilt(List<GameObject> gridCircles)
     {
         GameObject bottomLeftCorner = _grid2D[0, 0].gameObject;
         GameObject gizmos = Transform.Instantiate(GlobalVariables.Gizmos,
@@ -414,7 +413,7 @@ public abstract class DNAGrid
 
         GameObject.Destroy(gizmos);
     }
-
+*/
     /// <summary>
     /// Returns neighboring grid components of provided grid component.
     /// </summary>
@@ -444,10 +443,7 @@ public abstract class DNAGrid
             s_helixDict.Add(id, helix);
             s_numHelices += 1;
         }
-        
-
-        //_helices.Add(helix);
-    }
+     }
 
     public void ChangeStencilView()
     {
@@ -468,7 +464,7 @@ public abstract class DNAGrid
     public void Rotate(float pitch, float roll, float yaw)
     {
         // Attach parent transforms
-        GameObject gridStart = Grid2D[0, 0].gameObject;
+        GameObject gridStart = Grid2D[0, 0].gameObject; // CHECK: Might need to change this
         for (int i = 0; i < Length; i++)
         {
             for (int j = 0; j < Width; j++)
@@ -482,7 +478,7 @@ public abstract class DNAGrid
         }
 
         // Rotate grid
-        gridStart.transform.Rotate(new Vector3(pitch, yaw, roll));
+        gridStart.transform.eulerAngles = new Vector3(pitch, yaw, roll);
 
         // Detach parent transforms
         for (int i = 0; i < Length; i++)

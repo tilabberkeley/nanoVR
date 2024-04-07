@@ -178,30 +178,17 @@ public class DrawMerge : MonoBehaviour
         Strand firstStrand = s_strandDict[firstNtc.StrandId];
         Strand secondStrand = s_strandDict[secondNtc.StrandId];
 
-        /*
-        if (secondGO == null)
-        {
-            firstStrand.SetComponents();
-            return;
-        }
-        */
-        //firstStrand.AddXovers(secondStrand.GetXovers());
-
         if (isHead)
         {
-            //firstStrand.AddXov
             firstStrand.AddToHead(backbone);
             firstStrand.AddToHead(secondStrand.Nucleotides);
-            // must add backbone between 2 strands
         }
         else
         {
             firstStrand.AddToTail(backbone);
             firstStrand.AddToTail(secondStrand.Nucleotides);
-            // must add backbone between 2 strands
         }
         SelectStrand.RemoveStrand(secondGO);
         firstStrand.SetComponents();
-        //DrawNucleotideDynamic.AddStrandToHelix(secondGO);
     }
 }

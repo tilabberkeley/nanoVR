@@ -34,14 +34,13 @@ public class ExpandStrands : MonoBehaviour
 
     private void ConvertToVisualMode()
     {
-        string json = GetSCJSON(); // FIX: This is a copy so need to figure out a way to not get key collisions in dictionaries!
-                                   // Maybe have temp dictionaries in GlobalVariables to help with visual mode?
+        string json = FileExport.GetSCJSON(new List<string>(s_gridDict.Keys), false); // TODO: Test this
         foreach (GameObject go in allGameObjects)
         {
             go.SetActive(false);
         }
         //StartCoroutine(ParseSC(json));
-        ParseSC(json);
+        FileImport.ParseSC(json, false, true); // TODO: Test this
     }
 
     public void ConvertToEditMode()

@@ -97,20 +97,27 @@ public class DrawSplit : MonoBehaviour
         int strandId = startNtc.StrandId;
         s_strandDict.TryGetValue(strandId, out Strand strand);
 
-
-        int goIndex = strand.GetIndex(go);
-
         if (splitAfter)
         {
-            //List<GameObject> xovers = strand.GetXoversAfterIndex(goIndex);
-            //strand.RemoveXovers(xovers);
-            CreateStrand(strand.SplitAfter(go), id, color);
+            if (strand.IsCircular)
+            {
+                strand.SplitCircularAfter(go);
+            }
+            else
+            {
+                CreateStrand(strand.SplitAfter(go), id, color);
+            }
         }
         else
         {
-            //List<GameObject> xovers = strand.GetXoversBeforeIndex(goIndex);
-            //strand.RemoveXovers(xovers);
-            CreateStrand(strand.SplitBefore(go), id, color);
+            if (strand.IsCircular)
+            {
+                strand.SplitCircularBefore(go);
+            }
+            else
+            {
+                CreateStrand(strand.SplitBefore(go), id, color);
+            }
         }
     }
 
