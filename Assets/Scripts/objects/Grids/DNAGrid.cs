@@ -30,12 +30,12 @@ public abstract class DNAGrid
     { 
         get 
         {
-            /*if (_grid2D[-2, -2] == null)
-            {
-                return _startPos;
-            }*/
             int i = GridXToIndex(-2);
             int j = GridYToIndex(-2);
+            if (_grid2D[i, j] == null)
+            {
+                return _startPos;
+            }
             return _grid2D[i, j].transform.position; 
         } 
         set 
@@ -43,6 +43,16 @@ public abstract class DNAGrid
             Debug.Log("Setting grid start pos to " + value.ToString());
             _startPos = value; 
         } 
+    }
+
+    public GameObject StartGridCircle
+    {
+        get
+        {
+            int i = GridXToIndex(-2);
+            int j = GridYToIndex(-2);
+            return _grid2D[i, j].gameObject;
+        }
     }
 
     protected Vector3 _rotation;
@@ -384,13 +394,13 @@ public abstract class DNAGrid
         }
     }
 
-    /*private void Tilt(List<GameObject> gridCircles)
+    private void Tilt(List<GameObject> gridCircles)
     {
         GameObject bottomLeftCorner = _grid2D[0, 0].gameObject;
         GameObject gizmos = Transform.Instantiate(GlobalVariables.Gizmos,
                    bottomLeftCorner.transform.position + 0.2f * Vector3.back,
                    gridCircles[0].transform.rotation);
-     
+
         for (int i = 0; i < gridCircles.Count; i++)
         {
             gridCircles[i].transform.parent = gizmos.transform;
@@ -400,7 +410,7 @@ public abstract class DNAGrid
             }
         }
 
-        gizmos.transform.SetPositionAndRotation(bottomLeftCorner.transform.position + 0.2f * Vector3.back, bottomLeftCorner.transform.rotation);
+        gizmos.transform.rotation = bottomLeftCorner.transform.rotation;
 
         for (int i = 0; i < gridCircles.Count; i++)
         {
@@ -413,7 +423,7 @@ public abstract class DNAGrid
 
         GameObject.Destroy(gizmos);
     }
-*/
+
     /// <summary>
     /// Returns neighboring grid components of provided grid component.
     /// </summary>

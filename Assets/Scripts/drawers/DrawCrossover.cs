@@ -255,7 +255,7 @@ public class DrawCrossover : MonoBehaviour
          }
      }*/
 
-    public static void MergeStrand(GameObject firstGO, GameObject secondGO, GameObject xover)
+    private static void MergeStrand(GameObject firstGO, GameObject secondGO, GameObject xover)
     {
         var firstNtc = firstGO.GetComponent<NucleotideComponent>();
         var secondNtc = secondGO.GetComponent<NucleotideComponent>();
@@ -284,7 +284,7 @@ public class DrawCrossover : MonoBehaviour
         firstStrand.SetComponents();
     }
 
-    public static void HandleCycle(GameObject go)
+    private static void HandleCycle(GameObject go)
     {
         var ntc = go.GetComponent<NucleotideComponent>();
         s_strandDict.TryGetValue(ntc.StrandId, out Strand strand);

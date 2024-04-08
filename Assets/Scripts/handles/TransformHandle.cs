@@ -81,7 +81,7 @@ public class TransformHandle : MonoBehaviour
             }
         }
 
-        if (leftTriggerValue || rightTriggerValue)
+        if ((leftTriggerValue || rightTriggerValue) && gizmos.activeSelf)
         {
             DetachChildren();
             HideTransform();

@@ -109,8 +109,8 @@ public class DrawGrid : MonoBehaviour
     public void CreateGrid()
     {
         plane = directionDropdown.options[directionDropdown.value].text;
-        Vector3 direction = transform.rotation * Vector3.forward;
-        Vector3 currPoint = transform.position + direction * 0.2f;
+        Vector3 direction = Camera.main.transform.rotation * Vector3.forward;
+        Vector3 currPoint = Camera.main.transform.position + direction * 0.2f;
         CreateGrid(s_numGrids.ToString(), plane, currPoint, gridTypeDropdown.options[gridTypeDropdown.value].text);
     }
 

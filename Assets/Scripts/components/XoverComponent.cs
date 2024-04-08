@@ -54,6 +54,30 @@ public class XoverComponent : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        // Dynamically update xover gameobject when its prev and next gameobjects move
+        if ((_prevGO != null && _prevGO.transform.hasChanged)
+            || _nextGO != null && _nextGO.transform.hasChanged)
+        {
+            _prevGO.transform.hasChanged = false;
+            _nextGO.transform.hasChanged = false;
+
+            Vector3 start = _prevGO.transform.position;
+            Vector3 end = _nextGO.transform.position;
+
+            // Scale        
+            float dist = Vector3.Distance(end, start);
+            transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
+
+            // Position
+            transform.position = (end + start) / 2.0F;
+
+            // Rotation
+            transform.up = end - start;
+        }
+    }
+
     void Awake()
     {
         _ntRenderer = gameObject.GetComponent<Renderer>();
