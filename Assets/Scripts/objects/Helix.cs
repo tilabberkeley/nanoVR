@@ -140,13 +140,12 @@ public class Helix
             _nucleotidesB.Add(sphereB);
 
             // Rotate nucleotides to correct position based on grid's rotation
+            sphereA.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
             sphereA.transform.RotateAround(StartPoint, Vector3.right, _gridComponent.transform.eulerAngles.x);
             sphereA.transform.RotateAround(StartPoint, Vector3.up, _gridComponent.transform.eulerAngles.y);
-            sphereA.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
+            sphereB.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
             sphereB.transform.RotateAround(StartPoint, Vector3.right, _gridComponent.transform.eulerAngles.x);
             sphereB.transform.RotateAround(StartPoint, Vector3.up, _gridComponent.transform.eulerAngles.y);
-            sphereB.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
-
         }
 
         if (prevLength == 0) 
@@ -473,37 +472,35 @@ public class Helix
         {
             nucleotide.transform.position += diff;
             var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            Strand strand = null;
             if (ntc.Selected)
             {
-                strand = s_strandDict[ntc.StrandId];
+                Strand strand = s_strandDict[ntc.StrandId];
+                if (strand.Head == nucleotide)
+                {
+                    strand.SetCone();
+                }
             }
-            if (nucleotide.GetComponent<NucleotideComponent>().Xover != null)
+            /*if (nucleotide.GetComponent<NucleotideComponent>().Xover != null)
             {
                 MoveXover(nucleotide);
-            }
-            if (strand != null && strand.Head == nucleotide)
-            {
-                strand.SetCone();
-            }
+            }*/
         }
         foreach (GameObject nucleotide in NucleotidesB)
         {
             nucleotide.transform.position += diff;
             var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            Strand strand = null;
             if (ntc.Selected)
             {
-                strand = s_strandDict[ntc.StrandId];
+                Strand strand = s_strandDict[ntc.StrandId];
+                if (strand.Head == nucleotide)
+                {
+                    strand.SetCone();
+                }
             }
-            if (nucleotide.GetComponent<NucleotideComponent>().Xover != null)
+            /*if (nucleotide.GetComponent<NucleotideComponent>().Xover != null)
             {
                 MoveXover(nucleotide);
-            }
-            if (strand != null && strand.Head == nucleotide)
-            {
-                strand.SetCone();
-            }
+            }*/
         }
         foreach (GameObject backbone in BackbonesA)
         {
@@ -519,16 +516,18 @@ public class Helix
     /// Helps redraw the xovers when a helix is moved to a new grid circle.
     /// </summary>
     /// <param name="nucleotide">Moved nucleotide GameObject which is attached to the xover being redrawn.</param>
-    public void MoveXover(GameObject nucleotide)
+    /*public void MoveXover(GameObject nucleotide)
     {
         var ntc = nucleotide.GetComponent<NucleotideComponent>();
         GameObject oldXover = ntc.Xover;
         var xoverComp = oldXover.GetComponent<XoverComponent>();
         DrawPoint.MakeXover(xoverComp.PrevGO, xoverComp.NextGO, ntc.StrandId);
         GameObject.Destroy(oldXover);
-    }
+    }*/
 
-    // Deletes helix and destroys all of its GameObjects.
+    /// <summary>
+    /// Deletes helix object and destroys all GameObjects.
+    /// </summary>
     public void DeleteHelix()
     {
         _gridComponent.Helix = null;
@@ -552,16 +551,29 @@ public class Helix
         }
     }
 
-
+    /// <summary>
+    /// Sets parent transforms of all helix GameObjects to go (the transform gizmo). This helps with Grid translations and rotations.
+    /// </summary>
+    /// <param name="go">GameObject representing the transform gizmo.</param>
     public void SetParent(GameObject go)
     {
         foreach (GameObject nucleotide in NucleotidesA)
         {
             nucleotide.transform.parent = go.transform;
+            Strand strand = Utils.GetStrand(nucleotide);
+            if (strand != null)
+            {
+                strand.Cone.transform.parent = go.transform;
+            }
         }
         foreach (GameObject nucleotide in NucleotidesB)
         {
             nucleotide.transform.parent = go.transform;
+            Strand strand = Utils.GetStrand(nucleotide);
+            if (strand != null)
+            {
+                strand.Cone.transform.parent = go.transform;
+            }
         }
         foreach (GameObject nucleotide in BackbonesA)
         {

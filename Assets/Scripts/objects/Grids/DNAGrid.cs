@@ -14,7 +14,7 @@ public abstract class DNAGrid
     /* Constants. Increase GRIDCIRCLESIZEFACTOR to decrease distance between grid circles and vice versa. */
     protected const int STARTLENGTH = 5;
     protected const int STARTWIDTH = 5;
-    protected const float GRIDCIRCLESIZEFACTOR = 7.0f;
+    protected const float GRIDCIRCLESIZEFACTOR = 6.0f;
     protected const float DIAMETER = 1 / GRIDCIRCLESIZEFACTOR;
     protected const float RADIUS = DIAMETER / 2;
     public abstract string Type { get; }
@@ -51,12 +51,13 @@ public abstract class DNAGrid
         {
             int i = GridXToIndex(-2);
             int j = GridYToIndex(-2);
+            if (_grid2D[i, j] == null)
+            {
+                return null;
+            }
             return _grid2D[i, j].gameObject;
         }
     }
-
-    protected Vector3 _rotation;
-    public Vector3 Rotation { get { return _rotation; } }
 
     protected GridComponent[,] _grid2D;
     public GridComponent[,] Grid2D { get { return _grid2D; } }
@@ -91,6 +92,7 @@ public abstract class DNAGrid
         _id = id;
         _plane = plane;
         _startPos = startPos;
+
         _size = 0;
         SetBounds();
         // 2D array with _length rows and _width columns

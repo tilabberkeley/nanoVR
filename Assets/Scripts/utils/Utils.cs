@@ -12,7 +12,7 @@ using static GlobalVariables;
 public class Utils : MonoBehaviour
 {
     // CONSTANTS
-    public const float SCALE = 18f;
+    public const float SCALE = 19f;
     public const float RADIUS = 1f / SCALE;
     public const float RISE = .34f / SCALE;
     public const float NUM_BASE_PAIRS = 10.5f;
@@ -68,6 +68,12 @@ public class Utils : MonoBehaviour
             s_numStrands += 1;
         }
         return strand;
+    }
+
+    public static Strand GetStrand(GameObject nucl)
+    {
+        var ntc = nucl.GetComponent<NucleotideComponent>();
+        return s_strandDict[ntc.StrandId];
     }
 
     /*public static void CreateStrand(List<GameObject> nucleotides, int strandId, Color color) { CreateStrand(nucleotides, new List<GameObject>(), strandId, color); }

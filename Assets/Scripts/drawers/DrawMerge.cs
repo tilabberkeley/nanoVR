@@ -152,22 +152,20 @@ public class DrawMerge : MonoBehaviour
         int helixId = ntc.HelixId;
         s_helixDict.TryGetValue(helixId, out Helix helix);
         int direction = ntc.Direction;
-        GameObject neighbor = null;
-        GameObject backbone = null;
+        GameObject neighbor;
+        GameObject backbone;
 
         if (valid == 0)
         {
             neighbor = helix.GetHeadNeighbor(go, direction);
             backbone = helix.GetHeadBackbone(go, direction);
             MergeStrand(go, neighbor, backbone, true);
-
         }
         else if (valid == 1)
         {
             neighbor = helix.GetTailNeighbor(go, direction);
             backbone = helix.GetTailBackbone(go, direction); 
             MergeStrand(go, neighbor, backbone, false);
-
         }
     }
 
@@ -177,16 +175,19 @@ public class DrawMerge : MonoBehaviour
         var secondNtc = secondGO.GetComponent<NucleotideComponent>();
         Strand firstStrand = s_strandDict[firstNtc.StrandId];
         Strand secondStrand = s_strandDict[secondNtc.StrandId];
+        bool circularStrand = firstNtc.StrandId == secondNtc.StrandId;
 
         if (isHead)
         {
             firstStrand.AddToHead(backbone);
-            firstStrand.AddToHead(secondStrand.Nucleotides);
+            if (!circularStrand) firstStrand.AddToHead(secondStrand.Nucleotides);
+            if (circularStrand) firstStrand.ShowHideCone(false);
         }
         else
         {
             firstStrand.AddToTail(backbone);
-            firstStrand.AddToTail(secondStrand.Nucleotides);
+            if (!circularStrand) firstStrand.AddToTail(secondStrand.Nucleotides);
+            if (circularStrand) firstStrand.ShowHideCone(false);
         }
         SelectStrand.RemoveStrand(secondGO);
         firstStrand.SetComponents();

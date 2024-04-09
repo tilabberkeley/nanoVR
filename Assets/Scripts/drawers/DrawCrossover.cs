@@ -192,7 +192,7 @@ public class DrawCrossover : MonoBehaviour
         GameObject xover = CreateXoverHelper(firstGO, secondGO);
 
         // Create circular strand
-        if (firstNtc.Id == secondNtc.Id)
+        if (firstNtc.StrandId == secondNtc.StrandId)
         {
             HandleCycle(firstGO);
         }

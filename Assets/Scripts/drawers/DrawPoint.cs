@@ -149,46 +149,61 @@ public static class DrawPoint
     /// Creates grid circle game object at specified location and rotates it depending on plane direction.
     /// </summary>
     /// <param name="startPosition">Start position of grid object.</param>
+    /// <param name="startGridCircle">Grid circle associated with original start position</param>
     /// <param name="xOffset">2D x direction offset of grid circle in grid object.</param>
     /// <param name="yOffset">2D y direction offset of grid circle in grid object.</param>
     /// <param name="plane">Plane direction of grid object.</param>
     /// <returns></returns>
-    public static GameObject MakeGridCircleGO(GameObject startGridCircle, float xOffset, float yOffset, string plane)
+    public static GameObject MakeGridCircleGO(Vector3 startPosition, GameObject startGridCircle, float xOffset, float yOffset, string plane)
     {
-        // Calculate game position.
-        Vector3 gamePosition = startGridCircle.transform.position + xOffset * startGridCircle.transform.right + yOffset * startGridCircle.transform.up;
-        /*if (plane.Equals("XY"))
+        // Calculate position.
+        Vector3 position;
+        if (startGridCircle != null)
         {
-            gamePosition = new Vector3(startPosition.x + xOffset, startPosition.y + yOffset, startPosition.z);
-        }
-        else if (plane.Equals("YZ"))
-        {
-            gamePosition = new Vector3(startPosition.x, startPosition.y + xOffset, startPosition.z + yOffset);
+            position = startPosition + xOffset * startGridCircle.transform.right + yOffset * startGridCircle.transform.up;
         }
         else
         {
-            gamePosition = new Vector3(startPosition.x + xOffset, startPosition.y, startPosition.z + yOffset);
-        }*/
+            if (plane.Equals("XY"))
+            {
+                position = new Vector3(startPosition.x + xOffset, startPosition.y + yOffset, startPosition.z);
+            }
+            else if (plane.Equals("YZ"))
+            {
+                position = new Vector3(startPosition.x, startPosition.y + xOffset, startPosition.z + yOffset);
+            }
+            else
+            {
+                position = new Vector3(startPosition.x + xOffset, startPosition.y, startPosition.z + yOffset);
+            }
+        }
+
 
         GameObject gridCircle = Instantiate(GridCircle,
-                   gamePosition,
-                   startGridCircle.transform.rotation) as GameObject;
+                   position,
+                   Quaternion.identity) as GameObject;
 
         // Calculate rotation
-        /*if (plane.Equals("XZ"))
+        if (startGridCircle != null)
         {
-            gridCircle.transform.Rotate(0f, 0f, 90f, 0);
+            gridCircle.transform.rotation = startGridCircle.transform.rotation;
         }
-        else if (plane.Equals("YZ"))
+        else
         {
-            gridCircle.transform.Rotate(0f, 90f, 0f, 0);
-        }*/
-       
+            if (plane.Equals("XZ"))
+            {
+                gridCircle.transform.Rotate(0f, 0f, 90f, 0);
+            }
+            else if (plane.Equals("YZ"))
+            {
+                gridCircle.transform.Rotate(0f, 90f, 0f, 0);
+            }
+        }
+
         gridCircle.name = "gridPoint";
         GridComponent gridComponent = gridCircle.GetComponent<GridComponent>();
-        gridComponent.Position = gamePosition;
+        gridComponent.Position = position;
         SaveGameObject(gridCircle);
-
         return gridCircle;
     }
 
