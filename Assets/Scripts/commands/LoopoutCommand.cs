@@ -1,0 +1,72 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using static Utils;
+
+public class LoopoutCommand : ICommand
+{
+    private GameObject _first;
+    private GameObject _second;
+    private GameObject _loopout;
+    private bool _firstIsHead;
+    private bool _firstIsEnd;
+    private bool _secondIsEnd;
+    private Color _secondColor;
+
+    private int _startId;
+    private int _startHelixId;
+    private int _startDirection;
+    private int _endId;
+    private int _endStrandId;
+    private int _endHelixId;
+    private int _endDirection;
+
+    private int _sequenceLength;
+
+    public LoopoutCommand(GameObject first, GameObject second, bool firstIsEnd, bool secondIsEnd, bool firstIsHead, int sequenceLength)
+    {
+        _first = first;
+        _second = second;
+        _secondColor = second.GetComponent<NucleotideComponent>().Color;
+
+        var startNtc = first.GetComponent<NucleotideComponent>();
+        _startId = startNtc.Id;
+        _startHelixId = startNtc.HelixId;
+        _startDirection = startNtc.Direction;
+
+        var endNtc = second.GetComponent<NucleotideComponent>();
+        _endId = endNtc.Id;
+        _endStrandId = endNtc.StrandId;
+        _endHelixId = endNtc.HelixId;
+        _endDirection = endNtc.Direction;
+
+        _firstIsEnd = firstIsEnd;
+        _secondIsEnd = secondIsEnd;
+        _firstIsHead = firstIsHead;
+
+        _sequenceLength = sequenceLength;
+    }
+
+    public void Do()
+    {
+        DrawLoopout.CreateLoopout(_first, _second, _sequenceLength);
+    }
+
+    public void Undo()
+    {
+        //DrawSplit.SplitStrand(_startGO, _endColor, _isHead);
+        GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
+        GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
+        _loopout = startGO.GetComponent<NucleotideComponent>().Xover;
+        DrawLoopout.EraseLoopout(_loopout, _endStrandId, _secondColor, _firstIsHead);
+        if (!_firstIsEnd) { DrawMerge.MergeStrand(startGO); }
+        if (!_secondIsEnd) { DrawMerge.MergeStrand(endGO); }
+    }
+
+    public void Redo()
+    {
+        GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
+        GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
+        DrawLoopout.CreateLoopout(startGO, endGO, _sequenceLength);
+    }
+}

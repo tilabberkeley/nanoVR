@@ -48,7 +48,7 @@ public class Strand
     private GameObject _cone;
     public GameObject Cone { get { return _cone; } }
 
-    // List of this strand's crossovers (needs testing).
+    // List of this strand's crossovers and loopouts (needs testing).
     private List<GameObject> _xovers = new List<GameObject>();
     public List<GameObject> Xovers { get { return _xovers; } }
 
@@ -388,6 +388,11 @@ public class Strand
 
     public void DeleteXover(GameObject xover)
     {
+        if (xover == null)
+        {
+            return;
+        }
+
         var xoverComp = xover.GetComponent<XoverComponent>();
         var prevNtc = xoverComp.PrevGO.GetComponent<NucleotideComponent>();
         var nextNtc = xoverComp.NextGO.GetComponent<NucleotideComponent>();

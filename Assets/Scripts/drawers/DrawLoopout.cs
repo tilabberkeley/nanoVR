@@ -6,7 +6,6 @@ using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
 using static Utils;
-using static DrawCrossover;
 using TMPro;
 using System;
 
@@ -92,12 +91,13 @@ public class DrawLoopout : MonoBehaviour
                     //Unhighlight(s_startGO);
 
                     DoCreateLoopout();
+                    ResetNucleotides();
                 }
             }
-            else if (s_hit.collider.GetComponent<LoopoutComponent>() != null && s_eraseTogOn)
+            else if (s_hit.collider.GetComponent<LoopoutInteractableComponent>() != null && s_eraseTogOn)
             {
                 // Highlight(s_hit.collider.gameObject);
-                // DoEraseLoopout(s_hit.collider.gameObject);
+                DoEraseLoopout(s_hit.collider.gameObject);
             }
             else
             {
@@ -187,60 +187,44 @@ public class DrawLoopout : MonoBehaviour
         return 0;
     }
 
-    public void DoCreateLoopout()
-    {
-        Debug.Log("Doing loopout");
-        CreateLoopout(s_startGO, s_endGO);
-        // TODO: Add command
-        //if (!IsValid(first, second))
-        //{
-        //    return;
-        //}
-        //Strand firstStr = s_strandDict[first.GetComponent<NucleotideComponent>().StrandId];
-        //Strand secondStr = s_strandDict[second.GetComponent<NucleotideComponent>().StrandId];
+    public static void DoCreateLoopout()
+    { 
+        Strand firstStr = s_strandDict[s_startGO.GetComponent<NucleotideComponent>().StrandId];
+        Strand secondStr = s_strandDict[s_endGO.GetComponent<NucleotideComponent>().StrandId];
 
-        //// Bools help check if strands should merge with neighbors when xover is deleted or undo.
-        //bool firstIsEnd = first == firstStr.Head || first == firstStr.Tail;
-        //bool secondIsEnd = second == secondStr.Head || second == secondStr.Tail;
-        //bool firstIsHead = first == firstStr.Head;
-        //ICommand command = new XoverCommand(first, second, firstIsEnd, secondIsEnd, firstIsHead);
-        //CommandManager.AddCommand(command);
+        // Bools help check if strands should merge with neighbors when xover is deleted or undo.
+        bool firstIsEnd = s_startGO == firstStr.Head || s_startGO == firstStr.Tail;
+        bool secondIsEnd = s_endGO == secondStr.Head || s_endGO == secondStr.Tail;
+        bool firstIsHead = s_startGO == firstStr.Head;
+        ICommand command = new LoopoutCommand(s_startGO, s_endGO, firstIsEnd, secondIsEnd, firstIsHead, DEFAULT_LENGTH);
+        CommandManager.AddCommand(command);
     }
 
     /// <summary>
     /// Splits strands, creates crossover, and merges strands.
     /// </summary>
-    public GameObject CreateLoopout(GameObject firstGO, GameObject secondGO)
+    public static GameObject CreateLoopout(GameObject firstGO, GameObject secondGO, int sequenceLength)
     {
-        if (!IsValid(firstGO, secondGO))
+        if (!DrawCrossover.IsValid(firstGO, secondGO))
         {
-            Debug.Log("Invalid");
+            
             return null;
         }
-
-        Debug.Log("Valid");
 
         var firstNtc = firstGO.GetComponent<NucleotideComponent>();
         var secondNtc = secondGO.GetComponent<NucleotideComponent>();
 
-        Debug.Log("Splitting");
-
         DrawSplit.SplitStrand(firstGO, s_numStrands, Strand.GetDifferentColor(firstNtc.Color), false);
         DrawSplit.SplitStrand(secondGO, s_numStrands, Strand.GetDifferentColor(secondNtc.Color), true);
 
-        GameObject loopout = CreateLoopoutHelper(firstGO, secondGO, DEFAULT_LENGTH);
-        MergeStrand(firstGO, secondGO, loopout);
-
-        ResetNucleotides();
+        GameObject loopout = CreateLoopoutHelper(firstGO, secondGO, sequenceLength);
+        DrawCrossover.MergeStrand(firstGO, secondGO, loopout);
 
         return loopout;
     }
 
     public static GameObject CreateLoopoutHelper(GameObject startGO, GameObject endGO, int length)
     {
-        Debug.Log("Creating Loopout");
-        Debug.Log("Nuc 0 id:" + startGO.GetComponent<NucleotideComponent>().Id);
-        Debug.Log("Nuc 1 id:" + startGO.GetComponent<NucleotideComponent>().Id);
         int strandId = startGO.GetComponent<NucleotideComponent>().StrandId;
         NucleotideComponent startNucleotide = startGO.GetComponent<NucleotideComponent>();
         NucleotideComponent endNucleotide = endGO.GetComponent<NucleotideComponent>();
@@ -254,11 +238,11 @@ public class DrawLoopout : MonoBehaviour
 
     public static void DoEraseLoopout(GameObject xover)
     {
-        ICommand command = new EraseXoverCommand(xover, s_numStrands, xover.GetComponent<XoverComponent>().Color);
+        ICommand command = new EraseLoopoutCommand(xover, s_numStrands, xover.GetComponent<XoverComponent>().Color);
         CommandManager.AddCommand(command);
     }
 
-    public static void EraseXover(GameObject xover, int strandId, Color color, bool splitAfter)
+    public static void EraseLoopout(GameObject xover, int strandId, Color color, bool splitAfter)
     {
         var xoverComp = xover.GetComponent<XoverComponent>();
         GameObject go;
@@ -336,7 +320,6 @@ public class DrawLoopout : MonoBehaviour
 
     private void ShowEditPanel()
     {
-        Debug.Log("Opening edit menu");
         s_menuEnabled = _menu.enabled;
         _menu.enabled = false;
         _editPanel.enabled = true;

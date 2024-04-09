@@ -92,8 +92,6 @@ public static class DrawPoint
                    Vector3.zero,
                    Quaternion.identity) as GameObject;
         xover.name = "xover";
-        var xoverComp = xover.GetComponent<XoverComponent>();
-        xoverComp.StrandId = strandId;
         Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
 
         // Position
@@ -108,12 +106,16 @@ public static class DrawPoint
         // Scale        
         float dist = Vector3.Distance(nextGO.transform.position, prevGO.transform.position);
         xover.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
+
+        var xoverComp = xover.GetComponent<XoverComponent>();
+        xoverComp.StrandId = strandId;
         xoverComp.Length = dist;
         xoverComp.Color = prevGO.GetComponent<NucleotideComponent>().Color;
         prevGO.GetComponent<NucleotideComponent>().Xover = xover;
         nextGO.GetComponent<NucleotideComponent>().Xover = xover;
         xoverComp.PrevGO = prevGO;
         xoverComp.NextGO = nextGO;
+
         return xover;
     }
 
@@ -281,6 +283,10 @@ public static class DrawPoint
         loopoutComponent.PrevGO = nucleotide0.gameObject;
         loopoutComponent.NextGO = nucleotide1.gameObject;
         loopoutComponent.StrandId = strandId;
+        loopoutComponent.Color = nucleotide0.Color;
+
+        nucleotide0.Xover = loopout;
+        nucleotide1.Xover = loopout;
 
         // Create interactable
         GameObject loopoutInteractable =
@@ -292,6 +298,7 @@ public static class DrawPoint
         LoopoutInteractableComponent loopoutInteractableComponent = loopoutInteractable.GetComponent<LoopoutInteractableComponent>();
         loopoutInteractableComponent.Loopout = loopoutComponent;
         loopoutComponent.Interactable = loopoutInteractableComponent;
+        loopoutInteractable.transform.parent = loopout.transform;
 
         return loopoutComponent;
     }
