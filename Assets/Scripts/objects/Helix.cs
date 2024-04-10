@@ -428,7 +428,7 @@ public class Helix
     }
 
     /// <summary>
-    /// Changes rendering of helix and its components (cones).
+    /// Changes rendering of helix and its components.
     /// </summary>
     public void ChangeRendering()
     {
@@ -439,8 +439,8 @@ public class Helix
             _nucleotidesB[i].SetActive(s_nucleotideView);
             _backbonesB[i].SetActive(s_nucleotideView);
         }
-        NucleotidesA[NucleotidesA.Count - 1].SetActive(s_nucleotideView);
-        NucleotidesB[NucleotidesB.Count - 1].SetActive(s_nucleotideView);
+        _nucleotidesA[_nucleotidesA.Count - 1].SetActive(s_nucleotideView);
+        _nucleotidesB[_nucleotidesB.Count - 1].SetActive(s_nucleotideView);
     }
 
     /// <summary>
@@ -471,36 +471,20 @@ public class Helix
         foreach (GameObject nucleotide in NucleotidesA)
         {
             nucleotide.transform.position += diff;
-            var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            if (ntc.Selected)
+            Strand strand = Utils.GetStrand(nucleotide);
+            if (strand != null && strand.Head == nucleotide)
             {
-                Strand strand = s_strandDict[ntc.StrandId];
-                if (strand.Head == nucleotide)
-                {
-                    strand.SetCone();
-                }
+                strand.SetCone();
             }
-            /*if (nucleotide.GetComponent<NucleotideComponent>().Xover != null)
-            {
-                MoveXover(nucleotide);
-            }*/
         }
         foreach (GameObject nucleotide in NucleotidesB)
         {
             nucleotide.transform.position += diff;
-            var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            if (ntc.Selected)
+           Strand strand = Utils.GetStrand(nucleotide);
+            if (strand != null && strand.Head == nucleotide)
             {
-                Strand strand = s_strandDict[ntc.StrandId];
-                if (strand.Head == nucleotide)
-                {
-                    strand.SetCone();
-                }
+                strand.SetCone();
             }
-            /*if (nucleotide.GetComponent<NucleotideComponent>().Xover != null)
-            {
-                MoveXover(nucleotide);
-            }*/
         }
         foreach (GameObject backbone in BackbonesA)
         {
@@ -511,19 +495,6 @@ public class Helix
             backbone.transform.position += diff;
         }
     }
-
-    /// <summary>
-    /// Helps redraw the xovers when a helix is moved to a new grid circle.
-    /// </summary>
-    /// <param name="nucleotide">Moved nucleotide GameObject which is attached to the xover being redrawn.</param>
-    /*public void MoveXover(GameObject nucleotide)
-    {
-        var ntc = nucleotide.GetComponent<NucleotideComponent>();
-        GameObject oldXover = ntc.Xover;
-        var xoverComp = oldXover.GetComponent<XoverComponent>();
-        DrawPoint.MakeXover(xoverComp.PrevGO, xoverComp.NextGO, ntc.StrandId);
-        GameObject.Destroy(oldXover);
-    }*/
 
     /// <summary>
     /// Deletes helix object and destroys all GameObjects.

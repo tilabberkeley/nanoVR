@@ -21,8 +21,8 @@ public class NucleotideComponent : DNAComponent
     public bool IsDeletion { get { return _deletion; } set { _deletion = value; } }
 
     // DNA base of this nucleotide. Longer than one if nucleotide is insertion.
-    // Default DNA is X (no base assigned yet)
-    private string _sequence = "X";
+    // Default DNA is empty string (no base assigned yet)
+    private string _sequence = "";
     public string Sequence { get { return _sequence; } set { _sequence = value; } }
 
     public GameObject Complement 
@@ -38,6 +38,9 @@ public class NucleotideComponent : DNAComponent
     private GameObject _xover = null;
     public GameObject Xover { get { return _xover;} set { _xover = value; } }
     public bool HasXover { get { return _xover != null; } }
+
+    private GameObject _cone = null;
+    public GameObject Cone { get { return _cone; } set { _cone = value; } }
 
     // Set of crossover suggestions connected to this nucleotide.
     private HashSet<XoverSuggestionComponent> _xoverSuggestionComponents;

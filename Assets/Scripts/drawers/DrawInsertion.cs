@@ -141,19 +141,30 @@ public class DrawInsertion : MonoBehaviour
             Debug.Log("Cannot draw insertion over deletion.");
             return;
         }
+        if (!ntc.Selected)
+        {
+            Debug.Log("Cannot draw insertion on unbound nucleotide.");
+            return;
+        }
+
+        Strand strand = Utils.GetStrand(go);
+        string sequence = strand.Sequence;
 
         if (ntc.IsInsertion)
         {
             ntc.Insertion = 0;
             UnhighlightInsertion(go);
         }
-        else if (ntc.Selected)
+        else
         {
-            HighlightInsertion(go);
             ntc.Insertion = length;
+            HighlightInsertion(go);
         }
 
+        Utils.CheckMismatch(go);
         // Update strand DNA sequence
+        strand.Sequence = sequence;
+
         /*s_strandDict.TryGetValue(ntc.StrandId, out Strand strand);
         strand.SetSequence(strand.Sequence);*/
     }

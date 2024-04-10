@@ -63,6 +63,7 @@ public class InfoDisplay : MonoBehaviour
         var comp = go.GetComponent<NucleotideComponent>();
         string text = "<b>Nucleotide</b>\n";
         text += "DNA: " + comp.Sequence + "\n";
+        if (comp.IsInsertion) text += "Insertion Length: " + comp.Insertion + "\n";
         text += "Nucl Id: " + comp.Id + "\n";
         text += "Helix Id: " + comp.HelixId + "\n";
         text += "Direction: " + (comp.Direction == 1 ? "Forward" : "Reverse") + "\n\n";

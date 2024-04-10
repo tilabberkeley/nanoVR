@@ -129,7 +129,6 @@ public class StrandSettings : MonoBehaviour
                 return;
             }
             sequence = DNA7249.Substring(rotation, length);
-            s_strand.Sequence = DNA7249.Substring(rotation, length);
         }
         else if (_tog7560.isOn)
         {
@@ -139,7 +138,6 @@ public class StrandSettings : MonoBehaviour
                 return;
             }
             sequence = DNA7560.Substring(rotation, length);
-            s_strand.Sequence = DNA7560.Substring(rotation, length);
         }
         else if (_tog8064.isOn)
         {
@@ -149,7 +147,6 @@ public class StrandSettings : MonoBehaviour
                 return;
             }
             sequence = DNA8064.Substring(rotation, length);
-            s_strand.Sequence = DNA8064.Substring(rotation, length);
         }
         else if (_tog8634.isOn)
         {
@@ -159,7 +156,6 @@ public class StrandSettings : MonoBehaviour
                 return;
             }
             sequence = DNA8634.Substring(rotation, length);
-            s_strand.Sequence = DNA8634.Substring(rotation, length);
         }
         else if (_customTog.isOn)
         {
@@ -183,9 +179,9 @@ public class StrandSettings : MonoBehaviour
                 Debug.Log("Input sequence too long. Using first " + length + " bases of sequence.");
                 sequence = sequence.Substring(0, length);
             }
-            s_strand.Sequence = sequence.ToUpper();
         }
-
+        s_strand.Sequence = sequence.ToUpper();
+        s_strand.AssignedSequence = true;
         if (_complementaryTog.isOn)
         {
             SetComplementary(sequence);

@@ -29,7 +29,7 @@ public class Strand
     private int _strandId;
     public int Id { get { return _strandId; } }
 
-    public int HelixId { get { return _head.GetComponent<NucleotideComponent>().HelixId; } }
+    //public int HelixId { get { return _head.GetComponent<NucleotideComponent>().HelixId; } }
 
     // This strand's color.
     private Color _color;
@@ -58,6 +58,9 @@ public class Strand
     private GameObject _bezier;
 
     // private String _sequence;
+    private bool _assignedSequence = false;
+
+    public bool AssignedSequence { get { return _assignedSequence; } set { _assignedSequence = value; } }
 
     public string Sequence 
     { 
@@ -73,8 +76,8 @@ public class Strand
                 }
             }
             return sequence;
-        } 
-        set { SetSequence(value); } 
+        }
+        set { SetSequence(value); }//SetComplementary(); } 
     }
 
     private bool _isScaffold = false;
@@ -319,6 +322,7 @@ public class Strand
         _nucleotides.InsertRange(0, removed);
         _head = _nucleotides[0];
         _tail = _nucleotides.Last();
+        _isCircular = false;
         ShowHideCone(true);
         SetCone();
     }
@@ -359,6 +363,7 @@ public class Strand
         _nucleotides.InsertRange(0, removed);
         _head = _nucleotides[0];
         _tail = _nucleotides.Last();
+        _isCircular = false;
         ShowHideCone(true);
         SetCone();
     }
@@ -417,9 +422,9 @@ public class Strand
 
     public void SetSequence(string sequence)
     {
-        if (sequence.Equals("")) { return; }
+        if (sequence.Equals("")) return;
 
-        int strandLength = Length;
+        int strandLength = this.Length;
         if (sequence.Length < strandLength)
         {
             for (int i = 0; i < strandLength - sequence.Length; i++)
@@ -446,9 +451,10 @@ public class Strand
                 }
             }
         }
+        _assignedSequence = true;
     }
 
-    // Sets cone direction (pointing left or right).
+    // Sets cone position and rotation (pointing left or right).
     public void SetCone()
     { 
         _cone.GetComponent<ConeComponent>().Color = _color;
@@ -473,26 +479,8 @@ public class Strand
             toDirection = neighbor.transform.position - _head.transform.position;
         }
         _cone.transform.SetPositionAndRotation(_head.transform.position, Quaternion.FromToRotation(Vector3.up, toDirection));
+        //_head.GetComponent<NucleotideComponent>().Cone = _cone;
     }
-
-    // Sets crossover color based on length (color of strand if appropriate length, gray if questionable, black if undoable).
-    /*public void SetXoverColor(GameObject xover)
-    {
-        double length = xover.transform.localScale.y;
-        var xoverComp = xover.GetComponent<XoverComponent>();
-        if (length <= 0.025)
-        {
-            xoverComp.Color = _color;
-        }
-        else if (length <= 0.035)
-        {
-            xoverComp.Color = Color.gray;
-        }
-        else
-        {
-            xoverComp.Color = Color.black;
-        }           
-    }*/
 
     // Resets all GameObject components in the nucleotides list.
     public void ResetComponents(List<GameObject> nucleotides)

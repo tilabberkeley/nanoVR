@@ -50,12 +50,9 @@ public class DrawDeletion : MonoBehaviour
         {
             GetDevice();
         }
-
-        bool triggerValue;
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-                && triggerValue
-                && triggerReleased
-                && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
+        if (triggerValue && triggerReleased
+            && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
             if (s_hit.collider.gameObject.GetComponent<NucleotideComponent>() != null)
@@ -66,8 +63,7 @@ public class DrawDeletion : MonoBehaviour
         }
 
         // Resets triggers to avoid multiple selections.                                              
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-                && !triggerValue)
+        if (!triggerValue)
         {
             triggerReleased = true;
         }
@@ -95,19 +91,31 @@ public class DrawDeletion : MonoBehaviour
             Debug.Log("Cannot draw deletion over insertion.");
             return;
         }
+        if (!ntc.Selected)
+        {
+            Debug.Log("Cannot draw insertion on unbound nucleotide.");
+            return;
+        }
+
+
+        Strand strand = Utils.GetStrand(go);
+        string sequence = strand.Sequence;
 
         if (ntc.IsDeletion)
         {
             ntc.IsDeletion = false;
             UnhighlightDeletion(go);
         }
-        else if (ntc.Selected)
+        else
         {
-            HighlightDeletion(go);
             ntc.IsDeletion = true;
+            HighlightDeletion(go);
         }
 
+        Utils.CheckMismatch(go);
         // Update strand DNA sequence
+        strand.Sequence = sequence;
+
         /*s_strandDict.TryGetValue(ntc.StrandId, out Strand strand);
         strand.SetSequence(strand.Sequence);*/
     }

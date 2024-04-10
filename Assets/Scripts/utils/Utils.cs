@@ -67,7 +67,44 @@ public class Utils : MonoBehaviour
             ObjectListManager.CreateStrandButton(strandId);
             s_numStrands += 1;
         }
+        CheckMismatch(strand);
         return strand;
+    }
+
+    private static void CheckMismatch(Strand strand)
+    {
+        foreach (GameObject nucl in  strand.Nucleotides)
+        {
+            CheckMismatch(nucl);
+        }
+    }
+
+    public static void CheckMismatch(GameObject nucl)
+    {
+        var ntc = nucl.GetComponent<NucleotideComponent>();
+        GameObject complement = ntc.Complement;
+        var complementNtc = complement.GetComponent<NucleotideComponent>();
+        if ((ntc.IsInsertion && complementNtc.IsDeletion) || (ntc.IsDeletion && complementNtc.IsInsertion))
+        {
+            DrawMismatch(nucl);
+        }
+        else if ((ntc.IsInsertion && !complementNtc.IsInsertion) || (ntc.IsDeletion && !complementNtc.IsDeletion))
+        {
+            DrawMismatch(nucl);
+        }
+        else if ((!ntc.IsInsertion && complementNtc.IsInsertion) || (!ntc.IsDeletion && complementNtc.IsDeletion))
+        {
+            DrawMismatch(complement);
+        }
+        else
+        {
+            // Everything is good. Delete mismatches if needed
+        }
+    }
+
+    private static void DrawMismatch(GameObject complement)
+    {
+        
     }
 
     public static Strand GetStrand(GameObject nucl)
