@@ -186,8 +186,8 @@ public class DrawCrossover : MonoBehaviour
         var firstNtc = firstGO.GetComponent<NucleotideComponent>();
         var secondNtc = secondGO.GetComponent<NucleotideComponent>();
 
-        DrawSplit.SplitStrand(firstGO, s_numStrands, firstNtc.Color, false);
-        DrawSplit.SplitStrand(secondGO, s_numStrands, secondNtc.Color, true);
+        DrawSplit.SplitStrand(firstGO, s_numStrands, Strand.GetDifferentColor(firstNtc.Color), false);
+        DrawSplit.SplitStrand(secondGO, s_numStrands, Strand.GetDifferentColor(secondNtc.Color), true);
 
         GameObject xover = CreateXoverHelper(firstGO, secondGO);
 
