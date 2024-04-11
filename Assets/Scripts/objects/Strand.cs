@@ -58,9 +58,9 @@ public class Strand
     private GameObject _bezier;
 
     // private String _sequence;
-    private bool _assignedSequence = false;
+    //private bool _assignedSequence = false;
 
-    public bool AssignedSequence { get { return _assignedSequence; } set { _assignedSequence = value; } }
+    public bool AssignedSequence { get { return _head.GetComponent<NucleotideComponent>().Sequence != ""; } }//set { _assignedSequence = value; } }
 
     public string Sequence 
     { 
@@ -449,9 +449,10 @@ public class Strand
                     ntc.Sequence = sequence.Substring(seqCount, ntc.Insertion + 1);
                     seqCount += ntc.Insertion + 1;
                 }
+                Utils.CheckMismatch(_nucleotides[i]);
             }
         }
-        _assignedSequence = true;
+        //_assignedSequence = true;
     }
 
     // Sets cone position and rotation (pointing left or right).

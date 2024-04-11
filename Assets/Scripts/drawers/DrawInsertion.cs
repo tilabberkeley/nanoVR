@@ -161,7 +161,7 @@ public class DrawInsertion : MonoBehaviour
             HighlightInsertion(go);
         }
 
-        Utils.CheckMismatch(go);
+        //Utils.CheckMismatch(go);
         // Update strand DNA sequence
         strand.Sequence = sequence;
 

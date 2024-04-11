@@ -112,7 +112,7 @@ public class DrawDeletion : MonoBehaviour
             HighlightDeletion(go);
         }
 
-        Utils.CheckMismatch(go);
+        //Utils.CheckMismatch(go);
         // Update strand DNA sequence
         strand.Sequence = sequence;
 

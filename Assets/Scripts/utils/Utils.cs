@@ -2,6 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static GlobalVariables;
@@ -35,7 +36,7 @@ public class Utils : MonoBehaviour
     // Create strand overloading methods.
     public static Strand CreateStrand(List<GameObject> nucleotides, int strandId) { return CreateStrand(nucleotides, strandId, Colors[s_numStrands % Colors.Length], new List<(GameObject, int)>(), new List<GameObject>(), "", false); }
     public static Strand CreateStrand(List<GameObject> nucleotides, int strandId, Color color) { return CreateStrand(nucleotides, strandId, color, new List<(GameObject, int)>(), new List<GameObject>(), "", false); }
-    public static Strand CreateStrand(List<GameObject> nucleotides, int strandId, Color color, List<(GameObject, int)> insertions, 
+    public static Strand CreateStrand(List<GameObject> nucleotides, int strandId, Color color, List<(GameObject, int)> insertions,
                                       List<GameObject> deletions, string sequence, bool isScaffold)
     {
         Strand strand = new Strand(nucleotides, strandId, color);
@@ -71,9 +72,9 @@ public class Utils : MonoBehaviour
         return strand;
     }
 
-    private static void CheckMismatch(Strand strand)
+    public static void CheckMismatch(Strand strand)
     {
-        foreach (GameObject nucl in  strand.Nucleotides)
+        foreach (GameObject nucl in strand.Nucleotides)
         {
             CheckMismatch(nucl);
         }
@@ -84,7 +85,19 @@ public class Utils : MonoBehaviour
         var ntc = nucl.GetComponent<NucleotideComponent>();
         GameObject complement = ntc.Complement;
         var complementNtc = complement.GetComponent<NucleotideComponent>();
-        if ((ntc.IsInsertion && complementNtc.IsDeletion) || (ntc.IsDeletion && complementNtc.IsInsertion))
+        //Strand strand = GetStrand(nucl);
+        //Strand complementStrand = GetStrand(complement);
+
+        // If complement nucleotide is not assigned a DNA sequence, there is no mismatch of DNA to check.
+        if (complementNtc.Sequence.Equals("")) return;
+
+        string complementBase = ComplementBase(ntc.Sequence);
+        if (!complementNtc.Sequence.Equals(complementBase))
+        {
+            DrawMismatch(complement);
+        }
+
+       /* if ((ntc.IsInsertion && complementNtc.IsDeletion) || (ntc.IsDeletion && complementNtc.IsInsertion))
         {
             DrawMismatch(nucl);
         }
@@ -98,13 +111,44 @@ public class Utils : MonoBehaviour
         }
         else
         {
-            // Everything is good. Delete mismatches if needed
-        }
+            // Everything is good. Delete mismatches if needed?
+        }*/
     }
 
     private static void DrawMismatch(GameObject complement)
     {
-        
+        Highlight.HighlightGO(complement, Color.magenta);
+    }
+
+    public static string ComplementBase(string dna)
+    {
+        string complementary = "";
+        for (int i = 0; i < dna.Length; i++)
+        {
+            if (dna[i] == 'A')
+            {
+                complementary += "T";
+            }
+            else if (dna[i] == 'T')
+            {
+                complementary += "A";
+            }
+            else if (dna[i] == 'C')
+            {
+                complementary += "G";
+            }
+            else if (dna[i] == 'G')
+            {
+                complementary += "C";
+            }
+            else
+            {
+                complementary += "?";
+            }
+        }
+        char[] charArray = complementary.ToCharArray();
+        Array.Reverse(charArray);
+        return new string(charArray);
     }
 
     public static Strand GetStrand(GameObject nucl)
@@ -112,6 +156,14 @@ public class Utils : MonoBehaviour
         var ntc = nucl.GetComponent<NucleotideComponent>();
         return s_strandDict[ntc.StrandId];
     }
+
+    public static Strand GetComplementStrand(Strand strand)
+    {
+        var ntc = strand.Head.GetComponent<NucleotideComponent>();
+        GameObject complement = ntc.Complement;
+        return GetStrand(complement);
+    }
+
 
     /*public static void CreateStrand(List<GameObject> nucleotides, int strandId, Color color) { CreateStrand(nucleotides, new List<GameObject>(), strandId, color); }
     public static void CreateStrand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId) { CreateStrand(nucleotides, xovers, strandId, s_colors[s_numStrands % 6]); }

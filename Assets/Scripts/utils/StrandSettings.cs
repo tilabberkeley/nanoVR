@@ -100,8 +100,7 @@ public class StrandSettings : MonoBehaviour
 
     private void SetSettings()
     {
-        if ((_isScaffold && !_scaffoldTog.isOn)
-            || (!_isScaffold && _scaffoldTog.isOn)) // Only update strand.IsScaffold if there is a change
+        if ((_isScaffold && !_scaffoldTog.isOn) || (!_isScaffold && _scaffoldTog.isOn)) // Only update strand.IsScaffold if there is a change
         {
             s_strand.IsScaffold = _scaffoldTog.isOn;
         }
@@ -116,7 +115,6 @@ public class StrandSettings : MonoBehaviour
         {
             rotation = Convert.ToInt32(_rotationInput.text);
         }
-        Debug.Log("Rotation: " + rotation);
 
         // Assigning DNA sequence to strand
         int length = s_strand.Length;
@@ -180,12 +178,40 @@ public class StrandSettings : MonoBehaviour
                 sequence = sequence.Substring(0, length);
             }
         }
+
         s_strand.Sequence = sequence.ToUpper();
-        s_strand.AssignedSequence = true;
         if (_complementaryTog.isOn)
         {
+            // If insertions and deletions are not aligned in current strand and complementary strand, we cannot assign DNA.
+            if (!AlignedInsertionsDeletions(s_strand)) return;
             SetComplementary(sequence);
         }
+        else
+        {
+            // User chose not to assign complementary strand sequence. This risks base mismatches, so we need to check.
+            Utils.CheckMismatch(s_strand);
+        }
+    }
+   
+    private bool AlignedInsertionsDeletions(Strand strand)
+    {
+        List<GameObject> nucleotides = strand.Nucleotides;
+        for (int i = nucleotides.Count - 1; i >= 0; i--)
+        {
+            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            if (ntc != null)
+            {
+                var compNtc = ntc.Complement.GetComponent<NucleotideComponent>();
+                if (compNtc.Selected)
+                {
+                    if (ntc.IsDeletion && !compNtc.IsDeletion) return false;
+                    if (!ntc.IsDeletion && compNtc.IsDeletion) return false;
+                    if (ntc.IsInsertion && !compNtc.IsInsertion) return false;
+                    if (!ntc.IsInsertion && compNtc.IsInsertion) return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void SetComplementary(string sequence)
@@ -198,7 +224,6 @@ public class StrandSettings : MonoBehaviour
             var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
             if (ntc != null)
             {
-                // TODO: Need to throw error if there are unmatch insertions/deletions in complementary strand
                 var compNtc = ntc.Complement.GetComponent<NucleotideComponent>();
                 if (compNtc.Selected)
                 {
@@ -208,7 +233,7 @@ public class StrandSettings : MonoBehaviour
                     }
                     else
                     {
-                        compNtc.Sequence = ComplementBase(sequence.Substring(seqCount, ntc.Insertion + 1));
+                        compNtc.Sequence = Utils.ComplementBase(sequence.Substring(seqCount, ntc.Insertion + 1));
                         seqCount += ntc.Insertion + 1;
                     }
                 }
@@ -216,29 +241,7 @@ public class StrandSettings : MonoBehaviour
         }
     }
 
-    private string ComplementBase(string dna)
-    {
-        if (dna.Equals("A"))
-        {
-            return "T";
-        }
-        else if (dna.Equals("T"))
-        {
-            return "A";
-        }
-        else if (dna.Equals("C"))
-        {
-            return "G";
-        }
-        else if (dna.Equals("G"))
-        {
-            return "C";
-        }
-        else
-        {
-            return "?";
-        }
-    }
+    
 
     /// <summary>
     /// Checks that DNA sequence only has A, T, G, and C.
@@ -271,7 +274,9 @@ public class StrandSettings : MonoBehaviour
         ToggleInputFields();
         _menu.enabled = false;
         _strandSettings.enabled = true;
-        s_strand = s_strandDict[s_GO.GetComponent<NucleotideComponent>().StrandId];
+        s_strand = Utils.GetStrand(s_GO);
+        _complementaryTog.isOn = true; // Always default to automatically assign complementary strand.
+                                       // User needs to manually unselect this toggle to get DNA complement mismatch.
         _scaffoldTog.isOn = s_strand.IsScaffold;
         _isScaffold = s_strand.IsScaffold;
         _sequenceInput.text = s_strand.Sequence;

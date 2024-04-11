@@ -24,7 +24,7 @@ public static class Highlight
     /// </summary>
     /// <param name="go">GameObject to highlight.</param>
     /// <param name="color">Color to highlight with.</param>
-    private static void HighlightGO(GameObject go, Color color)
+    public static void HighlightGO(GameObject go, Color color)
     { 
         Outline outline = go.GetComponent<Outline>();
         outline.enabled = true;
