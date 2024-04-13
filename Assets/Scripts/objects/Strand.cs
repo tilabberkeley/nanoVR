@@ -449,7 +449,7 @@ public class Strand
                     ntc.Sequence = sequence.Substring(seqCount, ntc.Insertion + 1);
                     seqCount += ntc.Insertion + 1;
                 }
-                Utils.CheckMismatch(_nucleotides[i]);
+                //Utils.CheckMismatch(_nucleotides[i]);
             }
         }
         //_assignedSequence = true;

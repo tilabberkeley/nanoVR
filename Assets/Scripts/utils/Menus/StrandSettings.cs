@@ -5,25 +5,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.XR;
-using UnityEngine.XR.Interaction.Toolkit;
 using TMPro;
-using static GlobalVariables;
 using System;
+using static GlobalVariables;
 
 /// <summary>
 /// Controls all logic for strand settings UI. This includes setting strand as scaffold and assigning DNA sequence.
 /// </summary>
 public class StrandSettings : MonoBehaviour
 {
-    [SerializeField] private XRNode _xrNode;
+    /*[SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
-    [SerializeField] private XRRayInteractor rayInteractor;
-    private static GameObject s_GO;
-    private static Strand s_strand;
-    private bool _isScaffold;
-    private bool gripReleased = true;
+    [SerializeField] private XRRayInteractor rayInteractor;*/
+    public static Strand s_strand;
+    public static bool s_isScaffold;
+    //private bool gripReleased = true;
 
     // UI elements
     [SerializeField] private Canvas _menu;
@@ -40,7 +37,7 @@ public class StrandSettings : MonoBehaviour
     [SerializeField] private TMP_InputField _sequenceInput;
     [SerializeField] private TMP_InputField _rotationInput;
 
-    private void Start()
+    /*private void Start()
     {
         _strandSettings.enabled = false;
         _OKButton.onClick.AddListener(() => HideStrandSettings());
@@ -49,9 +46,9 @@ public class StrandSettings : MonoBehaviour
         //_sequenceInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
         //_rotationInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
         _customTog.onValueChanged.AddListener(delegate { ToggleInputFields(); });
-    }
+    }*/
 
-    private void GetDevice()
+    /*private void GetDevice()
     {
         InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
         if (_devices.Count > 0)
@@ -96,11 +93,11 @@ public class StrandSettings : MonoBehaviour
         {
             gripReleased = true;
         }
-    }
+    }*/
 
-    private void SetSettings()
+    public void SetSettings()
     {
-        if ((_isScaffold && !_scaffoldTog.isOn) || (!_isScaffold && _scaffoldTog.isOn)) // Only update strand.IsScaffold if there is a change
+        if ((s_isScaffold && !_scaffoldTog.isOn) || (!s_isScaffold && _scaffoldTog.isOn)) // Only update strand.IsScaffold if there is a change
         {
             s_strand.IsScaffold = _scaffoldTog.isOn;
         }
@@ -159,7 +156,7 @@ public class StrandSettings : MonoBehaviour
         {
             sequence = _sequenceInput.text;
 
-            if (!ValidateSequence(sequence))
+            if (!NucleotideEdit.ValidateSequence(sequence))
             {
                 return;
             }
@@ -180,10 +177,15 @@ public class StrandSettings : MonoBehaviour
         }
 
         s_strand.Sequence = sequence.ToUpper();
+        Debug.Log("Finished setting this strand's sequence");
         if (_complementaryTog.isOn)
         {
             // If insertions and deletions are not aligned in current strand and complementary strand, we cannot assign DNA.
-            if (!AlignedInsertionsDeletions(s_strand)) return;
+            if (!AlignedInsertionsDeletions(s_strand))
+            {
+                Debug.Log("Current strand has complementary nucleotides that do not match insertions/deletions. We cannot assign DNA.");
+                return;
+            }
             SetComplementary(sequence);
         }
         else
@@ -195,11 +197,14 @@ public class StrandSettings : MonoBehaviour
    
     private bool AlignedInsertionsDeletions(Strand strand)
     {
+        bool isAligned = true;
         List<GameObject> nucleotides = strand.Nucleotides;
         for (int i = nucleotides.Count - 1; i >= 0; i--)
         {
-            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
-            if (ntc != null)
+            NucleotideComponent ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            isAligned = NucleotideEdit.ValidComplementary(ntc) && isAligned;
+            if (!isAligned) return isAligned;
+/*            if (ntc != null)
             {
                 var compNtc = ntc.Complement.GetComponent<NucleotideComponent>();
                 if (compNtc.Selected)
@@ -208,9 +213,11 @@ public class StrandSettings : MonoBehaviour
                     if (!ntc.IsDeletion && compNtc.IsDeletion) return false;
                     if (ntc.IsInsertion && !compNtc.IsInsertion) return false;
                     if (!ntc.IsInsertion && compNtc.IsInsertion) return false;
+                    if (ntc.Insertion != compNtc.Insertion) return false;
                 }
-            }
+            }*/
         }
+        Debug.Log("Can assign complementary bases");
         return true;
     }
 
@@ -219,9 +226,21 @@ public class StrandSettings : MonoBehaviour
         List<GameObject> nucleotides = s_strand.Nucleotides;
         int seqCount = 0;
 
+        // TODO: Check endpoints of complements to see if they have tail nucleotides that need to be assigned "?"
         for (int i = nucleotides.Count - 1; i >= 0; i--)
         {
-            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            if (i == nucleotides.Count - 1 || i == 0)
+            {
+                CheckTrailingNucls(nucleotides[i].GetComponent<NucleotideComponent>());
+            }
+            NucleotideComponent ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            if (ntc != null)
+            {
+                NucleotideEdit.SetComplementary(nucleotides[i], sequence.Substring(seqCount, ntc.Insertion + 1));
+                if (!ntc.IsDeletion) seqCount += ntc.Insertion + 1;
+            }
+          
+            /*var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
             if (ntc != null)
             {
                 var compNtc = ntc.Complement.GetComponent<NucleotideComponent>();
@@ -237,18 +256,61 @@ public class StrandSettings : MonoBehaviour
                         seqCount += ntc.Insertion + 1;
                     }
                 }
-            }
+            }*/
+        }
+        Debug.Log("Finished setting complementary bases");
+    }
+
+    private void CheckTrailingNucls(NucleotideComponent ntc)
+    {
+        Strand strand = Utils.GetStrand(ntc.gameObject);
+        NucleotideComponent compNtc = ntc.Complement.GetComponent<NucleotideComponent>();
+
+        bool towardTail = true;
+        if (ntc.gameObject == strand.Tail)
+        {
+           towardTail = false;
+        }
+        if (compNtc.Selected)
+        {
+            FillTrailingNucls(compNtc, towardTail);
         }
     }
 
-    
+    private void FillTrailingNucls(NucleotideComponent ntc, bool towardTail)
+    {
+        Strand strand = Utils.GetStrand(ntc.gameObject);
+        int currIndex = strand.GetIndex(ntc.gameObject);
+        int endIndex;
+        if (towardTail) endIndex = strand.GetIndex(strand.Tail);
+        else endIndex = strand.GetIndex(strand.Head);
+        int i = currIndex + 1;
+        if (currIndex > endIndex)
+        {
+            // Swap curr and end index
+            int temp = currIndex;
+            currIndex = endIndex;
+            endIndex = temp;
+            i = currIndex;
+        }
+
+        for (; i <= endIndex; i++)
+        {
+            NucleotideComponent currNtc = strand.Nucleotides[i].GetComponent<NucleotideComponent>();
+            if (currNtc != null)
+            {
+                if (currNtc.Sequence.Equals("")) currNtc.Sequence = "?";
+                else break;
+            }
+        }
+    }
 
     /// <summary>
     /// Checks that DNA sequence only has A, T, G, and C.
     /// </summary>
     /// <param name="sequence">Custom DNA sequence that user inputs</param>
     /// <returns></returns>
-    private bool ValidateSequence(string sequence)
+    /*private bool ValidateSequence(string sequence)
     {
         for (int i = 0; i < sequence.Length; i++)
         {
@@ -260,30 +322,34 @@ public class StrandSettings : MonoBehaviour
             }
         }
         return true;
-    }
+    }*/
 
-    private void ToggleInputFields()
+   /* public void ToggleInputFields()
     {
         _sequenceInput.interactable = _customTog.isOn;
         _rotationInput.interactable = !_customTog.isOn;
     }
 
-    private void ShowStrandSettings()
+    public void ShowStrandSettings(GameObject nucleotide)
     {
         //s_menuEnabled = _menu.enabled;
         ToggleInputFields();
         _menu.enabled = false;
-        _strandSettings.enabled = true;
-        s_strand = Utils.GetStrand(s_GO);
+        _strandSettings.enabled = true; 
+        _nucleotide = nucleotide;
+
+        s_strand = Utils.GetStrand(_nucleotide);
+
         _complementaryTog.isOn = true; // Always default to automatically assign complementary strand.
                                        // User needs to manually unselect this toggle to get DNA complement mismatch.
         _scaffoldTog.isOn = s_strand.IsScaffold;
         _isScaffold = s_strand.IsScaffold;
         _sequenceInput.text = s_strand.Sequence;
         _rotationInput.text = default;
-    }
+    }*/
 
-    private void HideStrandSettings()
+    // Called by cancel button in Unity Hierarchy
+    public void HideStrandSettings()
     {
         _menu.enabled = true;
         _strandSettings.enabled = false;

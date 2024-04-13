@@ -76,15 +76,14 @@ public static class Utils
     {
         foreach (GameObject nucl in strand.Nucleotides)
         {
-            CheckMismatch(nucl);
+            NucleotideComponent ntc = nucl.GetComponent<NucleotideComponent>();
+            if (ntc != null) CheckMismatch(ntc);
         }
     }
 
-    public static void CheckMismatch(GameObject nucl)
+    public static void CheckMismatch(NucleotideComponent ntc)
     {
-        var ntc = nucl.GetComponent<NucleotideComponent>();
-        GameObject complement = ntc.Complement;
-        var complementNtc = complement.GetComponent<NucleotideComponent>();
+        NucleotideComponent complementNtc = ntc.Complement.GetComponent<NucleotideComponent>();
         //Strand strand = GetStrand(nucl);
         //Strand complementStrand = GetStrand(complement);
 
@@ -94,7 +93,11 @@ public static class Utils
         string complementBase = ComplementBase(ntc.Sequence);
         if (!complementNtc.Sequence.Equals(complementBase))
         {
-            DrawMismatch(complement);
+            DrawMismatch(complementNtc);
+        }
+        else
+        {
+            RemoveMismatch(complementNtc);
         }
 
        /* if ((ntc.IsInsertion && complementNtc.IsDeletion) || (ntc.IsDeletion && complementNtc.IsInsertion))
@@ -115,15 +118,20 @@ public static class Utils
         }*/
     }
 
-    private static void DrawMismatch(GameObject complement)
+    private static void DrawMismatch(NucleotideComponent complementNtc)
     {
-        Highlight.HighlightGO(complement, Color.magenta);
+        Highlight.HighlightGO(complementNtc.gameObject, Color.magenta);
+    }
+
+    private static void RemoveMismatch(NucleotideComponent complementNtc)
+    {
+        Highlight.UnhighlightGO(complementNtc.gameObject, false);
     }
 
     public static string ComplementBase(string dna)
     {
         string complementary = "";
-        for (int i = 0; i < dna.Length; i++)
+        for (int i = dna.Length - 1; i >= 0; i--)
         {
             if (dna[i] == 'A')
             {
@@ -146,9 +154,7 @@ public static class Utils
                 complementary += "?";
             }
         }
-        char[] charArray = complementary.ToCharArray();
-        Array.Reverse(charArray);
-        return new string(charArray);
+        return complementary;
     }
 
     public static Strand GetStrand(GameObject nucl)

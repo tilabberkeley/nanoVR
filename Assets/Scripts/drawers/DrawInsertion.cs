@@ -86,7 +86,7 @@ public class DrawInsertion : MonoBehaviour
             }
         }
 
-        // Checks grab button to show edit insertion panel.
+        /*// Checks grab button to show edit insertion panel.
         bool gripValue;
         if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
                 && gripValue
@@ -100,7 +100,7 @@ public class DrawInsertion : MonoBehaviour
                 s_GO = s_hit.collider.gameObject;
                 ShowEditPanel();
             }
-        }
+        }*/
 
         // Resets triggers to avoid multiple selections.                                              
         if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
@@ -109,12 +109,12 @@ public class DrawInsertion : MonoBehaviour
             triggerReleased = true;
         }
 
-        // Resets grips to avoid multiple selections.                                              
+        /*// Resets grips to avoid multiple selections.                                              
         if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
                 && !gripValue)
         {
             gripReleased = true;
-        }
+        }*/
     }
 
     /// <summary>

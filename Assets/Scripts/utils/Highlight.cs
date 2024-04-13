@@ -35,8 +35,8 @@ public static class Highlight
     /// Unhighlights given gameobject.
     /// </summary>
     /// <param name="go">GameObject to unhighlight.</param>
-    /// <param name="isDelete">If strand is being deleted, insertions/deletions should be unhighlighted.</param>
-    private static void UnhighlightGO(GameObject go, bool unhighlightInsAndDel)
+    /// <param name="unhighlightInsAndDel">If strand is being deleted, insertions/deletions should be unhighlighted.</param>
+    public static void UnhighlightGO(GameObject go, bool unhighlightInsAndDel)
     {
         NucleotideComponent ntc = go.GetComponent<NucleotideComponent>(); 
         Outline outline = go.GetComponent<Outline>();
