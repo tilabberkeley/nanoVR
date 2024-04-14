@@ -436,7 +436,7 @@ public class Strand
         int seqCount = 0;
         for (int i = _nucleotides.Count - 1; i >= 0; i--)
         {
-            var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+            NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
             // Sets DNA sequence to nucleotides
             if (ntc != null)
             {
@@ -449,10 +449,8 @@ public class Strand
                     ntc.Sequence = sequence.Substring(seqCount, ntc.Insertion + 1);
                     seqCount += ntc.Insertion + 1;
                 }
-                //Utils.CheckMismatch(_nucleotides[i]);
             }
         }
-        //_assignedSequence = true;
     }
 
     // Sets cone position and rotation (pointing left or right).

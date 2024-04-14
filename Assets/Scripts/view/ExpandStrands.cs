@@ -242,9 +242,9 @@ public class ExpandStrands : MonoBehaviour
             string name = gridId.ToString();
             JObject position = new JObject();
            
-            position["x"] = grid.StartPos.x;
-            position["y"] = grid.StartPos.y;
-            position["z"] = grid.StartPos.z;
+            position["x"] = grid.Position.x;
+            position["y"] = grid.Position.y;
+            position["z"] = grid.Position.z;
 
             JObject group = new JObject
             {

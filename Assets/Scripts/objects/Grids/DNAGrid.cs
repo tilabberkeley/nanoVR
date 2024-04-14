@@ -45,6 +45,19 @@ public abstract class DNAGrid
         } 
     }
 
+    /// <summary>
+    /// Grid's position based on (0, 0) coordinate. This is used by .sc files.
+    /// </summary>
+    public Vector3 Position
+    {
+        get
+        {
+            int i = GridXToIndex(0);
+            int j = GridYToIndex(0);
+            return _grid2D[i, j].transform.position;
+        }
+    }
+
     public GameObject StartGridCircle
     {
         get

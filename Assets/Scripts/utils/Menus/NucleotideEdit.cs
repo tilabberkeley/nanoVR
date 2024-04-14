@@ -6,6 +6,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Edit menu that assigns individual nucleotide information.
+/// </summary>
 public class NucleotideEdit : MonoBehaviour
 {
     // UI elements
@@ -15,24 +18,14 @@ public class NucleotideEdit : MonoBehaviour
     [SerializeField] private Toggle _complementaryTog;
     [SerializeField] private TMP_InputField _sequenceInput;
     [SerializeField] private TMP_Text _nucleotideInfoText;
-    public static GameObject s_nucleotide;
 
-    /*public void ShowNuclEdit(GameObject nucleotide)
-    {
-        var ntc = nucleotide.GetComponent<NucleotideComponent>();
-        _nuclEditMenu.enabled = true;
-        s_nucleotide = nucleotide;
+    // Static variables
+    private static NucleotideComponent s_nucleotide;
+    public static NucleotideComponent Nucleotide { set { s_nucleotide = value; } }
 
-        // Set nucleotide info textbox
-        string sequence = ntc.Sequence;
-        int numberofBases = ntc.Insertion + 1;
-        string text = "Number of bases: " + numberofBases + "\n";
-        text += "Current DNA sequence: " + sequence;
-        _nucleotideInfoText.text = text;
-
-        _complementaryTog.isOn = true; // Default is to set complementary base. User must manually untoggle this.
-    }*/
-
+    /// <summary>
+    /// Sets nucleotide DNA sequence. Called by Nucleotide Edit OK button.
+    /// </summary>
     public void SetNucleotide()
     {
         var ntc = s_nucleotide.GetComponent<NucleotideComponent>();
@@ -57,17 +50,18 @@ public class NucleotideEdit : MonoBehaviour
             Debug.Log("Input sequence too long. Using first " + length + " bases of sequence.");
             sequence = sequence.Substring(0, length);
         }
+        sequence = sequence.ToUpper();
         ntc.Sequence = sequence;
 
         if (_complementaryTog.isOn)
         {
             // Set Complementary base
-            if (!ValidComplementary(s_nucleotide.GetComponent<NucleotideComponent>())) return;
+            if (!ValidComplementary(s_nucleotide)) return;
             SetComplementary(s_nucleotide, sequence);
         } 
         else
         {
-            Utils.CheckMismatch(s_nucleotide.GetComponent<NucleotideComponent>());
+            Utils.CheckMismatch(s_nucleotide);
         }
     }
 
@@ -80,8 +74,7 @@ public class NucleotideEdit : MonoBehaviour
     {
         for (int i = 0; i < sequence.Length; i++)
         {
-            if (sequence[i] != 'A' && sequence[i] != 'T' && sequence[i] != 'G' && sequence[i] != 'C'
-                && sequence[i] != 'a' && sequence[i] != 't' && sequence[i] != 'g' && sequence[i] != 'c')
+            if (sequence[i] != 'A' && sequence[i] != 'T' && sequence[i] != 'G' && sequence[i] != 'C')
             {
                 Debug.Log(sequence[i] + " is not a valid DNA base. DNA sequence not assigned.");
                 return false;
@@ -90,6 +83,9 @@ public class NucleotideEdit : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// Returns if nucleotide input has valid complementary nucleotide.
+    /// </summary>
     public static bool ValidComplementary(NucleotideComponent nucleotide)
     {
         if (nucleotide != null)
@@ -104,16 +100,17 @@ public class NucleotideEdit : MonoBehaviour
                 if (nucleotide.Insertion != compNtc.Insertion) return false;
             }
         }
-        
         return true;
     }
 
-    public static void SetComplementary(GameObject nucleotide, string sequence)
+    /// <summary>
+    /// Sets given nucleotide with given DNA sequence.
+    /// </summary>
+    public static void SetComplementary(NucleotideComponent ntc, string sequence)
     {
-        var ntc = nucleotide.GetComponent<NucleotideComponent>();
         if (ntc != null)
         {
-            var compNtc = ntc.Complement.GetComponent<NucleotideComponent>();
+            NucleotideComponent compNtc = ntc.Complement.GetComponent<NucleotideComponent>();
             if (compNtc.Selected)
             {
                 if (ntc.IsDeletion)

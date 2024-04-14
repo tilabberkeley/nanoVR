@@ -14,14 +14,6 @@ using static GlobalVariables;
 /// </summary>
 public class StrandSettings : MonoBehaviour
 {
-    /*[SerializeField] private XRNode _xrNode;
-    private List<InputDevice> _devices = new List<InputDevice>();
-    private InputDevice _device;
-    [SerializeField] private XRRayInteractor rayInteractor;*/
-    public static Strand s_strand;
-    public static bool s_isScaffold;
-    //private bool gripReleased = true;
-
     // UI elements
     [SerializeField] private Canvas _menu;
     [SerializeField] private Canvas _strandSettings;
@@ -37,64 +29,17 @@ public class StrandSettings : MonoBehaviour
     [SerializeField] private TMP_InputField _sequenceInput;
     [SerializeField] private TMP_InputField _rotationInput;
 
-    /*private void Start()
-    {
-        _strandSettings.enabled = false;
-        _OKButton.onClick.AddListener(() => HideStrandSettings());
-        _OKButton.onClick.AddListener(() => SetSettings());
-        _cancelButton.onClick.AddListener(() => HideStrandSettings());
-        //_sequenceInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
-        //_rotationInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
-        _customTog.onValueChanged.AddListener(delegate { ToggleInputFields(); });
-    }*/
+    // Static variables
+    private static Strand s_strand;
+    public static Strand Strand { get { return s_strand; } set { s_strand = value; } }
+    private static bool s_isScaffold;
+    public static bool IsScaffold { set { s_isScaffold = value; } }
 
-    /*private void GetDevice()
-    {
-        InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
-        if (_devices.Count > 0)
-        {
-            _device = _devices[0];
-        }
-    }
 
-    private void OnEnable()
-    {
-        if (!_device.isValid)
-        {
-            GetDevice();
-        }
-    }
-
-    private void Update()
-    {
-        if (!_device.isValid)
-        {
-            GetDevice();
-        }
-
-        // Checks grab button to show strand settings.
-        _device.TryGetFeatureValue(CommonUsages.gripButton, out bool gripValue);
-        if (gripValue && gripReleased
-                && rayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit s_hit))
-        {
-            gripReleased = false;
-            if (s_hit.collider.GetComponent<NucleotideComponent>() != null
-                && s_hit.collider.GetComponent<NucleotideComponent>().Selected
-                && !s_hit.collider.GetComponent<NucleotideComponent>().IsInsertion
-                && !s_hit.collider.GetComponent<NucleotideComponent>().IsDeletion)
-            {
-                s_GO = s_hit.collider.gameObject;
-                ShowStrandSettings();
-            }
-        }
-
-        // Resets grips to avoid multiple selections.                                              
-        if (!gripValue)
-        {
-            gripReleased = true;
-        }
-    }*/
-
+    /// <summary>
+    /// Sets strand settings such as DNA sequence and scaffold.
+    /// Called by Strand Settings OK button.
+    /// </summary>
     public void SetSettings()
     {
         if ((s_isScaffold && !_scaffoldTog.isOn) || (!s_isScaffold && _scaffoldTog.isOn)) // Only update strand.IsScaffold if there is a change
@@ -195,6 +140,9 @@ public class StrandSettings : MonoBehaviour
         }
     }
    
+    /// <summary>
+    /// Checks if strands insertions and deletions are aligned with its complement nucleotides.
+    /// </summary>
     private bool AlignedInsertionsDeletions(Strand strand)
     {
         bool isAligned = true;
@@ -204,23 +152,14 @@ public class StrandSettings : MonoBehaviour
             NucleotideComponent ntc = nucleotides[i].GetComponent<NucleotideComponent>();
             isAligned = NucleotideEdit.ValidComplementary(ntc) && isAligned;
             if (!isAligned) return isAligned;
-/*            if (ntc != null)
-            {
-                var compNtc = ntc.Complement.GetComponent<NucleotideComponent>();
-                if (compNtc.Selected)
-                {
-                    if (ntc.IsDeletion && !compNtc.IsDeletion) return false;
-                    if (!ntc.IsDeletion && compNtc.IsDeletion) return false;
-                    if (ntc.IsInsertion && !compNtc.IsInsertion) return false;
-                    if (!ntc.IsInsertion && compNtc.IsInsertion) return false;
-                    if (ntc.Insertion != compNtc.Insertion) return false;
-                }
-            }*/
         }
         Debug.Log("Can assign complementary bases");
         return true;
     }
 
+    /// <summary>
+    /// Sets DNA sequence of complementary nucleotides
+    /// </summary>
     private void SetComplementary(string sequence)
     {
         List<GameObject> nucleotides = s_strand.Nucleotides;
@@ -236,31 +175,17 @@ public class StrandSettings : MonoBehaviour
             NucleotideComponent ntc = nucleotides[i].GetComponent<NucleotideComponent>();
             if (ntc != null)
             {
-                NucleotideEdit.SetComplementary(nucleotides[i], sequence.Substring(seqCount, ntc.Insertion + 1));
+                NucleotideEdit.SetComplementary(ntc, sequence.Substring(seqCount, ntc.Insertion + 1));
                 if (!ntc.IsDeletion) seqCount += ntc.Insertion + 1;
             }
-          
-            /*var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
-            if (ntc != null)
-            {
-                var compNtc = ntc.Complement.GetComponent<NucleotideComponent>();
-                if (compNtc.Selected)
-                {
-                    if (ntc.IsDeletion)
-                    {
-                        compNtc.Sequence = "X";
-                    }
-                    else
-                    {
-                        compNtc.Sequence = Utils.ComplementBase(sequence.Substring(seqCount, ntc.Insertion + 1));
-                        seqCount += ntc.Insertion + 1;
-                    }
-                }
-            }*/
         }
         Debug.Log("Finished setting complementary bases");
     }
 
+    /// <summary>
+    /// Checks if any complementary strands have nucleotides that haven't been assigned a base yet.
+    /// If they haven't, assigns "?" to them.
+    /// </summary>
     private void CheckTrailingNucls(NucleotideComponent ntc)
     {
         Strand strand = Utils.GetStrand(ntc.gameObject);
@@ -277,6 +202,11 @@ public class StrandSettings : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Helper method that fills in all unassigned nucleotides with the "?" base.
+    /// </summary>
+    /// <param name="ntc"></param>
+    /// <param name="towardTail">Boolean indicating whether or not the unassigned nucleotides are towards the tail of the strand.</param>
     private void FillTrailingNucls(NucleotideComponent ntc, bool towardTail)
     {
         Strand strand = Utils.GetStrand(ntc.gameObject);
@@ -305,49 +235,7 @@ public class StrandSettings : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Checks that DNA sequence only has A, T, G, and C.
-    /// </summary>
-    /// <param name="sequence">Custom DNA sequence that user inputs</param>
-    /// <returns></returns>
-    /*private bool ValidateSequence(string sequence)
-    {
-        for (int i = 0; i < sequence.Length; i++)
-        {
-            if (sequence[i] != 'A' && sequence[i] != 'T' && sequence[i] != 'G' && sequence[i] != 'C'
-                && sequence[i] != 'a' && sequence[i] != 't' && sequence[i] != 'g' && sequence[i] != 'c')
-            {
-                Debug.Log(sequence[i] + " is not a valid DNA base. DNA sequence not assigned.");
-                return false;
-            }
-        }
-        return true;
-    }*/
-
-   /* public void ToggleInputFields()
-    {
-        _sequenceInput.interactable = _customTog.isOn;
-        _rotationInput.interactable = !_customTog.isOn;
-    }
-
-    public void ShowStrandSettings(GameObject nucleotide)
-    {
-        //s_menuEnabled = _menu.enabled;
-        ToggleInputFields();
-        _menu.enabled = false;
-        _strandSettings.enabled = true; 
-        _nucleotide = nucleotide;
-
-        s_strand = Utils.GetStrand(_nucleotide);
-
-        _complementaryTog.isOn = true; // Always default to automatically assign complementary strand.
-                                       // User needs to manually unselect this toggle to get DNA complement mismatch.
-        _scaffoldTog.isOn = s_strand.IsScaffold;
-        _isScaffold = s_strand.IsScaffold;
-        _sequenceInput.text = s_strand.Sequence;
-        _rotationInput.text = default;
-    }*/
-
+    
     // Called by cancel button in Unity Hierarchy
     public void HideStrandSettings()
     {

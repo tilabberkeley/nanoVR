@@ -9,8 +9,12 @@ using UnityEngine.UI;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
+/// <summary>
+/// Manages all of the edit menus. This includes Strand Settings, Nucleotide Edit, and Insertion Edit.
+/// </summary>
 public class EditOptionsManager : MonoBehaviour
 {
+    // XR Controller elements
     [SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
@@ -18,7 +22,7 @@ public class EditOptionsManager : MonoBehaviour
     private static GameObject s_GO;
     private bool gripReleased = true;
 
-    // UI elements
+    // Edit Options UI elements
     [SerializeField] private Canvas _menu;
     [SerializeField] private Canvas _editMenu;
     [SerializeField] private Canvas _strandSettings;
@@ -29,7 +33,7 @@ public class EditOptionsManager : MonoBehaviour
     [SerializeField] private Button _insEditBtn;
     [SerializeField] private Button _cancelButton;
 
-    // Strand settings UI
+    // Strand Settings UI
     [SerializeField] private Toggle _scaffoldTog;
     [SerializeField] private Toggle _customTog;
     [SerializeField] private Toggle _strandComplementaryTog;
@@ -139,12 +143,12 @@ public class EditOptionsManager : MonoBehaviour
         ToggleInputFields();
         _menu.enabled = false;
         _strandSettings.enabled = true;
-        StrandSettings.s_strand = Utils.GetStrand(s_GO);
+        StrandSettings.Strand = Utils.GetStrand(s_GO);
         _strandComplementaryTog.isOn = true; // Always default to automatically assign complementary strand.
-                                       // User needs to manually unselect this toggle to get DNA complement mismatch.
-        _scaffoldTog.isOn = StrandSettings.s_strand.IsScaffold;
-        StrandSettings.s_isScaffold = StrandSettings.s_strand.IsScaffold;
-        _strandSequenceInput.text = StrandSettings.s_strand.Sequence;
+                                             // User needs to manually unselect this toggle to get DNA complement mismatch.
+        _scaffoldTog.isOn = StrandSettings.Strand.IsScaffold;
+        StrandSettings.IsScaffold = StrandSettings.Strand.IsScaffold;
+        _strandSequenceInput.text = StrandSettings.Strand.Sequence;
         _rotationInput.text = default;
     }
 
@@ -157,11 +161,11 @@ public class EditOptionsManager : MonoBehaviour
     private void ShowNuclEdit()
     {
         _editMenu.enabled = false;
-        var ntc = s_GO.GetComponent<NucleotideComponent>();
+        NucleotideComponent ntc = s_GO.GetComponent<NucleotideComponent>();
         _nuclEditMenu.enabled = true;
-        NucleotideEdit.s_nucleotide = s_GO;
+        NucleotideEdit.Nucleotide = ntc;
 
-        // Set nucleotide info textbox
+        // Set UI info
         string sequence = ntc.Sequence;
         int numberofBases = ntc.Insertion + 1;
         string text = "Number of bases: " + numberofBases + "\n";

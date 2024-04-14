@@ -115,9 +115,9 @@ public class FileExport : MonoBehaviour
             }
             else
             {
-                position["x"] = grid.StartPos.x; // TODO: Test if this gets relative positions correctly
-                position["y"] = grid.StartPos.y;
-                position["z"] = grid.StartPos.z;
+                position["x"] = grid.Position.x; // TODO: Test if this gets relative positions correctly
+                position["y"] = grid.Position.y;
+                position["z"] = grid.Position.z;
             }
 
             JObject group = new JObject
