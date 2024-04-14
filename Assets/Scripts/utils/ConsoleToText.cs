@@ -3,11 +3,11 @@
  * author: David Yang <davidmyang@berkeley.edu>
  */
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public class ConsoleToText : MonoBehaviour
 {
-    public Text debugText;
+    public TextMeshProUGUI debugText;
     string output = "";
     string stack = "";
 
@@ -25,7 +25,9 @@ public class ConsoleToText : MonoBehaviour
 
     private void OnGUI()
     {
-        debugText.text = "Stack: " + stack + output + "\n";
+        debugText.text = "Stack: " + "\n" + stack + "\n"
+                       + "============================================" + "\n"
+                       + "Log: " + "\n" + output;
     }
 
     public void ClearLog()

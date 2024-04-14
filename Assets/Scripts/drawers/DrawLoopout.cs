@@ -70,7 +70,7 @@ public class DrawLoopout : MonoBehaviour
             GetDevice();
         }
 
-        // SELECT LOOPOUT NUCLEOTIDE
+        // Trigger on and there's a ray interaction
         bool triggerValue;
         if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
             && triggerValue
@@ -78,6 +78,12 @@ public class DrawLoopout : MonoBehaviour
             && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
+
+            Debug.Log("Hit nucleotide: ");
+            Debug.Log(s_hit.collider.GetComponent<NucleotideComponent>() != null);
+            Debug.Log("Hit interactable: ");
+            Debug.Log(s_hit.collider.GetComponent<LoopoutInteractableComponent>() != null && s_eraseTogOn);
+
             if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
             {
                 if (s_startGO == null)
@@ -130,7 +136,6 @@ public class DrawLoopout : MonoBehaviour
         {
             gripReleased = false;
             LoopoutInteractableComponent loopoutInteractableComponent = s_hit.collider.gameObject.GetComponent<LoopoutInteractableComponent>();
-            Debug.Log(loopoutInteractableComponent != null);
             if (loopoutInteractableComponent != null)
             {
                 s_loopout = loopoutInteractableComponent.Loopout.gameObject;
@@ -242,9 +247,9 @@ public class DrawLoopout : MonoBehaviour
         CommandManager.AddCommand(command);
     }
 
-    public static void EraseLoopout(GameObject xover, int strandId, Color color, bool splitAfter)
+    public static void EraseLoopout(GameObject loopout, int strandId, Color color, bool splitAfter)
     {
-        var xoverComp = xover.GetComponent<XoverComponent>();
+        var xoverComp = loopout.GetComponent<XoverComponent>();
         GameObject go;
 
         if (splitAfter)
@@ -256,7 +261,7 @@ public class DrawLoopout : MonoBehaviour
             go = xoverComp.NextGO;
         }
         Strand strand = s_strandDict[xoverComp.StrandId];
-        strand.DeleteXover(xover);
+        strand.DeleteXover(loopout);
         SplitStrand(go, strandId, color, splitAfter);
     }
 
