@@ -81,6 +81,9 @@ public class DrawLoopout : MonoBehaviour
 
             Debug.Log("Hit nucleotide: ");
             Debug.Log(s_hit.collider.GetComponent<NucleotideComponent>() != null);
+
+            Debug.Log(".");
+
             Debug.Log("Hit interactable: ");
             Debug.Log(s_hit.collider.GetComponent<LoopoutInteractableComponent>() != null && s_eraseTogOn);
 

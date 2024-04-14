@@ -11,10 +11,15 @@ public class ConsoleToText : MonoBehaviour
     string output = "";
     string stack = "";
 
-    private void Start()
+    private void OnEnable()
     {
         Application.logMessageReceived += HandleLog;
-        //Debug.Log("Log enabled");
+    }
+
+    private void OnDisable()
+    {
+        Application.logMessageReceived -= HandleLog;
+        ClearLog();
     }
 
     void HandleLog(string logString, string stackTrace, LogType type)
@@ -26,7 +31,7 @@ public class ConsoleToText : MonoBehaviour
     private void OnGUI()
     {
         debugText.text = "Stack: " + "\n" + stack + "\n"
-                       + "============================================" + "\n"
+                       + "==========================================" + "\n"
                        + "Log: " + "\n" + output;
     }
 
