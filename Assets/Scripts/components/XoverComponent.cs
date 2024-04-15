@@ -2,6 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu>
  */
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -53,6 +54,10 @@ public class XoverComponent : MonoBehaviour
             _ntRenderer.material.SetColor("_Color", _color);
         }
     }
+
+    // Strand id of the strand that was merged with the first strand
+    private int _prevStrandId;
+    public int PrevStrandId { get { return _prevStrandId; } set { _prevStrandId = value; } }
 
     void Awake()
     {

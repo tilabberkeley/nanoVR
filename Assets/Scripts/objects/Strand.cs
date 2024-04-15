@@ -390,6 +390,7 @@ public class Strand
     {
         if (xover == null)
         {
+            Debug.Log("null");
             return;
         }
 
@@ -398,6 +399,10 @@ public class Strand
         var nextNtc = xoverComp.NextGO.GetComponent<NucleotideComponent>();
         prevNtc.Xover = null;
         nextNtc.Xover = null;
+
+        Debug.Log("Contatins xover:");
+        Debug.Log(_xovers.Contains(xover));
+
         _xovers.Remove(xover);
         GameObject.Destroy(xover);
     }

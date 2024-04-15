@@ -310,6 +310,7 @@ public class DrawCrossover : MonoBehaviour
             //HandleCycle(firstStrand, secondStrand, false);
         }
         //secondStrand.RemoveStrand();
+        xoverComp.PrevStrandId = secondStrandId;
         firstStrand.SetComponents();
         //firstStrand.AddHelixId(secondGO.GetComponent<NucleotideComponent>().HelixId);
         //DrawNucleotideDynamic.AddStrandToHelix(secondGO);

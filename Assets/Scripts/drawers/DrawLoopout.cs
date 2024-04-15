@@ -55,12 +55,12 @@ public class DrawLoopout : MonoBehaviour
         _OKButton.onClick.AddListener(() => HideEditPanel());
         _OKButton.onClick.AddListener(() => DoEditLoopout());
         _cancelButton.onClick.AddListener(() => HideEditPanel());
-        _inputField.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
+        _inputField.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
     }
 
     private void Update()
     {
-        if (!s_loopoutOn || s_hideStencils)
+        if (!(s_loopoutOn || s_eraseTogOn) || s_hideStencils)
         {
             return;
         }
@@ -106,7 +106,7 @@ public class DrawLoopout : MonoBehaviour
             else if (s_hit.collider.GetComponent<LoopoutInteractableComponent>() != null && s_eraseTogOn)
             {
                 // Highlight(s_hit.collider.gameObject);
-                DoEraseLoopout(s_hit.collider.gameObject);
+                DoEraseLoopout(s_hit.collider.GetComponent<LoopoutInteractableComponent>().Loopout.gameObject);
             }
             else
             {
@@ -200,7 +200,7 @@ public class DrawLoopout : MonoBehaviour
         Strand firstStr = s_strandDict[s_startGO.GetComponent<NucleotideComponent>().StrandId];
         Strand secondStr = s_strandDict[s_endGO.GetComponent<NucleotideComponent>().StrandId];
 
-        // Bools help check if strands should merge with neighbors when xover is deleted or undo.
+        // Bools help check if strands should merge with neighbors when loopout is deleted or undo.
         bool firstIsEnd = s_startGO == firstStr.Head || s_startGO == firstStr.Tail;
         bool secondIsEnd = s_endGO == secondStr.Head || s_endGO == secondStr.Tail;
         bool firstIsHead = s_startGO == firstStr.Head;
@@ -244,9 +244,9 @@ public class DrawLoopout : MonoBehaviour
 
     // TODO: Erase stuff
 
-    public static void DoEraseLoopout(GameObject xover)
+    public static void DoEraseLoopout(GameObject loopout)
     {
-        ICommand command = new EraseLoopoutCommand(xover, s_numStrands, xover.GetComponent<XoverComponent>().Color);
+        ICommand command = new EraseLoopoutCommand(loopout);
         CommandManager.AddCommand(command);
     }
 
@@ -296,34 +296,21 @@ public class DrawLoopout : MonoBehaviour
     // TODO: Edit stuff
 
     /// <summary>
-    /// Edits insertion length to something other than default of 1.
+    /// Edits loopout length to something other than default of 1
     /// </summary>
     private void DoEditLoopout()
     {
-        //if (ValidLoopout())
-        //{
-        //    int newLength = Int32.Parse(_inputField.text);
-        //    ICommand command = new EditInsertionCommand(s_GO, newLength);
-        //    CommandManager.AddCommand(command);
-        //}
         int length = GetLengthFromText();
-        EditLoopout(s_loopout, length);
+        EditLoopoutCommand command = new EditLoopoutCommand(s_loopout, length);
+        CommandManager.AddCommand(command);
     }
 
     /// <summary>
-    /// Actual method that edits insertion.
+    /// Edits given loopout to given lenght
     /// </summary>
-    /// <param name="go">Gameobject that is being edited.</param>
-    /// <param name="length">New length of insertion.</param>
-    public static void EditLoopout(GameObject go, int length)
+    public static void EditLoopout(GameObject loopout, int length)
     {
-        //var ntc = go.GetComponent<NucleotideComponent>();
-        //if (ntc.IsInsertion)
-        //{
-        //    ntc.Insertion = length;
-        //}
-        //Debug.Log(ntc.Insertion);
-        s_loopout.GetComponent<LoopoutComponent>().SequenceLength = length;
+        loopout.GetComponent<LoopoutComponent>().SequenceLength = length;
     }
 
     private void ShowEditPanel()

@@ -278,6 +278,11 @@ public static class DrawPoint
         MeshRenderer meshRenderer = loopout.GetComponent<MeshRenderer>();
         meshRenderer.material.SetColor("_Color", nucleotide0.Color);
 
+        // Add outline component
+        Outline outline = loopout.AddComponent<Outline>();
+        outline.enabled = false;
+        outline.OutlineWidth = 3;
+
         // Add loopout component
         LoopoutComponent loopoutComponent = loopout.AddComponent<LoopoutComponent>();
         loopoutComponent.SequenceLength = length;
@@ -288,10 +293,6 @@ public static class DrawPoint
 
         nucleotide0.Xover = loopout;
         nucleotide1.Xover = loopout;
-
-        // Add outline component
-        Outline outline = loopout.AddComponent<Outline>();
-        outline.enabled = false;
 
         // Create interactable
         GameObject loopoutInteractable =

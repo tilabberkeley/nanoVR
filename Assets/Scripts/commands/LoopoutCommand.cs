@@ -36,7 +36,6 @@ public class LoopoutCommand : ICommand
 
         var endNtc = second.GetComponent<NucleotideComponent>();
         _endId = endNtc.Id;
-        _endStrandId = endNtc.StrandId;
         _endHelixId = endNtc.HelixId;
         _endDirection = endNtc.Direction;
 
@@ -58,7 +57,7 @@ public class LoopoutCommand : ICommand
         GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
         GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
         _loopout = startGO.GetComponent<NucleotideComponent>().Xover;
-        DrawLoopout.EraseLoopout(_loopout, _endStrandId, _secondColor, _firstIsHead);
+        DrawLoopout.EraseLoopout(_loopout, _loopout.GetComponent<XoverComponent>().PrevStrandId, _secondColor, _firstIsHead);
         if (!_firstIsEnd) { DrawMerge.MergeStrand(startGO); }
         if (!_secondIsEnd) { DrawMerge.MergeStrand(endGO); }
     }

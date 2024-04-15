@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static Utils;
+using static GlobalVariables;
 
 public class EraseLoopoutCommand : ICommand
 {
@@ -20,14 +21,14 @@ public class EraseLoopoutCommand : ICommand
 
     private int _sequenceLength;
 
-    public EraseLoopoutCommand(GameObject loopout, int strandId, Color color)
+    public EraseLoopoutCommand(GameObject loopout)
     {
         _loopout = loopout;
-        var xoverComp = loopout.GetComponent<XoverComponent>();
-        _startGO = xoverComp.PrevGO;
-        _endGO = xoverComp.NextGO;
-        _strandId = strandId;
-        _color = color;
+        var loopoutComponent = loopout.GetComponent<LoopoutComponent>();
+        _startGO = loopoutComponent.PrevGO;
+        _endGO = loopoutComponent.NextGO;
+        _strandId = loopoutComponent.PrevStrandId;
+        _color = loopoutComponent.Color;
 
         var startNtc = _startGO.GetComponent<NucleotideComponent>();
         _startId = startNtc.Id;
@@ -38,6 +39,8 @@ public class EraseLoopoutCommand : ICommand
         _endId = endNtc.Id;
         _endHelixId = endNtc.HelixId;
         _endDirection = endNtc.Direction;
+
+        _sequenceLength = loopoutComponent.SequenceLength;
     }
 
     public void Do()
