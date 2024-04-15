@@ -120,7 +120,8 @@ public class DeleteCommand : ICommand
             GameObject prevGO = FindGameObject(_prevGOs[i].Item1, _prevGOs[i].Item2, _prevGOs[i].Item3, _prevGOs[i].Item4);
             GameObject nextGO = FindGameObject(_nextGOs[i].Item1, _nextGOs[i].Item2, _nextGOs[i].Item3, _nextGOs[i].Item4);
 
-            GameObject xover = DrawPoint.MakeXover(prevGO, nextGO, _strandId);
+            // TODO: FIND BETTER ALTNERATIVE TO -1 FOR PREV ID
+            GameObject xover = DrawPoint.MakeXover(prevGO, nextGO, _strandId, -1);
             /*xover.GetComponent<XoverComponent>().PrevGO = prevGO;
             xover.GetComponent<XoverComponent>().NextGO = nextGO;
             xovers.Add(xover);*/

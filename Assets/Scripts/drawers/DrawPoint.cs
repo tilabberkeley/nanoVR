@@ -13,6 +13,12 @@ using static GlobalVariables;
 /// </summary>
 public static class DrawPoint
 {
+    private const int SPLINE_RESOLUTION = 16;
+    private const float TUBE_SIZE = 0.01f;
+    private const float LOOPOUT_SIZE = 0.005f;
+    // Ratio determines how much loopout "bends." Higher ratio, more bending.
+    private const float LOOPOUT_BEND_RATIO = 0.15f;
+
     /// <summary>
     /// Creates nucleotide at given position.
     /// </summary>
@@ -38,6 +44,9 @@ public static class DrawPoint
         return sphere;
     }
 
+    /// <summary>
+    /// Creates a cone gameobjects, used to display the direction of a strand.
+    /// </summary>
     public static GameObject MakeCone()
     {
         GameObject cone = Instantiate(Cone) as GameObject;
@@ -79,15 +88,16 @@ public static class DrawPoint
         return cylinder;
     }
 
-    public static GameObject MakeXover(GameObject prevGO, GameObject nextGO, int strandId)
+    /// <summary>
+    /// Creates a crossover at the given nucleotide gameobjects.
+    /// </summary>
+    public static GameObject MakeXover(GameObject prevGO, GameObject nextGO, int strandId, int prevStrandId)
     {
         GameObject xover =
                    Instantiate(Xover,
                    Vector3.zero,
                    Quaternion.identity) as GameObject;
         xover.name = "xover";
-        var xoverComp = xover.GetComponent<XoverComponent>();
-        xoverComp.StrandId = strandId;
         Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
 
         // Position
@@ -102,6 +112,10 @@ public static class DrawPoint
         // Scale        
         float dist = Vector3.Distance(nextGO.transform.position, prevGO.transform.position);
         xover.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
+
+        var xoverComp = xover.GetComponent<XoverComponent>();
+        xoverComp.StrandId = strandId;
+        xoverComp.PrevStrandId = prevStrandId;
         xoverComp.Length = dist;
         xoverComp.Color = prevGO.GetComponent<NucleotideComponent>().Color;
         prevGO.GetComponent<NucleotideComponent>().Xover = xover;
@@ -109,10 +123,12 @@ public static class DrawPoint
         xoverComp.PrevGO = prevGO;
         xoverComp.NextGO = nextGO;
         SaveGameObject(xover);
-
         return xover;
     }
 
+    /// <summary>
+    /// Creates a crossover suggestion at the given nucleotides gameobjects.
+    /// </summary>
     public static GameObject MakeXoverSuggestion(GameObject prevGO, GameObject nextGO)
     {
         GameObject xoverSuggestion =
@@ -212,13 +228,20 @@ public static class DrawPoint
         GameObject tube = new GameObject("tube");
         var tubeRend = tube.AddComponent<TubeRenderer>();
         var meshRend = tube.GetComponent<MeshRenderer>();
-        tubeRend.radius = 0.01f;
-        tubeRend.points = new Vector3[nucleotides.Count];
+        tubeRend.radius = TUBE_SIZE;
         meshRend.material.SetColor("_Color", color);
+
+        // TODO: figure out how to make this smoother. Increase resolution? 
+        SplineMaker splineMaker = tube.AddComponent<SplineMaker>();
+        splineMaker.onUpdated.AddListener((points) => tubeRend.points = points); // updates tube renderer points when anchorPoints is changed.
+        splineMaker.pointsPerSegment = SPLINE_RESOLUTION;
+        Vector3[] anchorPoints = new Vector3[nucleotides.Count];
+
         for (int i = 0; i < nucleotides.Count; i += 1)
         {
-            tubeRend.points[i] = nucleotides[i].transform.position;
+            anchorPoints[i] = nucleotides[i].transform.position;
         }
+        splineMaker.anchorPoints = anchorPoints;
         return tube;
     }
 
@@ -232,6 +255,76 @@ public static class DrawPoint
         {
             allGameObjects.Add(go);
         }
+    }
+
+    /// <summary>
+    /// Creates a loopout between the given two nucleotides.
+    /// </summary>
+    /// <param name="length">Sequence length of the loopout.</param>
+    /// <param name="startNucleotide">Nucleotide that loopout begins on.</param>
+    /// <param name="endNucleotide">Nucleotide that loopout ends on.</param>
+    /// <param name="color">Color of the loopout.</param>
+    /// <returns>Loopout component of the created loopout in scene.</returns>
+    public static LoopoutComponent MakeLoopout(int length, NucleotideComponent startNucleotide, NucleotideComponent endNucleotide, int strandId, int prevStrandId)
+    {
+        GameObject loopout = new GameObject("loopout");
+
+        TubeRenderer tubeRenderer = loopout.AddComponent<TubeRenderer>();
+        tubeRenderer.radius = LOOPOUT_SIZE;
+
+        SplineMaker splineMaker = loopout.AddComponent<SplineMaker>();
+        splineMaker.onUpdated.AddListener((points) => tubeRenderer.points = points); // updates tube renderer points when anchorPoints is changed.
+        splineMaker.pointsPerSegment = SPLINE_RESOLUTION;
+        Vector3[] anchorPoints = new Vector3[3];
+
+        anchorPoints[0] = startNucleotide.transform.position;
+        // Calculate middle point that determines bend
+        float distance = (startNucleotide.transform.position - endNucleotide.transform.position).magnitude;
+        Vector3 midpoint = (startNucleotide.transform.position + endNucleotide.transform.position) / 2;
+        Vector3 midpointToNucleotide1 = endNucleotide.transform.position - midpoint;
+        float a = midpointToNucleotide1.x;
+        float b = midpointToNucleotide1.y;
+        float c = midpointToNucleotide1.z;
+        Vector3 orthogonalVector = new Vector3(b + c, c - a, -a - b).normalized;
+        Vector3 bendPoint = midpoint + orthogonalVector * distance * LOOPOUT_BEND_RATIO;
+        anchorPoints[1] = bendPoint;
+        anchorPoints[2] = endNucleotide.transform.position;
+
+        splineMaker.anchorPoints = anchorPoints;
+
+        MeshRenderer meshRenderer = loopout.GetComponent<MeshRenderer>();
+        meshRenderer.material.SetColor("_Color", startNucleotide.Color);
+
+        // Add outline component
+        Outline outline = loopout.AddComponent<Outline>();
+        outline.enabled = false;
+        outline.OutlineWidth = 3;
+
+        // Add loopout component
+        LoopoutComponent loopoutComponent = loopout.AddComponent<LoopoutComponent>();
+        loopoutComponent.SequenceLength = length;
+        loopoutComponent.PrevGO = startNucleotide.gameObject;
+        loopoutComponent.NextGO = endNucleotide.gameObject;
+        loopoutComponent.StrandId = strandId;
+        loopoutComponent.PrevStrandId = prevStrandId;
+        loopoutComponent.Color = startNucleotide.Color;
+
+        startNucleotide.Xover = loopout;
+        endNucleotide.Xover = loopout;
+
+        // Create interactable
+        GameObject loopoutInteractable =
+                 Instantiate(Resources.Load("LoopoutInteractable"),
+                 Vector3.zero,
+                 Quaternion.identity) as GameObject;
+        loopoutInteractable.transform.position = bendPoint;
+        loopoutInteractable.GetComponent<MeshRenderer>().material.SetColor("_Color", startNucleotide.Color);
+        LoopoutInteractableComponent loopoutInteractableComponent = loopoutInteractable.GetComponent<LoopoutInteractableComponent>();
+        loopoutInteractableComponent.Loopout = loopoutComponent;
+        loopoutComponent.Interactable = loopoutInteractableComponent;
+        loopoutInteractable.transform.parent = loopout.transform;
+
+        return loopoutComponent;
     }
 }
 

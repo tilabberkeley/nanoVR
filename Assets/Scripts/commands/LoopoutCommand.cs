@@ -1,15 +1,13 @@
-/*
- * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
- */
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using static Utils;
 
-public class XoverCommand : ICommand
+public class LoopoutCommand : ICommand
 {
     private GameObject _first;
     private GameObject _second;
-    private GameObject _xover;
+    private GameObject _loopout;
     private bool _firstIsHead;
     private bool _firstIsEnd;
     private bool _secondIsEnd;
@@ -22,7 +20,9 @@ public class XoverCommand : ICommand
     private int _endHelixId;
     private int _endDirection;
 
-    public XoverCommand(GameObject first, GameObject second, bool firstIsEnd, bool secondIsEnd, bool firstIsHead)
+    private int _sequenceLength;
+
+    public LoopoutCommand(GameObject first, GameObject second, bool firstIsEnd, bool secondIsEnd, bool firstIsHead, int sequenceLength)
     {
         _first = first;
         _second = second;
@@ -41,22 +41,23 @@ public class XoverCommand : ICommand
         _firstIsEnd = firstIsEnd;
         _secondIsEnd = secondIsEnd;
         _firstIsHead = firstIsHead;
+
+        _sequenceLength = sequenceLength;
     }
 
     public void Do()
     {
-        DrawCrossover.CreateXover(_first, _second);
+        DrawLoopout.CreateLoopout(_first, _second, _sequenceLength);
     }
 
     public void Undo()
     {
-        //DrawSplit.SplitStrand(_startGO, _endColor, _isHead);
         GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
         GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
-        _xover = startGO.GetComponent<NucleotideComponent>().Xover;
-        int prevStrandId = _xover.GetComponent<XoverComponent>().PrevStrandId;
+        _loopout = startGO.GetComponent<NucleotideComponent>().Xover;
+        int prevStrandId = _loopout.GetComponent<XoverComponent>().PrevStrandId;
 
-        DrawCrossover.EraseXover(_xover, prevStrandId, _prevColor, _firstIsHead);
+        DrawLoopout.EraseLoopout(_loopout, prevStrandId, _prevColor, _firstIsHead);
         if (!_firstIsEnd) { DrawMerge.MergeStrand(startGO); }
         if (!_secondIsEnd) { DrawMerge.MergeStrand(endGO); }
     }
@@ -69,6 +70,6 @@ public class XoverCommand : ICommand
         // Make sure that start nucleotide is on the lower number strand
         DrawCrossover.SetNucleotideDirection(startGO, endGO, out startGO, out endGO, out Strand startStrand, out Strand endStrand);
 
-        DrawCrossover.CreateXover(startGO, endGO);
+        DrawLoopout.CreateLoopout(startGO, endGO, _sequenceLength);
     }
 }

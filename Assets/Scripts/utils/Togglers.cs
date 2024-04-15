@@ -66,6 +66,7 @@ public class Togglers : MonoBehaviour
         s_mergeTogOn = false;
         s_insTogOn = false;
         s_delTogOn = false;
+        s_loopoutOn = false;
         DrawNucleotideDynamic.ResetNucleotides();
         SelectStrand.Reset();
     }
@@ -79,6 +80,7 @@ public class Togglers : MonoBehaviour
         s_mergeTogOn = false;
         s_insTogOn = false;
         s_delTogOn = false;
+        s_loopoutOn = false;
         DrawNucleotideDynamic.ResetNucleotides();
         SelectStrand.Reset();
     }
@@ -92,6 +94,7 @@ public class Togglers : MonoBehaviour
         s_mergeTogOn = false;
         s_insTogOn = false;
         s_delTogOn = false;
+        s_loopoutOn = false;
         DrawNucleotideDynamic.ResetNucleotides();
         SelectStrand.Reset();
     }
@@ -105,6 +108,7 @@ public class Togglers : MonoBehaviour
         s_mergeTogOn = false;
         s_insTogOn = false;
         s_delTogOn = false;
+        s_loopoutOn = false;
         DrawNucleotideDynamic.ResetNucleotides();
         SelectStrand.Reset();
     }
@@ -118,6 +122,7 @@ public class Togglers : MonoBehaviour
         s_mergeTogOn = true;
         s_insTogOn = false;
         s_delTogOn = false;
+        s_loopoutOn = false;
         DrawNucleotideDynamic.ResetNucleotides();
         SelectStrand.Reset();
     }
@@ -131,6 +136,7 @@ public class Togglers : MonoBehaviour
         s_mergeTogOn = false;
         s_insTogOn = true;
         s_delTogOn = false;
+        s_loopoutOn = false;
         DrawNucleotideDynamic.ResetNucleotides();
         SelectStrand.Reset();
     }
@@ -144,6 +150,21 @@ public class Togglers : MonoBehaviour
         s_mergeTogOn = false;
         s_insTogOn = false;
         s_delTogOn = true;
+        s_loopoutOn = false;
+        DrawNucleotideDynamic.ResetNucleotides();
+        SelectStrand.Reset();
+    }
+
+    public void LoopOutToggled()
+    {
+        s_selectTogOn = false;
+        s_drawTogOn = false;
+        s_eraseTogOn = false;
+        s_splitTogOn = false;
+        s_mergeTogOn = false;
+        s_insTogOn = false;
+        s_delTogOn = false;
+        s_loopoutOn = true;
         DrawNucleotideDynamic.ResetNucleotides();
         SelectStrand.Reset();
     }

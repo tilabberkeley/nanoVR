@@ -1,13 +1,11 @@
-/*
- * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
- */
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using static Utils;
 
-public class EraseXoverCommand : ICommand
+public class EraseLoopoutCommand : ICommand
 {
-    private GameObject _xover;
+    private GameObject _loopout;
     private GameObject _startGO;
     private GameObject _endGO;
     private int _strandId;
@@ -20,14 +18,16 @@ public class EraseXoverCommand : ICommand
     private int _endHelixId;
     private int _endDirection;
 
-    public EraseXoverCommand(GameObject xover, int strandId, Color color)
+    private int _sequenceLength;
+
+    public EraseLoopoutCommand(GameObject loopout)
     {
-        _xover = xover;
-        var xoverComp = xover.GetComponent<XoverComponent>();
-        _startGO = xoverComp.PrevGO;
-        _endGO = xoverComp.NextGO;
-        _strandId = strandId;
-        _color = color;
+        _loopout = loopout;
+        var loopoutComponent = loopout.GetComponent<LoopoutComponent>();
+        _startGO = loopoutComponent.PrevGO;
+        _endGO = loopoutComponent.NextGO;
+        _strandId = loopoutComponent.PrevStrandId;
+        _color = loopoutComponent.Color;
 
         var startNtc = _startGO.GetComponent<NucleotideComponent>();
         _startId = startNtc.Id;
@@ -38,11 +38,13 @@ public class EraseXoverCommand : ICommand
         _endId = endNtc.Id;
         _endHelixId = endNtc.HelixId;
         _endDirection = endNtc.Direction;
+
+        _sequenceLength = loopoutComponent.SequenceLength;
     }
 
     public void Do()
     {
-        DrawCrossover.EraseXover(_xover, _strandId, _color, false);
+        DrawLoopout.EraseLoopout(_loopout, _strandId, _color, false);
     }
 
     public void Undo()
@@ -53,11 +55,11 @@ public class EraseXoverCommand : ICommand
         // Make sure that start nucleotide is on the lower number strand
         DrawCrossover.SetNucleotideDirection(startGO, endGO, out startGO, out endGO, out Strand startStrand, out Strand endStrand);
 
-        _xover = DrawCrossover.CreateXover(startGO, endGO);
+        _loopout = DrawLoopout.CreateLoopout(startGO, endGO, _sequenceLength);
     }
 
     public void Redo()
     {
-        DrawCrossover.EraseXover(_xover, _strandId, _color, false);
+        DrawLoopout.EraseLoopout(_loopout, _strandId, _color, false);
     }
 }

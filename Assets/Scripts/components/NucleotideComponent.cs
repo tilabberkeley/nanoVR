@@ -34,7 +34,7 @@ public class NucleotideComponent : DNAComponent
         } 
     }
 
-    // Gameobject of xover attached to this nucleotide. Null if there isn't a xover.
+    // Gameobject of xover or loopout attached to this nucleotide. Null if there isn't a xover or loopout.
     private GameObject _xover = null;
     public GameObject Xover { get { return _xover;} set { _xover = value; } }
     public bool HasXover { get { return _xover != null; } }

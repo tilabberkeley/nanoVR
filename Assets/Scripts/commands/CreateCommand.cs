@@ -114,7 +114,8 @@ public class CreateCommand : ICommand
             GameObject prevGO = FindGameObject(_prevGOs[i].Item1, _prevGOs[i].Item2, _prevGOs[i].Item3, _prevGOs[i].Item4);
             GameObject nextGO = FindGameObject(_nextGOs[i].Item1, _nextGOs[i].Item2, _nextGOs[i].Item3, _nextGOs[i].Item4);
 
-            DrawPoint.MakeXover(prevGO, nextGO, _strandId);
+            // TODO: FIND BETTER ALTNERATIVE TO -1 FOR PREV ID
+            DrawPoint.MakeXover(prevGO, nextGO, _strandId, -1);
         }
         List<(GameObject, int)> insertions = new List<(GameObject, int)>();
         List<GameObject> deletions = new List<GameObject>();

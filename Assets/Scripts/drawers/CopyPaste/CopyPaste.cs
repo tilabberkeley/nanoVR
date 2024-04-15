@@ -125,7 +125,8 @@ public class CopyPaste : MonoBehaviour
                         if (!prevComp.IsBackbone
                                 && !nextComp.IsBackbone)
                         {
-                            DrawPoint.MakeXover(s_currNucleotides[i - 1], s_currNucleotides[i], s_numStrands);
+                            // TODO: FIND BETTER ALTNERATIVE TO -1 FOR PREV ID
+                            DrawPoint.MakeXover(s_currNucleotides[i - 1], s_currNucleotides[i], s_numStrands, -1);
                         }
                     }
                     Debug.Log("Finished drawing xovers of new strand!");
