@@ -277,65 +277,66 @@ public class DrawCrossover : MonoBehaviour
         Strand firstStrand = s_strandDict[firstStrandId];
         Strand secondStrand = s_strandDict[secondStrandId];
 
-        /*
-        if (secondGO == null)
-        {
-            firstStrand.SetComponents();
-            return;
-        } 
-        */
-        //firstStrand.AddXovers(secondStrand.GetXovers());
+        //if (firstStrandId < secondStrandId)
+        //{
+        //    firstStrand = s_strandDict[firstStrandId];
+        //    secondStrand = s_strandDict[secondStrandId];
+        //}
+        //else
+        //{
+        //    firstStrand = s_strandDict[secondStrandId];
+        //    secondStrand = s_strandDict[firstStrandId];
+
+        //    GameObject temp = firstGO;
+        //    firstGO = secondGO;
+        //    secondGO = temp;
+        //}
 
         if (firstStrand.Head == firstGO && secondStrand.Tail == secondGO)
         {
-            // Must add backbone between 2 strands.
-            //firstStrand.AddToHead(backbone);
             xoverComp.PrevGO = secondGO;
             xoverComp.NextGO = firstGO;
             List<GameObject> nucleotides = secondStrand.Nucleotides;
             SelectStrand.RemoveStrand(nucleotides[0]);
             firstStrand.AddToHead(nucleotides);
-
-            //HandleCycle(firstStrand, secondStrand, true);
         }
         else if (firstStrand.Tail == firstGO && secondStrand.Head == secondGO)
         {
-            // Must add backbone between 2 strands.
-            //firstStrand.AddToTail(backbone);
             xoverComp.PrevGO = firstGO;
             xoverComp.NextGO = secondGO;
             List<GameObject> nucleotides = secondStrand.Nucleotides;
             SelectStrand.RemoveStrand(nucleotides[0]);
             firstStrand.AddToTail(nucleotides);
-            //HandleCycle(firstStrand, secondStrand, false);
         }
-        //secondStrand.RemoveStrand();
-        xoverComp.PrevStrandId = secondStrandId;
+        // xoverComp.PrevStrandId = secondStrandId;
         firstStrand.SetComponents();
-        //firstStrand.AddHelixId(secondGO.GetComponent<NucleotideComponent>().HelixId);
-        //DrawNucleotideDynamic.AddStrandToHelix(secondGO);
     }
 
-   /* public static void HandleCycle(Strand firstStrand, Strand secondStrand, bool addToHead)
+    public static void SetNucleotideDirection(GameObject firstGO, GameObject secondGO,
+        out GameObject startGO, out GameObject endGO, out Strand startStrand, out Strand endStrand)
     {
-        // Handles cycles in strand.
-        if (firstStrand.GetStrandId() != secondStrand.GetStrandId())
+        NucleotideComponent firstNtc = firstGO.GetComponent<NucleotideComponent>();
+        NucleotideComponent secondNtc = secondGO.GetComponent<NucleotideComponent>();
+        int firstStrandId = firstNtc.StrandId;
+        int secondStrandId = secondNtc.StrandId;
+
+        // Strand with smallest id will be start GO. This strand will also be preserved with the merge.
+        if (firstStrandId < secondStrandId)
         {
-            List<GameObject> nucleotides = secondStrand.Nucleotides;
-            SelectStrand.RemoveStrand(nucleotides[0]);
-            // Add second strand
-            if (addToHead)
-            {
-                firstStrand.AddToHead(nucleotides);
-            }
-            else
-            {
-                firstStrand.AddToTail(nucleotides);
-            }
+            startStrand = s_strandDict[firstStrandId];
+            endStrand = s_strandDict[secondStrandId];
+
+            startGO = firstGO;
+            endGO = secondGO;
         }
         else
         {
-            firstStrand.ShowHideCone(false);
+            startStrand = s_strandDict[secondStrandId];
+            endStrand = s_strandDict[firstStrandId];
+
+            startGO = secondGO;
+            endGO = firstGO;
         }
-    }*/
+    }
+
 }

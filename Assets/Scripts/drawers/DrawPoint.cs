@@ -244,11 +244,11 @@ public static class DrawPoint
     /// Creates a loopout between the given two nucleotides.
     /// </summary>
     /// <param name="length">Sequence length of the loopout.</param>
-    /// <param name="nucleotide0">Nucleotide that loopout begins on.</param>
-    /// <param name="nucleotide1">Nucleotide that loopout ends on.</param>
+    /// <param name="startNucleotide">Nucleotide that loopout begins on.</param>
+    /// <param name="endNucleotide">Nucleotide that loopout ends on.</param>
     /// <param name="color">Color of the loopout.</param>
     /// <returns>Loopout component of the created loopout in scene.</returns>
-    public static LoopoutComponent MakeLoopout(int length, NucleotideComponent nucleotide0, NucleotideComponent nucleotide1, int strandId)
+    public static LoopoutComponent MakeLoopout(int length, NucleotideComponent startNucleotide, NucleotideComponent endNucleotide, int strandId, int prevStrandId)
     {
         GameObject loopout = new GameObject("loopout");
 
@@ -260,23 +260,23 @@ public static class DrawPoint
         splineMaker.pointsPerSegment = SPLINE_RESOLUTION;
         Vector3[] anchorPoints = new Vector3[3];
 
-        anchorPoints[0] = nucleotide0.transform.position;
+        anchorPoints[0] = startNucleotide.transform.position;
         // Calculate middle point that determines bend
-        float distance = (nucleotide0.transform.position - nucleotide1.transform.position).magnitude;
-        Vector3 midpoint = (nucleotide0.transform.position + nucleotide1.transform.position) / 2;
-        Vector3 midpointToNucleotide1 = nucleotide1.transform.position - midpoint;
+        float distance = (startNucleotide.transform.position - endNucleotide.transform.position).magnitude;
+        Vector3 midpoint = (startNucleotide.transform.position + endNucleotide.transform.position) / 2;
+        Vector3 midpointToNucleotide1 = endNucleotide.transform.position - midpoint;
         float a = midpointToNucleotide1.x;
         float b = midpointToNucleotide1.y;
         float c = midpointToNucleotide1.z;
         Vector3 orthogonalVector = new Vector3(b + c, c - a, -a - b).normalized;
         Vector3 bendPoint = midpoint + orthogonalVector * distance * LOOPOUT_BEND_RATIO;
         anchorPoints[1] = bendPoint;
-        anchorPoints[2] = nucleotide1.transform.position;
+        anchorPoints[2] = endNucleotide.transform.position;
 
         splineMaker.anchorPoints = anchorPoints;
 
         MeshRenderer meshRenderer = loopout.GetComponent<MeshRenderer>();
-        meshRenderer.material.SetColor("_Color", nucleotide0.Color);
+        meshRenderer.material.SetColor("_Color", startNucleotide.Color);
 
         // Add outline component
         Outline outline = loopout.AddComponent<Outline>();
@@ -286,13 +286,14 @@ public static class DrawPoint
         // Add loopout component
         LoopoutComponent loopoutComponent = loopout.AddComponent<LoopoutComponent>();
         loopoutComponent.SequenceLength = length;
-        loopoutComponent.PrevGO = nucleotide0.gameObject;
-        loopoutComponent.NextGO = nucleotide1.gameObject;
+        loopoutComponent.PrevGO = startNucleotide.gameObject;
+        loopoutComponent.NextGO = endNucleotide.gameObject;
         loopoutComponent.StrandId = strandId;
-        loopoutComponent.Color = nucleotide0.Color;
+        loopoutComponent.PrevStrandId = prevStrandId;
+        loopoutComponent.Color = startNucleotide.Color;
 
-        nucleotide0.Xover = loopout;
-        nucleotide1.Xover = loopout;
+        startNucleotide.Xover = loopout;
+        endNucleotide.Xover = loopout;
 
         // Create interactable
         GameObject loopoutInteractable =
@@ -300,7 +301,7 @@ public static class DrawPoint
                  Vector3.zero,
                  Quaternion.identity) as GameObject;
         loopoutInteractable.transform.position = bendPoint;
-        loopoutInteractable.GetComponent<MeshRenderer>().material.SetColor("_Color", nucleotide0.Color);
+        loopoutInteractable.GetComponent<MeshRenderer>().material.SetColor("_Color", startNucleotide.Color);
         LoopoutInteractableComponent loopoutInteractableComponent = loopoutInteractable.GetComponent<LoopoutInteractableComponent>();
         loopoutInteractableComponent.Loopout = loopoutComponent;
         loopoutComponent.Interactable = loopoutInteractableComponent;

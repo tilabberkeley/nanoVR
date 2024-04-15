@@ -53,6 +53,9 @@ public class EraseLoopoutCommand : ICommand
         // _xover does not exist after it gets erased. must created new xover
         GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
         GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
+
+        DrawCrossover.SetNucleotideDirection(startGO, endGO, out startGO, out endGO, out Strand startStrand, out Strand endStrand);
+
         _loopout = DrawLoopout.CreateLoopout(startGO, endGO, _sequenceLength);
     }
 

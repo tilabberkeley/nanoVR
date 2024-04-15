@@ -50,7 +50,7 @@ public class EditLoopoutCommand : ICommand
 
         GameObject loopout = startGO.GetComponent<NucleotideComponent>().Xover;
 
-        DrawLoopout.EditLoopout(loopout, _oldLength);
+        DrawLoopout.EditLoopout(loopout, _newLength);
     }
 
     public void Undo()
@@ -59,6 +59,6 @@ public class EditLoopoutCommand : ICommand
 
         GameObject loopout = startGO.GetComponent<NucleotideComponent>().Xover;
 
-        DrawLoopout.EditLoopout(loopout, _newLength);
+        DrawLoopout.EditLoopout(loopout, _oldLength);
     }
 }
