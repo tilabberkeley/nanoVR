@@ -120,8 +120,8 @@ public class StrandSettings : MonoBehaviour
                 sequence = sequence.Substring(0, length);
             }
         }
-
-        s_strand.Sequence = sequence.ToUpper();
+        sequence = sequence.ToUpper();
+        s_strand.Sequence = sequence;
         Debug.Log("Finished setting this strand's sequence");
         if (_complementaryTog.isOn)
         {

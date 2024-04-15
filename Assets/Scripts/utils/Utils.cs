@@ -83,38 +83,20 @@ public static class Utils
     public static void CheckMismatch(NucleotideComponent ntc)
     {
         NucleotideComponent complementNtc = ntc.Complement.GetComponent<NucleotideComponent>();
-        //Strand strand = GetStrand(nucl);
-        //Strand complementStrand = GetStrand(complement);
 
         // If complement nucleotide is not assigned a DNA sequence, there is no mismatch of DNA to check.
         if (complementNtc.Sequence.Equals("")) return;
 
-        string complementBase = ComplementBase(ntc.Sequence);
-        if (!complementNtc.Sequence.Equals(complementBase))
+        string complementSequence = ComplementSequence(ntc.Sequence);
+        if (!complementNtc.Sequence.Equals(complementSequence))
         {
             DrawMismatch(complementNtc);
         }
         else
         {
             RemoveMismatch(complementNtc);
+            RemoveMismatch(ntc);
         }
-
-       /* if ((ntc.IsInsertion && complementNtc.IsDeletion) || (ntc.IsDeletion && complementNtc.IsInsertion))
-        {
-            DrawMismatch(nucl);
-        }
-        else if ((ntc.IsInsertion && !complementNtc.IsInsertion) || (ntc.IsDeletion && !complementNtc.IsDeletion))
-        {
-            DrawMismatch(nucl);
-        }
-        else if ((!ntc.IsInsertion && complementNtc.IsInsertion) || (!ntc.IsDeletion && complementNtc.IsDeletion))
-        {
-            DrawMismatch(complement);
-        }
-        else
-        {
-            // Everything is good. Delete mismatches if needed?
-        }*/
     }
 
     private static void DrawMismatch(NucleotideComponent complementNtc)
@@ -127,7 +109,10 @@ public static class Utils
         Highlight.UnhighlightGO(complementNtc.gameObject, false);
     }
 
-    public static string ComplementBase(string dna)
+    /// <summary>
+    /// Returns complement sequence of input DNA
+    /// </summary>
+    public static string ComplementSequence(string dna)
     {
         string complementary = "";
         for (int i = dna.Length - 1; i >= 0; i--)
@@ -156,10 +141,17 @@ public static class Utils
         return complementary;
     }
 
+    /// <summary>
+    /// Helper method to get Strand object given nucleotide gameobject
+    /// </summary>
     public static Strand GetStrand(GameObject nucl)
     {
-        var ntc = nucl.GetComponent<NucleotideComponent>();
-        return s_strandDict[ntc.StrandId];
+        NucleotideComponent ntc = nucl.GetComponent<NucleotideComponent>();
+        if (ntc.Selected)
+        {
+            return s_strandDict[ntc.StrandId];
+        }
+        return null;
     }
 
     public static Strand GetComplementStrand(Strand strand)
@@ -168,16 +160,4 @@ public static class Utils
         GameObject complement = ntc.Complement;
         return GetStrand(complement);
     }
-
-
-    /*public static void CreateStrand(List<GameObject> nucleotides, int strandId, Color color) { CreateStrand(nucleotides, new List<GameObject>(), strandId, color); }
-    public static void CreateStrand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId) { CreateStrand(nucleotides, xovers, strandId, s_colors[s_numStrands % 6]); }
-    public static void CreateStrand(List<GameObject> nucleotides, List<GameObject> xovers, int strandId, Color color)
-    {
-        Strand strand = new Strand(nucleotides, xovers, strandId, color);
-        strand.SetComponents();
-        s_strandDict.Add(strandId, strand);
-        DrawNucleotideDynamic.CreateButton(strandId);
-        s_numStrands += 1;
-    }*/
 }

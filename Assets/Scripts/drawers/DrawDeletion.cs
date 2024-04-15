@@ -97,7 +97,6 @@ public class DrawDeletion : MonoBehaviour
             return;
         }
 
-
         Strand strand = Utils.GetStrand(go);
         string sequence = strand.Sequence;
 
@@ -112,11 +111,8 @@ public class DrawDeletion : MonoBehaviour
             HighlightDeletion(go);
         }
 
-        //Utils.CheckMismatch(go);
         // Update strand DNA sequence
         strand.Sequence = sequence;
-
-        /*s_strandDict.TryGetValue(ntc.StrandId, out Strand strand);
-        strand.SetSequence(strand.Sequence);*/
+        Utils.CheckMismatch(strand);
     }
 }

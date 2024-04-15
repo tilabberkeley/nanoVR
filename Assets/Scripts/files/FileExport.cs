@@ -123,9 +123,9 @@ public class FileExport : MonoBehaviour
             JObject group = new JObject
             {
                 ["position"] = position,
-                ["pitch"] = grid.Grid2D[0, 0].transform.eulerAngles.x,
-                ["roll"] = grid.Grid2D[0, 0].transform.eulerAngles.z,
-                ["yaw"] = grid.Grid2D[0, 0].transform.eulerAngles.y,
+                ["pitch"] = grid.StartGridCircle.transform.eulerAngles.x,
+                ["roll"] = grid.StartGridCircle.transform.eulerAngles.z,
+                ["yaw"] = grid.StartGridCircle.transform.eulerAngles.y,
                 ["grid"] = grid.Type,
             };
             groups[gridId] = group;

@@ -29,7 +29,7 @@ public class NucleotideEdit : MonoBehaviour
     public void SetNucleotide()
     {
         var ntc = s_nucleotide.GetComponent<NucleotideComponent>();
-        string sequence = _sequenceInput.text;
+        string sequence = _sequenceInput.text.ToUpper();
         int length = ntc.Insertion + 1;
 
         if (!ValidateSequence(sequence))
@@ -50,7 +50,6 @@ public class NucleotideEdit : MonoBehaviour
             Debug.Log("Input sequence too long. Using first " + length + " bases of sequence.");
             sequence = sequence.Substring(0, length);
         }
-        sequence = sequence.ToUpper();
         ntc.Sequence = sequence;
 
         if (_complementaryTog.isOn)
@@ -68,8 +67,6 @@ public class NucleotideEdit : MonoBehaviour
     /// <summary>
     /// Checks that DNA sequence only has A, T, G, and C.
     /// </summary>
-    /// <param name="sequence">Custom DNA sequence that user inputs</param>
-    /// <returns></returns>
     public static bool ValidateSequence(string sequence)
     {
         for (int i = 0; i < sequence.Length; i++)
@@ -84,7 +81,7 @@ public class NucleotideEdit : MonoBehaviour
     }
 
     /// <summary>
-    /// Returns if nucleotide input has valid complementary nucleotide.
+    /// Returns whether or not input nucleotide has valid complementary nucleotide.
     /// </summary>
     public static bool ValidComplementary(NucleotideComponent nucleotide)
     {
@@ -119,7 +116,7 @@ public class NucleotideEdit : MonoBehaviour
                 }
                 else
                 {
-                    compNtc.Sequence = Utils.ComplementBase(sequence);
+                    compNtc.Sequence = Utils.ComplementSequence(sequence);
                 }
                 Debug.Log("Finished setting complement of " + ntc.gameObject.name);
             }

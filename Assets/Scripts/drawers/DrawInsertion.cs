@@ -161,18 +161,14 @@ public class DrawInsertion : MonoBehaviour
             HighlightInsertion(go);
         }
 
-        //Utils.CheckMismatch(go);
         // Update strand DNA sequence
         strand.Sequence = sequence;
-
-        /*s_strandDict.TryGetValue(ntc.StrandId, out Strand strand);
-        strand.SetSequence(strand.Sequence);*/
+        Utils.CheckMismatch(strand);
     }
 
     /// <summary>
     /// Returns whether new insertion length is valid.
     /// </summary>
-    /// <returns></returns>
     private bool ValidEdit()
     {
         try
