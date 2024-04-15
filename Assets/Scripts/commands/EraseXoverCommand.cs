@@ -3,7 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu>
  */
 using UnityEngine;
-using static GlobalVariables;
+using static Utils;
 
 public class EraseXoverCommand : ICommand
 {
@@ -47,20 +47,17 @@ public class EraseXoverCommand : ICommand
 
     public void Undo()
     {
-        // _xover does not exist after it gets erased. must created new xover
         GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
         GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
+
+        // Make sure that start nucleotide is on the lower number strand
+        DrawCrossover.SetNucleotideDirection(startGO, endGO, out startGO, out endGO, out Strand startStrand, out Strand endStrand);
+
         _xover = DrawCrossover.CreateXover(startGO, endGO);
     }
 
     public void Redo()
     {
         DrawCrossover.EraseXover(_xover, _strandId, _color, false);
-    }
-
-    public GameObject FindNucleotide(int id, int helixId, int direction)
-    {
-        s_helixDict.TryGetValue(helixId, out Helix helix);
-        return helix.GetNucleotide(id, direction);
     }
 }

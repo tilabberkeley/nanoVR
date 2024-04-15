@@ -52,11 +52,11 @@ public class LoopoutCommand : ICommand
 
     public void Undo()
     {
-        //DrawSplit.SplitStrand(_startGO, _endColor, _isHead);
         GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
         GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
         _loopout = startGO.GetComponent<NucleotideComponent>().Xover;
         int prevStrandId = _loopout.GetComponent<XoverComponent>().PrevStrandId;
+
         DrawLoopout.EraseLoopout(_loopout, prevStrandId, _prevColor, _firstIsHead);
         if (!_firstIsEnd) { DrawMerge.MergeStrand(startGO); }
         if (!_secondIsEnd) { DrawMerge.MergeStrand(endGO); }
@@ -67,6 +67,7 @@ public class LoopoutCommand : ICommand
         GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
         GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
 
+        // Make sure that start nucleotide is on the lower number strand
         DrawCrossover.SetNucleotideDirection(startGO, endGO, out startGO, out endGO, out Strand startStrand, out Strand endStrand);
 
         DrawLoopout.CreateLoopout(startGO, endGO, _sequenceLength);

@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static Utils;
-using static GlobalVariables;
 
 public class EraseLoopoutCommand : ICommand
 {
@@ -50,10 +49,10 @@ public class EraseLoopoutCommand : ICommand
 
     public void Undo()
     {
-        // _xover does not exist after it gets erased. must created new xover
         GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
         GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
 
+        // Make sure that start nucleotide is on the lower number strand
         DrawCrossover.SetNucleotideDirection(startGO, endGO, out startGO, out endGO, out Strand startStrand, out Strand endStrand);
 
         _loopout = DrawLoopout.CreateLoopout(startGO, endGO, _sequenceLength);

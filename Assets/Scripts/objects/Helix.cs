@@ -493,7 +493,7 @@ public class Helix
         var ntc = nucleotide.GetComponent<NucleotideComponent>();
         GameObject oldXover = ntc.Xover;
         var xoverComp = oldXover.GetComponent<XoverComponent>();
-        DrawPoint.MakeXover(xoverComp.PrevGO, xoverComp.NextGO, ntc.StrandId);
+        DrawPoint.MakeXover(xoverComp.PrevGO, xoverComp.NextGO, ntc.StrandId, xoverComp.PrevStrandId);
         GameObject.Destroy(oldXover);
     }
 

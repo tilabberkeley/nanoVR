@@ -13,13 +13,12 @@ public class XoverCommand : ICommand
     private bool _firstIsHead;
     private bool _firstIsEnd;
     private bool _secondIsEnd;
-    private Color _secondColor;
+    private Color _prevColor;
 
     private int _startId;
     private int _startHelixId;
     private int _startDirection;
     private int _endId;
-    private int _endStrandId;
     private int _endHelixId;
     private int _endDirection;
 
@@ -27,7 +26,7 @@ public class XoverCommand : ICommand
     {
         _first = first;
         _second = second;
-        _secondColor = second.GetComponent<NucleotideComponent>().Color;
+        _prevColor = second.GetComponent<NucleotideComponent>().Color;
 
         var startNtc = first.GetComponent<NucleotideComponent>();
         _startId = startNtc.Id;
@@ -36,7 +35,6 @@ public class XoverCommand : ICommand
 
         var endNtc = second.GetComponent<NucleotideComponent>();
         _endId = endNtc.Id;
-        _endStrandId = endNtc.StrandId;
         _endHelixId = endNtc.HelixId;
         _endDirection = endNtc.Direction;
 
@@ -56,7 +54,9 @@ public class XoverCommand : ICommand
         GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
         GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
         _xover = startGO.GetComponent<NucleotideComponent>().Xover;
-        DrawCrossover.EraseXover(_xover, _endStrandId, _secondColor, _firstIsHead);
+        int prevStrandId = _xover.GetComponent<XoverComponent>().PrevStrandId;
+
+        DrawCrossover.EraseXover(_xover, prevStrandId, _prevColor, _firstIsHead);
         if (!_firstIsEnd) { DrawMerge.MergeStrand(startGO); }
         if (!_secondIsEnd) { DrawMerge.MergeStrand(endGO); }
     }
@@ -65,6 +65,10 @@ public class XoverCommand : ICommand
     {
         GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
         GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
+
+        // Make sure that start nucleotide is on the lower number strand
+        DrawCrossover.SetNucleotideDirection(startGO, endGO, out startGO, out endGO, out Strand startStrand, out Strand endStrand);
+
         DrawCrossover.CreateXover(startGO, endGO);
     }
 }

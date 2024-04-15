@@ -43,6 +43,9 @@ public static class DrawPoint
         return sphere;
     }
 
+    /// <summary>
+    /// Creates a cone gameobjects, used to display the direction of a strand.
+    /// </summary>
     public static GameObject MakeCone()
     {
         GameObject cone = Instantiate(Resources.Load("Cone")) as GameObject;
@@ -85,7 +88,10 @@ public static class DrawPoint
         return cylinder;
     }
 
-    public static GameObject MakeXover(GameObject prevGO, GameObject nextGO, int strandId)
+    /// <summary>
+    /// Creates a crossover at the given nucleotide gameobjects.
+    /// </summary>
+    public static GameObject MakeXover(GameObject prevGO, GameObject nextGO, int strandId, int prevStrandId)
     {
         GameObject xover =
                    Instantiate(Resources.Load("Xover"),
@@ -109,6 +115,7 @@ public static class DrawPoint
 
         var xoverComp = xover.GetComponent<XoverComponent>();
         xoverComp.StrandId = strandId;
+        xoverComp.PrevStrandId = prevStrandId;
         xoverComp.Length = dist;
         xoverComp.Color = prevGO.GetComponent<NucleotideComponent>().Color;
         prevGO.GetComponent<NucleotideComponent>().Xover = xover;
@@ -119,6 +126,9 @@ public static class DrawPoint
         return xover;
     }
 
+    /// <summary>
+    /// Creates a crossover suggestion at the given nucleotides gameobjects.
+    /// </summary>
     public static GameObject MakeXoverSuggestion(GameObject prevGO, GameObject nextGO)
     {
         GameObject xoverSuggestion =
@@ -149,26 +159,6 @@ public static class DrawPoint
         s_xoverSuggestions.Add(xoverSuggestion.GetComponent<XoverSuggestionComponent>());
 
         return xoverSuggestion;
-    }
-
-    public static GameObject MakeSphere(Vector3 position, string name)
-    {
-        // make sphere
-        GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        sphere.name = name;
-        sphere.transform.position = position;
-        sphere.transform.localScale = new Vector3(0.015f, 0.015f, 0.015f);
-
-        sphere.AddComponent<XRGrabInteractable>();
-
-        var sphereRigidbody = sphere.GetComponent<Rigidbody>();
-        sphereRigidbody.useGravity = false;
-        sphereRigidbody.isKinematic = true;
-
-        var sphereRenderer = sphere.GetComponent<Renderer>();
-        sphereRenderer.material.SetColor("_Color", Color.gray);
-
-        return sphere;
     }
 
     /// <summary>
