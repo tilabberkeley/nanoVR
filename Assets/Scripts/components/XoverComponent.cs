@@ -22,11 +22,11 @@ public class XoverComponent : MonoBehaviour
     private double _length;
     public double Length { get { return _length; } set { _length = value; } }
 
-    // Start GameObject of xover.
+    // Start nucleotide of xover. Direction of strand should go from _nextGO -> _prevGO
     private GameObject _prevGO = null;
     public GameObject PrevGO { get { return _prevGO; } set { _prevGO = value; } }
 
-    // End GameObject of xover.
+    // End nucleotide of xover.
     private GameObject _nextGO = null;
     public GameObject NextGO { get { return _nextGO; } set { _nextGO = value; } }
 

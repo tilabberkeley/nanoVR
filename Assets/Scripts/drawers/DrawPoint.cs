@@ -263,24 +263,24 @@ public static class DrawPoint
     /// Creates a loopout between the given two nucleotides.
     /// </summary>
     /// <param name="length">Sequence length of the loopout.</param>
-    /// <param name="startNucleotide">Nucleotide that loopout begins on.</param>
-    /// <param name="endNucleotide">Nucleotide that loopout ends on.</param>
+    /// <param name="prevNucleotide">Nucleotide that loopout begins on.</param>
+    /// <param name="nextNucleotide">Nucleotide that loopout ends on.</param>
     /// <param name="color">Color of the loopout.</param>
     /// <returns>Loopout component of the created loopout in scene.</returns>
-    public static LoopoutComponent MakeLoopout(int length, NucleotideComponent startNucleotide, NucleotideComponent endNucleotide, int strandId, int prevStrandId)
+    public static LoopoutComponent MakeLoopout(int length, NucleotideComponent prevNucleotide, NucleotideComponent nextNucleotide, int strandId, int prevStrandId)
     {
         GameObject loopout =
                    Instantiate(Loopout,
                    Vector3.zero,
                    Quaternion.identity) as GameObject;
 
-        SplineNode splineNode0 = new SplineNode(startNucleotide.transform.position, Vector3.zero);
-        SplineNode splineNode2 = new SplineNode(endNucleotide.transform.position, Vector3.zero);
+        SplineNode splineNode0 = new SplineNode(prevNucleotide.transform.position, Vector3.zero);
+        SplineNode splineNode2 = new SplineNode(nextNucleotide.transform.position, Vector3.zero);
 
         // Calculate middle point that determines bend
-        float distance = (startNucleotide.transform.position - endNucleotide.transform.position).magnitude;
-        Vector3 midpoint = (startNucleotide.transform.position + endNucleotide.transform.position) / 2;
-        Vector3 midpointToNucleotide1 = endNucleotide.transform.position - midpoint;
+        float distance = (prevNucleotide.transform.position - nextNucleotide.transform.position).magnitude;
+        Vector3 midpoint = (prevNucleotide.transform.position + nextNucleotide.transform.position) / 2;
+        Vector3 midpointToNucleotide1 = nextNucleotide.transform.position - midpoint;
         float a = midpointToNucleotide1.x;
         float b = midpointToNucleotide1.y;
         float c = midpointToNucleotide1.z;
@@ -294,8 +294,10 @@ public static class DrawPoint
         spline.InsertNode(1, splineNode1);
         spline.InsertNode(2, splineNode2);
 
+        Debug.Log("Spline Created");
+
         MeshRenderer meshRenderer = loopout.GetComponent<MeshRenderer>();
-        meshRenderer.material.SetColor("_Color", startNucleotide.Color);
+        meshRenderer.material.SetColor("_Color", prevNucleotide.Color);
 
         // Add outline component
         Outline outline = loopout.AddComponent<Outline>();
@@ -305,14 +307,14 @@ public static class DrawPoint
         // Add loopout component
         LoopoutComponent loopoutComponent = loopout.AddComponent<LoopoutComponent>();
         loopoutComponent.SequenceLength = length;
-        loopoutComponent.PrevGO = startNucleotide.gameObject;
-        loopoutComponent.NextGO = endNucleotide.gameObject;
+        loopoutComponent.PrevGO = prevNucleotide.gameObject;
+        loopoutComponent.NextGO = nextNucleotide.gameObject;
         loopoutComponent.StrandId = strandId;
         loopoutComponent.PrevStrandId = prevStrandId;
-        loopoutComponent.Color = startNucleotide.Color;
+        loopoutComponent.Color = prevNucleotide.Color;
 
-        startNucleotide.Xover = loopout;
-        endNucleotide.Xover = loopout;
+        prevNucleotide.Xover = loopout;
+        nextNucleotide.Xover = loopout;
 
         // Create interactable
         //GameObject loopoutInteractable =

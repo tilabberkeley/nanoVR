@@ -47,17 +47,16 @@ public class EraseXoverCommand : ICommand
 
     public void Undo()
     {
-        GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
-        GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
+        GameObject prevGO = FindNucleotide(_startId, _startHelixId, _startDirection);
+        GameObject nextGO = FindNucleotide(_endId, _endHelixId, _endDirection);
 
-        // Make sure that start nucleotide is on the lower number strand
-        DrawCrossover.SetNucleotideDirection(startGO, endGO, out startGO, out endGO, out Strand startStrand, out Strand endStrand);
-
-        _xover = DrawCrossover.CreateXover(startGO, endGO);
+        _xover = DrawCrossover.CreateXover(prevGO, nextGO);
     }
 
     public void Redo()
     {
+        _xover = FindNucleotide(_startId, _startHelixId, _startDirection).GetComponent<NucleotideComponent>().Xover;
+
         DrawCrossover.EraseXover(_xover, _strandId, _color, false);
     }
 }

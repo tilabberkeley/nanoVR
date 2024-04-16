@@ -118,31 +118,10 @@ public class DrawCrossover : MonoBehaviour
     }
 
     /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="first"></param>
-    /// <param name="second"></param>
-    public static void DoCreateXover(GameObject first, GameObject second)
-    {
-        if (!IsValid(first, second))
-        {
-            return;
-        }
-        Strand firstStr = Utils.GetStrand(first);
-        Strand secondStr = Utils.GetStrand(second);
-
-        // Bools help check if strands should merge with neighbors when xover is deleted or undo.
-        bool firstIsEnd = first == firstStr.Head || first == firstStr.Tail;
-        bool secondIsEnd = second == secondStr.Head || second == secondStr.Tail;
-        bool firstIsHead = first == firstStr.Head;
-        ICommand command = new XoverCommand(first, second, firstIsEnd, secondIsEnd, firstIsHead);
-        CommandManager.AddCommand(command);
-    }
-
-
-    /// <summary>
     /// Returns whether there can be a crossover between the two inputted nucleotides.
     /// The nucleotides must be going in different directions and be apart of a strand.
+    /// Addiionally, there can't be a crossover or loopout already on either of the
+    /// nucleotides.
     /// </summary>
     /// <param name="startGO">First nucleotide game object.</param>
     /// <param name="endGO">Second nucleotide game object.</param>
@@ -176,25 +155,24 @@ public class DrawCrossover : MonoBehaviour
     }
 
     /// <summary>
-    /// Does a create crossover command.
+    /// Does a xover command.
     /// </summary>
-    /*public static void DoCreateXover(GameObject startGO, GameObject endGO)
+    public static void DoCreateXover(GameObject first, GameObject second)
     {
-        if (!IsValid(startGO, endGO))
+        if (!IsValid(first, second))
         {
             return;
         }
-
-        // Make sure that start nucleotide is on the lower number strand
-        SetNucleotideDirection(startGO, endGO, out startGO, out endGO, out Strand startStrand, out Strand endStand);
+        Strand firstStr = Utils.GetStrand(first);
+        Strand secondStr = Utils.GetStrand(second);
 
         // Bools help check if strands should merge with neighbors when xover is deleted or undo.
-        bool firstIsEnd = startGO == startStrand.Head || startGO == startStrand.Tail;
-        bool secondIsEnd = endGO == endStand.Head || endGO == endStand.Tail;
-        bool firstIsHead = startGO == startStrand.Head;
-        ICommand command = new XoverCommand(startGO, endGO, firstIsEnd, secondIsEnd, firstIsHead);
+        bool firstIsEnd = first == firstStr.Head || first == firstStr.Tail;
+        bool secondIsEnd = second == secondStr.Head || second == secondStr.Tail;
+        bool firstIsHead = first == firstStr.Head;
+        ICommand command = new XoverCommand(first, second, firstIsEnd, secondIsEnd, firstIsHead);
         CommandManager.AddCommand(command);
-    }*/
+    }
 
     /// <summary>
     /// Splits strands (if necessary), draws loopout, and merges strands connected by loopout
@@ -234,7 +212,7 @@ public class DrawCrossover : MonoBehaviour
         int strandId = startGO.GetComponent<NucleotideComponent>().StrandId;
         int prevStrandId = endGO.GetComponent<NucleotideComponent>().StrandId;
 
-        // Create crossover.
+        // Create crossover, assign appropiate prev and next properties.
         Strand startStr = Utils.GetStrand(startGO);
         Strand endStr = Utils.GetStrand(endGO);
         GameObject prevGO = startGO;
@@ -262,7 +240,7 @@ public class DrawCrossover : MonoBehaviour
     }
 
     /// <summary>
-    /// Removes given crossover and creates a new strand with given strand id and color due to loopout delettion.
+    /// Removes given crossover and creates a new strand with given strand id and color due to crossover deletion.
     /// </summary>
     public static void EraseXover(GameObject xover, int strandId, Color color, bool splitBefore)
     {

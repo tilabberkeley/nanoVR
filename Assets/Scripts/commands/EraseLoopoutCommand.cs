@@ -52,9 +52,6 @@ public class EraseLoopoutCommand : ICommand
         GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
         GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
 
-        // Make sure that start nucleotide is on the lower number strand
-        DrawCrossover.SetNucleotideDirection(startGO, endGO, out startGO, out endGO, out Strand startStrand, out Strand endStrand);
-
         _loopout = DrawLoopout.CreateLoopout(startGO, endGO, _sequenceLength);
     }
 
