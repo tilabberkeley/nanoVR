@@ -2,14 +2,13 @@
  * nanoVR, a VR application for building DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
-using RTG;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
 /// <summary>
-/// Attaches Gizmos to gameObject for movement and rotation.
+/// Attaches Gizmos to GameObjects for movement and rotation.
 /// </summary>
 public class TransformHandle : MonoBehaviour
 {
@@ -103,17 +102,10 @@ public class TransformHandle : MonoBehaviour
     /// </summary>
     private void ShowTransform()
     {
-        Debug.Log("Creating Transform");
         gizmos.SetActive(true);
         GridComponent gc = s_GO.GetComponent<GridComponent>();
         GameObject bottomLeftCorner = gc.Grid.Grid2D[0, 0].gameObject;
-        gizmos.transform.SetPositionAndRotation(bottomLeftCorner.transform.position + 0.2f * Vector3.back, bottomLeftCorner.transform.rotation);
-        Debug.Log("Finished creating Transform");
-
-        /*ObjectTransformGizmo objectMoveGizmo = RTGizmosEngine.Get.CreateObjectMoveGizmo();
-        List<GameObject> targets = GetTargets(go);
-        objectMoveGizmo.SetTargetObjects(targets);
-        objectMoveGizmo.SetTargetPivotObject(go); // CHECK THIS WORKS?*/
+        gizmos.transform.SetPositionAndRotation(bottomLeftCorner.transform.position - 0.2f * bottomLeftCorner.transform.forward, bottomLeftCorner.transform.rotation);
     }
 
     /// <summary>
@@ -123,35 +115,6 @@ public class TransformHandle : MonoBehaviour
     {
         gizmos.SetActive(false);
     }
-
-    /*private List<GameObject> GetTargets(GameObject go)
-    {
-        List<GameObject> targets = new List<GameObject>();
-        targets.Add(go);
-        DNAGrid grid = go.GetComponent<GridComponent>().Grid;
-        for (int i = 0; i < grid.Length; i++)
-        {
-            for (int j = 0; j < grid.Width; j++)
-            {
-                if (!grid.Grid2D[i, j].Equals(go.GetComponent<GridComponent>()))
-                {
-                    Debug.Log("Attaching grid Component");
-                    targets.Add(grid.Grid2D[i, j].gameObject);
-                    Debug.Log("Attaching helix objects");
-                    if (grid.Grid2D[i, j].Helix != null)
-                    {
-                        targets.AddRange(grid.Grid2D[i, j].Helix.BackbonesA);
-                        targets.AddRange(grid.Grid2D[i, j].Helix.BackbonesB);
-                        targets.AddRange(grid.Grid2D[i, j].Helix.NucleotidesA);
-                        targets.AddRange(grid.Grid2D[i, j].Helix.NucleotidesB);
-                    }
-                    //Debug.Log("Finished component: " + i + ", " + j);
-                }
-            }
-        }
-        return targets;
-        //Debug.Log("Finished attaching children");
-    }*/
 
 
     private void AttachChildren()

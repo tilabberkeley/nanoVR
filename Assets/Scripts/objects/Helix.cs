@@ -561,10 +561,20 @@ public class Helix
         foreach (GameObject nucleotide in NucleotidesA)
         {
             nucleotide.transform.parent = null;
+            Strand strand = Utils.GetStrand(nucleotide);
+            if (strand != null)
+            {
+                strand.Cone.transform.parent = null;
+            }
         }
         foreach (GameObject nucleotide in NucleotidesB)
         {
             nucleotide.transform.parent = null;
+            Strand strand = Utils.GetStrand(nucleotide);
+            if (strand != null)
+            {
+                strand.Cone.transform.parent = null;
+            }
         }
         foreach (GameObject nucleotide in BackbonesA)
         {
