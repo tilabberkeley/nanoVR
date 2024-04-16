@@ -1,13 +1,16 @@
-using System.Collections;
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
+ */
+using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
 using static Utils;
-using TMPro;
-using System;
 
 public class DrawLoopout : MonoBehaviour
 {

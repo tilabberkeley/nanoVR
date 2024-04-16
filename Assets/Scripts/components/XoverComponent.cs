@@ -76,6 +76,7 @@ public class XoverComponent : MonoBehaviour
 
             // Rotation
             transform.up = end - start;
+            Color = Utils.GetStrand(_prevGO).Color;
         }
     }
 
