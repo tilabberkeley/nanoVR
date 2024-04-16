@@ -94,7 +94,7 @@ public class DrawMerge : MonoBehaviour
             return -1;
         }
 
-        // Check GameObject's neighbor is part of another strand.
+        // Check GameObject's neighbor is selected.
         int helixId = startNtc.HelixId;
         s_helixDict.TryGetValue(helixId, out Helix helix);
         int direction = startNtc.Direction;
@@ -136,7 +136,8 @@ public class DrawMerge : MonoBehaviour
 
         Color color = neighbor.GetComponent<NucleotideComponent>().Color;
         int id = neighbor.GetComponent<NucleotideComponent>().StrandId;
-        ICommand command = new MergeCommand(go, id, color, false);
+        bool splitAfter = false;
+        ICommand command = new MergeCommand(go, id, color, splitAfter);
         CommandManager.AddCommand(command);
     }
 
@@ -181,13 +182,13 @@ public class DrawMerge : MonoBehaviour
         {
             firstStrand.AddToHead(backbone);
             if (!circularStrand) firstStrand.AddToHead(secondStrand.Nucleotides);
-            if (circularStrand) firstStrand.ShowHideCone(false);
+            else firstStrand.ShowHideCone(false);
         }
         else
         {
             firstStrand.AddToTail(backbone);
             if (!circularStrand) firstStrand.AddToTail(secondStrand.Nucleotides);
-            if (circularStrand) firstStrand.ShowHideCone(false);
+            else firstStrand.ShowHideCone(false);
         }
         SelectStrand.RemoveStrand(secondGO);
         firstStrand.SetComponents();

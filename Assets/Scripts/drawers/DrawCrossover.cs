@@ -117,7 +117,7 @@ public class DrawCrossover : MonoBehaviour
         s_endGO = null;
     }
 
-    /*/// <summary>
+    /// <summary>
     /// 
     /// </summary>
     /// <param name="first"></param>
@@ -128,8 +128,8 @@ public class DrawCrossover : MonoBehaviour
         {
             return;
         }
-        Strand firstStr = s_strandDict[first.GetComponent<NucleotideComponent>().StrandId];
-        Strand secondStr = s_strandDict[second.GetComponent<NucleotideComponent>().StrandId];
+        Strand firstStr = Utils.GetStrand(first);
+        Strand secondStr = Utils.GetStrand(second);
 
         // Bools help check if strands should merge with neighbors when xover is deleted or undo.
         bool firstIsEnd = first == firstStr.Head || first == firstStr.Tail;
@@ -137,7 +137,7 @@ public class DrawCrossover : MonoBehaviour
         bool firstIsHead = first == firstStr.Head;
         ICommand command = new XoverCommand(first, second, firstIsEnd, secondIsEnd, firstIsHead);
         CommandManager.AddCommand(command);
-    }*/
+    }
 
 
     /// <summary>
@@ -178,7 +178,7 @@ public class DrawCrossover : MonoBehaviour
     /// <summary>
     /// Does a create crossover command.
     /// </summary>
-    public static void DoCreateXover(GameObject startGO, GameObject endGO)
+    /*public static void DoCreateXover(GameObject startGO, GameObject endGO)
     {
         if (!IsValid(startGO, endGO))
         {
@@ -194,7 +194,7 @@ public class DrawCrossover : MonoBehaviour
         bool firstIsHead = startGO == startStrand.Head;
         ICommand command = new XoverCommand(startGO, endGO, firstIsEnd, secondIsEnd, firstIsHead);
         CommandManager.AddCommand(command);
-    }
+    }*/
 
     /// <summary>
     /// Splits strands (if necessary), draws loopout, and merges strands connected by loopout
@@ -227,7 +227,7 @@ public class DrawCrossover : MonoBehaviour
     }
 
     /// <summary>
-    /// Helper method to create a loopout between given nuleotides with inputted sequence length
+    /// Helper method to create a crossover between given nuleotides.
     /// </summary>
     public static GameObject CreateXoverHelper(GameObject startGO, GameObject endGO)
     {
@@ -235,7 +235,19 @@ public class DrawCrossover : MonoBehaviour
         int prevStrandId = endGO.GetComponent<NucleotideComponent>().StrandId;
 
         // Create crossover.
-        GameObject xover = DrawPoint.MakeXover(startGO, endGO, strandId, prevStrandId);
+        Strand startStr = Utils.GetStrand(startGO);
+        Strand endStr = Utils.GetStrand(endGO);
+        GameObject prevGO = startGO;
+        GameObject nextGO = endGO;
+        if (startGO == startStr.Head)
+        {
+            nextGO = startGO;
+        }
+        if (endGO == endStr.Tail)
+        {
+            prevGO = endGO;
+        }
+        GameObject xover = DrawPoint.MakeXover(prevGO, nextGO, strandId, prevStrandId);
 
         return xover;
     }
@@ -252,22 +264,22 @@ public class DrawCrossover : MonoBehaviour
     /// <summary>
     /// Removes given crossover and creates a new strand with given strand id and color due to loopout delettion.
     /// </summary>
-    public static void EraseXover(GameObject xover, int strandId, Color color, bool splitAfter)
-    {   
-        var xoverComp = xover.GetComponent<XoverComponent>();
+    public static void EraseXover(GameObject xover, int strandId, Color color, bool splitBefore)
+    {
+        XoverComponent xoverComp = xover.GetComponent<XoverComponent>();
         GameObject nucleotide;
 
-        if (splitAfter)
-        {
-            nucleotide = xoverComp.PrevGO;
-        }
-        else
+        if (splitBefore)
         {
             nucleotide = xoverComp.NextGO;
         }
+        else
+        {
+            nucleotide = xoverComp.PrevGO;
+        }
         Strand strand = s_strandDict[xoverComp.StrandId];
         strand.DeleteXover(xover);
-        DrawSplit.SplitStrand(nucleotide, strandId, color, splitAfter); // CHECK THIS
+        DrawSplit.SplitStrand(nucleotide, strandId, color, !splitBefore); // CHECK THIS
     }
 
     /* public static void SplitStrand(GameObject go, int id, Color color, bool splitAfter)

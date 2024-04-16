@@ -57,11 +57,8 @@ public class NucleotideEdit : MonoBehaviour
             // Set Complementary base
             if (!ValidComplementary(s_nucleotide)) return;
             SetComplementary(s_nucleotide, sequence);
-        } 
-        else
-        {
-            Utils.CheckMismatch(s_nucleotide);
         }
+        Utils.CheckMismatch(s_nucleotide);
     }
 
     /// <summary>
