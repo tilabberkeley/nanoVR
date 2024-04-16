@@ -45,7 +45,7 @@ public class XoverCommand : ICommand
 
     public void Do()
     {
-        DrawCrossover.CreateXover(_first, _second);
+        _xover = DrawCrossover.CreateXover(_first, _second);
     }
 
     public void Undo()
@@ -53,7 +53,7 @@ public class XoverCommand : ICommand
         //DrawSplit.SplitStrand(_startGO, _endColor, _isHead);
         GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
         GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
-        _xover = startGO.GetComponent<NucleotideComponent>().Xover;
+        //_xover = startGO.GetComponent<NucleotideComponent>().Xover;
         int prevStrandId = _xover.GetComponent<XoverComponent>().PrevStrandId;
 
         DrawCrossover.EraseXover(_xover, prevStrandId, _prevColor, _firstIsHead);
@@ -67,8 +67,8 @@ public class XoverCommand : ICommand
         GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
 
         // Make sure that start nucleotide is on the lower number strand
-        DrawCrossover.SetNucleotideDirection(startGO, endGO, out startGO, out endGO, out Strand startStrand, out Strand endStrand);
+        //DrawCrossover.SetNucleotideDirection(startGO, endGO, out startGO, out endGO, out Strand startStrand, out Strand endStrand);
 
-        DrawCrossover.CreateXover(startGO, endGO);
+        _xover = DrawCrossover.CreateXover(startGO, endGO);
     }
 }

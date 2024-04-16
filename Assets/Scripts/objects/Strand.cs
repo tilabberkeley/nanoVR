@@ -423,7 +423,9 @@ public class Strand
         }*/
         //SetSequence();
         SetCone();
+        Debug.Log("Finished setting cone");
         UpdateXovers();
+        Debug.Log("Finished updating xovers");
     }
 
     public void SetSequence(string sequence)
@@ -458,8 +460,9 @@ public class Strand
             }
         }
     }
-
-    // Sets cone position and rotation (pointing left or right).
+    /// <summary>
+    /// Sets cone position and rotation (pointing left or right).
+    /// </summary>
     public void SetCone()
     { 
         _cone.GetComponent<ConeComponent>().Color = _color;
@@ -484,7 +487,6 @@ public class Strand
             toDirection = neighbor.transform.position - _head.transform.position;
         }
         _cone.transform.SetPositionAndRotation(_head.transform.position, Quaternion.FromToRotation(Vector3.up, toDirection));
-        //_head.GetComponent<NucleotideComponent>().Cone = _cone;
     }
 
     // Resets all GameObject components in the nucleotides list.
