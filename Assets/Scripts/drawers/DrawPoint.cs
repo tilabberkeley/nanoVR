@@ -274,9 +274,6 @@ public static class DrawPoint
                    Vector3.zero,
                    Quaternion.identity) as GameObject;
 
-        SplineNode splineNode0 = new SplineNode(prevNucleotide.transform.position, Vector3.zero);
-        SplineNode splineNode2 = new SplineNode(nextNucleotide.transform.position, Vector3.zero);
-
         // Calculate middle point that determines bend
         float distance = (prevNucleotide.transform.position - nextNucleotide.transform.position).magnitude;
         Vector3 midpoint = (prevNucleotide.transform.position + nextNucleotide.transform.position) / 2;
@@ -286,13 +283,28 @@ public static class DrawPoint
         float c = midpointToNucleotide1.z;
         Vector3 orthogonalVector = new Vector3(b + c, c - a, -a - b).normalized;
         Vector3 bendPoint = midpoint + orthogonalVector * distance * LOOPOUT_BEND_RATIO;
-        SplineNode splineNode1 = new SplineNode(bendPoint, Vector3.zero);
 
+        // Create spline nodes
+        Vector3 direction0 = (bendPoint - prevNucleotide.transform.position).normalized;
+        Vector3 direction1 = (nextNucleotide.transform.position - bendPoint).normalized;
+        Vector3 direction2 = -1 * direction1;
+
+        SplineNode splineNode0 = new SplineNode(prevNucleotide.transform.position, direction0);
+        SplineNode splineNode1 = new SplineNode(bendPoint, direction1);
+        SplineNode splineNode2 = new SplineNode(nextNucleotide.transform.position, direction2);
+       
         Spline spline = loopout.GetComponent<Spline>();
 
-        spline.InsertNode(0, splineNode0);
-        spline.InsertNode(1, splineNode1);
-        spline.InsertNode(2, splineNode2);
+        spline.AddNode(splineNode0);
+        spline.AddNode(splineNode1);
+        spline.AddNode(splineNode2);
+
+        // Remove first two nodes (there by default)
+        SplineNode firstNode = spline.nodes[0];
+        SplineNode secondNode = spline.nodes[1];
+
+        spline.RemoveNode(firstNode);
+        spline.RemoveNode(secondNode);
 
         Debug.Log("Spline Created");
 
