@@ -12072,6 +12072,7 @@ GameObject:
   - component: {fileID: 713889240}
   - component: {fileID: 713889243}
   - component: {fileID: 713889244}
+  - component: {fileID: 713889242}
   m_Layer: 0
   m_Name: RightHand Controller
   m_TagString: Untagged
@@ -12902,6 +12903,26 @@ MonoBehaviour:
   textBox: {fileID: 192394974}
   _xrNode: 5
   rayInteractor: {fileID: 713889222}
+--- !u!114 &713889242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 713889218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e53400cd07b4946f2bb1c2b12a9df100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _xrNode: 5
+  rightRayInteractor: {fileID: 713889222}
+  _menu: {fileID: 1010908918}
+  _editPanel: {fileID: 0}
+  _inputField: {fileID: 0}
+  _currLengthText: {fileID: 0}
+  _OKButton: {fileID: 0}
+  _cancelButton: {fileID: 0}
 --- !u!114 &713889243
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25027,7 +25048,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 18
+  m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1574805357
 GameObject:
