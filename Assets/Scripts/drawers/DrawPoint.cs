@@ -7,6 +7,8 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using static UnityEngine.Object;
 using static GlobalVariables;
+using UnityEngine.ProBuilder;
+using SplineMesh;
 
 /// <summary>
 /// Creates needed gameobjects like nucleotides, backbones, cones, Xovers, spheres, and grids.
@@ -30,7 +32,7 @@ public static class DrawPoint
     public static GameObject MakeNucleotide(Vector3 position, int id, int helixId, int direction)
     {
         GameObject sphere =
-                    Instantiate(nucleotide,
+                    Instantiate(GlobalVariables.Nucleotide,
                     position,
                     Quaternion.identity) as GameObject;
         sphere.name = "nucleotide" + id;
@@ -267,17 +269,14 @@ public static class DrawPoint
     /// <returns>Loopout component of the created loopout in scene.</returns>
     public static LoopoutComponent MakeLoopout(int length, NucleotideComponent startNucleotide, NucleotideComponent endNucleotide, int strandId, int prevStrandId)
     {
-        GameObject loopout = new GameObject("loopout");
+        GameObject loopout =
+                   Instantiate(Loopout,
+                   Vector3.zero,
+                   Quaternion.identity) as GameObject;
 
-        TubeRenderer tubeRenderer = loopout.AddComponent<TubeRenderer>();
-        tubeRenderer.radius = LOOPOUT_SIZE;
+        SplineNode splineNode0 = new SplineNode(startNucleotide.transform.position, Vector3.zero);
+        SplineNode splineNode2 = new SplineNode(endNucleotide.transform.position, Vector3.zero);
 
-        SplineMaker splineMaker = loopout.AddComponent<SplineMaker>();
-        splineMaker.onUpdated.AddListener((points) => tubeRenderer.points = points); // updates tube renderer points when anchorPoints is changed.
-        splineMaker.pointsPerSegment = SPLINE_RESOLUTION;
-        Vector3[] anchorPoints = new Vector3[3];
-
-        anchorPoints[0] = startNucleotide.transform.position;
         // Calculate middle point that determines bend
         float distance = (startNucleotide.transform.position - endNucleotide.transform.position).magnitude;
         Vector3 midpoint = (startNucleotide.transform.position + endNucleotide.transform.position) / 2;
@@ -287,10 +286,13 @@ public static class DrawPoint
         float c = midpointToNucleotide1.z;
         Vector3 orthogonalVector = new Vector3(b + c, c - a, -a - b).normalized;
         Vector3 bendPoint = midpoint + orthogonalVector * distance * LOOPOUT_BEND_RATIO;
-        anchorPoints[1] = bendPoint;
-        anchorPoints[2] = endNucleotide.transform.position;
+        SplineNode splineNode1 = new SplineNode(bendPoint, Vector3.zero);
 
-        splineMaker.anchorPoints = anchorPoints;
+        Spline spline = loopout.GetComponent<Spline>();
+
+        spline.InsertNode(0, splineNode0);
+        spline.InsertNode(1, splineNode1);
+        spline.InsertNode(2, splineNode2);
 
         MeshRenderer meshRenderer = loopout.GetComponent<MeshRenderer>();
         meshRenderer.material.SetColor("_Color", startNucleotide.Color);
@@ -313,16 +315,16 @@ public static class DrawPoint
         endNucleotide.Xover = loopout;
 
         // Create interactable
-        GameObject loopoutInteractable =
-                 Instantiate(Resources.Load("LoopoutInteractable"),
-                 Vector3.zero,
-                 Quaternion.identity) as GameObject;
-        loopoutInteractable.transform.position = bendPoint;
-        loopoutInteractable.GetComponent<MeshRenderer>().material.SetColor("_Color", startNucleotide.Color);
-        LoopoutInteractableComponent loopoutInteractableComponent = loopoutInteractable.GetComponent<LoopoutInteractableComponent>();
-        loopoutInteractableComponent.Loopout = loopoutComponent;
-        loopoutComponent.Interactable = loopoutInteractableComponent;
-        loopoutInteractable.transform.parent = loopout.transform;
+        //GameObject loopoutInteractable =
+        //         Instantiate(Resources.Load("LoopoutInteractable"),
+        //         Vector3.zero,
+        //         Quaternion.identity) as GameObject;
+        //loopoutInteractable.transform.position = bendPoint;
+        //loopoutInteractable.GetComponent<MeshRenderer>().material.SetColor("_Color", startNucleotide.Color);
+        //LoopoutInteractableComponent loopoutInteractableComponent = loopoutInteractable.GetComponent<LoopoutInteractableComponent>();
+        //loopoutInteractableComponent.Loopout = loopoutComponent;
+        //loopoutComponent.Interactable = loopoutInteractableComponent;
+        //loopoutInteractable.transform.parent = loopout.transform;
 
         return loopoutComponent;
     }
