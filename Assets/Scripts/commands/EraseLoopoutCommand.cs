@@ -52,11 +52,13 @@ public class EraseLoopoutCommand : ICommand
         GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
         GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
 
-        _loopout = DrawLoopout.CreateLoopout(startGO, endGO, _sequenceLength);
+        DrawLoopout.CreateLoopout(startGO, endGO, _sequenceLength);
     }
 
     public void Redo()
     {
+        _loopout = FindNucleotide(_startId, _startHelixId, _startDirection).GetComponent<NucleotideComponent>().Xover;
+
         DrawLoopout.EraseLoopout(_loopout, _strandId, _color, false);
     }
 }

@@ -48,6 +48,8 @@ public class LoopoutCommand : ICommand
     public void Do()
     {
         _loopout = DrawLoopout.CreateLoopout(_first, _second, _sequenceLength);
+
+        // Debug.Log(_loopout.GetComponent<LoopoutComponent>().SequenceLength);
     }
 
     public void Undo()

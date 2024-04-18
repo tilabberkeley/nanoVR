@@ -50,7 +50,7 @@ public class EraseXoverCommand : ICommand
         GameObject prevGO = FindNucleotide(_startId, _startHelixId, _startDirection);
         GameObject nextGO = FindNucleotide(_endId, _endHelixId, _endDirection);
 
-        _xover = DrawCrossover.CreateXover(prevGO, nextGO);
+        DrawCrossover.CreateXover(prevGO, nextGO);
     }
 
     public void Redo()

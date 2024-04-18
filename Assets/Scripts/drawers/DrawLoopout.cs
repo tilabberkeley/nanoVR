@@ -195,7 +195,7 @@ public class DrawLoopout : MonoBehaviour
     /// </summary>
     public static void DoCreateLoopout(GameObject first, GameObject second)
     {
-        if (!DrawCrossover.IsValid(s_startGO, s_endGO))
+        if (!DrawCrossover.IsValid(first, second))
         {
             return;
         }

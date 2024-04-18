@@ -9,6 +9,7 @@ using static UnityEngine.Object;
 using static GlobalVariables;
 using UnityEngine.ProBuilder;
 using SplineMesh;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// Creates needed gameobjects like nucleotides, backbones, cones, Xovers, spheres, and grids.
@@ -17,9 +18,9 @@ public static class DrawPoint
 {
     private const int SPLINE_RESOLUTION = 16;
     private const float TUBE_SIZE = 0.01f;
-    private const float LOOPOUT_SIZE = 0.005f;
+    // private const float LOOPOUT_SIZE = 0.005f;
     // Ratio determines how much loopout "bends." Higher ratio, more bending.
-    private const float LOOPOUT_BEND_RATIO = 0.15f;
+    private const float LOOPOUT_BEND_RATIO = 3f;
 
     /// <summary>
     /// Creates nucleotide at given position.
@@ -269,47 +270,45 @@ public static class DrawPoint
     /// <returns>Loopout component of the created loopout in scene.</returns>
     public static LoopoutComponent MakeLoopout(int length, NucleotideComponent prevNucleotide, NucleotideComponent nextNucleotide, int strandId, int prevStrandId)
     {
-        GameObject loopout =
-                   Instantiate(Loopout,
+        GameObject loopout = Instantiate(Loopout,
                    Vector3.zero,
                    Quaternion.identity) as GameObject;
 
-        // Calculate middle point that determines bend
-        float distance = (prevNucleotide.transform.position - nextNucleotide.transform.position).magnitude;
-        Vector3 midpoint = (prevNucleotide.transform.position + nextNucleotide.transform.position) / 2;
-        Vector3 midpointToNucleotide1 = nextNucleotide.transform.position - midpoint;
-        float a = midpointToNucleotide1.x;
-        float b = midpointToNucleotide1.y;
-        float c = midpointToNucleotide1.z;
-        Vector3 orthogonalVector = new Vector3(b + c, c - a, -a - b).normalized;
-        Vector3 bendPoint = midpoint + orthogonalVector * distance * LOOPOUT_BEND_RATIO;
-
-        // Create spline nodes
-        Vector3 direction0 = (bendPoint - prevNucleotide.transform.position).normalized;
-        Vector3 direction1 = (nextNucleotide.transform.position - bendPoint).normalized;
-        Vector3 direction2 = -1 * direction1;
-
-        SplineNode splineNode0 = new SplineNode(prevNucleotide.transform.position, direction0);
-        SplineNode splineNode1 = new SplineNode(bendPoint, direction1);
-        SplineNode splineNode2 = new SplineNode(nextNucleotide.transform.position, direction2);
-       
+        // Create spline
         Spline spline = loopout.GetComponent<Spline>();
+        SplineMeshTiling splineMeshTiling = loopout.GetComponent<SplineMeshTiling>();
 
-        spline.AddNode(splineNode0);
-        spline.AddNode(splineNode1);
-        spline.AddNode(splineNode2);
+        Vector3 prevLocation = prevNucleotide.transform.position;
+        Vector3 nextLocation = nextNucleotide.transform.position;
+        Vector3 prevToNext = nextLocation - prevLocation;
+        float distance = prevToNext.magnitude;
 
-        // Remove first two nodes (there by default)
-        SplineNode firstNode = spline.nodes[0];
-        SplineNode secondNode = spline.nodes[1];
+        float a = prevToNext.x;
+        float b = prevToNext.y;
+        float c = prevToNext.z;
+        Vector3 orthogonalVector = new Vector3(b + c, c - a, -a - b).normalized;
 
-        spline.RemoveNode(firstNode);
-        spline.RemoveNode(secondNode);
+        Vector3 prevDirection = prevLocation + (orthogonalVector * distance * LOOPOUT_BEND_RATIO);
+        Vector3 nextDirection = nextLocation - (orthogonalVector * distance * LOOPOUT_BEND_RATIO);
 
-        Debug.Log("Spline Created");
+        SplineNode prevNode = new SplineNode(prevLocation, prevDirection);
+        SplineNode nextNode = new SplineNode(nextLocation, nextDirection);
 
-        MeshRenderer meshRenderer = loopout.GetComponent<MeshRenderer>();
-        meshRenderer.material.SetColor("_Color", prevNucleotide.Color);
+        // Remove default nodes from spline
+        SplineNode toRemove0 = spline.nodes[0];
+        SplineNode toRemove1 = spline.nodes[1];
+
+        // Update spline, and create mesh
+        spline.AddNode(prevNode);
+        spline.AddNode(nextNode);
+        spline.RemoveNode(toRemove0);
+        spline.RemoveNode(toRemove1);
+        splineMeshTiling.CreateMeshes();
+
+        // splineMeshTiling.material.SetColor("_Color", prevNucleotide.Color);
+        GameObject meshGO = loopout.transform.GetChild(0).GetChild(0).gameObject;
+        Debug.Log(meshGO == null);
+        meshGO.GetComponent<Material>().SetColor("_Color", prevNucleotide.Color);
 
         // Add outline component
         Outline outline = loopout.AddComponent<Outline>();
@@ -334,7 +333,7 @@ public static class DrawPoint
         //         Vector3.zero,
         //         Quaternion.identity) as GameObject;
         //loopoutInteractable.transform.position = bendPoint;
-        //loopoutInteractable.GetComponent<MeshRenderer>().material.SetColor("_Color", startNucleotide.Color);
+        //loopoutInteractable.GetComponent<MeshRenderer>().material.SetColor("_Color", prevNucleotide.Color);
         //LoopoutInteractableComponent loopoutInteractableComponent = loopoutInteractable.GetComponent<LoopoutInteractableComponent>();
         //loopoutInteractableComponent.Loopout = loopoutComponent;
         //loopoutComponent.Interactable = loopoutInteractableComponent;
