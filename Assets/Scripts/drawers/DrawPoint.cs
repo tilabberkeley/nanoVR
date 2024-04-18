@@ -20,7 +20,7 @@ public static class DrawPoint
     private const float TUBE_SIZE = 0.01f;
     // private const float LOOPOUT_SIZE = 0.005f;
     // Ratio determines how much loopout "bends." Higher ratio, more bending.
-    private const float LOOPOUT_BEND_RATIO = 3f;
+    private const float LOOPOUT_BEND_RATIO = 0.25f;
 
     /// <summary>
     /// Creates nucleotide at given position.
@@ -270,29 +270,44 @@ public static class DrawPoint
     /// <returns>Loopout component of the created loopout in scene.</returns>
     public static LoopoutComponent MakeLoopout(int length, NucleotideComponent prevNucleotide, NucleotideComponent nextNucleotide, int strandId, int prevStrandId)
     {
-        GameObject loopout = Instantiate(Loopout,
-                   Vector3.zero,
-                   Quaternion.identity) as GameObject;
+        // Transform scale of the loopout gamebobject - needed for relative node location.
+        float scale = 0.005f;
+
+        /* For this spline, the location of the gameobject is placed between the two nodes.
+         * The locations of the nodes are relative to the center of the gameobject, so the center
+         * of the gameobject is the origin of the node coordinate system. So to find the location
+         * of the nodes, you have to find the direction from the center of the gameobject
+         * (in this case the midpoint) to where you want to node in the actual world space. This also 
+         * needs to be scaled by the scale of the gameobject, which is in the transform component. 
+         * You can see this in the loopout prefab. For a nice bend, I just patterned matched. You
+         * just have to make the direction the location of the node +/- an orthogonal vector. 
+         * Again, I just patterned matched to figure this out, not exactly sure why it works. */
+        Vector3 prevLocation = prevNucleotide.transform.position;
+        Vector3 nextLocation = nextNucleotide.transform.position;
+        Vector3 midpoint = (prevLocation + nextLocation) / 2;
+
+        Vector3 midPointToPrevScaled = (prevLocation - midpoint) / scale;
+        Vector3 midPointToNextScaled = (nextLocation - midpoint) / scale;
+
+        GameObject loopout = Instantiate(Loopout, midpoint, Quaternion.identity);
 
         // Create spline
         Spline spline = loopout.GetComponent<Spline>();
         SplineMeshTiling splineMeshTiling = loopout.GetComponent<SplineMeshTiling>();
-
-        Vector3 prevLocation = prevNucleotide.transform.position;
-        Vector3 nextLocation = nextNucleotide.transform.position;
+        
         Vector3 prevToNext = nextLocation - prevLocation;
         float distance = prevToNext.magnitude;
 
         float a = prevToNext.x;
         float b = prevToNext.y;
         float c = prevToNext.z;
-        Vector3 orthogonalVector = new Vector3(b + c, c - a, -a - b).normalized;
+        Vector3 orthogonalVector = new Vector3(b + c, c - a, -a - b).normalized / scale;
 
-        Vector3 prevDirection = prevLocation + (orthogonalVector * distance * LOOPOUT_BEND_RATIO);
-        Vector3 nextDirection = nextLocation - (orthogonalVector * distance * LOOPOUT_BEND_RATIO);
+        Vector3 prevDirection = midPointToPrevScaled + (orthogonalVector * distance * LOOPOUT_BEND_RATIO);
+        Vector3 nextDirection = midPointToNextScaled - (orthogonalVector * distance * LOOPOUT_BEND_RATIO);
 
-        SplineNode prevNode = new SplineNode(prevLocation, prevDirection);
-        SplineNode nextNode = new SplineNode(nextLocation, nextDirection);
+        SplineNode prevNode = new SplineNode(midPointToPrevScaled, prevDirection);
+        SplineNode nextNode = new SplineNode(midPointToNextScaled, nextDirection);
 
         // Remove default nodes from spline
         SplineNode toRemove0 = spline.nodes[0];
@@ -307,16 +322,18 @@ public static class DrawPoint
 
         // splineMeshTiling.material.SetColor("_Color", prevNucleotide.Color);
         GameObject meshGO = loopout.transform.GetChild(0).GetChild(0).gameObject;
-        Debug.Log(meshGO == null);
-        meshGO.GetComponent<Material>().SetColor("_Color", prevNucleotide.Color);
+        meshGO.GetComponent<MeshRenderer>().material.SetColor("_Color", prevNucleotide.Color);
+
+        // Add xr interactable to mesh gameobject
+        meshGO.AddComponent<XRSimpleInteractable>();
 
         // Add outline component
         Outline outline = loopout.AddComponent<Outline>();
         outline.enabled = false;
         outline.OutlineWidth = 3;
 
-        // Add loopout component
-        LoopoutComponent loopoutComponent = loopout.AddComponent<LoopoutComponent>();
+        // Set loopout component properties
+        LoopoutComponent loopoutComponent = loopout.GetComponent<LoopoutComponent>();
         loopoutComponent.SequenceLength = length;
         loopoutComponent.PrevGO = prevNucleotide.gameObject;
         loopoutComponent.NextGO = nextNucleotide.gameObject;

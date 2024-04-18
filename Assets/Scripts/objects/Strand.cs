@@ -423,9 +423,9 @@ public class Strand
         }*/
         //SetSequence();
         SetCone();
-        Debug.Log("Finished setting cone");
+        // Debug.Log("Finished setting cone");
         UpdateXovers();
-        Debug.Log("Finished updating xovers");
+        // Debug.Log("Finished updating xovers");
     }
 
     public void SetSequence(string sequence)

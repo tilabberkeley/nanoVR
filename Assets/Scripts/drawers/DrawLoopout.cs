@@ -1,16 +1,13 @@
-/*
- * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
- */
-using System;
+using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
 using static Utils;
+using TMPro;
+using System;
 
 public class DrawLoopout : MonoBehaviour
 {
@@ -94,7 +91,7 @@ public class DrawLoopout : MonoBehaviour
                     s_endGO = s_hit.collider.gameObject;
                     //Unhighlight(s_startGO);
 
-                    DoCreateLoopout(s_startGO, s_endGO);
+                    DoCreateLoopout();
                     ResetNucleotides();
                 }
             }
@@ -193,21 +190,21 @@ public class DrawLoopout : MonoBehaviour
     /// <summary>
     /// Does a loopout command
     /// </summary>
-    public static void DoCreateLoopout(GameObject first, GameObject second)
+    public static void DoCreateLoopout()
     {
-        if (!DrawCrossover.IsValid(first, second))
+        if (!DrawCrossover.IsValid(s_startGO, s_endGO))
         {
             return;
         }
 
-        Strand firstStr = Utils.GetStrand(first);
-        Strand secondStr = Utils.GetStrand(second);
+        // Make sure that start nucleotide is on the lower number strand
+        DrawCrossover.SetNucleotideDirection(s_startGO, s_endGO, out s_startGO, out s_endGO, out Strand startStrand, out Strand endStrand);
 
-        // Bools help check if strands should merge with neighbors when xover is deleted or undo.
-        bool firstIsEnd = first == firstStr.Head || first == firstStr.Tail;
-        bool secondIsEnd = second == secondStr.Head || second == secondStr.Tail;
-        bool firstIsHead = first == firstStr.Head;
-        ICommand command = new LoopoutCommand(first, second, firstIsEnd, secondIsEnd, firstIsHead, DEFAULT_LENGTH);
+        // Bools help check if strands should merge with neighbors when loopout is deleted or undo.
+        bool firstIsEnd = s_startGO == startStrand.Head || s_startGO == startStrand.Tail;
+        bool secondIsEnd = s_endGO == endStrand.Head || s_endGO == endStrand.Tail;
+        bool firstIsHead = s_startGO == startStrand.Head;
+        ICommand command = new LoopoutCommand(s_startGO, s_endGO, firstIsEnd, secondIsEnd, firstIsHead, DEFAULT_LENGTH);
         CommandManager.AddCommand(command);
     }
 
@@ -240,21 +237,11 @@ public class DrawLoopout : MonoBehaviour
     {
         int strandId = startGO.GetComponent<NucleotideComponent>().StrandId;
         int prevStandId = endGO.GetComponent<NucleotideComponent>().StrandId;
+        NucleotideComponent startNucleotide = startGO.GetComponent<NucleotideComponent>();
+        NucleotideComponent endNucleotide = endGO.GetComponent<NucleotideComponent>();
 
-        // Create crossover, assign appropiate prev and next properties.
-        Strand startStr = Utils.GetStrand(startGO);
-        Strand endStr = Utils.GetStrand(endGO);
-        GameObject prevGO = startGO;
-        GameObject nextGO = endGO;
-        if (startGO == startStr.Head)
-        {
-            nextGO = startGO;
-        }
-        if (endGO == endStr.Tail)
-        {
-            prevGO = endGO;
-        }
-        LoopoutComponent loopout = DrawPoint.MakeLoopout(sequenceLength, prevGO.GetComponent<NucleotideComponent>(), nextGO.GetComponent<NucleotideComponent>(), strandId, prevStandId);
+        // Create loopout.
+        LoopoutComponent loopout = DrawPoint.MakeLoopout(sequenceLength, startNucleotide, endNucleotide, strandId, prevStandId);
         return loopout.gameObject;
     }
 
@@ -268,14 +255,14 @@ public class DrawLoopout : MonoBehaviour
     }
 
     /// <summary>
-    /// Removes given loopout and creates a new strand with given strand id and color due to loopout deletion.
+    /// Removes given loopout and creates a new strand with given strand id and color due to loopout delettion.
     /// </summary>
-    public static void EraseLoopout(GameObject loopout, int strandId, Color color, bool splitBefore)
+    public static void EraseLoopout(GameObject loopout, int strandId, Color color, bool splitAfter)
     {
         var xoverComp = loopout.GetComponent<XoverComponent>();
         GameObject nucleotide;
 
-        if (splitBefore)
+        if (splitAfter)
         {
             nucleotide = xoverComp.PrevGO;
         }
@@ -285,7 +272,7 @@ public class DrawLoopout : MonoBehaviour
         }
         Strand strand = s_strandDict[xoverComp.StrandId];
         strand.DeleteXover(loopout);
-        DrawCrossover.SplitStrand(nucleotide, strandId, color, !splitBefore);
+        DrawCrossover.SplitStrand(nucleotide, strandId, color, splitAfter);
     }
 
     /// <summary>
