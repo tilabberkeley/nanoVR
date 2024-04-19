@@ -55,6 +55,9 @@ public class XoverComponent : MonoBehaviour
         }
     }
 
+    private Color _savedColor;
+    public Color SavedColor { get { return _savedColor; } set { _savedColor = value; } }
+
     private void Update()
     {
         // Dynamically update xover gameobject when its prev and next gameobjects move

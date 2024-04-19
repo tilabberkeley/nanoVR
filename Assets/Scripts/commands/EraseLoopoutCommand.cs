@@ -9,7 +9,7 @@ public class EraseLoopoutCommand : ICommand
     private GameObject _startGO;
     private GameObject _endGO;
     private int _strandId;
-    private Color _color;
+    private Color _savedColor;
 
     private int _startId;
     private int _startHelixId;
@@ -27,7 +27,7 @@ public class EraseLoopoutCommand : ICommand
         _startGO = loopoutComponent.PrevGO;
         _endGO = loopoutComponent.NextGO;
         _strandId = loopoutComponent.PrevStrandId;
-        _color = loopoutComponent.Color;
+        _savedColor = loopoutComponent.SavedColor;
 
         var startNtc = _startGO.GetComponent<NucleotideComponent>();
         _startId = startNtc.Id;
@@ -44,7 +44,7 @@ public class EraseLoopoutCommand : ICommand
 
     public void Do()
     {
-        DrawLoopout.EraseLoopout(_loopout, _strandId, _color, false);
+        DrawLoopout.EraseLoopout(_loopout, _strandId, _savedColor, false);
     }
 
     public void Undo()
@@ -59,6 +59,6 @@ public class EraseLoopoutCommand : ICommand
     {
         _loopout = FindNucleotide(_startId, _startHelixId, _startDirection).GetComponent<NucleotideComponent>().Xover;
 
-        DrawLoopout.EraseLoopout(_loopout, _strandId, _color, false);
+        DrawLoopout.EraseLoopout(_loopout, _strandId, _savedColor, false);
     }
 }

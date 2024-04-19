@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6465241517663967497}
   - component: {fileID: 4385590196790633753}
   - component: {fileID: 1132803813825601621}
-  - component: {fileID: 8506411859163546677}
   m_Layer: 0
   m_Name: Loopout
   m_TagString: Untagged
@@ -100,18 +99,6 @@ MonoBehaviour:
   updateInPlayMode: 0
   curveSpace: 1
   mode: 2
---- !u!114 &8506411859163546677
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7595113961361122181}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e50bf0d0ec7a94dbda49ff7cf312ae33, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &8698208081643110433
 GameObject:
   m_ObjectHideFlags: 0

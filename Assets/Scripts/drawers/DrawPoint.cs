@@ -19,8 +19,8 @@ public static class DrawPoint
     private const int SPLINE_RESOLUTION = 16;
     private const float TUBE_SIZE = 0.01f;
     // private const float LOOPOUT_SIZE = 0.005f;
-    // Ratio determines how much loopout "bends." Higher ratio, more bending.
-    private const float LOOPOUT_BEND_RATIO = 0.25f;
+    // Factor determines how much loopout "bends." Higher factor, more bending.
+    private const float LOOPOUT_BEND_FACTOR = 0.25f;
 
     /// <summary>
     /// Creates nucleotide at given position.
@@ -89,44 +89,6 @@ public static class DrawPoint
         SaveGameObject(cylinder);
 
         return cylinder;
-    }
-
-    /// <summary>
-    /// Creates a crossover at the given nucleotide gameobjects.
-    /// </summary>
-    public static GameObject MakeXover(GameObject prevGO, GameObject nextGO, int strandId, int prevStrandId)
-    {
-        GameObject xover =
-                   Instantiate(Xover,
-                   Vector3.zero,
-                   Quaternion.identity) as GameObject;
-        xover.name = "xover";
-        Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
-
-        // Position
-        xover.transform.position = (nextGO.transform.position + prevGO.transform.position) / 2.0F;
-
-        // Rotation
-        Vector3 dirV = Vector3.Normalize(nextGO.transform.position - prevGO.transform.position);
-        Vector3 rotAxisV = dirV + cylDefaultOrientation;
-        rotAxisV = Vector3.Normalize(rotAxisV);
-        xover.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
-
-        // Scale        
-        float dist = Vector3.Distance(nextGO.transform.position, prevGO.transform.position);
-        xover.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
-
-        var xoverComp = xover.GetComponent<XoverComponent>();
-        xoverComp.StrandId = strandId;
-        xoverComp.PrevStrandId = prevStrandId;
-        xoverComp.Length = dist;
-        xoverComp.Color = prevGO.GetComponent<NucleotideComponent>().Color;
-        prevGO.GetComponent<NucleotideComponent>().Xover = xover;
-        nextGO.GetComponent<NucleotideComponent>().Xover = xover;
-        xoverComp.PrevGO = prevGO;
-        xoverComp.NextGO = nextGO;
-        SaveGameObject(xover);
-        return xover;
     }
 
     /// <summary>
@@ -261,19 +223,57 @@ public static class DrawPoint
     }
 
     /// <summary>
+    /// Creates a crossover at the given nucleotide gameobjects.
+    /// </summary>
+    public static GameObject MakeXover(GameObject prevGO, GameObject nextGO, int strandId, int prevStrandId)
+    {
+        GameObject xover =
+                   Instantiate(Xover,
+                   Vector3.zero,
+                   Quaternion.identity) as GameObject;
+        xover.name = "xover";
+        Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
+
+        // Position
+        xover.transform.position = (nextGO.transform.position + prevGO.transform.position) / 2.0F;
+
+        // Rotation
+        Vector3 dirV = Vector3.Normalize(nextGO.transform.position - prevGO.transform.position);
+        Vector3 rotAxisV = dirV + cylDefaultOrientation;
+        rotAxisV = Vector3.Normalize(rotAxisV);
+        xover.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
+
+        // Scale        
+        float dist = Vector3.Distance(nextGO.transform.position, prevGO.transform.position);
+        xover.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
+
+        var xoverComp = xover.GetComponent<XoverComponent>();
+        xoverComp.StrandId = strandId;
+        xoverComp.PrevStrandId = prevStrandId;
+        xoverComp.Length = dist;
+        xoverComp.Color = prevGO.GetComponent<NucleotideComponent>().Color;
+        prevGO.GetComponent<NucleotideComponent>().Xover = xover;
+        nextGO.GetComponent<NucleotideComponent>().Xover = xover;
+        xoverComp.PrevGO = prevGO;
+        xoverComp.NextGO = nextGO;
+        SaveGameObject(xover);
+        return xover;
+    }
+
+    /// <summary>
     /// Creates a loopout between the given two nucleotides.
     /// </summary>
-    /// <param name="length">Sequence length of the loopout.</param>
+    /// <param name="sequenceLengt">Sequence length of the loopout.</param>
     /// <param name="prevNucleotide">Nucleotide that loopout begins on.</param>
     /// <param name="nextNucleotide">Nucleotide that loopout ends on.</param>
     /// <param name="color">Color of the loopout.</param>
     /// <returns>Loopout component of the created loopout in scene.</returns>
-    public static LoopoutComponent MakeLoopout(int length, NucleotideComponent prevNucleotide, NucleotideComponent nextNucleotide, int strandId, int prevStrandId)
+    public static GameObject MakeLoopout(int sequenceLength, GameObject prevNucleotide, GameObject nextNucleotide, int strandId, int prevStrandId)
     {
         // Transform scale of the loopout gamebobject - needed for relative node location.
         float scale = 0.005f;
 
-        /* For this spline, the location of the gameobject is placed between the two nodes.
+        /* For this spline, the location of the gameobject is placed between the two nucleotides.
          * The locations of the nodes are relative to the center of the gameobject, so the center
          * of the gameobject is the origin of the node coordinate system. So to find the location
          * of the nodes, you have to find the direction from the center of the gameobject
@@ -301,10 +301,11 @@ public static class DrawPoint
         float a = prevToNext.x;
         float b = prevToNext.y;
         float c = prevToNext.z;
+        // Also have to scale orthogonal vector? I didn't try without it. Either way just adjust bend factor.
         Vector3 orthogonalVector = new Vector3(b + c, c - a, -a - b).normalized / scale;
 
-        Vector3 prevDirection = midPointToPrevScaled + (orthogonalVector * distance * LOOPOUT_BEND_RATIO);
-        Vector3 nextDirection = midPointToNextScaled - (orthogonalVector * distance * LOOPOUT_BEND_RATIO);
+        Vector3 prevDirection = midPointToPrevScaled + (orthogonalVector * distance * LOOPOUT_BEND_FACTOR);
+        Vector3 nextDirection = midPointToNextScaled - (orthogonalVector * distance * LOOPOUT_BEND_FACTOR);
 
         SplineNode prevNode = new SplineNode(midPointToPrevScaled, prevDirection);
         SplineNode nextNode = new SplineNode(midPointToNextScaled, nextDirection);
@@ -320,43 +321,38 @@ public static class DrawPoint
         spline.RemoveNode(toRemove1);
         splineMeshTiling.CreateMeshes();
 
-        // splineMeshTiling.material.SetColor("_Color", prevNucleotide.Color);
+        NucleotideComponent prevNucleotideComponent = prevNucleotide.GetComponent<NucleotideComponent>();
+        NucleotideComponent nextNucleotideComponent = nextNucleotide.GetComponent<NucleotideComponent>();
+
+        // SplineMeshTiling script adds a gameobject as a grandchild of the loopout, which is where the mesh is attached.
         GameObject meshGO = loopout.transform.GetChild(0).GetChild(0).gameObject;
-        meshGO.GetComponent<MeshRenderer>().material.SetColor("_Color", prevNucleotide.Color);
+        meshGO.GetComponent<MeshRenderer>().material.SetColor("_Color", prevNucleotideComponent.Color);
 
         // Add xr interactable to mesh gameobject
         meshGO.AddComponent<XRSimpleInteractable>();
 
         // Add outline component
-        Outline outline = loopout.AddComponent<Outline>();
+        Outline outline = meshGO.AddComponent<Outline>();
         outline.enabled = false;
         outline.OutlineWidth = 3;
 
-        // Set loopout component properties
-        LoopoutComponent loopoutComponent = loopout.GetComponent<LoopoutComponent>();
-        loopoutComponent.SequenceLength = length;
+        // Set loopout component properties ON meshGO
+        LoopoutComponent loopoutComponent = meshGO.AddComponent<LoopoutComponent>();
+        loopoutComponent.SequenceLength = sequenceLength;
         loopoutComponent.PrevGO = prevNucleotide.gameObject;
         loopoutComponent.NextGO = nextNucleotide.gameObject;
         loopoutComponent.StrandId = strandId;
         loopoutComponent.PrevStrandId = prevStrandId;
-        loopoutComponent.Color = prevNucleotide.Color;
+        loopoutComponent.Color = prevNucleotideComponent.Color;
+        // loopoutComponent.SavedColor = nextNucleotideComponent.Color;
 
-        prevNucleotide.Xover = loopout;
-        nextNucleotide.Xover = loopout;
+        // Assign to meshGO that has the loopout component.
+        prevNucleotideComponent.Xover = meshGO;
+        nextNucleotideComponent.Xover = meshGO;
 
-        // Create interactable
-        //GameObject loopoutInteractable =
-        //         Instantiate(Resources.Load("LoopoutInteractable"),
-        //         Vector3.zero,
-        //         Quaternion.identity) as GameObject;
-        //loopoutInteractable.transform.position = bendPoint;
-        //loopoutInteractable.GetComponent<MeshRenderer>().material.SetColor("_Color", prevNucleotide.Color);
-        //LoopoutInteractableComponent loopoutInteractableComponent = loopoutInteractable.GetComponent<LoopoutInteractableComponent>();
-        //loopoutInteractableComponent.Loopout = loopoutComponent;
-        //loopoutComponent.Interactable = loopoutInteractableComponent;
-        //loopoutInteractable.transform.parent = loopout.transform;
+        SaveGameObject(meshGO);
 
-        return loopoutComponent;
+        return meshGO;
     }
 }
 

@@ -20,9 +20,5 @@ public class LoopoutComponent : XoverComponent
     private string _sequence;
     public string Sequence { get { return _sequence; } set { _sequence = value; } }
 
-    // Loopout Interactable - the sphere the user clicks on to edit the loopout.
-    private LoopoutInteractableComponent _interactable;
-    public LoopoutInteractableComponent Interactable { get { return _interactable; } set { _interactable = value; } }
-
     public override Color Color { get { return _color; } set { _color = value; } }
 }
