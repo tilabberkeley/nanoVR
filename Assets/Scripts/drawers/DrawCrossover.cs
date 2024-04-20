@@ -225,7 +225,8 @@ public class DrawCrossover : MonoBehaviour
         {
             prevGO = endGO;
         }
-        GameObject xover = DrawPoint.MakeXover(prevGO, nextGO, strandId, prevStrandId);
+        // GameObject xover = DrawPoint.MakeXover(prevGO, nextGO, strandId, prevStrandId);
+        GameObject xover = DrawPoint.MakeLoopout(1, prevGO, nextGO, strandId, prevStrandId);
 
         return xover;
     }

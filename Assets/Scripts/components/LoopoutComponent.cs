@@ -20,5 +20,20 @@ public class LoopoutComponent : XoverComponent
     private string _sequence;
     public string Sequence { get { return _sequence; } set { _sequence = value; } }
 
-    public override Color Color { get { return _color; } set { _color = value; } }
+    // Changing color of loopout done through mesh renderer
+    public override Color Color
+    {
+        get { return _color; }
+        set
+        {
+            _color = value;
+            GetComponent<MeshRenderer>().material.SetColor("_Color", value);
+        }
+    }
+
+    protected override void Update()
+    {
+        // TODO: Implement dynamic moving for loopouts
+        return;
+    }
 }

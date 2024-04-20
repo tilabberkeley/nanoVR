@@ -321,12 +321,8 @@ public static class DrawPoint
         spline.RemoveNode(toRemove1);
         splineMeshTiling.CreateMeshes();
 
-        NucleotideComponent prevNucleotideComponent = prevNucleotide.GetComponent<NucleotideComponent>();
-        NucleotideComponent nextNucleotideComponent = nextNucleotide.GetComponent<NucleotideComponent>();
-
         // SplineMeshTiling script adds a gameobject as a grandchild of the loopout, which is where the mesh is attached.
         GameObject meshGO = loopout.transform.GetChild(0).GetChild(0).gameObject;
-        meshGO.GetComponent<MeshRenderer>().material.SetColor("_Color", prevNucleotideComponent.Color);
 
         // Add xr interactable to mesh gameobject
         meshGO.AddComponent<XRSimpleInteractable>();
@@ -337,19 +333,22 @@ public static class DrawPoint
         outline.OutlineWidth = 3;
 
         // Set loopout component properties ON meshGO
+        NucleotideComponent prevNucleotideComponent = prevNucleotide.GetComponent<NucleotideComponent>();
+        NucleotideComponent nextNucleotideComponent = nextNucleotide.GetComponent<NucleotideComponent>();
+
         LoopoutComponent loopoutComponent = meshGO.AddComponent<LoopoutComponent>();
+
         loopoutComponent.SequenceLength = sequenceLength;
         loopoutComponent.PrevGO = prevNucleotide.gameObject;
         loopoutComponent.NextGO = nextNucleotide.gameObject;
         loopoutComponent.StrandId = strandId;
         loopoutComponent.PrevStrandId = prevStrandId;
         loopoutComponent.Color = prevNucleotideComponent.Color;
-        // loopoutComponent.SavedColor = nextNucleotideComponent.Color;
+        loopoutComponent.SavedColor = nextNucleotideComponent.Color;
 
         // Assign to meshGO that has the loopout component.
         prevNucleotideComponent.Xover = meshGO;
         nextNucleotideComponent.Xover = meshGO;
-
         SaveGameObject(meshGO);
 
         return meshGO;
