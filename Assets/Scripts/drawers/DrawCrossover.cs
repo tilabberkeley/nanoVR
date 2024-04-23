@@ -79,7 +79,11 @@ public class DrawCrossover : MonoBehaviour
                     }
                 }
             }
-            else if (s_hit.collider.GetComponent<XoverComponent>() != null && s_eraseTogOn)
+            // Also have to make sure this isn't a loopout, otherwise erase xover cammand will
+            // be added to stack when erasing a loopout because of the inheritance.
+            else if (s_hit.collider.GetComponent<XoverComponent>() != null
+                && s_hit.collider.GetComponent<LoopoutComponent>() == null
+                && s_eraseTogOn)
             {
                 //Highlight(s_hit.collider.gameObject);
                 DoEraseXover(s_hit.collider.gameObject);        
@@ -225,8 +229,7 @@ public class DrawCrossover : MonoBehaviour
         {
             prevGO = endGO;
         }
-        // GameObject xover = DrawPoint.MakeXover(prevGO, nextGO, strandId, prevStrandId);
-        GameObject xover = DrawPoint.MakeLoopout(1, prevGO, nextGO, strandId, prevStrandId);
+        GameObject xover = DrawPoint.MakeXover(prevGO, nextGO, strandId, prevStrandId);
 
         return xover;
     }

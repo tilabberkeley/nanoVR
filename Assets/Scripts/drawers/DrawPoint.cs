@@ -337,7 +337,6 @@ public static class DrawPoint
         NucleotideComponent nextNucleotideComponent = nextNucleotide.GetComponent<NucleotideComponent>();
 
         LoopoutComponent loopoutComponent = meshGO.AddComponent<LoopoutComponent>();
-
         loopoutComponent.SequenceLength = sequenceLength;
         loopoutComponent.PrevGO = prevNucleotide.gameObject;
         loopoutComponent.NextGO = nextNucleotide.gameObject;
