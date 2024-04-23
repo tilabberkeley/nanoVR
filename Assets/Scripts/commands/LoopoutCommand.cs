@@ -47,10 +47,7 @@ public class LoopoutCommand : ICommand
 
     public void Do()
     {
-        Redo();
-        Undo();
-        Redo();
-        //DrawLoopout.CreateLoopout(_first, _second, _sequenceLength);
+        _loopout = DrawLoopout.CreateLoopout(_first, _second, _sequenceLength);
     }
 
     public void Undo()
@@ -70,6 +67,6 @@ public class LoopoutCommand : ICommand
         GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
         GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
 
-        DrawLoopout.CreateLoopout(startGO, endGO, _sequenceLength);
+        _loopout = DrawLoopout.CreateLoopout(startGO, endGO, _sequenceLength);
     }
 }

@@ -268,7 +268,7 @@ public static class DrawPoint
     /// <param name="nextNucleotide">Nucleotide that loopout ends on.</param>
     /// <param name="color">Color of the loopout.</param>
     /// <returns>Loopout component of the created loopout in scene.</returns>
-    public static GameObject MakeLoopout(int sequenceLength, GameObject prevNucleotide, GameObject nextNucleotide, int strandId, int prevStrandId)
+    public static GameObject MakeLoopout(GameObject prevNucleotide, GameObject nextNucleotide, int strandId, int prevStrandId, int sequenceLength)
     {
         // Transform scale of the loopout gamebobject - needed for relative node location.
         float scale = 0.005f;
@@ -281,7 +281,7 @@ public static class DrawPoint
          * needs to be scaled by the scale of the gameobject, which is in the transform component. 
          * You can see this in the loopout prefab. For a nice bend, I just patterned matched. You
          * just have to make the direction the location of the node +/- an orthogonal vector. 
-         * Again, I just patterned matched to figure this out, not exactly sure why it works. */
+         * Again, I just patterned matched to figure this out, not exactly sure how it works. */
         Vector3 prevLocation = prevNucleotide.transform.position;
         Vector3 nextLocation = nextNucleotide.transform.position;
         Vector3 midpoint = (prevLocation + nextLocation) / 2;
@@ -338,8 +338,8 @@ public static class DrawPoint
 
         LoopoutComponent loopoutComponent = meshGO.AddComponent<LoopoutComponent>();
         loopoutComponent.SequenceLength = sequenceLength;
-        loopoutComponent.PrevGO = prevNucleotide.gameObject;
-        loopoutComponent.NextGO = nextNucleotide.gameObject;
+        loopoutComponent.PrevGO = prevNucleotide;
+        loopoutComponent.NextGO = nextNucleotide;
         loopoutComponent.StrandId = strandId;
         loopoutComponent.PrevStrandId = prevStrandId;
         loopoutComponent.Color = prevNucleotideComponent.Color;

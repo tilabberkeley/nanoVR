@@ -95,15 +95,10 @@ public class DrawLoopout : MonoBehaviour
 
                     DoCreateLoopout(s_startGO, s_endGO);
                     ResetNucleotides();
-
-                    Debug.Log(s_loopoutCheck == null);
-                    s_loopoutCheck.SetActive(true);
                 }
             }
             else if (s_hit.collider.GetComponent<LoopoutComponent>() != null && s_eraseTogOn)
             {
-                // Highlight(s_hit.collider.gameObject);
-                Debug.Log("Erase loopout");
                 DoEraseLoopout(s_hit.collider.GetComponent<LoopoutComponent>().gameObject);
             }
             else
@@ -230,10 +225,10 @@ public class DrawLoopout : MonoBehaviour
         DrawSplit.SplitStrand(endGO, s_numStrands, Strand.GetDifferentColor(secondNtc.Color), true);
 
         GameObject loopout = CreateLoopoutHelper(startGO, endGO, sequenceLength);
-        DrawCrossover.MergeStrand(startGO, endGO, loopout);
 
         // TODO: Handle circular loopouts (also should be able to be circular with xovers)
 
+        DrawCrossover.MergeStrand(startGO, endGO, loopout);
         return loopout;
     }
 
@@ -245,7 +240,7 @@ public class DrawLoopout : MonoBehaviour
         int strandId = startGO.GetComponent<NucleotideComponent>().StrandId;
         int prevStrandId = endGO.GetComponent<NucleotideComponent>().StrandId;
 
-        // Create loopout, assign appropiate prev and next properties.
+        // Create crossover, assign appropiate prev and next properties.
         Strand startStr = Utils.GetStrand(startGO);
         Strand endStr = Utils.GetStrand(endGO);
         GameObject prevGO = startGO;
@@ -258,9 +253,7 @@ public class DrawLoopout : MonoBehaviour
         {
             prevGO = endGO;
         }
-        GameObject loopout = DrawPoint.MakeLoopout(sequenceLength, prevGO, nextGO, strandId, prevStrandId);
-
-        s_loopoutCheck = loopout;
+        GameObject loopout = DrawPoint.MakeLoopout(prevGO, nextGO, strandId, prevStrandId, DEFAULT_LENGTH);
 
         return loopout;
     }
@@ -270,16 +263,16 @@ public class DrawLoopout : MonoBehaviour
     /// </summary>
     public static void DoEraseLoopout(GameObject loopout)
     {
-        ICommand command = new EraseLoopoutCommand(loopout);
+        ICommand command = new EraseLoopoutCommand(loopout, s_numStrands, loopout.GetComponent<XoverComponent>().Color);
         CommandManager.AddCommand(command);
     }
 
     /// <summary>
-    /// Removes given loopout and creates a new strand with given strand id and color due to crossover deletion.
+    /// Removes given loopout and creates a new strand with given strand id and color due to loopout deletion.
     /// </summary>
-    public static void EraseLoopout(GameObject xover, int strandId, Color color, bool splitBefore)
+    public static void EraseLoopout(GameObject loopout, int strandId, Color color, bool splitBefore)
     {
-        XoverComponent xoverComp = xover.GetComponent<XoverComponent>();
+        XoverComponent xoverComp = loopout.GetComponent<XoverComponent>();
         GameObject nucleotide;
 
         if (splitBefore)
@@ -291,7 +284,7 @@ public class DrawLoopout : MonoBehaviour
             nucleotide = xoverComp.PrevGO;
         }
         Strand strand = s_strandDict[xoverComp.StrandId];
-        strand.DeleteXover(xover);
+        strand.DeleteXover(loopout);
         DrawSplit.SplitStrand(nucleotide, strandId, color, !splitBefore); // CHECK THIS
     }
 

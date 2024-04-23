@@ -45,7 +45,7 @@ public class XoverCommand : ICommand
 
     public void Do()
     {
-        DrawCrossover.CreateXover(_first, _second);
+        _xover = DrawCrossover.CreateXover(_first, _second);
     }
 
     public void Undo()
