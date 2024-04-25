@@ -165,14 +165,13 @@ public class StrandSettings : MonoBehaviour
         List<GameObject> nucleotides = s_strand.Nucleotides;
         int seqCount = 0;
 
-        // TODO: Check endpoints of complements to see if they have tail nucleotides that need to be assigned "?"
         for (int i = nucleotides.Count - 1; i >= 0; i--)
         {
+            NucleotideComponent ntc = nucleotides[i].GetComponent<NucleotideComponent>();
             if (i == nucleotides.Count - 1 || i == 0)
             {
-                CheckTrailingNucls(nucleotides[i].GetComponent<NucleotideComponent>());
+                CheckTrailingNucls(ntc);
             }
-            NucleotideComponent ntc = nucleotides[i].GetComponent<NucleotideComponent>();
             if (ntc != null)
             {
                 NucleotideEdit.SetComplementary(ntc, sequence.Substring(seqCount, ntc.Insertion + 1));
@@ -236,7 +235,7 @@ public class StrandSettings : MonoBehaviour
     }
 
     
-    // Called by cancel button in Unity Hierarchy
+    // Called by cancel button in Strand Settings menu.
     public void HideStrandSettings()
     {
         _menu.enabled = true;
