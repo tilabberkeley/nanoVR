@@ -1,6 +1,6 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
 using UnityEngine;
@@ -111,7 +111,9 @@ public class DrawGrid : MonoBehaviour
         plane = directionDropdown.options[directionDropdown.value].text;
         Vector3 direction = Camera.main.transform.rotation * Vector3.forward;
         Vector3 currPoint = Camera.main.transform.position + direction * 0.2f;
-        CreateGrid(s_numGrids.ToString(), plane, currPoint, gridTypeDropdown.options[gridTypeDropdown.value].text);
+        ICommand command = new CreateGridCommand(s_numGrids.ToString(), plane, currPoint, gridTypeDropdown.options[gridTypeDropdown.value].text);
+        CommandManager.AddCommand(command);
+        command.Do();
     }
 
     public static DNAGrid CreateGrid(string gridId, string plane, Vector3 position, string gridType)

@@ -35,11 +35,13 @@ public static class DrawPoint
                     Quaternion.identity) as GameObject;
         sphere.name = "nucleotide" + id;
 
-        var ntc = sphere.GetComponent<NucleotideComponent>();
+        NucleotideComponent ntc = sphere.GetComponent<NucleotideComponent>();
+        //SequenceComponent seqComp = sphere.GetComponent<SequenceComponent>();
         ntc.Id = id;
         ntc.HelixId = helixId;
         ntc.Direction = direction;
         ntc.IsBackbone = false;
+        //seqComp.HasComplement = true;
         SaveGameObject(sphere);
         return sphere;
     }
@@ -323,6 +325,10 @@ public static class DrawPoint
         loopoutInteractableComponent.Loopout = loopoutComponent;
         loopoutComponent.Interactable = loopoutInteractableComponent;
         loopoutInteractable.transform.parent = loopout.transform;
+
+        // Add sequence component
+        //SequenceComponent seqComp = loopout.AddComponent<SequenceComponent>();
+        //seqComp.HasComplement = false;
 
         return loopoutComponent;
     }

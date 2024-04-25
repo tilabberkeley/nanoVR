@@ -24,6 +24,7 @@ public class EditLoopoutCommand : ICommand
     {
         _loopout = loopout;
         LoopoutComponent loopoutComponent = loopout.GetComponent<LoopoutComponent>();
+        //SequenceComponent seqComp = loopout.GetComponent<SequenceComponent>();
 
         _first = loopoutComponent.NextGO.GetComponent<NucleotideComponent>();
         _firstId = _first.Id;

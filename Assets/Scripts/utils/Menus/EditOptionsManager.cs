@@ -28,9 +28,14 @@ public class EditOptionsManager : MonoBehaviour
     [SerializeField] private Canvas _strandSettings;
     [SerializeField] private Canvas _nuclEditMenu;
     [SerializeField] private Canvas _insEditMenu;
+    [SerializeField] private Canvas _loopoutLengthEditMenu;
+    [SerializeField] private Canvas _loopoutSequenceEditMenu;
+
     [SerializeField] private Button _strandSettingsBtn;
     [SerializeField] private Button _nuclEditBtn;
     [SerializeField] private Button _insEditBtn;
+    [SerializeField] private Button _loopoutLengthEditBtn;
+    [SerializeField] private Button _loopoutSequenceEditBtn;
     [SerializeField] private Button _cancelButton;
 
     // Strand Settings UI
@@ -45,15 +50,25 @@ public class EditOptionsManager : MonoBehaviour
     [SerializeField] private Toggle _nucleotideComplementaryTog;
     [SerializeField] private TMP_InputField _nucleotideSequenceInput;
 
+    // Loopout Sequence Edit UI
+    [SerializeField] private TMP_Text _loopoutInfoText;
+    [SerializeField] private TMP_InputField _loopoutSequenceInput;
+
+
     private void Start()
     {
         _editMenu.enabled = false;
         _strandSettings.enabled = false;
         _nuclEditMenu.enabled = false;
         _insEditMenu.enabled = false;
+        _loopoutLengthEditMenu.enabled = false;
+        _loopoutSequenceEditMenu.enabled = false;
+
         _strandSettingsBtn.onClick.AddListener(() => ShowStrandSettings());
         _nuclEditBtn.onClick.AddListener(() => ShowNuclEdit());
         _insEditBtn.onClick.AddListener(() => ShowInsEdit());
+        _loopoutLengthEditBtn.onClick.AddListener(() => ShowLoopoutLengthEdit());
+        _loopoutSequenceEditBtn.onClick.AddListener(() => ShowLoopoutSequenceEdit());
         _cancelButton.onClick.AddListener(() => HideEditMenu());
     }
 
@@ -87,8 +102,9 @@ public class EditOptionsManager : MonoBehaviour
                 && rayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit s_hit))
         {
             gripReleased = false;
-            if (s_hit.collider.GetComponent<NucleotideComponent>() != null
+            if ((s_hit.collider.GetComponent<NucleotideComponent>() != null
                 && s_hit.collider.GetComponent<NucleotideComponent>().Selected)
+                || s_hit.collider.GetComponent<LoopoutComponent>() != null)
             {
                 s_GO = s_hit.collider.gameObject;
                 ShowEditMenu();
@@ -105,6 +121,7 @@ public class EditOptionsManager : MonoBehaviour
     private void ShowEditMenu()
     {
         ShowCorrectButtons();
+        Highlight.HighlightGO(s_GO, Color.yellow);
         _menu.enabled = false;
         _editMenu.enabled = true;
     }
@@ -113,11 +130,26 @@ public class EditOptionsManager : MonoBehaviour
     {
         _menu.enabled = true;
         _editMenu.enabled = false;
+        Highlight.UnhighlightGO(s_GO, false);
     }
 
-    private void ShowCorrectButtons()
+    private void ShowCorrectButtons() // TODO: Add loopout button functionality
     {
-        var ntc = s_GO.GetComponent<NucleotideComponent>();
+        NucleotideComponent ntc = s_GO.GetComponent<NucleotideComponent>();
+        LoopoutComponent loopoutComp = s_GO.GetComponent<LoopoutComponent>();
+        if (loopoutComp != null)
+        {
+            _loopoutLengthEditBtn.interactable = true;
+            _insEditBtn.interactable = false;
+            _loopoutSequenceEditBtn.interactable = true;
+            _insEditBtn.interactable = false;
+            _nuclEditBtn.interactable = false;
+            return;
+        }
+
+        _loopoutLengthEditBtn.interactable = false;
+        _loopoutSequenceEditBtn.interactable = false;
+
         if (ntc.IsInsertion)
         {
             _insEditBtn.interactable = true;
@@ -166,10 +198,8 @@ public class EditOptionsManager : MonoBehaviour
         NucleotideEdit.Nucleotide = ntc;
 
         // Set UI info
-        string sequence = ntc.Sequence;
         int numberofBases = ntc.Insertion + 1;
-        string text = "Number of bases: " + numberofBases + "\n";
-        text += "Current DNA sequence: " + sequence;
+        string text = "Number of bases: " + numberofBases;
         _nucleotideInfoText.text = text;
         _nucleotideSequenceInput.text = ntc.Sequence;
         _nucleotideComplementaryTog.isOn = true; // Default is to set complementary base. User must manually untoggle this.
@@ -179,5 +209,25 @@ public class EditOptionsManager : MonoBehaviour
     {
         _editMenu.enabled = false;
         _insEditMenu.enabled = true;
+    }
+
+    private void ShowLoopoutLengthEdit()
+    {
+        _editMenu.enabled = false;
+        _loopoutLengthEditMenu.enabled = true;
+    }
+
+    private void ShowLoopoutSequenceEdit()
+    {
+        _editMenu.enabled = false;
+        _loopoutSequenceEditMenu.enabled = true;
+        LoopoutComponent loopComp = s_GO.GetComponent<LoopoutComponent>();
+        LoopoutSequenceEdit.Loopout = loopComp;
+
+        // Set UI info
+        int numberofBases = loopComp.SequenceLength;
+        string text = "Number of bases: " + numberofBases;
+        _loopoutInfoText.text = text;
+        _loopoutSequenceInput.text = loopComp.Sequence;
     }
 }

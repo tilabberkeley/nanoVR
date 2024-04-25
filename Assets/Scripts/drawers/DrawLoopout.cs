@@ -125,7 +125,7 @@ public class DrawLoopout : MonoBehaviour
             ResetNucleotides();
         }
 
-        // Grip handling
+        /*// Grip handling
         bool gripValue;
         if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
                 && gripValue
@@ -146,7 +146,7 @@ public class DrawLoopout : MonoBehaviour
                 && !gripValue)
         {
             gripReleased = true;
-        }
+        }*/
     }
 
     /// <summary>

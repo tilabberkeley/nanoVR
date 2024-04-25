@@ -23,7 +23,7 @@ public class NucleotideComponent : DNAComponent
     // DNA base of this nucleotide. Longer than one if nucleotide is insertion.
     // Default DNA is empty string (no base assigned yet)
     private string _sequence = "";
-    public string Sequence { get { return _sequence; } set { _sequence = value; } }
+    public string Sequence { get => _sequence; set => _sequence = value; }
 
     public GameObject Complement 
     { 
@@ -137,7 +137,7 @@ public class NucleotideComponent : DNAComponent
         base.ResetComponent();
         _insertion = 0;
         _deletion = false;
-        _sequence = "X";
+        _sequence = "";
     }
 
     public int NumModsToLeft()
