@@ -24,17 +24,18 @@ public class EraseLoopoutCommand : ICommand
     {
         _loopout = loopout;
         LoopoutComponent loopoutComponent = loopout.GetComponent<LoopoutComponent>();
+        //SequenceComponent seqComp = loopout.GetComponent<SequenceComponent>();
         _startGO = loopoutComponent.PrevGO;
         _endGO = loopoutComponent.NextGO;
         _strandId = strandId;
         _savedColor = color;
 
-        var startNtc = _startGO.GetComponent<NucleotideComponent>();
+        NucleotideComponent startNtc = _startGO.GetComponent<NucleotideComponent>();
         _startId = startNtc.Id;
         _startHelixId = startNtc.HelixId;
         _startDirection = startNtc.Direction;
 
-        var endNtc = _endGO.GetComponent<NucleotideComponent>();
+        NucleotideComponent endNtc = _endGO.GetComponent<NucleotideComponent>();
         _endId = endNtc.Id;
         _endHelixId = endNtc.HelixId;
         _endDirection = endNtc.Direction;

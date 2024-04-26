@@ -38,11 +38,13 @@ public static class DrawPoint
                     Quaternion.identity) as GameObject;
         sphere.name = "nucleotide" + id;
 
-        var ntc = sphere.GetComponent<NucleotideComponent>();
+        NucleotideComponent ntc = sphere.GetComponent<NucleotideComponent>();
+        //SequenceComponent seqComp = sphere.GetComponent<SequenceComponent>();
         ntc.Id = id;
         ntc.HelixId = helixId;
         ntc.Direction = direction;
         ntc.IsBackbone = false;
+        //seqComp.HasComplement = true;
         SaveGameObject(sphere);
         return sphere;
     }

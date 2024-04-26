@@ -20,17 +20,16 @@ public class NucleotideEdit : MonoBehaviour
     [SerializeField] private TMP_Text _nucleotideInfoText;
 
     // Static variables
-    private static NucleotideComponent s_nucleotide;
-    public static NucleotideComponent Nucleotide { set { s_nucleotide = value; } }
+    private static NucleotideComponent s_ntc;
+    public static NucleotideComponent Nucleotide { set { s_ntc = value; } }
 
     /// <summary>
-    /// Sets nucleotide DNA sequence. Called by Nucleotide Edit OK button.
+    /// Calls command for setting nucleotide DNA sequence. Called by Nucleotide Edit OK button.
     /// </summary>
     public void SetNucleotide()
     {
-        var ntc = s_nucleotide.GetComponent<NucleotideComponent>();
         string sequence = _sequenceInput.text.ToUpper();
-        int length = ntc.Insertion + 1;
+        int length = s_ntc.Insertion + 1;
 
         if (!ValidateSequence(sequence))
         {
@@ -50,15 +49,26 @@ public class NucleotideEdit : MonoBehaviour
             Debug.Log("Input sequence too long. Using first " + length + " bases of sequence.");
             sequence = sequence.Substring(0, length);
         }
+
+        ICommand command = new EditNucleotideCommand(s_ntc, sequence, _complementaryTog.isOn);
+        CommandManager.AddCommand(command);
+        command.Do();
+    }
+
+    /// <summary>
+    /// Sets nucleotide DNA sequence.
+    /// </summary>
+    public static void SetNucleotide(NucleotideComponent ntc, string sequence, bool changedComplement)
+    {
         ntc.Sequence = sequence;
 
-        if (_complementaryTog.isOn)
+        if (changedComplement)
         {
             // Set Complementary base
-            if (!ValidComplementary(s_nucleotide)) return;
-            SetComplementary(s_nucleotide, sequence);
+            if (!ValidComplementary(ntc)) return;
+            SetComplementary(ntc, sequence);
         }
-        Utils.CheckMismatch(s_nucleotide);
+        Utils.CheckMismatch(s_ntc);
     }
 
     /// <summary>

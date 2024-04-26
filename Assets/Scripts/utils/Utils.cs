@@ -142,14 +142,20 @@ public static class Utils
     }
 
     /// <summary>
-    /// Helper method to get Strand object given nucleotide gameobject
+    /// Returns Strand object of any GameObject (nucleotide, backbone, xover, or loopout).
     /// </summary>
     public static Strand GetStrand(GameObject nucl)
     {
-        NucleotideComponent ntc = nucl.GetComponent<NucleotideComponent>();
-        if (ntc.Selected)
+        DNAComponent dnaComp = nucl.GetComponent<DNAComponent>();
+        XoverComponent xoverComp = nucl.GetComponent<XoverComponent>();
+
+        if (dnaComp != null && dnaComp.Selected)
         {
-            return s_strandDict[ntc.StrandId];
+            return s_strandDict[dnaComp.StrandId];
+        }
+        if (xoverComp != null)
+        {
+            return s_strandDict[xoverComp.StrandId];
         }
         return null;
     }

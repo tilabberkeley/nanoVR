@@ -99,7 +99,7 @@ public class FileExport : MonoBehaviour
     /// <param name="gridIds">List of grid ids associated with the DNAGrid objects that are being written to JSON</param>
     /// <param name="isCopyPaste">Whether or not we are copy pasting a DNAGrid object</param>
     /// <returns>Returns JSON string in scadnano format</returns>
-    public static string GetSCJSON(List<string> gridIds, bool isCopyPaste)
+    public static string GetSCJSON(List<string> gridIds, bool isCopyPaste = false)
     {
         JObject groups = new JObject();
         foreach (string gridId in gridIds)
@@ -160,7 +160,9 @@ public class FileExport : MonoBehaviour
             {
                 continue;
             }
-            else if (strand.MoreThanOneGrid())
+
+            // Skip strands that span multiple grids when we are copy/pasting a single grid
+            else if (isCopyPaste && strand.MoreThanOneGrid())
             {
                 continue;
             }
@@ -179,6 +181,20 @@ public class FileExport : MonoBehaviour
                 if (ntc == null)
                 {
                     continue;
+                }
+
+                // Adds loopout objects
+                if (ntc.HasXover)
+                {
+                    LoopoutComponent loopComp = ntc.Xover.GetComponent<LoopoutComponent>();
+                    if (loopComp != null && loopComp.PrevGO == ntc.gameObject)
+                    {
+                        JObject loopout = new JObject
+                        {
+                            ["loopout"] = loopComp.SequenceLength,
+                        };
+                        domains.Add(loopout);
+                    }
                 }
 
                 if (ntc.IsDeletion)
@@ -204,7 +220,7 @@ public class FileExport : MonoBehaviour
                         ["helix"] = ntc.HelixId,
                         ["forward"] = Convert.ToBoolean(ntc.Direction),
                         ["start"] = Math.Min(ntc.Id, endId),
-                        ["end"] = Math.Max(ntc.Id, endId) + 1, // +1 accounts for .sc endId being exclusive
+                        ["end"] = Math.Max(ntc.Id, endId) + 1, // + 1 accounts for .sc endId being exclusive
                     };
                     if (insertions.Count > 0)
                     {

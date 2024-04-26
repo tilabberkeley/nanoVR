@@ -48,34 +48,54 @@ public class Strand
     private GameObject _cone;
     public GameObject Cone { get { return _cone; } }
 
+    /// <summary>
+    /// Whether or not xovers list has potentially changed since last Xovers call.
+    /// </summary>
+    private bool _xoversWasChanged = true;
     // List of this strand's crossovers and loopouts (needs testing).
-    private List<GameObject> _xovers = new List<GameObject>();
-    public List<GameObject> Xovers { get { return _xovers; } }
+    private List<GameObject> _xovers;
+    public List<GameObject> Xovers 
+    { 
+        get 
+        { 
+            if (_xoversWasChanged)
+            {
+                _xoversWasChanged = false;
+                UpdateXovers();
+            }
+            return _xovers;
+        } 
+    }
 
     // List of this strand's crossover suggestions.
     private List<GameObject> _xoverSuggestions;
 
     private GameObject _bezier;
 
-    // private String _sequence;
-    //private bool _assignedSequence = false;
-
-    public bool AssignedSequence { get { return _head.GetComponent<NucleotideComponent>().Sequence != ""; } }//set { _assignedSequence = value; } }
-
+    /// <summary>
+    /// Whether or not _sequence has potentially changed since last Sequence call.
+    /// </summary>
+    private bool _sequenceWasChanged = true;
+    private String _sequence;
     public string Sequence 
     { 
         get 
         {
-            string sequence = "";
-            for (int i = _nucleotides.Count - 1; i >= 0; i--)
+            if (_sequenceWasChanged)
             {
-                var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
-                if (ntc != null)
+                _sequenceWasChanged = false;
+                string sequence = "";
+                for (int i = _nucleotides.Count - 1; i >= 0; i--)
                 {
-                    sequence += ntc.Sequence;
+                    var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+                    if (ntc != null)
+                    {
+                        sequence += ntc.Sequence;
+                    }
                 }
+                _sequence = sequence;
             }
-            return sequence;
+            return _sequence;
         }
         set { SetSequence(value); }//SetComplementary(); } 
     }
@@ -99,20 +119,38 @@ public class Strand
         } 
     }
 
+    /// <summary>
+    /// Whether or not _length has potentially changed since last Length call.
+    /// </summary>
+    private bool _lengthWasChanged = true;
+    private int _length;
     public int Length 
     { 
         get 
         {
-            int count = 0;
-            foreach (GameObject nucl in _nucleotides)
+            if (_lengthWasChanged)
             {
-                var ntc = nucl.GetComponent<NucleotideComponent>();
-                if (ntc != null)
+                _lengthWasChanged = false;
+                int count = 0;
+                foreach (GameObject nucl in _nucleotides)
                 {
-                    count += 1 + ntc.Insertion;
+                    NucleotideComponent ntc = nucl.GetComponent<NucleotideComponent>();
+                    if (ntc != null)
+                    {
+                        count += 1 + ntc.Insertion;
+                    }
                 }
+                foreach (GameObject xover in _xovers)
+                {
+                    LoopoutComponent loopComp = xover.GetComponent<LoopoutComponent>();
+                    if (loopComp != null)
+                    {
+                        count += loopComp.SequenceLength;
+                    }
+                }
+                _length = count;
             }
-            return count;
+            return _length;
         }
     }
 
@@ -132,6 +170,7 @@ public class Strand
         _cone = DrawPoint.MakeCone();
         _bezier = null;
         _direction = nucleotides[0].GetComponent<NucleotideComponent>().Direction;
+        _xovers = new List<GameObject>();
         //SetComponents();
         //s_strandDict.Add(strandId, this);
         //CheckForXoverSuggestions();
@@ -205,7 +244,9 @@ public class Strand
         _nucleotides.Insert(0, newNucl);
         _head = _nucleotides[0];
         SetCone();
-        UpdateXovers();
+        _sequenceWasChanged = true;
+        _lengthWasChanged = true;
+
         //_cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
     }
 
@@ -216,7 +257,9 @@ public class Strand
         _head = _nucleotides[0];
         //_cone.transform.position = _head.transform.position;
         SetCone();
-        UpdateXovers();
+        _xoversWasChanged = true;
+        _sequenceWasChanged = true;
+        _lengthWasChanged = true;
         //CheckForXoverSuggestions();
     }
 
@@ -225,7 +268,8 @@ public class Strand
     {
         _nucleotides.Add(newNucl);
         _tail = _nucleotides.Last();
-        UpdateXovers();
+        _sequenceWasChanged = true;
+        _lengthWasChanged = true;
     }
 
     // Adds list of GameObjects to end of nucleotide list.
@@ -233,7 +277,9 @@ public class Strand
     {
         _nucleotides.AddRange(newNucls);
         _tail = _nucleotides.Last();
-        UpdateXovers();
+        _xoversWasChanged = true;
+        _sequenceWasChanged = true;
+        _lengthWasChanged = true;
         //CheckForXoverSuggestions();
     }
 
@@ -250,8 +296,10 @@ public class Strand
             _head = _nucleotides[0];
             SetCone();
         }
-        UpdateXovers();
         ResetComponents(nucleotides);
+        _xoversWasChanged = true;
+        _sequenceWasChanged = true;
+        _lengthWasChanged = true;
     }
 
     /// <summary>
@@ -266,12 +314,14 @@ public class Strand
         {
             _tail = _nucleotides.Last();
         }
-        UpdateXovers();
         ResetComponents(nucleotides);
+        _xoversWasChanged = true;
+        _sequenceWasChanged = true;
+        _lengthWasChanged = true;
     }
 
     /// <summary>
-    /// Removes strand and resets all GameObjects.
+    /// Removes strand and resets all GameObjects. This is used when merging strands together.
     /// </summary>
     public void RemoveStrand()
     {
@@ -279,6 +329,9 @@ public class Strand
         s_strandDict.Remove(_strandId);
     }
 
+    /// <summary>
+    /// Completely deletes all strand objects and removes it from dictionary.
+    /// </summary>
     public void DeleteStrand()
     {
         ResetComponents(_nucleotides);
@@ -307,7 +360,9 @@ public class Strand
         _nucleotides.RemoveRange(0, splitIndex);
         _head = _nucleotides[0];
         SetCone();
-        UpdateXovers();
+        _xoversWasChanged = true;
+        _sequenceWasChanged = true;
+        _lengthWasChanged = true;
         return splitList;
     }
 
@@ -348,7 +403,9 @@ public class Strand
       
         _nucleotides.RemoveRange(splitIndex + 1, count);
         _tail = _nucleotides.Last();
-        UpdateXovers();
+        _xoversWasChanged = true;
+        _sequenceWasChanged = true;
+        _lengthWasChanged = true;
         return splitList;
     }
 
@@ -399,8 +456,9 @@ public class Strand
         GameObject.Destroy(xover);
     }
 
-
-    // Sets variables of each GameObject's component (strandId, color, etc).
+    /// <summary>
+    /// Sets variables of each GameObject's component (strandId, color, etc).
+    /// </summary>
     public void SetComponents()
     {
         for (int i = _nucleotides.Count - 1; i >= 0; i--)
@@ -423,9 +481,6 @@ public class Strand
         }*/
         //SetSequence();
         SetCone();
-        // Debug.Log("Finished setting cone");
-        UpdateXovers();
-        // Debug.Log("Finished updating xovers");
     }
 
     public void SetSequence(string sequence)
@@ -445,16 +500,30 @@ public class Strand
         for (int i = _nucleotides.Count - 1; i >= 0; i--)
         {
             NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+            //SequenceComponent ntSequence = _nucleotides[i].GetComponent<SequenceComponent>();
+
             // Sets DNA sequence to nucleotides
             if (ntc != null)
             {
+                if (ntc.HasXover)
+                {
+                    LoopoutComponent loopComp = ntc.Xover.GetComponent<LoopoutComponent>();
+                    //SequenceComponent loopSequence = ntc.Xover.GetComponent<SequenceComponent>();
+
+                    if (loopComp != null && loopComp.PrevGO == ntc.gameObject)
+                    {
+                        loopComp.Sequence = sequence.Substring(seqCount, loopComp.SequenceLength);
+                        seqCount += loopComp.SequenceLength;
+                    }
+                }
+
                 if (ntc.IsDeletion)
                 {
                     ntc.Sequence = "X";
                 }
                 else
                 {
-                    ntc.Sequence = sequence.Substring(seqCount, ntc.Insertion + 1);
+                    ntc.Sequence = sequence.Substring(seqCount, ntc.Insertion + 1); // TODO: Change ntc.Insertion to seqComp.SequenceLength??
                     seqCount += ntc.Insertion + 1;
                 }
             }
@@ -495,10 +564,10 @@ public class Strand
         if (nucleotides == null) { return; }
         for (int i = 0; i < nucleotides.Count; i++)
         {
-            var dnaComp = nucleotides[i].GetComponent<DNAComponent>();
+            DNAComponent dnaComp = nucleotides[i].GetComponent<DNAComponent>();
             dnaComp.ResetComponent();
 
-            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
+            NucleotideComponent ntc = nucleotides[i].GetComponent<NucleotideComponent>();
             if (ntc != null)
             { 
                 ntc.ResetComponent(); 
@@ -511,7 +580,7 @@ public class Strand
         _xovers.Clear();
         for (int i = 0; i < _nucleotides.Count; i++)
         {
-            var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+            NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
             if (ntc != null && ntc.HasXover)
             {
                 _xovers.Add(ntc.Xover);
@@ -525,7 +594,7 @@ public class Strand
         string gridId = _head.GetComponent<DNAComponent>().GridId;
         for (int i = _nucleotides.Count - 1; i >= 0; i--)
         {
-            var dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
+            DNAComponent dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
             if (!dnaComp.GridId.Equals(gridId))
             {
                 return true;

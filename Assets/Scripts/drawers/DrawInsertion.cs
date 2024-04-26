@@ -49,7 +49,7 @@ public class DrawInsertion : MonoBehaviour
         _OKButton.onClick.AddListener(() => HideEditPanel());
         _OKButton.onClick.AddListener(() => DoEditInsertion());
         _cancelButton.onClick.AddListener(() => HideEditPanel());
-        _inputField.onSelect.AddListener(delegate {TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
+        //_inputField.onSelect.AddListener(delegate {TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
     }
 
     void OnEnable()

@@ -518,4 +518,53 @@ public abstract class DNAGrid
             }
         }
     }
+
+    /// <summary>
+    /// Deletes grid.
+    /// </summary>
+    public void DeleteGrid()
+    {
+        // Delete Grid object
+        /*if (!IsEmpty())
+        {
+            Debug.Log("Cannot delete grid while strands remain");
+            return;
+        }
+
+        for (int i = 0; i < Length; i++)
+        {
+            for (int j = 0; j < Width; j++)
+            {
+                GridComponent gc = Grid2D[i, j];
+                if (gc.Helix != null)
+                {
+                    gc.Helix.DeleteHelix();
+                }
+                GameObject.Destroy(gc.gameObject);
+            }
+        }
+
+        s_gridDict.Remove(_id);
+        s_gridCopies[_id] -= 1;*/
+    }
+
+    /// <summary>
+    /// Returns true if grid is empty (has no strands on it).
+    /// </summary>
+    public bool IsEmpty()
+    {
+        return false;
+        /*for (int i = 0; i < Length; i++)
+        {
+            for (int j = 0; j < Width; j++)
+            {
+                GridComponent gc = Grid2D[i, j];
+                if (gc.Helix != null)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;*/
+    }
 }

@@ -14,11 +14,11 @@ public class LoopoutComponent : XoverComponent
 {
     // Sequence length of this loopout.
     private int _sequenceLength;
-    public int SequenceLength { get { return _sequenceLength; } set { _sequenceLength = value; } }
+    public int SequenceLength { get => _sequenceLength; set => _sequenceLength = value; }
 
     // Sequence of this loopout.
     private string _sequence;
-    public string Sequence { get { return _sequence; } set { _sequence = value; } }
+    public string Sequence { get => _sequence; set => _sequence = value; }
 
     // Changing color of loopout done through mesh renderer
     public override Color Color
