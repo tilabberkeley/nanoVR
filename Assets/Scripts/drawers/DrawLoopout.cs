@@ -253,7 +253,7 @@ public class DrawLoopout : MonoBehaviour
         {
             prevGO = endGO;
         }
-        GameObject loopout = DrawPoint.MakeLoopout(prevGO, nextGO, strandId, prevStrandId, DEFAULT_LENGTH);
+        GameObject loopout = DrawPoint.MakeLoopout(prevGO, nextGO, strandId, prevStrandId, sequenceLength);
 
         return loopout;
     }
@@ -263,7 +263,7 @@ public class DrawLoopout : MonoBehaviour
     /// </summary>
     public static void DoEraseLoopout(GameObject loopout)
     {
-        ICommand command = new EraseLoopoutCommand(loopout, s_numStrands, loopout.GetComponent<XoverComponent>().Color);
+        ICommand command = new EraseLoopoutCommand(loopout, s_numStrands, loopout.GetComponent<XoverComponent>().SavedColor);
         CommandManager.AddCommand(command);
     }
 
