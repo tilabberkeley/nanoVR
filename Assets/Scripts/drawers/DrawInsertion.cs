@@ -52,7 +52,7 @@ public class DrawInsertion : MonoBehaviour
         //_inputField.onSelect.AddListener(delegate {TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
     }
 
-    void OnEnable()
+    /*void OnEnable()
     {
         if (!_device.isValid)
         {
@@ -89,14 +89,14 @@ public class DrawInsertion : MonoBehaviour
         {
             triggerReleased = true;
         }
-    }
+    }*/
 
     /// <summary>
     /// Command method to create insertion.
     /// </summary>
     /// <param name="go">Gameobject nucleotide of insertion.</param>
     /// <param name="length">Length of insertion.</param>
-    private void DoInsertion(GameObject go, int length)
+    public static void DoInsertion(GameObject go, int length)
     {
         ICommand command = new InsertionCommand(go, length);
         CommandManager.AddCommand(command);

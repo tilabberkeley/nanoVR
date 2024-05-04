@@ -22,7 +22,7 @@ public class DrawDeletion : MonoBehaviour
     private static GameObject s_GO = null;
     private static RaycastHit s_hit;
 
-    void GetDevice()
+    /*void GetDevice()
     {
         InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
         if (_devices.Count > 0)
@@ -68,13 +68,13 @@ public class DrawDeletion : MonoBehaviour
         {
             triggerReleased = true;
         }
-    }
+    }*/
 
     /// <summary>
     /// Command method to create deletion.
     /// </summary>
     /// <param name="go">Gameobject nucleotide of deletion.</param>
-    public void DoDeletion(GameObject go)
+    public static void DoDeletion(GameObject go)
     {
         ICommand command = new DeletionCommand(go);
         CommandManager.AddCommand(command);

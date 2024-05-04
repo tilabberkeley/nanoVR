@@ -31,7 +31,7 @@ public class DrawGrid : MonoBehaviour
         newGridButton.onClick.AddListener(() => CreateGrid());
     }*/
 
-    void GetDevice()
+    /*void GetDevice()
     {
         InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
         if (_devices.Count > 0)
@@ -81,7 +81,7 @@ public class DrawGrid : MonoBehaviour
         {
             triggerReleased = true;
         }
-    }
+    }*/
 
     // ADD A STATIC HELPER METHOD TO THIS
 
@@ -130,7 +130,7 @@ public class DrawGrid : MonoBehaviour
     }
 
 
-    public void CreateHelix(int id, Vector3 startPos, int length, string orientation, GridComponent gc)
+    public static void CreateHelix(int id, Vector3 startPos, int length, string orientation, GridComponent gc)
     {
         if (!gc.Selected)
         {

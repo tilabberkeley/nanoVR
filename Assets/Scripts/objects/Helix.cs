@@ -528,31 +528,32 @@ public class Helix
     /// <param name="go">GameObject representing the transform gizmo.</param>
     public void SetParent(GameObject go)
     {
+        Rigidbody rb = go.GetComponent<Rigidbody>();
         foreach (GameObject nucleotide in NucleotidesA)
         {
-            nucleotide.transform.SetParent(go.transform, true);
+            nucleotide.GetComponent<FixedJoint>().connectedBody = rb;
             Strand strand = Utils.GetStrand(nucleotide);
             if (strand != null)
             {
-                strand.Cone.transform.SetParent(go.transform, true);
+                strand.Cone.GetComponent<FixedJoint>().connectedBody = rb;
             }
         }
         foreach (GameObject nucleotide in NucleotidesB)
         {
-            nucleotide.transform.SetParent(go.transform, true);
+            nucleotide.GetComponent<FixedJoint>().connectedBody = rb;
             Strand strand = Utils.GetStrand(nucleotide);
             if (strand != null)
             {
-                strand.Cone.transform.SetParent(go.transform, true);
+                strand.Cone.GetComponent<FixedJoint>().connectedBody = rb;
             }
         }
         foreach (GameObject nucleotide in BackbonesA)
         {
-            nucleotide.transform.SetParent(go.transform, true);
+            nucleotide.GetComponent<FixedJoint>().connectedBody = rb;
         }
         foreach (GameObject nucleotide in BackbonesB)
         {
-            nucleotide.transform.SetParent(go.transform, true);
+            nucleotide.GetComponent<FixedJoint>().connectedBody = rb;
         }
     }
 
@@ -560,29 +561,29 @@ public class Helix
     {
         foreach (GameObject nucleotide in NucleotidesA)
         {
-            nucleotide.transform.parent = null;
+            nucleotide.GetComponent<FixedJoint>().connectedBody = null;
             Strand strand = Utils.GetStrand(nucleotide);
             if (strand != null)
             {
-                strand.Cone.transform.parent = null;
+                strand.Cone.GetComponent<FixedJoint>().connectedBody = null;
             }
         }
         foreach (GameObject nucleotide in NucleotidesB)
         {
-            nucleotide.transform.parent = null;
+            nucleotide.GetComponent<FixedJoint>().connectedBody = null;
             Strand strand = Utils.GetStrand(nucleotide);
             if (strand != null)
             {
-                strand.Cone.transform.parent = null;
+                strand.Cone.GetComponent<FixedJoint>().connectedBody = null;
             }
         }
         foreach (GameObject nucleotide in BackbonesA)
         {
-            nucleotide.transform.parent = null;
+            nucleotide.GetComponent<FixedJoint>().connectedBody = null;
         }
         foreach (GameObject nucleotide in BackbonesB)
         {
-            nucleotide.transform.parent = null;
+            nucleotide.GetComponent<FixedJoint>().connectedBody = null;
         }
     }
 }

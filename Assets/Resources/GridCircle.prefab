@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 4289800104734842987}
   - component: {fileID: 5610546949310590064}
   - component: {fileID: 2961680591510385655}
+  - component: {fileID: 6084230694094410419}
   m_Layer: 0
   m_Name: GridCircle
   m_TagString: Nucleotide
@@ -234,3 +235,18 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.75, y: 0.75, z: 1.0000083}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!138 &6084230694094410419
+FixedJoint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4289800104734842996}
+  m_ConnectedBody: {fileID: 0}
+  m_ConnectedArticulationBody: {fileID: 0}
+  m_BreakForce: Infinity
+  m_BreakTorque: Infinity
+  m_EnableCollision: 0
+  m_EnablePreprocessing: 1
+  m_MassScale: 1
+  m_ConnectedMassScale: 1

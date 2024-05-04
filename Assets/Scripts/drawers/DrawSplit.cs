@@ -22,7 +22,7 @@ public class DrawSplit : MonoBehaviour
     private static GameObject s_GO = null;
     private static RaycastHit s_hit;
 
-    void GetDevice()
+/*    void GetDevice()
     {
         InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
         if (_devices.Count > 0)
@@ -69,9 +69,9 @@ public class DrawSplit : MonoBehaviour
         {
             triggerReleased = true;
         }
-    }
+    }*/
 
-    public void DoSplitStrand(GameObject go)
+    public static void DoSplitStrand(GameObject go)
     {
         if (!IsValid(go)) { return; }
         Color color = Colors[s_numStrands % Colors.Length];

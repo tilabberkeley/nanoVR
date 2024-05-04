@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 1972057723722904017}
   - component: {fileID: 7983188676066219661}
   - component: {fileID: 746427054482158947}
+  - component: {fileID: -1330164439985374480}
   m_Layer: 0
   m_Name: Backbone
   m_TagString: Nucleotide
@@ -235,3 +236,18 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+--- !u!138 &-1330164439985374480
+FixedJoint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1396808662735978176}
+  m_ConnectedBody: {fileID: 0}
+  m_ConnectedArticulationBody: {fileID: 0}
+  m_BreakForce: Infinity
+  m_BreakTorque: Infinity
+  m_EnableCollision: 0
+  m_EnablePreprocessing: 1
+  m_MassScale: 1
+  m_ConnectedMassScale: 1

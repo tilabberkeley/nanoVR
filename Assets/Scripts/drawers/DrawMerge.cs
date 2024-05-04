@@ -21,7 +21,7 @@ public class DrawMerge : MonoBehaviour
     private static GameObject s_GO = null;
     private static RaycastHit s_hit;
 
-    void GetDevice()
+    /*void GetDevice()
     {
         InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
         if (_devices.Count > 0)
@@ -69,7 +69,7 @@ public class DrawMerge : MonoBehaviour
         {
             triggerReleased = true;
         }
-    }
+    }*/
 
     /// <summary>
     /// Splits a strand into two substrands at selected nucleotide.
@@ -110,7 +110,7 @@ public class DrawMerge : MonoBehaviour
 
     }
 
-    public void DoMergeStrand(GameObject go)
+    public static void DoMergeStrand(GameObject go)
     {
         int valid = IsValid(go);
         if (valid == -1)

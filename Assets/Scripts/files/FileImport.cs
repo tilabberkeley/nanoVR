@@ -288,7 +288,8 @@ public class FileImport : MonoBehaviour
                 GameObject prevGO = xoverEndpoints[j - 1];
                 if (loopouts.ContainsKey(prevGO))
                 {
-                    strand.Xovers.Add(DrawLoopout.CreateLoopoutHelper(prevGO, xoverEndpoints[j], loopouts[prevGO]));
+                    // TODO: Check this works
+                    strand.Xovers.Add(DrawLoopout.CreateLoopoutHelper(prevGO, xoverEndpoints[j - 2], loopouts[prevGO]));
                 }
                 else
                 {

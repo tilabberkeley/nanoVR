@@ -122,11 +122,14 @@ public class TransformHandle : MonoBehaviour
         gizmos.transform.SetPositionAndRotation(bottomLeftCorner.transform.position - 0.2f * bottomLeftCorner.transform.forward, bottomLeftCorner.transform.rotation);
 
         DNAGrid grid = gc.Grid;
+        Rigidbody rb = gizmos.GetComponent<Rigidbody>();
+
         for (int i = 0; i < grid.Length; i++)
         {
             for (int j = 0; j < grid.Width; j++)
             {
-                grid.Grid2D[i, j].gameObject.transform.SetParent(gizmos.transform, true);
+                FixedJoint fj = grid.Grid2D[i, j].gameObject.GetComponent<FixedJoint>();
+                fj.connectedBody = rb;
                 if (grid.Grid2D[i, j].Helix != null)
                 {
                     grid.Grid2D[i, j].Helix.SetParent(gizmos);

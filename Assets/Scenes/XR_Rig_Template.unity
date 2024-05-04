@@ -7028,9 +7028,7 @@ GameObject:
   - component: {fileID: 337757923}
   - component: {fileID: 337757931}
   - component: {fileID: 337757930}
-  - component: {fileID: 337757929}
   - component: {fileID: 337757928}
-  - component: {fileID: 337757927}
   - component: {fileID: 337757925}
   - component: {fileID: 337757924}
   - component: {fileID: 337757932}
@@ -7043,6 +7041,7 @@ GameObject:
   - component: {fileID: 337757940}
   - component: {fileID: 337757926}
   - component: {fileID: 337757939}
+  - component: {fileID: 337757941}
   m_Layer: 0
   m_Name: LeftHand Controller
   m_TagString: Untagged
@@ -7697,20 +7696,6 @@ MonoBehaviour:
   _nucleotideSequenceInput: {fileID: 1088045512}
   _loopoutInfoText: {fileID: 1084492209}
   _loopoutSequenceInput: {fileID: 3365575}
---- !u!114 &337757927
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 337757916}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be0100cf6d3b57041b2346594d3ca4fc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _xrNode: 4
-  rightRayInteractor: {fileID: 337757918}
 --- !u!114 &337757928
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7721,20 +7706,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 21a9aabf718ab7d438312ed620e81787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _xrNode: 4
-  rightRayInteractor: {fileID: 337757918}
---- !u!114 &337757929
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 337757916}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4b0455e67c8eb3b4d9eba1c9944fd8d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _xrNode: 4
@@ -7926,6 +7897,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _XRNode: 4
+  rayInteractor: {fileID: 337757918}
+--- !u!114 &337757941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337757916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005cba9e38c66284a9793101eac3d5aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _xrNode: 4
   rayInteractor: {fileID: 337757918}
 --- !u!1 &357418052
 GameObject:
@@ -13388,8 +13373,6 @@ GameObject:
   - component: {fileID: 713889232}
   - component: {fileID: 713889231}
   - component: {fileID: 713889234}
-  - component: {fileID: 713889235}
-  - component: {fileID: 713889236}
   - component: {fileID: 713889238}
   - component: {fileID: 713889224}
   - component: {fileID: 713889225}
@@ -13405,6 +13388,7 @@ GameObject:
   - component: {fileID: 713889243}
   - component: {fileID: 713889244}
   - component: {fileID: 713889242}
+  - component: {fileID: 713889245}
   m_Layer: 0
   m_Name: RightHand Controller
   m_TagString: Untagged
@@ -14131,34 +14115,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _xrNode: 5
   rightRayInteractor: {fileID: 713889222}
---- !u!114 &713889235
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 713889218}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be0100cf6d3b57041b2346594d3ca4fc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _xrNode: 5
-  rightRayInteractor: {fileID: 713889222}
---- !u!114 &713889236
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 713889218}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4b0455e67c8eb3b4d9eba1c9944fd8d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _xrNode: 5
-  rightRayInteractor: {fileID: 713889222}
 --- !u!114 &713889237
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14306,6 +14262,20 @@ MonoBehaviour:
   _nucleotideSequenceInput: {fileID: 1088045512}
   _loopoutInfoText: {fileID: 1084492209}
   _loopoutSequenceInput: {fileID: 3365575}
+--- !u!114 &713889245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 713889218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005cba9e38c66284a9793101eac3d5aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _xrNode: 5
+  rayInteractor: {fileID: 713889222}
 --- !u!1 &716915657
 GameObject:
   m_ObjectHideFlags: 0

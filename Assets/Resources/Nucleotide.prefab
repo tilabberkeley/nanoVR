@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 3601446448909762670}
   - component: {fileID: 1287777643201053704}
   - component: {fileID: 683920757159833131}
+  - component: {fileID: -1992221580479495118}
   m_Layer: 0
   m_Name: Nucleotide
   m_TagString: Nucleotide
@@ -234,3 +235,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4553772625660252668}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!138 &-1992221580479495118
+FixedJoint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4553772625660252668}
+  m_ConnectedBody: {fileID: 0}
+  m_ConnectedArticulationBody: {fileID: 0}
+  m_BreakForce: Infinity
+  m_BreakTorque: Infinity
+  m_EnableCollision: 0
+  m_EnablePreprocessing: 1
+  m_MassScale: 1
+  m_ConnectedMassScale: 1
