@@ -4,6 +4,7 @@
  */
 using System.Collections.Generic;
 using UnityEngine;
+using static Utils;
 
 public class HexGrid : DNAGrid
 {
@@ -31,12 +32,12 @@ public class HexGrid : DNAGrid
         bool isXEven = gridPoint.X % 2 == 0;
         // bool isYEven = gridPoint.Y % 2 == 0;
 
-        float xPosition = xOffset * (RADIUS * Mathf.Sqrt(3.0f));
-        float yPosition = yOffset * DIAMETER;
+        float xPosition = xOffset * (HELIX_GAP / 2 * Mathf.Sqrt(3.0f));
+        float yPosition = yOffset * HELIX_GAP;
 
         if (!isXEven)
         {
-            yPosition -= RADIUS;
+            yPosition -= HELIX_GAP / 2;
         }
 
         GameObject gridGO = DrawPoint.MakeGridCircleGO(StartPos, StartGridCircle, xPosition, yPosition, _plane);

@@ -50,24 +50,23 @@ public class MoveHelix : MonoBehaviour
             GetDevice();
         }
 
-        bool gripValue;
+        _device.TryGetFeatureValue(CommonUsages.gripButton, out bool gripValue);
         if (gripReleased
-            && _device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
             && gripValue
             && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             gripReleased = false;
-            if (s_hit.collider.gameObject.GetComponent<GridComponent>())
+            GridComponent gc = s_hit.collider.gameObject.GetComponent<GridComponent>();
+            if (gc)
             {
-                if (s_gridCircle == null)
+                if (s_gridCircle == null && gc.Selected)
                 {
                     s_gridCircle = s_hit.collider.gameObject;
                 }
                 else
                 {
-                    if (!s_hit.collider.gameObject.Equals(s_gridCircle))
+                    if (!s_hit.collider.gameObject.Equals(s_gridCircle) && gc.Selected)
                     {
-                        var gc = s_hit.collider.gameObject.GetComponent<GridComponent>();
                         DoMove(s_gridCircle, s_hit.collider.gameObject);
                         gc.Grid.CheckExpansion(gc);
                         Reset();
@@ -76,8 +75,7 @@ public class MoveHelix : MonoBehaviour
             }
         }
 
-        if (!(_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
-            && gripValue))
+        if (!gripValue)
         {
             gripReleased = true;
         }

@@ -22,8 +22,14 @@ public class DrawGrid : MonoBehaviour
     private static RaycastHit s_hit;
     [SerializeField] private Dropdown directionDropdown;
     [SerializeField] private Dropdown gridTypeDropdown;
+    //[SerializeField] private Button newGridButton;
     private string plane;
     private const int LENGTH = 64;
+
+    /*private void Start()
+    {
+        newGridButton.onClick.AddListener(() => CreateGrid());
+    }*/
 
     void GetDevice()
     {
@@ -40,13 +46,6 @@ public class DrawGrid : MonoBehaviour
         {
             GetDevice();
         }
-        /*var leftHandDevices = new List<UnityEngine.XR.InputDevice>();
-        UnityEngine.XR.InputDevices.GetDevicesAtXRNode(UnityEngine.XR.XRNode.LeftHand, leftHandDevices);
-
-        if (leftHandDevices.Count == 1)
-        {
-            UnityEngine.XR.InputDevice device = leftHandDevices[0];
-        }*/
     }
 
     void Update()
@@ -61,25 +60,9 @@ public class DrawGrid : MonoBehaviour
             GetDevice();
         }
 
-        bool triggerValue;
-
-        // Adds a new grid.
-        /*if (triggerReleased
-            && _device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue
-            && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
-        {
-            triggerReleased = false;
-            plane = dropdown.options[dropdown.value].text;
-            Vector3 direction = transform.rotation * Vector3.forward;
-            Vector3 currPoint = transform.position + direction * 0.07f;
-            CreateGrid(s_numGrids, plane, currPoint);
-        }*/
-
         // Adds a helix to a grid.
-        if (triggerReleased
-            && _device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue
+        _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
+        if (triggerReleased && triggerValue
             && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
@@ -94,8 +77,7 @@ public class DrawGrid : MonoBehaviour
             }
         }
         
-        if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue))
+        if (!triggerValue)
         {
             triggerReleased = true;
         }
@@ -108,12 +90,13 @@ public class DrawGrid : MonoBehaviour
     /// </summary>
     public void CreateGrid()
     {
+        Debug.Log("Create Grid command");
         plane = directionDropdown.options[directionDropdown.value].text;
         Vector3 direction = Camera.main.transform.rotation * Vector3.forward;
         Vector3 currPoint = Camera.main.transform.position + direction * 0.2f;
         ICommand command = new CreateGridCommand(s_numGrids.ToString(), plane, currPoint, gridTypeDropdown.options[gridTypeDropdown.value].text);
         CommandManager.AddCommand(command);
-        command.Do();
+        //command.Do();
     }
 
     public static DNAGrid CreateGrid(string gridId, string plane, Vector3 position, string gridType)
@@ -139,7 +122,7 @@ public class DrawGrid : MonoBehaviour
         else
         {
             s_gridDict.Add(gridId, grid); 
-            s_gridCopies.Add(s_numGrids.ToString(), 1);
+            s_gridCopies.Add(s_numGrids.ToString(), 0);
             ObjectListManager.CreateGridButton(gridId);
             s_numGrids += 1;
         }

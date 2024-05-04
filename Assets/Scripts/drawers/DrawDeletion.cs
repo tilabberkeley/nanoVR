@@ -50,6 +50,7 @@ public class DrawDeletion : MonoBehaviour
         {
             GetDevice();
         }
+
         _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
         if (triggerValue && triggerReleased
             && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
@@ -98,7 +99,6 @@ public class DrawDeletion : MonoBehaviour
         }
 
         Strand strand = Utils.GetStrand(go);
-        string sequence = strand.Sequence;
 
         if (ntc.IsDeletion)
         {
@@ -112,7 +112,11 @@ public class DrawDeletion : MonoBehaviour
         }
 
         // Update strand DNA sequence
-        strand.Sequence = sequence;
-        Utils.CheckMismatch(strand);
+        if (strand != null)
+        {
+            string sequence = strand.Sequence;
+            strand.Sequence = sequence;
+            Utils.CheckMismatch(strand);
+        }
     }
 }

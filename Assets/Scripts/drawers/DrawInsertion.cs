@@ -72,10 +72,8 @@ public class DrawInsertion : MonoBehaviour
             GetDevice();
         }
 
-        bool triggerValue;
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-                && triggerValue
-                && triggerReleased
+        _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
+        if (triggerValue && triggerReleased
                 && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
@@ -86,35 +84,11 @@ public class DrawInsertion : MonoBehaviour
             }
         }
 
-        /*// Checks grab button to show edit insertion panel.
-        bool gripValue;
-        if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
-                && gripValue
-                && gripReleased
-                && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
-        {
-            gripReleased = false;
-            if (s_hit.collider.gameObject.GetComponent<NucleotideComponent>() != null 
-                && s_hit.collider.gameObject.GetComponent<NucleotideComponent>().IsInsertion)
-            {
-                s_GO = s_hit.collider.gameObject;
-                ShowEditPanel();
-            }
-        }*/
-
         // Resets triggers to avoid multiple selections.                                              
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-                && !triggerValue)
+        if (!triggerValue)
         {
             triggerReleased = true;
         }
-
-        /*// Resets grips to avoid multiple selections.                                              
-        if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
-                && !gripValue)
-        {
-            gripReleased = true;
-        }*/
     }
 
     /// <summary>
@@ -148,7 +122,6 @@ public class DrawInsertion : MonoBehaviour
         }
 
         Strand strand = Utils.GetStrand(go);
-        string sequence = strand.Sequence;
 
         if (ntc.IsInsertion)
         {
@@ -162,8 +135,12 @@ public class DrawInsertion : MonoBehaviour
         }
 
         // Update strand DNA sequence
-        strand.Sequence = sequence;
-        Utils.CheckMismatch(strand);
+        if (strand != null)
+        {
+            string sequence = strand.Sequence;
+            strand.Sequence = sequence;
+            Utils.CheckMismatch(strand);
+        }
     }
 
     /// <summary>

@@ -75,8 +75,8 @@ public class TransformHandle : MonoBehaviour
             {
                 Debug.Log("Hitting GridComponent");
                 s_GO = s_hit.collider.gameObject;
-                ShowTransform();
                 AttachChildren();
+                ShowTransform();
             }
         }
 
@@ -103,9 +103,6 @@ public class TransformHandle : MonoBehaviour
     private void ShowTransform()
     {
         gizmos.SetActive(true);
-        GridComponent gc = s_GO.GetComponent<GridComponent>();
-        GameObject bottomLeftCorner = gc.Grid.Grid2D[0, 0].gameObject;
-        gizmos.transform.SetPositionAndRotation(bottomLeftCorner.transform.position - 0.2f * bottomLeftCorner.transform.forward, bottomLeftCorner.transform.rotation);
     }
 
     /// <summary>
@@ -119,12 +116,17 @@ public class TransformHandle : MonoBehaviour
 
     private void AttachChildren()
     {
-        DNAGrid grid = s_GO.GetComponent<GridComponent>().Grid;
+        // Position gizmos correctly
+        GridComponent gc = s_GO.GetComponent<GridComponent>();
+        GameObject bottomLeftCorner = gc.Grid.Grid2D[0, 0].gameObject;
+        gizmos.transform.SetPositionAndRotation(bottomLeftCorner.transform.position - 0.2f * bottomLeftCorner.transform.forward, bottomLeftCorner.transform.rotation);
+
+        DNAGrid grid = gc.Grid;
         for (int i = 0; i < grid.Length; i++)
         {
             for (int j = 0; j < grid.Width; j++)
             {
-                grid.Grid2D[i, j].gameObject.transform.parent = gizmos.transform;
+                grid.Grid2D[i, j].gameObject.transform.SetParent(gizmos.transform, true);
                 if (grid.Grid2D[i, j].Helix != null)
                 {
                     grid.Grid2D[i, j].Helix.SetParent(gizmos);

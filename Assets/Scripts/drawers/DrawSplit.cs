@@ -52,10 +52,8 @@ public class DrawSplit : MonoBehaviour
         }
 
         // Handles start and end nucleotide selection.
-        bool triggerValue;
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-                && triggerValue
-                && triggerReleased
+        _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
+        if (triggerValue && triggerReleased
                 && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
@@ -67,8 +65,7 @@ public class DrawSplit : MonoBehaviour
         }
 
         // Resets triggers to avoid multiple selections.                                              
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-                && !triggerValue)
+        if (!triggerValue)
         {
             triggerReleased = true;
         }
@@ -80,7 +77,7 @@ public class DrawSplit : MonoBehaviour
         Color color = Colors[s_numStrands % Colors.Length];
         ICommand command = new SplitCommand(go, s_numStrands, color);
         CommandManager.AddCommand(command);
-        command.Do();
+        //command.Do();
     }
 
     /// <summary>

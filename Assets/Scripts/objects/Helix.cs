@@ -530,29 +530,29 @@ public class Helix
     {
         foreach (GameObject nucleotide in NucleotidesA)
         {
-            nucleotide.transform.parent = go.transform;
+            nucleotide.transform.SetParent(go.transform, true);
             Strand strand = Utils.GetStrand(nucleotide);
             if (strand != null)
             {
-                strand.Cone.transform.parent = go.transform;
+                strand.Cone.transform.SetParent(go.transform, true);
             }
         }
         foreach (GameObject nucleotide in NucleotidesB)
         {
-            nucleotide.transform.parent = go.transform;
+            nucleotide.transform.SetParent(go.transform, true);
             Strand strand = Utils.GetStrand(nucleotide);
             if (strand != null)
             {
-                strand.Cone.transform.parent = go.transform;
+                strand.Cone.transform.SetParent(go.transform, true);
             }
         }
         foreach (GameObject nucleotide in BackbonesA)
         {
-            nucleotide.transform.parent = go.transform;
+            nucleotide.transform.SetParent(go.transform, true);
         }
         foreach (GameObject nucleotide in BackbonesB)
         {
-            nucleotide.transform.parent = go.transform;
+            nucleotide.transform.SetParent(go.transform, true);
         }
     }
 

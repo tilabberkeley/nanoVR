@@ -14,9 +14,9 @@ public abstract class DNAGrid
     /* Constants. Increase GRIDCIRCLESIZEFACTOR to decrease distance between grid circles and vice versa. */
     protected const int STARTLENGTH = 5;
     protected const int STARTWIDTH = 5;
-    protected const float GRIDCIRCLESIZEFACTOR = 6.0f;
+    /*protected const float GRIDCIRCLESIZEFACTOR = 6.0f;
     protected const float DIAMETER = 1 / GRIDCIRCLESIZEFACTOR;
-    protected const float RADIUS = DIAMETER / 2;
+    protected const float RADIUS = DIAMETER / 2;*/
     public abstract string Type { get; }
 
     protected string _id;
@@ -409,7 +409,7 @@ public abstract class DNAGrid
         }
     }
 
-    private void Tilt(List<GameObject> gridCircles)
+    /*private void Tilt(List<GameObject> gridCircles)
     {
         GameObject bottomLeftCorner = _grid2D[0, 0].gameObject;
         GameObject gizmos = Transform.Instantiate(GlobalVariables.Gizmos,
@@ -437,7 +437,7 @@ public abstract class DNAGrid
         }
 
         GameObject.Destroy(gizmos);
-    }
+    }*/
 
     /// <summary>
     /// Returns neighboring grid components of provided grid component.
@@ -489,7 +489,7 @@ public abstract class DNAGrid
     public void Rotate(float pitch, float roll, float yaw)
     {
         // Attach parent transforms
-        GameObject gridStart = Grid2D[0, 0].gameObject; // CHECK: Might need to change this
+        GameObject gridStart = Grid2D[0, 0].gameObject; // TODO: check, might need to change this
         for (int i = 0; i < Length; i++)
         {
             for (int j = 0; j < Width; j++)
@@ -503,7 +503,7 @@ public abstract class DNAGrid
         }
 
         // Rotate grid
-        gridStart.transform.eulerAngles = new Vector3(pitch, yaw, roll);
+        gridStart.transform.rotation = Quaternion.Euler(pitch, yaw, roll);
 
         // Detach parent transforms
         for (int i = 0; i < Length; i++)

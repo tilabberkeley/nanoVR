@@ -52,7 +52,7 @@ public class NucleotideEdit : MonoBehaviour
 
         ICommand command = new EditNucleotideCommand(s_ntc, sequence, _complementaryTog.isOn);
         CommandManager.AddCommand(command);
-        command.Do();
+        //command.Do();
     }
 
     /// <summary>

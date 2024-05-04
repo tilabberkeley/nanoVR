@@ -53,10 +53,8 @@ public class DrawCrossover : MonoBehaviour
         }
 
         // SELECT CROSSOVER NUCLEOTIDE
-        bool triggerValue;
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue
-            && triggerReleased
+        _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
+        if (triggerValue && triggerReleased
             && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
@@ -79,6 +77,7 @@ public class DrawCrossover : MonoBehaviour
                     }
                 }
             }
+
             // Also have to make sure this isn't a loopout, otherwise erase xover cammand will
             // be added to stack when erasing a loopout because of the inheritance.
             else if (s_hit.collider.GetComponent<XoverComponent>() != null
@@ -95,16 +94,13 @@ public class DrawCrossover : MonoBehaviour
         }
 
         // Resets triggers do avoid multiple selections.                                              
-        if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue))
+        if (!triggerValue)
         {
             triggerReleased = true;
         }
 
         // Resets start and end nucleotide.
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue 
-            && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        if (triggerValue && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
             ResetNucleotides();
@@ -176,6 +172,7 @@ public class DrawCrossover : MonoBehaviour
         bool firstIsHead = first == firstStr.Head;
         ICommand command = new XoverCommand(first, second, firstIsEnd, secondIsEnd, firstIsHead);
         CommandManager.AddCommand(command);
+        //command.Do();
     }
 
     /// <summary>
@@ -241,6 +238,7 @@ public class DrawCrossover : MonoBehaviour
     {
         ICommand command = new EraseXoverCommand(xover, s_numStrands, xover.GetComponent<XoverComponent>().Color);
         CommandManager.AddCommand(command);
+        //command.Do();
     }
 
     /// <summary>

@@ -14,6 +14,7 @@ public static class Utils
     // CONSTANTS
     public const float SCALE = 19f;
     public const float RADIUS = 1f / SCALE;
+    public const float HELIX_GAP = 3f / SCALE;
     public const float RISE = .34f / SCALE;
     public const float NUM_BASE_PAIRS = 10.5f;
     public const float CROSSOVER_LENGTH = 7 * .34f / SCALE; // Ideal xover length of 7 base pairs??
@@ -110,7 +111,7 @@ public static class Utils
     }
 
     /// <summary>
-    /// Returns complement sequence of input DNA
+    /// Returns complement sequence of input DNA.
     /// </summary>
     public static string ComplementSequence(string dna)
     {
@@ -133,6 +134,10 @@ public static class Utils
             {
                 complementary += "C";
             }
+            else if (dna[i] == 'X')
+            {
+                complementary += 'X';
+            }
             else
             {
                 complementary += "?";
@@ -148,22 +153,22 @@ public static class Utils
     {
         DNAComponent dnaComp = nucl.GetComponent<DNAComponent>();
         XoverComponent xoverComp = nucl.GetComponent<XoverComponent>();
-
+        Strand strand = null;
         if (dnaComp != null && dnaComp.Selected)
         {
-            return s_strandDict[dnaComp.StrandId];
+            s_strandDict.TryGetValue(dnaComp.StrandId, out strand);
         }
         if (xoverComp != null)
         {
-            return s_strandDict[xoverComp.StrandId];
+            s_strandDict.TryGetValue(xoverComp.StrandId, out strand);
         }
-        return null;
+        return strand;
     }
 
-    public static Strand GetComplementStrand(Strand strand)
+    /*public static Strand GetComplementStrand(Strand strand)
     {
         var ntc = strand.Head.GetComponent<NucleotideComponent>();
         GameObject complement = ntc.Complement;
         return GetStrand(complement);
-    }
+    }*/
 }

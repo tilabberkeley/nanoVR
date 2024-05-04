@@ -109,7 +109,7 @@ public class FileImport : MonoBehaviour
     {
         ICommand command = new ImportCommand(json);
         CommandManager.AddCommand(command);
-        command.Do();
+        //command.Do();
     }
 
     // Using LINQ JSON
@@ -172,7 +172,10 @@ public class FileImport : MonoBehaviour
                 {
                     pitch = (float) info["yaw"];
                 }
-                grid.Rotate(pitch, roll, yaw);
+                if (pitch > 0 || roll > 0 || yaw > 0)
+                {
+                    grid.Rotate(pitch, roll, yaw);
+                }
             }
         }
         else
@@ -198,8 +201,8 @@ public class FileImport : MonoBehaviour
             }
 
             DNAGrid grid = s_gridDict[gridName];
-            int xInd = grid.GridXToIndex((int)coord[0]);
-            int yInd = grid.GridYToIndex((int)(coord[1]) * -1);
+            int xInd = grid.GridXToIndex((int) coord[0]);
+            int yInd = grid.GridYToIndex((int) coord[1]);
             GridComponent gc = grid.Grid2D[xInd, yInd];
             grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
             grid.CheckExpansion(gc);
@@ -234,19 +237,19 @@ public class FileImport : MonoBehaviour
                     JArray deletions = new JArray();
                     JArray insertions = new JArray();
                     if (domains[j]["deletions"] != null) { deletions = JArray.Parse(domains[j]["deletions"].ToString()); }
-                    if (domains[j]["insertions"] != null) { deletions = JArray.Parse(domains[j]["insertions"].ToString()); }
+                    if (domains[j]["insertions"] != null) { insertions = JArray.Parse(domains[j]["insertions"].ToString()); }
                     Helix helix = s_helixDict[helixId];
 
                     // Store deletions and insertions.
                     for (int k = 0; k < deletions.Count; k++)
                     {
-                        GameObject nt = helix.GetNucleotide((int)deletions[k], Convert.ToInt32(forward));
+                        GameObject nt = helix.GetNucleotide((int) deletions[k], Convert.ToInt32(forward));
                         sDeletions.Add(nt);
                     }
                     for (int k = 0; k < insertions.Count; k++)
                     {
-                        GameObject nt = helix.GetNucleotide((int)insertions[k][0], Convert.ToInt32(forward));
-                        sInsertions.Add((nt, (int)insertions[k][1]));
+                        GameObject nt = helix.GetNucleotide((int) insertions[k][0], Convert.ToInt32(forward));
+                        sInsertions.Add((nt, (int) insertions[k][1]));
                     }
 
                     // Store domains of strand.
@@ -285,7 +288,7 @@ public class FileImport : MonoBehaviour
                 GameObject prevGO = xoverEndpoints[j - 1];
                 if (loopouts.ContainsKey(prevGO))
                 {
-                    strand.Xovers.Add(DrawLoopout.CreateLoopout(prevGO, xoverEndpoints[j], loopouts[prevGO]));
+                    strand.Xovers.Add(DrawLoopout.CreateLoopoutHelper(prevGO, xoverEndpoints[j], loopouts[prevGO]));
                 }
                 else
                 {
@@ -301,8 +304,6 @@ public class FileImport : MonoBehaviour
     /// <summary>
     /// Strips away slashes from scadnano files.
     /// </summary>
-    /// <param name="str">String to be cleaned.</param>
-    /// <returns></returns>
     private static string CleanSlash(string str)
     {
         return str.Replace("\"", "");
@@ -317,7 +318,7 @@ public class FileImport : MonoBehaviour
         }
         else
         {
-            return origName + " (" + numCopies + ")";
+            return origName + " (" + numCopies + 1 + ")";
         }
     }
 

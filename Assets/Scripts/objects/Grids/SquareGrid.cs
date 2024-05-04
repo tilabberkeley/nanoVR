@@ -4,6 +4,7 @@
  */
 using System.Collections.Generic;
 using UnityEngine;
+using static Utils;
 
 /// <summary>
 /// Grid object keeps track of its helices.
@@ -31,8 +32,8 @@ public class SquareGrid : DNAGrid
     /// <param name="j">j memory location of grid circle in grid 2D.</param>
     protected override GameObject CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j)
     {
-        float xPosition = xOffset * DIAMETER;
-        float yPosition = yOffset * DIAMETER;
+        float xPosition = xOffset * HELIX_GAP;
+        float yPosition = yOffset * HELIX_GAP;
 
         GameObject gridGO = DrawPoint.MakeGridCircleGO(StartPos, StartGridCircle, xPosition, yPosition, _plane);
         GridComponent gridComponent = gridGO.GetComponent<GridComponent>();

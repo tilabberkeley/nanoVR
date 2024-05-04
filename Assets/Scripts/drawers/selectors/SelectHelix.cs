@@ -49,23 +49,20 @@ public class SelectHelix : MonoBehaviour
             GetDevice();
         }
 
-        bool triggerValue;
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-           && triggerValue
-           && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
+        if (triggerValue && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
             UnhighlightHelix(s_gridGO);
             ResetNucleotides();
         }
 
-        if (triggerReleased
-           && _device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-           && triggerValue
+        if (triggerReleased && triggerValue
            && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
-            if (s_hit.collider.gameObject.GetComponent<GridComponent>() && s_hit.collider.gameObject.GetComponent<GridComponent>().Selected)
+            GridComponent gc = s_hit.collider.gameObject.GetComponent<GridComponent>();
+            if (gc != null && gc.Selected)
             {
                 UnhighlightHelix();
                 ResetNucleotides();
@@ -73,10 +70,8 @@ public class SelectHelix : MonoBehaviour
             }
         }
 
-        bool axisClick;
-        if ((_device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out axisClick)
-            && axisClick)
-            && axisReleased)
+        _device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out bool axisClick);
+        if (axisClick && axisReleased)
         {
             axisReleased = false;
             if (helixSelected)
@@ -86,15 +81,13 @@ public class SelectHelix : MonoBehaviour
             }
         }
 
-        if (!(_device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out axisClick)
-            && axisClick))
+        if (!axisClick)
         {
             axisReleased = true;
         }
 
         // Resets triggers do avoid multiple selections.                                              
-        if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue))
+        if (!triggerValue)
         {
             triggerReleased = true;
         }

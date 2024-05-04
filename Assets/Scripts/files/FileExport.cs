@@ -16,6 +16,7 @@ using System.Collections;
 using System.Text;
 using System.Text.RegularExpressions;
 using static GlobalVariables;
+using static Utils;
 
 public class FileExport : MonoBehaviour
 {
@@ -72,14 +73,14 @@ public class FileExport : MonoBehaviour
     public void Export()
     {
         // enable file browser, disable menu
-        fileBrowser.gameObject.SetActive(true);
-        Menu.enabled = false;
+        /*fileBrowser.gameObject.SetActive(true);
+        Menu.enabled = false;*/
 
         string exportType = exportTypeDropdown.options[exportTypeDropdown.value].text;
 
         if (exportType.Equals("scadnano"))
         {
-            WriteSCFile(GetSCJSON());
+            WriteSCFile();
         }
         else
         {
@@ -115,22 +116,40 @@ public class FileExport : MonoBehaviour
             }
             else
             {
-                position["x"] = grid.Position.x; // TODO: Test if this gets relative positions correctly
-                position["y"] = grid.Position.y;
-                position["z"] = grid.Position.z;
+                position["x"] = grid.Position.x * SCALE * -1; // TODO: Check this is right
+                position["y"] = grid.Position.y * SCALE;
+                position["z"] = grid.Position.z * SCALE;
             }
+
+            /* Converts Unity quaternion into pitch, yaw, roll for scadnano json. 
+             * @source: https://discussions.unity.com/t/finding-pitch-roll-yaw-from-quaternions/65684/3
+             */
+            Quaternion q = grid.StartGridCircle.transform.rotation;
+            float pitch = q.eulerAngles.x * -1;
+            float yaw = q.eulerAngles.y * -1;
+            float roll = q.eulerAngles.z;
+            /*float pitch = Mathf.Rad2Deg * Mathf.Atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z);
+            float yaw = Mathf.Rad2Deg * Mathf.Atan2(2 * q.y * q.w - 2 * q.x * q.z, 1 - 2 * q.y * q.y - 2 * q.z * q.z);
+            float roll = Mathf.Rad2Deg * Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w);*/
+            /*Quaternion q = grid.StartGridCircle.transform.rotation;
+            Vector3 zAxis = Vector3.forward;
+            Vector3 xAxis = Vector3.right;
+            Vector3 yAxis = Vector3.up;
+            q.ToAngleAxis(out float pitch, out zAxis);
+            q.ToAngleAxis(out float roll, out xAxis);
+            q.ToAngleAxis(out float yaw, out zAxis);*/
+
 
             JObject group = new JObject
             {
                 ["position"] = position,
-                ["pitch"] = grid.StartGridCircle.transform.eulerAngles.x,
-                ["roll"] = grid.StartGridCircle.transform.eulerAngles.z,
-                ["yaw"] = grid.StartGridCircle.transform.eulerAngles.y,
+                ["pitch"] = pitch,
+                ["roll"] = roll,
+                ["yaw"] = yaw,
                 ["grid"] = grid.Type,
             };
             groups[gridId] = group;
         }
-
 
         // Creating helices data.
         JArray helices = new JArray();
@@ -143,7 +162,7 @@ public class FileExport : MonoBehaviour
 
             JObject jsonHelix = new JObject
             {
-                ["grid_position"] = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y * -1 }, // Negative Y-axis for .sc format 
+                ["grid_position"] = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y }, // Negative Y-axis for .sc format 
                 ["group"] = helix.GridId,
                 ["idx"] = id,
                 ["max_offset"] = helix.Length
@@ -278,11 +297,11 @@ public class FileExport : MonoBehaviour
     /// Writes .sc file to file browser.
     /// </summary>
     /// <param name="content">Contennt of the .sc file.</param>
-    private void WriteSCFile(string content)
+    private void WriteSCFile()
     {
-        FileBrowser.Instance.GetComponent<Canvas>().enabled = true;
-        FileBrowser.Instance.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
-        bool result = FileBrowser.ShowSaveDialog((paths) => { CreateSCFile(paths[0], content); },
+        fileBrowser.enabled = true;
+        fileBrowser.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
+        bool result = FileBrowser.ShowSaveDialog((paths) => { CreateSCFile(paths[0], GetSCJSON()); },
             () => { Debug.Log("Canceled"); },
             FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
 

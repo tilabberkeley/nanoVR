@@ -73,14 +73,11 @@ public class DrawLoopout : MonoBehaviour
         }
 
         // Trigger on and there's a ray interaction
-        bool triggerValue;
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue
-            && triggerReleased
+        _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
+        if (triggerValue && triggerReleased
             && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
-
             if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
             {
                 if (s_startGO == null)
@@ -99,7 +96,7 @@ public class DrawLoopout : MonoBehaviour
             }
             else if (s_hit.collider.GetComponent<LoopoutComponent>() != null && s_eraseTogOn)
             {
-                DoEraseLoopout(s_hit.collider.GetComponent<LoopoutComponent>().gameObject);
+                DoEraseLoopout(s_hit.collider.gameObject);
             }
             else
             {
@@ -108,43 +105,17 @@ public class DrawLoopout : MonoBehaviour
         }
 
         // Resets triggers do avoid multiple selections.                                              
-        if (!(_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue))
+        if (!triggerValue)
         {
             triggerReleased = true;
         }
 
         // Resets start and end nucleotide.
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-            && triggerValue
-            && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        if (triggerValue && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
             ResetNucleotides();
         }
-
-        /*// Grip handling
-        bool gripValue;
-        if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
-                && gripValue
-                && gripReleased
-                && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
-        {
-            gripReleased = false;
-            LoopoutComponent loopoutComponent = s_hit.collider.gameObject.GetComponent<LoopoutComponent>();
-            if (loopoutComponent != null)
-            {
-                s_loopout = loopoutComponent.gameObject;
-                ShowEditPanel();
-            }
-        }
-
-        // Resets grips to avoid multiple selections.                                              
-        if (_device.TryGetFeatureValue(CommonUsages.gripButton, out gripValue)
-                && !gripValue)
-        {
-            gripReleased = true;
-        }*/
     }
 
     /// <summary>
@@ -206,6 +177,7 @@ public class DrawLoopout : MonoBehaviour
         bool firstIsHead = first == firstStr.Head;
         ICommand command = new LoopoutCommand(first, second, firstIsEnd, secondIsEnd, firstIsHead, DEFAULT_LENGTH);
         CommandManager.AddCommand(command);
+        //command.Do();
     }
 
     /// <summary>
@@ -265,6 +237,7 @@ public class DrawLoopout : MonoBehaviour
     {
         ICommand command = new EraseLoopoutCommand(loopout, s_numStrands, loopout.GetComponent<XoverComponent>().SavedColor);
         CommandManager.AddCommand(command);
+        //command.Do();
     }
 
     /// <summary>
@@ -296,6 +269,7 @@ public class DrawLoopout : MonoBehaviour
         int length = GetLengthFromText();
         EditLoopoutCommand command = new EditLoopoutCommand(s_loopout, length);
         CommandManager.AddCommand(command);
+        //command.Do();
     }
 
     /// <summary>

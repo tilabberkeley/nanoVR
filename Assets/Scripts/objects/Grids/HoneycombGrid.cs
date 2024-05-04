@@ -4,6 +4,7 @@
  */
 using System.Collections.Generic;
 using UnityEngine;
+using static Utils;
 
 public class HoneycombGrid : DNAGrid
 {
@@ -31,17 +32,17 @@ public class HoneycombGrid : DNAGrid
         bool isXEven = gridPoint.X % 2 == 0;
         bool isYEven = gridPoint.Y % 2 == 0;
 
-        float xPosition = xOffset * (RADIUS * Mathf.Sqrt(3.0f));
+        float xPosition = xOffset * (HELIX_GAP / 2 * Mathf.Sqrt(3.0f));
         // Doing the bit shift right once is the same as floor div 2, but C# has weird behavior with negatives, so bit shift fixes it. 
-        float yPosition = (yOffset >> 1) * RADIUS * 6 + (!isYEven ? 2 * RADIUS : 0);
+        float yPosition = (yOffset >> 1) * HELIX_GAP / 2 * 6 + (!isYEven ? 2 * HELIX_GAP / 2 : 0);
 
         if (!isXEven && isYEven)
         {
-            yPosition -= RADIUS;
+            yPosition -= HELIX_GAP / 2;
         }
         else if (!isXEven && !isYEven)
         {
-            yPosition += RADIUS;
+            yPosition += HELIX_GAP / 2;
         }
             
         GameObject gridGO = DrawPoint.MakeGridCircleGO(StartPos, StartGridCircle, xPosition, yPosition, _plane);

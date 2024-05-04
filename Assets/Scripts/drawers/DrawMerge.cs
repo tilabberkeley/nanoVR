@@ -51,9 +51,8 @@ public class DrawMerge : MonoBehaviour
         }
 
         // Handles start and end nucleotide selection.
-        bool triggerValue;
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-                && triggerValue
+        _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
+        if (triggerValue
                 && triggerReleased
                 && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
@@ -66,8 +65,7 @@ public class DrawMerge : MonoBehaviour
         }
 
         // Resets triggers to avoid multiple selections.                                              
-        if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue)
-                && !triggerValue)
+        if (!triggerValue)
         {
             triggerReleased = true;
         }

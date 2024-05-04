@@ -47,9 +47,15 @@ public class InfoDisplay : MonoBehaviour
             {
                 DisplayNucleotideInfo(s_hit.collider.gameObject);
             }
-            else if (s_hit.collider.GetComponent<BackBoneComponent>() != null)
+            // Removing backbone info for now because it doesn't really add any useful information
+
+            /*else if (s_hit.collider.GetComponent<BackBoneComponent>() != null)
             {
                 DisplayBackboneInfo(s_hit.collider.gameObject);
+            }*/
+            else if (s_hit.collider.GetComponent<LoopoutComponent>() != null)
+            {
+                DisplayLoopoutInfo(s_hit.collider.gameObject);
             }
             else if (s_hit.collider.GetComponent<XoverComponent>() != null)
             {
@@ -70,13 +76,24 @@ public class InfoDisplay : MonoBehaviour
         DisplayStrandInfo(comp.StrandId, text);
     }
 
-    private void DisplayBackboneInfo(GameObject go)
+    /*private void DisplayBackboneInfo(GameObject go)
     {
         var comp = go.GetComponent<BackBoneComponent>();
         string text = "<b>Backbone</b>\n";
         text += "Backbone Id: " + comp.Id + "\n";
         text += "Helix Id: " + comp.HelixId + "\n";
         text += "Direction: " + (comp.Direction == 1 ? "Forward" : "Reverse") + "\n\n";
+        DisplayStrandInfo(comp.StrandId, text);
+    }*/
+
+    private void DisplayLoopoutInfo(GameObject go)
+    {
+        LoopoutComponent comp = go.GetComponent<LoopoutComponent>();
+        string text = "<b>Loopout</b>\n";
+        text += "Length: " + comp.SequenceLength + "\n";
+        text += "Sequence: " + comp.Sequence + "\n";
+        text += "First Nucl: " + comp.PrevGO.name + "\n";
+        text += "Second Nucl: " + comp.NextGO.name + "\n\n";
         DisplayStrandInfo(comp.StrandId, text);
     }
 
@@ -106,7 +123,6 @@ public class InfoDisplay : MonoBehaviour
         else
         {
             s_strandDict.TryGetValue(strandId, out strand);
-
         }
         text += "<b>Strand</b>\n";
         text += "Strand Id: " + strand.Id + "\n";
