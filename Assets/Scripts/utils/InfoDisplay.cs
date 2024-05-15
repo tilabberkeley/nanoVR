@@ -8,6 +8,7 @@ using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using TMPro;
 using static GlobalVariables;
+using System.Text;
 
 public class InfoDisplay : MonoBehaviour
 {
@@ -67,12 +68,13 @@ public class InfoDisplay : MonoBehaviour
     private void DisplayNucleotideInfo(GameObject go)
     {
         var comp = go.GetComponent<NucleotideComponent>();
-        string text = "<b>Nucleotide</b>\n";
-        text += "DNA: " + comp.Sequence + "\n";
-        if (comp.IsInsertion) text += "Insertion Length: " + comp.Insertion + "\n";
-        text += "Nucl Id: " + comp.Id + "\n";
-        text += "Helix Id: " + comp.HelixId + "\n";
-        text += "Direction: " + (comp.Direction == 1 ? "Forward" : "Reverse") + "\n\n";
+        StringBuilder text = new StringBuilder();
+        text.Append("<b>Nucleotide</b>\n");
+        text.Append("DNA: " + comp.Sequence + "\n");
+        if (comp.IsInsertion) text.Append("Insertion Length: " + comp.Insertion + "\n");
+        text.Append("Nucl Id: " + comp.Id + "\n");
+        text.Append("Helix Id: " + comp.HelixId + "\n");
+        text.Append("Direction: " + (comp.Direction == 1 ? "Forward" : "Reverse") + "\n\n");
         DisplayStrandInfo(comp.StrandId, text);
     }
 
@@ -89,29 +91,31 @@ public class InfoDisplay : MonoBehaviour
     private void DisplayLoopoutInfo(GameObject go)
     {
         LoopoutComponent comp = go.GetComponent<LoopoutComponent>();
-        string text = "<b>Loopout</b>\n";
-        text += "Length: " + comp.SequenceLength + "\n";
-        text += "Sequence: " + comp.Sequence + "\n";
-        text += "First Nucl: " + comp.PrevGO.name + "\n";
-        text += "Second Nucl: " + comp.NextGO.name + "\n\n";
+        StringBuilder text = new StringBuilder();
+        text.Append("<b>Loopout</b>\n");
+        text.Append("Length: " + comp.SequenceLength + "\n");
+        text.Append("Sequence: " + comp.Sequence + "\n");
+        text.Append("First Nucl: " + comp.PrevGO.name + "\n");
+        text.Append("Second Nucl: " + comp.NextGO.name + "\n\n");
         DisplayStrandInfo(comp.StrandId, text);
     }
 
     private void DisplayXoverInfo(GameObject go)
     {
         var comp = go.GetComponent<XoverComponent>();
-        string text = "<b>Xover</b>\n";
-        text += "Length: " + comp.Length + "\n";
-        text += "First Nucl: " + comp.PrevGO.name + "\n";
-        text += "Second Nucl: " + comp.NextGO.name + "\n\n";
+        StringBuilder text = new StringBuilder();
+        text.Append("<b>Xover</b>\n");
+        text.Append("Length: " + comp.Length + "\n");
+        text.Append("First Nucl: " + comp.PrevGO.name + "\n");
+        text.Append("Second Nucl: " + comp.NextGO.name + "\n\n");
         DisplayStrandInfo(comp.StrandId, text);
     }
 
-    private void DisplayStrandInfo(int strandId, string text)
+    private void DisplayStrandInfo(int strandId, StringBuilder text)
     {
         if (strandId == -1)
         {
-            textBox.text = text;
+            textBox.text = text.ToString();
             return;
         }
         Strand strand;
@@ -124,10 +128,10 @@ public class InfoDisplay : MonoBehaviour
         {
             s_strandDict.TryGetValue(strandId, out strand);
         }
-        text += "<b>Strand</b>\n";
-        text += "Strand Id: " + strand.Id + "\n";
-        text += "Length: " + strand.Length + "\n";
-        text += "Xovers: " + strand.Xovers.Count;
-        textBox.text = text;
+        text.Append("<b>Strand</b>\n");
+        text.Append("Strand Id: " + strand.Id + "\n");
+        text.Append("Length: " + strand.Length + "\n");
+        text.Append("Xovers: " + strand.Xovers.Count);
+        textBox.text = text.ToString();
     }
 }

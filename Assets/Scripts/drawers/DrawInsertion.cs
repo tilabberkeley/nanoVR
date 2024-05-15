@@ -17,31 +17,31 @@ using static Highlight;
 /// </summary>
 public class DrawInsertion : MonoBehaviour
 {
-    [SerializeField] private XRNode _xrNode;
+    /*[SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
-    [SerializeField] private XRRayInteractor rightRayInteractor;
+    [SerializeField] private XRRayInteractor rightRayInteractor;*/
     [SerializeField] private Canvas _menu;
     [SerializeField] private Canvas _editPanel;
     [SerializeField] private TMP_InputField _inputField;
     [SerializeField] private Button _OKButton;
     [SerializeField] private Button _cancelButton;
     private TouchScreenKeyboard _keyboard;
-    private bool triggerReleased = true;
-    private bool gripReleased = true;
+    //private bool triggerReleased = true;
+    //private bool gripReleased = true;
     private static GameObject s_GO = null;
-    private static RaycastHit s_hit;
+    //private static RaycastHit s_hit;
     private static bool s_menuEnabled;
     private const int DEFAULT_LENGTH = 1;
 
-    void GetDevice()
+    /*void GetDevice()
     {
         InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
         if (_devices.Count > 0)
         {
             _device = _devices[0];
         }
-    }
+    }*/
 
     private void Start()
     {

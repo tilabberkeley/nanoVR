@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 2236305858257535052}
   - component: {fileID: 7368288484218702523}
   - component: {fileID: 1769447141608392641}
-  - component: {fileID: 7208305422648719225}
   m_Layer: 0
   m_Name: Cone
   m_TagString: Nucleotide
@@ -146,18 +145,3 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!138 &7208305422648719225
-FixedJoint:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6779014084964482527}
-  m_ConnectedBody: {fileID: 0}
-  m_ConnectedArticulationBody: {fileID: 0}
-  m_BreakForce: Infinity
-  m_BreakTorque: Infinity
-  m_EnableCollision: 0
-  m_EnablePreprocessing: 1
-  m_MassScale: 1
-  m_ConnectedMassScale: 1

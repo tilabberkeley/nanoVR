@@ -16,7 +16,6 @@ GameObject:
   - component: {fileID: 6738283810033996248}
   - component: {fileID: 8003375829600545351}
   - component: {fileID: -5848518836717951923}
-  - component: {fileID: 9012691011978172157}
   m_Layer: 0
   m_Name: Xover
   m_TagString: Nucleotide
@@ -236,18 +235,3 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
---- !u!138 &9012691011978172157
-FixedJoint:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6738283810033996249}
-  m_ConnectedBody: {fileID: 0}
-  m_ConnectedArticulationBody: {fileID: 0}
-  m_BreakForce: Infinity
-  m_BreakTorque: Infinity
-  m_EnableCollision: 0
-  m_EnablePreprocessing: 1
-  m_MassScale: 1
-  m_ConnectedMassScale: 1

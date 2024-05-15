@@ -12,15 +12,15 @@ using static Utils;
 /// <summary>
 /// Splits strand into two strands.
 /// </summary>
-public class DrawSplit : MonoBehaviour
+public class DrawSplit
 {
-    [SerializeField] private XRNode _xrNode;
+    /*[SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rightRayInteractor;
     private bool triggerReleased = true;
     private static GameObject s_GO = null;
-    private static RaycastHit s_hit;
+    private static RaycastHit s_hit;*/
 
 /*    void GetDevice()
     {

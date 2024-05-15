@@ -3,6 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using static GlobalVariables;
 
@@ -52,7 +53,7 @@ public static class Utils
             DrawDeletion.Deletion(nucl);
         }
 
-        strand.Sequence = sequence;
+        
         if (isScaffold)
         {
             strand.IsScaffold = isScaffold;
@@ -68,7 +69,6 @@ public static class Utils
             ObjectListManager.CreateStrandButton(strandId);
             s_numStrands += 1;
         }
-        CheckMismatch(strand);
         return strand;
     }
 
@@ -115,35 +115,35 @@ public static class Utils
     /// </summary>
     public static string ComplementSequence(string dna)
     {
-        string complementary = "";
+        StringBuilder complementary = new StringBuilder();
         for (int i = dna.Length - 1; i >= 0; i--)
         {
             if (dna[i] == 'A')
             {
-                complementary += "T";
+                complementary.Append("T");
             }
             else if (dna[i] == 'T')
             {
-                complementary += "A";
+                complementary.Append("A");
             }
             else if (dna[i] == 'C')
             {
-                complementary += "G";
+                complementary.Append("G");
             }
             else if (dna[i] == 'G')
             {
-                complementary += "C";
+                complementary.Append("C");
             }
             else if (dna[i] == 'X')
             {
-                complementary += 'X';
+                complementary.Append("X");
             }
             else
             {
-                complementary += "?";
+                complementary.Append("?");
             }
         }
-        return complementary;
+        return complementary.ToString();
     }
 
     /// <summary>

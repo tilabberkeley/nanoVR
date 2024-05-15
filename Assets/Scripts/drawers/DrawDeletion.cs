@@ -12,15 +12,15 @@ using static Highlight;
 /// <summary>
 /// Add deletion to selected nucleotide.
 /// </summary>
-public class DrawDeletion : MonoBehaviour
+public class DrawDeletion
 {
-    [SerializeField] private XRNode _xrNode;
+    /*[SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rightRayInteractor;
     private bool triggerReleased = true;
     private static GameObject s_GO = null;
-    private static RaycastHit s_hit;
+    private static RaycastHit s_hit;*/
 
     /*void GetDevice()
     {

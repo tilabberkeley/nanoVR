@@ -7,6 +7,7 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using static GlobalVariables;
+using System.Text;
 
 /// <summary>
 /// Strand object keeps track of an individual strand of nucleotides.
@@ -84,16 +85,16 @@ public class Strand
             if (_sequenceWasChanged)
             {
                 _sequenceWasChanged = false;
-                string sequence = "";
+                StringBuilder sequence = new StringBuilder();
                 for (int i = _nucleotides.Count - 1; i >= 0; i--)
                 {
                     var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
                     if (ntc != null)
                     {
-                        sequence += ntc.Sequence;
+                        sequence.Append(ntc.Sequence);
                     }
                 }
-                _sequence = sequence;
+                _sequence = sequence.ToString();
             }
             return _sequence;
         }
@@ -496,6 +497,8 @@ public class Strand
             }
         }
 
+        _sequence = sequence;
+
         int seqCount = 0;
         for (int i = _nucleotides.Count - 1; i >= 0; i--)
         {
@@ -529,6 +532,7 @@ public class Strand
             }
         }
     }
+
     /// <summary>
     /// Sets cone position and rotation (pointing left or right).
     /// </summary>

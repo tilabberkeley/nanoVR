@@ -12,7 +12,7 @@ public class Flying : MonoBehaviour
     private XRNode _xrNode = XRNode.RightHand;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
-    private const float SPEED = 0.01f;
+    private const float SPEED = 0.03f;
 
     void GetDevice()
     {

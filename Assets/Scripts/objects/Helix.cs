@@ -2,10 +2,13 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+//using Oculus.Platform.Models;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.ARSubsystems;
 using static GlobalVariables;
+//using static UnityEditor.PlayerSettings;
 using static Utils;
 
 /// <summary>
@@ -61,6 +64,13 @@ public class Helix
     private Vector3 _lastPositionA;
     private Vector3 _lastPositionB;
 
+    // Empty parent gameobject that contains the combined mesh of a Helix.
+    private GameObject _parent;
+    private MeshFilter _parentMesh;
+
+    private List<GameObject> _helixA;
+    private List<GameObject> _helixB;
+
     // Helix constructor.
     public Helix(int id, string orientation, int length, GridComponent gridComponent)
     {
@@ -75,6 +85,10 @@ public class Helix
         _strandIds = new List<int>();
         _lastPositionA = Vector3.zero;
         _lastPositionB = Vector3.zero;
+        //_parent = new GameObject();
+        //_parentMesh = _parent.AddComponent<MeshFilter>();
+        _helixA = new List<GameObject>();
+        _helixB = new List<GameObject>();
         Extend(length);
         //ChangeRendering();
     }
@@ -115,8 +129,8 @@ public class Helix
             float axisTwoChangeA = (float)(RADIUS * Mathf.Sin(angleA));
             float axisOneChangeB = (float)(RADIUS * Mathf.Cos(angleB));
             float axisTwoChangeB = (float)(RADIUS * Mathf.Sin(angleB));
-            _lastPositionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
-            _lastPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
+            _lastPositionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA - ADJUSTMENT, -i * RISE);
+            _lastPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB - ADJUSTMENT, -i * RISE);
 
             /*if (_orientation.Equals("XY"))
             {
@@ -136,8 +150,12 @@ public class Helix
 */
             GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, i, _id, 1);
             _nucleotidesA.Add(sphereA);
+            _helixA.Add(sphereA);
+
             GameObject sphereB = DrawPoint.MakeNucleotide(_lastPositionB, i, _id, 0);
             _nucleotidesB.Add(sphereB);
+            _helixB.Add(sphereB);
+
 
             // Rotate nucleotides to correct position based on grid's rotation
             sphereA.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
@@ -146,6 +164,10 @@ public class Helix
             sphereB.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
             sphereB.transform.RotateAround(StartPoint, Vector3.right, _gridComponent.transform.eulerAngles.x);
             sphereB.transform.RotateAround(StartPoint, Vector3.up, _gridComponent.transform.eulerAngles.y);
+
+            // Add spheres to parent gameobject.
+            //sphereA.transform.SetParent(_parent.transform);
+            //sphereB.transform.SetParent(_parent.transform);
         }
 
         if (prevLength == 0) 
@@ -157,6 +179,15 @@ public class Helix
             // Needs to add backbone to connect previous set of nucleotides
             DrawBackbones(prevLength);
         }
+
+        /* Batches static (non-moving) gameobjects so that they are drawn together.
+         * This reduces number of Draw calls and increases FPS. 
+         */
+        StaticBatchingUtility.Combine(_helixA.ToArray(), _gridComponent.gameObject);
+        StaticBatchingUtility.Combine(_helixB.ToArray(), _gridComponent.gameObject);
+        _helixA.Clear();
+        _helixB.Clear();
+        //CombineMeshes(_parent);
     }
 
     /// <summary>
@@ -171,6 +202,8 @@ public class Helix
             GameObject cylinder = DrawPoint.MakeBackbone(i - 1, _id, 1, NucleotidesA[i].transform.position, NucleotidesA[i - 1].transform.position);
             //cylinder.SetActive(false);
             _backbonesA.Add(cylinder);
+            _helixA.Add(cylinder);
+            //cylinder.transform.SetParent(_parent.transform);
         }
 
         // Backbones for B nucleotides
@@ -179,7 +212,42 @@ public class Helix
             GameObject cylinder = DrawPoint.MakeBackbone(i - 1, _id, 0, NucleotidesB[i].transform.position, NucleotidesB[i - 1].transform.position);
             //cylinder.SetActive(false);
             _backbonesB.Add(cylinder);
+            _helixB.Add(cylinder);
+            //cylinder.transform.SetParent(_parent.transform);
         }
+    }
+
+    /// <summary>
+    /// Combines meshes of obj's children into a single mesh for obj.
+    /// In our case, we are combining the meshes of the nucleotide and backbone gameobjects for a double helix.
+    /// This helps reduce the number of Draw calls.
+    /// </summary>
+    private void CombineMeshes(GameObject obj)
+    {
+        //Zero transformation is needed because of localToWorldMatrix transform
+        Vector3 position = obj.transform.position;
+        Quaternion rotation = obj.transform.rotation;
+        obj.transform.position = Vector3.zero;
+
+        MeshFilter[] meshFilters = obj.GetComponentsInChildren<MeshFilter>();
+        CombineInstance[] combine = new CombineInstance[meshFilters.Length];
+        int i = 0;
+        while (i < meshFilters.Length)
+        {
+            combine[i].mesh = meshFilters[i].sharedMesh;
+            combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
+            meshFilters[i].gameObject.SetActive(false);
+            i++;
+        }
+        _parentMesh.mesh = new Mesh();
+        _parentMesh.mesh.CombineMeshes(combine, true, true);
+        obj.transform.gameObject.SetActive(true);
+
+        //Reset position
+        obj.transform.position = position;
+
+        //Adds collider to mesh
+        obj.AddComponent<MeshCollider>();
     }
 
     /// <summary>
@@ -193,7 +261,7 @@ public class Helix
     {
         if (sIndex < 0 || eIndex >= _nucleotidesA.Count)
         {
-            Debug.Log("Nucleotides A length: " + _nucleotidesA.Count);
+            //Debug.Log("Nucleotides A length: " + _nucleotidesA.Count);
             return null;
         }
         List<GameObject> temp = new List<GameObject>();
@@ -528,32 +596,35 @@ public class Helix
     /// <param name="go">GameObject representing the transform gizmo.</param>
     public void SetParent(GameObject go)
     {
-        Rigidbody rb = go.GetComponent<Rigidbody>();
+        //Rigidbody rb = go.GetComponent<Rigidbody>();
         foreach (GameObject nucleotide in NucleotidesA)
         {
-            nucleotide.GetComponent<FixedJoint>().connectedBody = rb;
+            //nucleotide.GetComponent<FixedJoint>().connectedBody = rb;
+            nucleotide.transform.SetParent(go.transform, true);
             Strand strand = Utils.GetStrand(nucleotide);
             if (strand != null)
             {
-                strand.Cone.GetComponent<FixedJoint>().connectedBody = rb;
+                //strand.Cone.GetComponent<FixedJoint>().connectedBody = rb;
+                strand.Cone.transform.SetParent(go.transform, true);
+
             }
         }
         foreach (GameObject nucleotide in NucleotidesB)
         {
-            nucleotide.GetComponent<FixedJoint>().connectedBody = rb;
+            nucleotide.transform.SetParent(go.transform, true);
             Strand strand = Utils.GetStrand(nucleotide);
             if (strand != null)
-            {
-                strand.Cone.GetComponent<FixedJoint>().connectedBody = rb;
+            { 
+                strand.Cone.transform.SetParent(go.transform, true);
             }
         }
         foreach (GameObject nucleotide in BackbonesA)
         {
-            nucleotide.GetComponent<FixedJoint>().connectedBody = rb;
+            nucleotide.transform.SetParent(go.transform, true);
         }
         foreach (GameObject nucleotide in BackbonesB)
         {
-            nucleotide.GetComponent<FixedJoint>().connectedBody = rb;
+            nucleotide.transform.SetParent(go.transform, true);
         }
     }
 
@@ -561,29 +632,29 @@ public class Helix
     {
         foreach (GameObject nucleotide in NucleotidesA)
         {
-            nucleotide.GetComponent<FixedJoint>().connectedBody = null;
+            nucleotide.transform.SetParent(null);
             Strand strand = Utils.GetStrand(nucleotide);
             if (strand != null)
             {
-                strand.Cone.GetComponent<FixedJoint>().connectedBody = null;
+                strand.Cone.transform.SetParent(null);
             }
         }
         foreach (GameObject nucleotide in NucleotidesB)
         {
-            nucleotide.GetComponent<FixedJoint>().connectedBody = null;
+            nucleotide.transform.SetParent(null);
             Strand strand = Utils.GetStrand(nucleotide);
             if (strand != null)
             {
-                strand.Cone.GetComponent<FixedJoint>().connectedBody = null;
+                strand.Cone.transform.SetParent(null);
             }
         }
         foreach (GameObject nucleotide in BackbonesA)
         {
-            nucleotide.GetComponent<FixedJoint>().connectedBody = null;
+            nucleotide.transform.SetParent(null);
         }
         foreach (GameObject nucleotide in BackbonesB)
         {
-            nucleotide.GetComponent<FixedJoint>().connectedBody = null;
+            nucleotide.transform.SetParent(null);
         }
     }
 }

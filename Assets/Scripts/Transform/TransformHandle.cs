@@ -73,7 +73,7 @@ public class TransformHandle : MonoBehaviour
             rightGripReleased = false;
             if (s_hit.collider.gameObject.GetComponent<GridComponent>())
             {
-                Debug.Log("Hitting GridComponent");
+                //Debug.Log("Hitting GridComponent");
                 s_GO = s_hit.collider.gameObject;
                 AttachChildren();
                 ShowTransform();
@@ -128,8 +128,9 @@ public class TransformHandle : MonoBehaviour
         {
             for (int j = 0; j < grid.Width; j++)
             {
-                FixedJoint fj = grid.Grid2D[i, j].gameObject.GetComponent<FixedJoint>();
-                fj.connectedBody = rb;
+                /*FixedJoint fj = grid.Grid2D[i, j].gameObject.GetComponent<FixedJoint>();
+                fj.connectedBody = rb;*/
+                grid.Grid2D[i, j].gameObject.transform.SetParent(gizmos.transform);
                 if (grid.Grid2D[i, j].Helix != null)
                 {
                     grid.Grid2D[i, j].Helix.SetParent(gizmos);

@@ -88,9 +88,9 @@ public class FileExport : MonoBehaviour
         }
     }
 
-    private string GetSCJSON()
+    private string GetSCJSON(bool isOxDNA = false)
     {
-        return GetSCJSON(new List<string>(s_gridDict.Keys), false);
+        return GetSCJSON(new List<string>(s_gridDict.Keys), false, isOxDNA);
     }
 
     /// <summary>
@@ -100,7 +100,7 @@ public class FileExport : MonoBehaviour
     /// <param name="gridIds">List of grid ids associated with the DNAGrid objects that are being written to JSON</param>
     /// <param name="isCopyPaste">Whether or not we are copy pasting a DNAGrid object</param>
     /// <returns>Returns JSON string in scadnano format</returns>
-    public static string GetSCJSON(List<string> gridIds, bool isCopyPaste = false)
+    public static string GetSCJSON(List<string> gridIds, bool isCopyPaste = false, bool isOxDNA = false)
     {
         JObject groups = new JObject();
         foreach (string gridId in gridIds)
@@ -160,9 +160,15 @@ public class FileExport : MonoBehaviour
 
             if (!gridIds.Contains(helix.GridId)) continue;
 
+            JArray gridPosition = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y * -1 }; // Negative Y-axis for .sc format 
+            if (isOxDNA)
+            {
+                gridPosition = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y };
+            }
+
             JObject jsonHelix = new JObject
             {
-                ["grid_position"] = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y }, // Negative Y-axis for .sc format 
+                ["grid_position"] = gridPosition,
                 ["group"] = helix.GridId,
                 ["idx"] = id,
                 ["max_offset"] = helix.Length
@@ -344,7 +350,7 @@ public class FileExport : MonoBehaviour
     IEnumerator CreateOxdnaFiles()
     {
         // get scadnano file structure
-        byte[] data = Encoding.UTF8.GetBytes(GetSCJSON());
+        byte[] data = Encoding.UTF8.GetBytes(GetSCJSON(true));
 
         List<IMultipartFormSection> formData = new List<IMultipartFormSection>
         {

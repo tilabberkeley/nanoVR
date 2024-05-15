@@ -8,7 +8,7 @@ using UnityEngine;
 /// <summary>
 /// Command for file import.
 /// </summary>
-public class ImportCommand : ICommand
+public class ImportCommand : MonoBehaviour, ICommand
 {
     private string _json;
     List<DNAGrid> _grids;
@@ -21,19 +21,19 @@ public class ImportCommand : ICommand
 
     public void Do()
     {
-        _grids = FileImport.ParseSC(_json);
+        StartCoroutine(FileImport.ParseSC(_json));
     }
 
     public void Redo()
     {
-        _grids = FileImport.ParseSC(_json);
+        StartCoroutine(FileImport.ParseSC(_json));
     }
 
     public void Undo()
     {
-        foreach (DNAGrid grid in _grids)
+        /*foreach (DNAGrid grid in _grids)
         {
             grid.DeleteGrid();
-        }
+        }*/
     }
 }

@@ -40,7 +40,7 @@ public abstract class DNAGrid
         } 
         set 
         {
-            Debug.Log("Setting grid start pos to " + value.ToString());
+            //Debug.Log("Setting grid start pos to " + value.ToString());
             _startPos = value; 
         } 
     }

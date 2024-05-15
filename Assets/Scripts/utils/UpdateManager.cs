@@ -72,6 +72,79 @@ public class UpdateManager : MonoBehaviour
         _device.TryGetFeatureValue(CommonUsages.gripButton, out bool gripValue);
         bool hit = rayInteractor.TryGetCurrent3DRaycastHit(out s_hit);
 
+        // Handles update for DrawSplit
+        if (s_splitTogOn)
+        {
+            //Debug.Log("Split on");
+
+            if (triggerValue && triggerReleased && hit)
+            {
+                //Debug.Log("Split hit");
+
+                triggerReleased = false;
+                if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
+                {
+                    s_GO = s_hit.collider.gameObject;
+                    DrawSplit.DoSplitStrand(s_GO);
+                }
+            }
+        }
+
+        // Handles update for DrawMerge
+        if (s_mergeTogOn)
+        {
+            //Debug.Log("Merge on");
+
+            if (triggerValue && triggerReleased && hit)
+            {
+                //Debug.Log("Merge hit");
+
+                triggerReleased = false;
+                if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
+                {
+                    s_GO = s_hit.collider.gameObject;
+                    DrawMerge.DoMergeStrand(s_GO);
+                }
+            }
+        }
+
+
+        // Handles update for DrawInsertion
+        if (s_insTogOn) {
+
+            //Debug.Log("Insertion on");
+
+            if (triggerValue && triggerReleased && hit)
+            {
+                //Debug.Log("Insertion hit");
+
+                triggerReleased = false;
+                if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
+                {
+                    s_GO = s_hit.collider.gameObject;
+                    DrawInsertion.DoInsertion(s_GO, INSERTION_LENGTH);
+                }
+            }
+        }
+
+        // Handles update for DrawDeletion
+        if (s_delTogOn)
+        {
+            //Debug.Log("Deletion on");
+            if (triggerValue && triggerReleased && hit)
+            {
+                //Debug.Log("Deletion hit");
+                triggerReleased = false;
+                NucleotideComponent comp = s_hit.collider.GetComponent<NucleotideComponent>();
+                if (comp != null)
+                {
+                    s_GO = s_hit.collider.gameObject;
+                    DrawDeletion.DoDeletion(s_GO);
+                }
+            }
+        }
+
+
 
         // Handles drawing helix in DrawGrid
         if (triggerReleased && triggerValue && hit)
@@ -87,71 +160,6 @@ public class UpdateManager : MonoBehaviour
                 DrawGrid.CreateHelix(id, startPos, HELIX_LENGTH, gc.Grid.Plane, gc);
             }
         }
-
-        // Handles update for DrawSplit
-        if (s_splitTogOn)
-        {
-            if (triggerValue && triggerReleased && hit)
-            {
-                triggerReleased = false;
-                if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
-                {
-                    s_GO = s_hit.collider.gameObject;
-                    DrawSplit.DoSplitStrand(s_GO);
-                }
-            }
-        }
-
-        // Handles update for DrawMerge
-        if (s_mergeTogOn)
-        {
-            if (triggerValue && triggerReleased && hit)
-            {
-                triggerReleased = false;
-                if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
-                {
-                    s_GO = s_hit.collider.gameObject;
-                    DrawMerge.DoMergeStrand(s_GO);
-                }
-            }
-        }
-
-
-        // Handles update for DrawInsertion
-        if (s_insTogOn)
-        {
-            if (triggerValue && triggerReleased && hit)
-            {
-                triggerReleased = false;
-                if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
-                {
-                    s_GO = s_hit.collider.gameObject;
-                    DrawInsertion.DoInsertion(s_GO, INSERTION_LENGTH);
-                }
-            }
-        }
-
-        // Handles update for DrawDeletion
-        if (s_delTogOn)
-        {
-            if (triggerValue && triggerReleased && hit)
-            {
-                triggerReleased = false;
-                NucleotideComponent comp = s_hit.collider.gameObject.GetComponent<NucleotideComponent>();
-                if (comp != null)
-                {
-                    s_GO = s_hit.collider.gameObject;
-                    DrawDeletion.DoDeletion(s_GO);
-                }
-            }
-        }
-
-
-
-
-
-
-
 
 
         // Resets triggers to avoid multiple selections.                                              

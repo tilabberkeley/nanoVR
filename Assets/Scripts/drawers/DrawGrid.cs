@@ -10,16 +10,16 @@ using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
 
 /// <summary>
-/// Handles all the operations for creating and interacting with grid objects.
+/// Handles all the operations for creating DNAGrids and adding Helices.
 /// </summary>
 public class DrawGrid : MonoBehaviour
 {
-    [SerializeField] private XRNode _xrNode;
+    /*[SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rightRayInteractor;
     bool triggerReleased = true;
-    private static RaycastHit s_hit;
+    private static RaycastHit s_hit;*/
     [SerializeField] private Dropdown directionDropdown;
     [SerializeField] private Dropdown gridTypeDropdown;
     //[SerializeField] private Button newGridButton;
@@ -90,7 +90,6 @@ public class DrawGrid : MonoBehaviour
     /// </summary>
     public void CreateGrid()
     {
-        Debug.Log("Create Grid command");
         plane = directionDropdown.options[directionDropdown.value].text;
         Vector3 direction = Camera.main.transform.rotation * Vector3.forward;
         Vector3 currPoint = Camera.main.transform.position + direction * 0.2f;

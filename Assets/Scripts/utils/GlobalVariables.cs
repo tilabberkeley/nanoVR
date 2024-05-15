@@ -61,7 +61,7 @@ public static class GlobalVariables
     public static string DNA8634 { get { return _DNA8634.text; } }
 
     // GameObjects to build structures
-    private static GameObject _nucleotide = Resources.Load("Nucleotide") as GameObject;
+    private static GameObject _nucleotide = Resources.Load("Icosphere") as GameObject;
     private static GameObject _cone = Resources.Load("Cone") as GameObject;
     private static GameObject _backbone = Resources.Load("Backbone") as GameObject;
     private static GameObject _xover = Resources.Load("Xover") as GameObject;

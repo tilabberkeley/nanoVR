@@ -37,6 +37,7 @@ public static class DrawPoint
                     position,
                     Quaternion.identity) as GameObject;
         sphere.name = "nucleotide" + id;
+        sphere.isStatic = true;
 
         NucleotideComponent ntc = sphere.GetComponent<NucleotideComponent>();
         //SequenceComponent seqComp = sphere.GetComponent<SequenceComponent>();
@@ -72,6 +73,8 @@ public static class DrawPoint
                                     Vector3.zero,
                                     Quaternion.identity) as GameObject;
         cylinder.name = "Backbone" + id;
+        cylinder.isStatic = true;
+
         BackBoneComponent backBoneComponent = cylinder.GetComponent<BackBoneComponent>();
         backBoneComponent.Id = id;
         backBoneComponent.HelixId = helixId;
