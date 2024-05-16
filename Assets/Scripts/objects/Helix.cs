@@ -16,7 +16,7 @@ using static Utils;
 /// </summary>
 public class Helix
 {
-    private const float ADJUSTMENT = 0.01f; // Accounts for Icosphere prefab's weird positioning 
+    private const float ADJUSTMENT = 0.1f; // Accounts for Icosphere prefab's weird positioning 
     // Helix id.
     private int _id;
     public int Id { get { return _id; } set { _id = value; } }
@@ -38,6 +38,9 @@ public class Helix
 
     // Grid Component that helix is on.
     public GridComponent _gridComponent;
+
+    // Mesh Combiner component of GridComponent.
+    private MeshCombiner _meshCombiner;
 
     // List containing all nucleotides in spiral going in direction 1.
     private List<GameObject> _nucleotidesA;
@@ -78,6 +81,7 @@ public class Helix
         _length = 0;
         _orientation = orientation;
         _gridComponent = gridComponent;
+        _meshCombiner = gridComponent.GetComponent<MeshCombiner>();
         _nucleotidesA = new List<GameObject>();
         _backbonesA = new List<GameObject>();
         _nucleotidesB = new List<GameObject>();
@@ -150,11 +154,13 @@ public class Helix
 */
             GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, i, _id, 1);
             _nucleotidesA.Add(sphereA);
-            _helixA.Add(sphereA);
+            //_helixA.Add(sphereA);
+            sphereA.transform.SetParent(_gridComponent.transform);
 
             GameObject sphereB = DrawPoint.MakeNucleotide(_lastPositionB, i, _id, 0);
             _nucleotidesB.Add(sphereB);
-            _helixB.Add(sphereB);
+            //_helixB.Add(sphereB);
+            sphereB.transform.SetParent(_gridComponent.transform);
 
 
             // Rotate nucleotides to correct position based on grid's rotation
@@ -168,6 +174,9 @@ public class Helix
             // Add spheres to parent gameobject.
             //sphereA.transform.SetParent(_parent.transform);
             //sphereB.transform.SetParent(_parent.transform);
+
+            // Combine meshes
+            _meshCombiner.CombineMeshes(false);
         }
 
         if (prevLength == 0) 
@@ -183,10 +192,10 @@ public class Helix
         /* Batches static (non-moving) gameobjects so that they are drawn together.
          * This reduces number of Draw calls and increases FPS. 
          */
-        StaticBatchingUtility.Combine(_helixA.ToArray(), _gridComponent.gameObject);
+        /*StaticBatchingUtility.Combine(_helixA.ToArray(), _gridComponent.gameObject);
         StaticBatchingUtility.Combine(_helixB.ToArray(), _gridComponent.gameObject);
         _helixA.Clear();
-        _helixB.Clear();
+        _helixB.Clear();*/
         //CombineMeshes(_parent);
     }
 
@@ -202,7 +211,8 @@ public class Helix
             GameObject cylinder = DrawPoint.MakeBackbone(i - 1, _id, 1, NucleotidesA[i].transform.position, NucleotidesA[i - 1].transform.position);
             //cylinder.SetActive(false);
             _backbonesA.Add(cylinder);
-            _helixA.Add(cylinder);
+            cylinder.transform.SetParent(_gridComponent.transform);
+            //_helixA.Add(cylinder);
             //cylinder.transform.SetParent(_parent.transform);
         }
 
@@ -212,7 +222,8 @@ public class Helix
             GameObject cylinder = DrawPoint.MakeBackbone(i - 1, _id, 0, NucleotidesB[i].transform.position, NucleotidesB[i - 1].transform.position);
             //cylinder.SetActive(false);
             _backbonesB.Add(cylinder);
-            _helixB.Add(cylinder);
+            cylinder.transform.SetParent(_gridComponent.transform);
+            //_helixB.Add(cylinder);
             //cylinder.transform.SetParent(_parent.transform);
         }
     }

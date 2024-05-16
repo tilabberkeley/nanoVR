@@ -21,12 +21,12 @@ public class ImportCommand : MonoBehaviour, ICommand
 
     public void Do()
     {
-        StartCoroutine(FileImport.ParseSC(_json));
+        //StartCoroutine(FileImport.ParseSC(_json));
     }
 
     public void Redo()
     {
-        StartCoroutine(FileImport.ParseSC(_json));
+        //StartCoroutine(FileImport.ParseSC(_json));
     }
 
     public void Undo()

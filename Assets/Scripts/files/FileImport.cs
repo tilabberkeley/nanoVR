@@ -111,9 +111,9 @@ public class FileImport : MonoBehaviour
 
     private void DoFileImport(string json)
     {
-        ICommand command = new ImportCommand(json);
-        CommandManager.AddCommand(command);
-        //command.Do();
+        /*ICommand command = new ImportCommand(json);
+        CommandManager.AddCommand(command);*/
+        StartCoroutine(ParseSC(json));
     }
 
     /* public static List<DNAGrid> ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
@@ -568,6 +568,7 @@ public class FileImport : MonoBehaviour
                     grid.Rotate(pitch, roll, yaw);
                 }
             }
+            yield return new WaitForEndOfFrame();
         }
         else
         {

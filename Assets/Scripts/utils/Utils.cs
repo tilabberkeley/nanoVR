@@ -165,6 +165,18 @@ public static class Utils
         return strand;
     }
 
+    public static void SetUnknownSequence(List<GameObject> nucls)
+    {
+        foreach (GameObject nucl in nucls)
+        {
+            NucleotideComponent ntc = nucl.GetComponent<NucleotideComponent>();
+            if (ntc != null)
+            {
+                ntc.Sequence = "?";
+            }
+        }
+    }
+
     /*public static Strand GetComplementStrand(Strand strand)
     {
         var ntc = strand.Head.GetComponent<NucleotideComponent>();

@@ -251,7 +251,9 @@ public class Strand
         //_cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
     }
 
-    // Adds list of GameObjects to front of nucleotide list.
+    /// <summary>
+    /// Adds list of GameObjects to front of nucleotide list.
+    /// </summary>
     public void AddToHead(List<GameObject> newNucls) 
     {
         _nucleotides.InsertRange(0, newNucls);
@@ -261,6 +263,13 @@ public class Strand
         _xoversWasChanged = true;
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
+
+        // Append "?" to DNA sequence if this strand has been assigned a sequence and newNucls haven't.
+        if (newNucls[0].GetComponent<NucleotideComponent>().Sequence.Equals("") 
+            && !this._nucleotides[0].GetComponent<NucleotideComponent>().Sequence.Equals(""))
+        {
+            Utils.SetUnknownSequence(newNucls);
+        }
         //CheckForXoverSuggestions();
     }
 
@@ -273,7 +282,9 @@ public class Strand
         _lengthWasChanged = true;
     }
 
-    // Adds list of GameObjects to end of nucleotide list.
+    /// <summary>
+    /// Adds list of GameObjects to end of nucleotide list.
+    /// </summary>
     public void AddToTail(List<GameObject> newNucls)
     {
         _nucleotides.AddRange(newNucls);
@@ -281,6 +292,13 @@ public class Strand
         _xoversWasChanged = true;
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
+
+        // Append "?" to DNA sequence if this strand has been assigned a sequence and newNucls haven't.
+        if (newNucls[0].GetComponent<NucleotideComponent>().Sequence.Equals("")
+            && !this._nucleotides[0].GetComponent<NucleotideComponent>().Sequence.Equals(""))
+        {
+            Utils.SetUnknownSequence(newNucls);
+        }
         //CheckForXoverSuggestions();
     }
 
