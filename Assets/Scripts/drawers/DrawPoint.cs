@@ -1,15 +1,10 @@
-/*
- * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
- */
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using static UnityEngine.Object;
 using static GlobalVariables;
-using UnityEngine.ProBuilder;
 using SplineMesh;
-using UnityEngine.UIElements;
 
 /// <summary>
 /// Creates needed gameobjects like nucleotides, backbones, cones, Xovers, spheres, and grids.

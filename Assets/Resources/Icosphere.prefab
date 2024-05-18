@@ -12,11 +12,11 @@ GameObject:
   - component: {fileID: 7931833830389669943}
   - component: {fileID: 2737646749269455765}
   - component: {fileID: 5229375517775393966}
-  - component: {fileID: 7138951977545386195}
   - component: {fileID: 2966164767969475499}
   - component: {fileID: 7658938006640177859}
   - component: {fileID: 3184102630765090422}
   - component: {fileID: 4706214126494447248}
+  - component: {fileID: 8515795389831075695}
   m_Layer: 0
   m_Name: Icosphere
   m_TagString: Untagged
@@ -2213,7 +2213,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 26cadeeaa29498d4889f43542f3add58, type: 2}
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2242,20 +2242,6 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8603299748186831101}
-  m_Mesh: {fileID: 0}
---- !u!64 &7138951977545386195
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8603299748186831101}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
   m_Mesh: {fileID: 0}
 --- !u!114 &2966164767969475499
 MonoBehaviour:
@@ -2392,3 +2378,16 @@ MonoBehaviour:
   m_OnDeactivate:
     m_PersistentCalls:
       m_Calls: []
+--- !u!135 &8515795389831075695
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8603299748186831101}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1
+  m_Center: {x: 0, y: 1, z: 0}

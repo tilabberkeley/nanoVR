@@ -144,12 +144,12 @@ public class DrawCrossoverSuggestion : MonoBehaviour
     {
         foreach (KeyValuePair<int, Strand> pair0 in s_strandDict)
         {
-            List<NucleotideComponent> nucleotides0 = pair0.Value.GetNucleotidesOnly();
+            List<NucleotideComponent> nucleotides0 = pair0.Value.NucleotidesOnly;
             for (int i = 0; i < nucleotides0.Count - 1; i++)
             {
                 foreach (KeyValuePair<int, Strand> pair1 in s_strandDict)
                 {
-                    List<NucleotideComponent> nucleotides1 = pair1.Value.GetNucleotidesOnly();
+                    List<NucleotideComponent> nucleotides1 = pair1.Value.NucleotidesOnly;
                     for (int j = 0; j < nucleotides1.Count - 1; j++)
                     {
                         NucleotideComponent nucleotide0i = nucleotides0[i];

@@ -6482,6 +6482,7 @@ GameObject:
   - component: {fileID: 337757926}
   - component: {fileID: 337757939}
   - component: {fileID: 337757941}
+  - component: {fileID: 337757927}
   m_Layer: 0
   m_Name: LeftHand Controller
   m_TagString: Untagged
@@ -6590,7 +6591,7 @@ MonoBehaviour:
   m_AllowHoverHapticsWhileSelecting: 0
   m_LineType: 0
   m_BlendVisualLinePoints: 1
-  m_MaxRaycastDistance: 0.5
+  m_MaxRaycastDistance: 0.35
   m_RayOriginTransform: {fileID: 0}
   m_ReferenceFrame: {fileID: 0}
   m_Velocity: 16
@@ -6634,8 +6635,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_LineWidth: 0.005
-  m_OverrideInteractorLineLength: 1
-  m_LineLength: 0.5
+  m_OverrideInteractorLineLength: 0
+  m_LineLength: 0.35
   m_WidthCurve:
     serializedVersion: 2
     m_Curve:
@@ -7134,6 +7135,18 @@ MonoBehaviour:
   _nucleotideSequenceInput: {fileID: 1088045512}
   _loopoutInfoText: {fileID: 1084492209}
   _loopoutSequenceInput: {fileID: 3365575}
+--- !u!114 &337757927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337757916}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79fb8f4e2cdc8f745a17686020d16f82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &337757928
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7174,7 +7187,7 @@ SphereCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.05
-  m_Center: {x: 0.048577845, y: -1.7026892, z: 3.9215806}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &337757934
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11677,6 +11690,7 @@ GameObject:
   - component: {fileID: 713889244}
   - component: {fileID: 713889242}
   - component: {fileID: 713889245}
+  - component: {fileID: 713889225}
   m_Layer: 0
   m_Name: RightHand Controller
   m_TagString: Untagged
@@ -11692,7 +11706,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 713889218}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.28, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 806718933}
@@ -11711,7 +11725,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_LineWidth: 0.005
-  m_OverrideInteractorLineLength: 1
+  m_OverrideInteractorLineLength: 0
   m_LineLength: 0.5
   m_WidthCurve:
     serializedVersion: 2
@@ -12018,7 +12032,7 @@ MonoBehaviour:
   m_AllowHoverHapticsWhileSelecting: 0
   m_LineType: 0
   m_BlendVisualLinePoints: 1
-  m_MaxRaycastDistance: 0.5
+  m_MaxRaycastDistance: 0.35
   m_RayOriginTransform: {fileID: 0}
   m_ReferenceFrame: {fileID: 0}
   m_Velocity: 16
@@ -12241,6 +12255,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _xrNode: 5
   rightRayInteractor: {fileID: 713889222}
+--- !u!114 &713889225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 713889218}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79fb8f4e2cdc8f745a17686020d16f82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &713889226
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12281,7 +12307,7 @@ SphereCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.05
-  m_Center: {x: 0.048577845, y: -1.7026892, z: 3.9215806}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &713889230
 MonoBehaviour:
   m_ObjectHideFlags: 0

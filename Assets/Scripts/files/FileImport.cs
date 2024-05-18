@@ -574,6 +574,7 @@ public class FileImport : MonoBehaviour
         {
             string gridType = CleanSlash(origami["grid"].ToString());
             DrawGrid.CreateGrid(s_numGrids.ToString(), PLANE, rayInteractor.transform.position, gridType);
+            yield return new WaitForEndOfFrame();
         }
 
         int prevNumHelices = s_numHelices;

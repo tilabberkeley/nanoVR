@@ -26,6 +26,12 @@ public class Strand
         set { _nucleotides = value; _head = value[0]; _tail = value.Last(); } 
     }
 
+    private List<NucleotideComponent> _nucleotidesOnly;
+    public List<NucleotideComponent> NucleotidesOnly
+    {
+        get { return _nucleotidesOnly; }
+    }
+
     // This strand's id.
     private int _strandId;
     public int Id { get { return _strandId; } }
@@ -243,11 +249,11 @@ public class Strand
     public void AddToHead(GameObject newNucl)
     {
         _nucleotides.Insert(0, newNucl);
+        _nucleotidesOnly.Insert(0, newNucl.GetComponent<NucleotideComponent>());
         _head = _nucleotides[0];
         SetCone();
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
-
         //_cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
     }
 
@@ -257,6 +263,9 @@ public class Strand
     public void AddToHead(List<GameObject> newNucls) 
     {
         _nucleotides.InsertRange(0, newNucls);
+        List<NucleotideComponent> nucleotideComponents = new List<NucleotideComponent>();
+        newNucls.ForEach(n => nucleotideComponents.Add(n.GetComponent<NucleotideComponent>()));
+        _nucleotidesOnly.InsertRange(0, nucleotideComponents);
         _head = _nucleotides[0];
         //_cone.transform.position = _head.transform.position;
         SetCone();
@@ -277,6 +286,7 @@ public class Strand
     public void AddToTail(GameObject newNucl)
     {
         _nucleotides.Add(newNucl);
+        _nucleotidesOnly.Add(newNucl.GetComponent<NucleotideComponent>());
         _tail = _nucleotides.Last();
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
@@ -288,6 +298,9 @@ public class Strand
     public void AddToTail(List<GameObject> newNucls)
     {
         _nucleotides.AddRange(newNucls);
+        List<NucleotideComponent> nucleotideComponents = new List<NucleotideComponent>();
+        newNucls.ForEach(n => nucleotideComponents.Add(n.GetComponent<NucleotideComponent>()));
+        _nucleotidesOnly.AddRange(nucleotideComponents);
         _tail = _nucleotides.Last();
         _xoversWasChanged = true;
         _sequenceWasChanged = true;
@@ -309,7 +322,7 @@ public class Strand
     public void RemoveFromHead(List<GameObject> nucleotides)
     {
         _nucleotides.RemoveAll(nucleotide => nucleotides.Contains(nucleotide));
-
+        nucleotides.ForEach(n => _nucleotidesOnly.Remove(n.GetComponent<NucleotideComponent>()));
         if (_nucleotides.Count > 0)
         {
             _head = _nucleotides[0];
@@ -328,7 +341,7 @@ public class Strand
     public void RemoveFromTail(List<GameObject> nucleotides)
     {
         _nucleotides.RemoveAll(nucleotide => nucleotides.Contains(nucleotide));
-
+        nucleotides.ForEach(n => _nucleotidesOnly.Remove(n.GetComponent<NucleotideComponent>()));
         if (_nucleotides.Count > 0)
         {
             _tail = _nucleotides.Last();
@@ -379,6 +392,7 @@ public class Strand
         _nucleotides.RemoveRange(0, splitIndex);
         _head = _nucleotides[0];
         SetCone();
+        SetNucleotidesOnly();
         _xoversWasChanged = true;
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
@@ -425,6 +439,7 @@ public class Strand
         _xoversWasChanged = true;
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
+        SetNucleotidesOnly();
         return splitList;
     }
 
@@ -629,19 +644,17 @@ public class Strand
     /// Gets all the nucleotides of the strand.
     /// </summary>
     /// <returns>List of nucleotides (their components, not as gameObjects).</returns>
-    public List<NucleotideComponent> GetNucleotidesOnly()
+    public void SetNucleotidesOnly()
     {
-        List<NucleotideComponent> result = new List<NucleotideComponent>();
-
+        _nucleotidesOnly.Clear();
         foreach (GameObject gameObject in _nucleotides)
         {
             DNAComponent dnaComponent = gameObject.GetComponent<DNAComponent>();
             if (!dnaComponent.IsBackbone)
             {
-                result.Add((NucleotideComponent) dnaComponent);
+                _nucleotidesOnly.Add((NucleotideComponent) dnaComponent);
             }
         }
-        return result;
     }
 
     /// <summary>
@@ -650,7 +663,7 @@ public class Strand
     /// </summary>
     private void CheckForXoverSuggestions()
     {
-        List<NucleotideComponent> nucleotides = GetNucleotidesOnly();
+        List<NucleotideComponent> nucleotides = _nucleotidesOnly;
 
         foreach (NucleotideComponent nucleotide in nucleotides)
         {
