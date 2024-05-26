@@ -211,10 +211,12 @@ public class EditOptionsManager : MonoBehaviour
         _insEditMenu.enabled = true;
     }
 
-    private void ShowLoopoutLengthEdit()
+    public void ShowLoopoutLengthEdit()
     {
         _editMenu.enabled = false;
         _loopoutLengthEditMenu.enabled = true;
+        DrawLoopout.s_loopout = s_GO;
+        GetComponent<DrawLoopout>().ShowEditPanel();
     }
 
     private void ShowLoopoutSequenceEdit()
