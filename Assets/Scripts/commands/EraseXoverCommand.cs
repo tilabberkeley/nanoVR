@@ -27,7 +27,7 @@ public class EraseXoverCommand : ICommand
         _startGO = xoverComp.PrevGO;
         _endGO = xoverComp.NextGO;
         _strandId = strandId;
-        _color = color;
+        _color = xoverComp.SavedColor;
 
         var startNtc = _startGO.GetComponent<NucleotideComponent>();
         _startId = startNtc.Id;
