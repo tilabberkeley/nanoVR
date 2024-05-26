@@ -236,7 +236,7 @@ public class DrawCrossover : MonoBehaviour
     /// </summary>
     public static void DoEraseXover(GameObject xover)
     {
-        ICommand command = new EraseXoverCommand(xover, s_numStrands, xover.GetComponent<XoverComponent>().Color);
+        ICommand command = new EraseXoverCommand(xover, s_numStrands);
         CommandManager.AddCommand(command);
         //command.Do();
     }

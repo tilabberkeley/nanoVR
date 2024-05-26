@@ -235,7 +235,7 @@ public class DrawLoopout : MonoBehaviour
     /// </summary>
     public static void DoEraseLoopout(GameObject loopout)
     {
-        ICommand command = new EraseLoopoutCommand(loopout, s_numStrands, loopout.GetComponent<XoverComponent>().SavedColor);
+        ICommand command = new EraseLoopoutCommand(loopout, s_numStrands);
         CommandManager.AddCommand(command);
         //command.Do();
     }
