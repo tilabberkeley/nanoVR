@@ -1,4 +1,7 @@
-
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
+ */
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -32,7 +35,6 @@ public static class DrawPoint
                     position,
                     Quaternion.identity) as GameObject;
         sphere.name = "nucleotide" + id;
-        sphere.isStatic = true;
 
         NucleotideComponent ntc = sphere.GetComponent<NucleotideComponent>();
         //SequenceComponent seqComp = sphere.GetComponent<SequenceComponent>();
@@ -42,6 +44,7 @@ public static class DrawPoint
         ntc.IsBackbone = false;
         //seqComp.HasComplement = true;
         SaveGameObject(sphere);
+        sphere.isStatic = true;
         return sphere;
     }
 
@@ -68,7 +71,6 @@ public static class DrawPoint
                                     Vector3.zero,
                                     Quaternion.identity) as GameObject;
         cylinder.name = "Backbone" + id;
-        cylinder.isStatic = true;
 
         BackBoneComponent backBoneComponent = cylinder.GetComponent<BackBoneComponent>();
         backBoneComponent.Id = id;
@@ -87,7 +89,7 @@ public static class DrawPoint
         cylinder.transform.up = end - start;
 
         SaveGameObject(cylinder);
-
+        cylinder.isStatic = true;
         return cylinder;
     }
 
@@ -185,6 +187,7 @@ public static class DrawPoint
         GridComponent gridComponent = gridCircle.GetComponent<GridComponent>();
         gridComponent.Position = position;
         SaveGameObject(gridCircle);
+        gridCircle.isStatic = true;
         return gridCircle;
     }
 

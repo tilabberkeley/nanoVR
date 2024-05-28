@@ -11,12 +11,9 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using Newtonsoft.Json.Linq;
 using SimpleFileBrowser;
+using System.Collections;
 using static GlobalVariables;
 using static Utils;
-using Newtonsoft.Json;
-//using System.Text.Json;
-using OVRSimpleJSON;
-using System.Collections;
 
 public class FileImport : MonoBehaviour
 {
@@ -511,6 +508,8 @@ public class FileImport : MonoBehaviour
         JObject origami = JObject.Parse(fileContents);
         JArray helices = JArray.Parse(origami["helices"].ToString());
         JArray strands = JArray.Parse(origami["strands"].ToString());
+
+        // Drawing grids
         if (origami["groups"] != null)
         {
             JObject groupObject = JObject.Parse(origami["groups"].ToString());
@@ -576,7 +575,10 @@ public class FileImport : MonoBehaviour
             DrawGrid.CreateGrid(s_numGrids.ToString(), PLANE, rayInteractor.transform.position, gridType);
             yield return new WaitForEndOfFrame();
         }
-
+        
+        /**
+         * Drawing helices
+         */
         int prevNumHelices = s_numHelices;
         for (int i = 0; i < helices.Count; i++)
         {
@@ -599,9 +601,10 @@ public class FileImport : MonoBehaviour
             GridComponent gc = grid.Grid2D[xInd, yInd];
             grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
             grid.CheckExpansion(gc);
-            yield return new WaitForEndOfFrame();
+            yield return new WaitForSeconds(0.5f);
         }
 
+        // Drawing strands
         for (int i = 0; i < strands.Count; i++)
         {
             JArray domains = JArray.Parse(strands[i]["domains"].ToString());

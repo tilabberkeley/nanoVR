@@ -170,6 +170,8 @@ public class Strand
     public Strand(List<GameObject> nucleotides, int strandId, Color color)
     {
         _nucleotides = new List<GameObject>(nucleotides);
+        _nucleotidesOnly = new List<NucleotideComponent>();
+        SetNucleotidesOnly();
         _strandId = strandId;
         _color = color;
         _head = _nucleotides[0];
@@ -641,9 +643,8 @@ public class Strand
     }
 
     /// <summary>
-    /// Gets all the nucleotides of the strand.
+    /// Sets _nucleotidesOnly with only the nucleotides of the strand.
     /// </summary>
-    /// <returns>List of nucleotides (their components, not as gameObjects).</returns>
     public void SetNucleotidesOnly()
     {
         _nucleotidesOnly.Clear();

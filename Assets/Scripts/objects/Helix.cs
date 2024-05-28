@@ -3,6 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static GlobalVariables;
@@ -11,7 +12,7 @@ using static Utils;
 /// <summary>
 /// Helix object keeps track of nucleotides in the helix.
 /// </summary>
-public class Helix : MonoBehaviour
+public class Helix
 {
     private const float ADJUSTMENT = 0.05f; // Accounts for Icosphere prefab's weird positioning 
     // Helix id.
@@ -85,7 +86,9 @@ public class Helix : MonoBehaviour
         _strandIds = new List<int>();
         _lastPositionA = Vector3.zero;
         _lastPositionB = Vector3.zero;
-        _parent = new GameObject();
+        _helixA = new List<GameObject>();
+        _helixB = new List<GameObject>();
+        /*_parent = new GameObject();
         _parent.transform.position = _gridComponent.transform.position;
         _parentMesh = _parent.AddComponent<MeshFilter>();
 
@@ -95,8 +98,7 @@ public class Helix : MonoBehaviour
         _meshCombiner.DestroyCombinedChildren = false;
         _meshCombiner.DeactivateCombinedChildrenMeshRenderers = false;
         _meshCombiner.CreateMultiMaterialMesh = false;
-        _helixA = new List<GameObject>();
-        _helixB = new List<GameObject>();
+       */
         Extend(length);
         //ChangeRendering();
     }
@@ -138,7 +140,6 @@ public class Helix : MonoBehaviour
             sphereB.transform.RotateAround(StartPoint, Vector3.right, _gridComponent.transform.eulerAngles.x);
             sphereB.transform.RotateAround(StartPoint, Vector3.up, _gridComponent.transform.eulerAngles.y);
         }
-
         if (prevLength == 0) 
         { 
             DrawBackbones(prevLength + 1);
@@ -152,8 +153,10 @@ public class Helix : MonoBehaviour
         /* Batches static (non-moving) gameobjects so that they are drawn together.
          * This reduces number of Draw calls and increases FPS. 
          */
-        StaticBatchingUtility.Combine(_helixA.ToArray(), _gridComponent.gameObject);
-        StaticBatchingUtility.Combine(_helixB.ToArray(), _gridComponent.gameObject);
+        StaticBatchingUtility.Combine(_helixA.ToArray(), _helixA[0]);
+
+        StaticBatchingUtility.Combine(_helixB.ToArray(), _helixB[0]);
+
         _helixA.Clear();
         _helixB.Clear();
 

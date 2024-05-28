@@ -14,6 +14,8 @@ public abstract class DNAComponent : MonoBehaviour
 
     // Components
     protected Renderer _ntRenderer;
+    protected MeshFilter _meshFilter;
+    protected MaterialPropertyBlock _mpb;
     protected Outline _outline;
 
     // Color of this DNA Component.
@@ -27,7 +29,9 @@ public abstract class DNAComponent : MonoBehaviour
         set
         {
             _color = value;
-            _ntRenderer.material.SetColor("_Color", value);
+            _mpb.SetColor("_Color", _color);
+            _ntRenderer.SetPropertyBlock(_mpb);
+            //_ntRenderer.sharedMaterial.SetColor("_Color", value);
         }
     }
 
@@ -68,6 +72,8 @@ public abstract class DNAComponent : MonoBehaviour
     protected virtual void Awake()
     {
         _ntRenderer = GetComponent<Renderer>();
+        _meshFilter = GetComponent<MeshFilter>();
+        _mpb = new MaterialPropertyBlock();
         _outline = GetComponent<Outline>();
         _outline.enabled = false;
     }

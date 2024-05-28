@@ -20,7 +20,7 @@ public static class CommandManager
         command.Do();
         s_undoStack.Push(command);
         s_redoStack.Clear();
-        CommandUpdate();
+        //CommandUpdate();
     }
 
     /// <summary>
@@ -33,7 +33,7 @@ public static class CommandManager
             ICommand command = s_undoStack.Pop();
             if (command != null) { command.Undo(); }
             s_redoStack.Push(command);
-            CommandUpdate();
+            //CommandUpdate();
         }
     }
 
@@ -47,7 +47,7 @@ public static class CommandManager
             ICommand command = s_redoStack.Pop();
             if (command != null) { command.Redo(); }
             s_undoStack.Push(command);
-            CommandUpdate();
+            //CommandUpdate();
         }
     }
 
