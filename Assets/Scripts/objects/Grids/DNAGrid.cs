@@ -84,7 +84,10 @@ public abstract class DNAGrid
 
     protected int _size;
     protected GridPoint _minimumBound;
+    public GridPoint MinimumBound { get => _minimumBound; }
     protected GridPoint _maximumBound;
+    public GridPoint MaximumBound { get => _maximumBound; }
+
 
     /* Need to keep track of the number of south and west positions because they are used to
      * calculate the offset from the _startPos to generate the grid circles in the scene. 
@@ -197,7 +200,7 @@ public abstract class DNAGrid
     /// <summary>
     /// Expands this grid north.
     /// </summary>
-    protected void ExpandNorth()
+    public void ExpandNorth()
     {
         CopyNorth();
         List<GameObject> gridCircles = new List<GameObject>();
@@ -222,7 +225,7 @@ public abstract class DNAGrid
     /// <summary>
     /// Expands this grid east.
     /// </summary>
-    protected void ExpandEast()
+    public void ExpandEast()
     {
         CopyEast();
         List<GameObject> gridCircles = new List<GameObject>();
@@ -246,7 +249,7 @@ public abstract class DNAGrid
     /// <summary>
     /// Expands this grid south.
     /// </summary>
-    protected void ExpandSouth()
+    public void ExpandSouth()
     {
         CopySouth();
         List<GameObject> gridCircles = new List<GameObject>();
@@ -272,7 +275,7 @@ public abstract class DNAGrid
     /// <summary>
     /// Expands this grid west.
     /// </summary>
-    protected void ExpandWest()
+    public void ExpandWest()
     {
         CopyWest();
         List<GameObject> gridCircles = new List<GameObject>();

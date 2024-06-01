@@ -38,6 +38,8 @@ public static class Highlight
     /// <param name="unhighlightInsAndDel">If strand is being deleted, insertions/deletions should be unhighlighted.</param>
     public static void UnhighlightGO(GameObject go, bool unhighlightInsAndDel)
     {
+        if (go == null) { return; }
+        
         NucleotideComponent ntc = go.GetComponent<NucleotideComponent>(); 
         Outline outline = go.GetComponent<Outline>();
 

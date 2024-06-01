@@ -6870,7 +6870,7 @@ MonoBehaviour:
   m_UpdateTrackingType: 1
   m_EnableInputTracking: 1
   m_EnableInputActions: 1
-  m_ModelPrefab: {fileID: 400014, guid: c3ba18e9fa5e9104098cbdbb3e23a5b4, type: 3}
+  m_ModelPrefab: {fileID: 400016, guid: 8b83018900d13bb4f8e0ad895cb004e5, type: 3}
   m_ModelParent: {fileID: 0}
   m_Model: {fileID: 0}
   m_AnimateModel: 0
@@ -7142,11 +7142,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 337757916}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79fb8f4e2cdc8f745a17686020d16f82, type: 3}
+  m_Script: {fileID: 11500000, guid: 162e1eacdae28df459d7af39591d72f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _leftXRNode: 0
+  _rightXRNode: 0
+  leftRayInteractor: {fileID: 0}
+  rightRayInteractor: {fileID: 0}
 --- !u!114 &337757928
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12078,7 +12082,7 @@ MonoBehaviour:
   m_UpdateTrackingType: 1
   m_EnableInputTracking: 1
   m_EnableInputActions: 1
-  m_ModelPrefab: {fileID: 400014, guid: c3798d66af7bbe54bbfe22a3b302300b, type: 3}
+  m_ModelPrefab: {fileID: 400018, guid: 25b5eb0761edb6346b0b3444af76b55e, type: 3}
   m_ModelParent: {fileID: 0}
   m_Model: {fileID: 0}
   m_AnimateModel: 0
@@ -12262,11 +12266,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 713889218}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79fb8f4e2cdc8f745a17686020d16f82, type: 3}
+  m_Script: {fileID: 11500000, guid: 162e1eacdae28df459d7af39591d72f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _leftXRNode: 0
+  _rightXRNode: 0
+  leftRayInteractor: {fileID: 0}
+  rightRayInteractor: {fileID: 0}
 --- !u!114 &713889226
 MonoBehaviour:
   m_ObjectHideFlags: 0

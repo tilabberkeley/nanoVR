@@ -8,13 +8,14 @@ using UnityEngine.XR.Interaction.Toolkit;
 using static UnityEngine.Object;
 using static GlobalVariables;
 using SplineMesh;
+using System.Linq;
 
 /// <summary>
 /// Creates needed gameobjects like nucleotides, backbones, cones, Xovers, spheres, and grids.
 /// </summary>
 public static class DrawPoint
 {
-    private const int SPLINE_RESOLUTION = 16;
+    private const int SPLINE_RESOLUTION = 8;
     private const float TUBE_SIZE = 0.01f;
     // private const float LOOPOUT_SIZE = 0.005f;
     // Factor determines how much loopout "bends." Higher factor, more bending.
@@ -80,7 +81,8 @@ public static class DrawPoint
 
         // Scale        
         float dist = Vector3.Distance(end, start);
-        cylinder.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
+        //cylinder.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f); // For "Backbone" prefab
+        cylinder.transform.localScale = new Vector3(0.25f, dist / 2, 0.25f);   // For "Cylinder" (Probuilder) prefab
 
         // Position
         cylinder.transform.position = (end + start) / 2.0F;
@@ -194,22 +196,28 @@ public static class DrawPoint
     public static GameObject MakeBezier(List<GameObject> nucleotides, Color32 color)
     {
         GameObject tube = new GameObject("tube");
-        var tubeRend = tube.AddComponent<TubeRenderer>();
-        var meshRend = tube.GetComponent<MeshRenderer>();
+        MeshRenderer meshRend = tube.AddComponent<MeshRenderer>();
+        TubeRenderer tubeRend = tube.AddComponent<TubeRenderer>();
         tubeRend.radius = TUBE_SIZE;
         meshRend.material.SetColor("_Color", color);
 
         // TODO: figure out how to make this smoother. Increase resolution? 
-        SplineMaker splineMaker = tube.AddComponent<SplineMaker>();
-        splineMaker.onUpdated.AddListener((points) => tubeRend.points = points); // updates tube renderer points when anchorPoints is changed.
-        splineMaker.pointsPerSegment = SPLINE_RESOLUTION;
-        Vector3[] anchorPoints = new Vector3[nucleotides.Count];
+        //SplineMaker splineMaker = tube.AddComponent<SplineMaker>();
+        //splineMaker.onUpdated.AddListener((points) => tubeRend.points = points); // updates tube renderer points when anchorPoints is changed.
+        //splineMaker.pointsPerSegment = SPLINE_RESOLUTION;
+        /*Vector3[] anchorPoints = new Vector3[nucleotides.Count];
 
         for (int i = 0; i < nucleotides.Count; i += 1)
         {
             anchorPoints[i] = nucleotides[i].transform.position;
         }
-        splineMaker.anchorPoints = anchorPoints;
+        splineMaker.anchorPoints = anchorPoints;*/
+
+        tubeRend.points = new Vector3[nucleotides.Count];
+        for (int i = 0; i < nucleotides.Count; i += 1)
+        {
+            tubeRend.points[i] = nucleotides[i].transform.position;
+        }
         return tube;
     }
 
@@ -354,6 +362,27 @@ public static class DrawPoint
         SaveGameObject(meshGO);
 
         return meshGO;
+    }
+
+    public static GameObject MakeDomainCollider(List<DNAComponent> domain)
+    {
+        GameObject domainCollider = Instantiate(DomainCollider,
+                   Vector3.zero,
+                   Quaternion.identity) as GameObject;
+
+        DomainComponent dc = domainCollider.GetComponent<DomainComponent>();
+        CapsuleCollider cc = domainCollider.GetComponent<CapsuleCollider>();
+
+        foreach (DNAComponent nucleotide in domain)
+        {
+            dc.Nucleotides.Add(nucleotide);
+            nucleotide.Domain = dc;
+        }
+
+        cc.center = Vector3.Lerp(domain[0].transform.position, domain.Last().transform.position, 0.5f);
+        cc.height = Vector3.Distance(domain[0].transform.position, domain.Last().transform.position) / 2;
+
+        return domainCollider;
     }
 }
 

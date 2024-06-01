@@ -181,7 +181,7 @@ public class Togglers : MonoBehaviour
         s_nucleotideView = true;
     }
 
-    public void StrandViewToggled()
+    public static void StrandViewToggled()
     {
         s_strandView = true;
         s_helixView = false;

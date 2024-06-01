@@ -22,6 +22,8 @@ public class FileImport : MonoBehaviour
     private static XRRayInteractor rayInteractor;
 
     private const string PLANE = "XY";
+    private const int MAX_NUCLEOTIDES = 20000;
+
     void Awake()
     {
         FileBrowser.HideDialog();
@@ -508,6 +510,7 @@ public class FileImport : MonoBehaviour
         JObject origami = JObject.Parse(fileContents);
         JArray helices = JArray.Parse(origami["helices"].ToString());
         JArray strands = JArray.Parse(origami["strands"].ToString());
+        int totalNucleotides = 0;
 
         // Drawing grids
         if (origami["groups"] != null)
@@ -573,7 +576,6 @@ public class FileImport : MonoBehaviour
         {
             string gridType = CleanSlash(origami["grid"].ToString());
             DrawGrid.CreateGrid(s_numGrids.ToString(), PLANE, rayInteractor.transform.position, gridType);
-            yield return new WaitForEndOfFrame();
         }
         
         /**
@@ -596,12 +598,37 @@ public class FileImport : MonoBehaviour
             }
 
             DNAGrid grid = s_gridDict[gridName];
-            int xInd = grid.GridXToIndex((int)coord[0]);
-            int yInd = grid.GridYToIndex((int)coord[1] * -1);
+            int xGrid = (int) coord[0];
+            int yGrid = (int) coord[1] * -1;
+         
+            /**
+             * Expands grid if necessary so that helix coordinates exist.
+             */
+            GridPoint minBound = grid.MinimumBound; // TODO: Put in another method
+            GridPoint maxBound = grid.MaximumBound;
+            while (xGrid <= minBound.X)
+            {
+                grid.ExpandWest();
+            }
+            while (xGrid >= maxBound.X)
+            {
+                grid.ExpandEast();
+            }
+            while (yGrid <= minBound.Y)
+            {
+                grid.ExpandSouth();
+            }
+            while (yGrid >= maxBound.Y)
+            {
+                grid.ExpandNorth();
+            }
+
+            int xInd = grid.GridXToIndex(xGrid);
+            int yInd = grid.GridYToIndex(yGrid);
             GridComponent gc = grid.Grid2D[xInd, yInd];
             grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
             grid.CheckExpansion(gc);
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.1f);
         }
 
         // Drawing strands
@@ -677,6 +704,7 @@ public class FileImport : MonoBehaviour
             }
 
             Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
+            totalNucleotides += nucleotides.Count;
 
             // Add xovers to strand object.
             xoverEndpoints.Reverse();
@@ -699,6 +727,14 @@ public class FileImport : MonoBehaviour
             CheckMismatch(strand);
             yield return new WaitForEndOfFrame();
 
+        }
+
+        // Abstracts to Strand View if there are more than MAX_NUCLEOTIDES in scene.
+        // This helps with performance.
+        if (totalNucleotides > MAX_NUCLEOTIDES)
+        {
+            Togglers.StrandViewToggled();
+            ViewingPerspective.instance.ViewStrand();
         }
         //return grids;
     }

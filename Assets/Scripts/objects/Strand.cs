@@ -6,8 +6,8 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using static GlobalVariables;
 using System.Text;
+using static GlobalVariables;
 
 /// <summary>
 /// Strand object keeps track of an individual strand of nucleotides.
@@ -17,6 +17,7 @@ public class Strand
     private const int PERIOD = 10;
     private const int START_OFFSET_3_5 = 3; // First crossover suggestion begins on the fourth nucleotide of helix going from 3->5.
     private const int START_OFFSET_5_3 = 8; // First crossover suggestion begins on the fourth nucleotide of helix going from 5->3.
+    private const int BEZIER_COUNT = 128;    // Number of nucleotides (including backbones) included in one "Bezier" of the Strand View.
 
     // List of nucleotide and backbone GameObjects included in this strand.
     private List<GameObject> _nucleotides;
@@ -77,7 +78,9 @@ public class Strand
     // List of this strand's crossover suggestions.
     private List<GameObject> _xoverSuggestions;
 
-    private GameObject _bezier;
+    private List<GameObject> _beziers;
+
+    private List<DomainComponent> _domains;
 
     /// <summary>
     /// Whether or not _sequence has potentially changed since last Sequence call.
@@ -177,9 +180,10 @@ public class Strand
         _head = _nucleotides[0];
         _tail = _nucleotides.Last();
         _cone = DrawPoint.MakeCone();
-        _bezier = null;
+        _beziers = new List<GameObject>();
         _direction = nucleotides[0].GetComponent<NucleotideComponent>().Direction;
         _xovers = new List<GameObject>();
+        _domains = new List<DomainComponent>();
         //SetComponents();
         //s_strandDict.Add(strandId, this);
         //CheckForXoverSuggestions();
@@ -395,14 +399,36 @@ public class Strand
         _head = _nucleotides[0];
         SetCone();
         SetNucleotidesOnly();
+        ResetComponents(splitList);
+        UpdateFirstDomain();
         _xoversWasChanged = true;
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
         return splitList;
     }
 
+    public void UpdateFirstDomain()
+    {
+        DNAComponent dnaComponent = _nucleotides[0].GetComponent<DNAComponent>();
+        DomainComponent domainComponent = dnaComponent.Domain;
+        List<DNAComponent> domain = new List<DNAComponent>();
+        for (int i = 0; i < _nucleotides.Count; i++)
+        {
+            DNAComponent dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
+            NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+            domain.Add(dnaComp);
+            if (ntc != null && ntc.HasXover)
+            {
+                break;
+            }
+        }
+        domainComponent.Nucleotides = domain;
+        domainComponent.UpdateCapsuleCollider();
+    }
+
     public void SplitCircularBefore(GameObject go)
     {
+        //TODO: Add DomainCollider logic
         int splitIndex = _nucleotides.IndexOf(go);
         int tailIndex = _nucleotides.IndexOf(_tail);
         GameObject backbone = _nucleotides[splitIndex - 1];
@@ -442,11 +468,34 @@ public class Strand
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
         SetNucleotidesOnly();
+        ResetComponents(splitList);
+        UpdateLastDomain();
         return splitList;
+    }
+
+    public void UpdateLastDomain()
+    {
+        DNAComponent dnaComponent = _nucleotides.Last().GetComponent<DNAComponent>();
+        DomainComponent domainComponent = dnaComponent.Domain;
+        List<DNAComponent> domain = new List<DNAComponent>();
+        for (int i = _nucleotides.Count - 1; i >= 0; i--)
+        {
+            DNAComponent dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
+            NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+            domain.Add(dnaComp);
+            if (ntc != null && ntc.HasXover)
+            {
+                break;
+            }
+        }
+        domain.Reverse();
+        domainComponent.Nucleotides = domain;
+        domainComponent.UpdateCapsuleCollider();
     }
 
     public void SplitCircularAfter(GameObject go)
     {
+        // TODO: Add DomainCollider logic
         int splitIndex = _nucleotides.IndexOf(go);
         int tailIndex = _nucleotides.IndexOf(_tail);
         GameObject backbone = _nucleotides[splitIndex + 1];
@@ -497,18 +546,30 @@ public class Strand
     /// </summary>
     public void SetComponents()
     {
+        bool newDomain = true;
+        List<DNAComponent> domain = new List<DNAComponent>();
         for (int i = _nucleotides.Count - 1; i >= 0; i--)
         {
-            var dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
-            var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+            DNAComponent dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
+            NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+            dnaComp.ResetComponent();
             dnaComp.Selected = true;
             dnaComp.StrandId = _strandId;
             dnaComp.Color = _color;
+
+            domain.Add(dnaComp);
             
             if (ntc != null && ntc.HasXover)
             {
-                var xoverComp = ntc.Xover.GetComponent<XoverComponent>();
+                XoverComponent xoverComp = ntc.Xover.GetComponent<XoverComponent>();
                 xoverComp.Color = _color;
+                newDomain = !newDomain;
+
+                if (newDomain)
+                {
+                    DrawPoint.MakeDomainCollider(domain);
+                    domain.Clear();
+                }
             }
         }
         /*for (int i = 0; i < _xovers.Count; i++)
@@ -517,6 +578,12 @@ public class Strand
         }*/
         //SetSequence();
         SetCone();
+    }
+
+    private void DrawDomainCollider(List<DNAComponent> domain)
+    {
+        GameObject domainCollider = DrawPoint.MakeDomainCollider(domain);
+
     }
 
     public void SetSequence(string sequence)
@@ -686,18 +753,28 @@ public class Strand
 
     public void DrawBezier()
     {
-        if (_bezier == null)
+        if (_beziers.Count == 0)
         {
-            _bezier = DrawPoint.MakeBezier(_nucleotides, _color);
+            List<GameObject> nuclSubList = new List<GameObject>();
+            for (int i = 0; i < _nucleotides.Count; i++)
+            {
+                nuclSubList.Add(_nucleotides[i]);
+                if (nuclSubList.Count % BEZIER_COUNT == 0 || i == _nucleotides.Count - 1)
+                {
+                    GameObject bezier = DrawPoint.MakeBezier(nuclSubList, _color);
+                    _beziers.Add(bezier);
+                    nuclSubList.RemoveRange(0, nuclSubList.Count - 1); // Remove all but last nucl to keep Beziers continuous.
+                }
+            }
         }
     }
 
     public void DeleteBezier()
     {
-        if (_bezier != null)
+        if (_beziers.Count > 0)
         {
-            GameObject.Destroy(_bezier);
-            _bezier = null;
+            foreach (GameObject bezier in _beziers) { GameObject.Destroy(bezier); }
+            _beziers.Clear();
         }
     }
 

@@ -25,14 +25,14 @@ public class NucleotideComponent : DNAComponent
     private string _sequence = "";
     public string Sequence { get => _sequence; set => _sequence = value; }
 
-    public GameObject Complement 
+    /*public GameObject Complement 
     { 
         get 
         {
             Helix helix = s_helixDict[HelixId];
             return helix.GetNucleotide(Id, 1 - Direction);
         } 
-    }
+    }*/
 
     // Gameobject of xover or loopout attached to this nucleotide. Null if there isn't a xover or loopout.
     private GameObject _xover = null;
@@ -46,7 +46,7 @@ public class NucleotideComponent : DNAComponent
     private HashSet<XoverSuggestionComponent> _xoverSuggestionComponents;
     public HashSet<XoverSuggestionComponent> XoverSuggestionComponents { get { return _xoverSuggestionComponents; } }
 
-    // Start is called before the first frame update
+    // Awake is called before the first frame update
     protected override void Awake()
     {
         base.Awake();

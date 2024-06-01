@@ -121,6 +121,7 @@ public class EditOptionsManager : MonoBehaviour
     private void ShowEditMenu()
     {
         ShowCorrectButtons();
+        Highlight.UnhighlightGO(s_GO, false);
         Highlight.HighlightGO(s_GO, Color.yellow);
         _menu.enabled = false;
         _editMenu.enabled = true;

@@ -2,6 +2,7 @@
  * nanoVR, a VR application for building DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+using System;
 using UnityEngine;
 using static GlobalVariables;
 
@@ -61,11 +62,32 @@ public abstract class DNAComponent : MonoBehaviour
     protected bool _isBackbone;
     public bool IsBackbone { get { return _isBackbone; } set { _isBackbone = value; } }
 
+    public GameObject Complement
+    {
+        get
+        {
+            Helix helix = s_helixDict[HelixId];
+            if (!_isBackbone)
+            {
+                return helix.GetNucleotide(Id, 1 - Direction);
+            }
+            return helix.GetBackbone(Id, 1 - Direction);
+        }
+    }
+
+    protected DomainComponent _domain = null;
+    public DomainComponent Domain { get => _domain; set => _domain = value; }
+
     public virtual void ResetComponent()
     {
         _selected = false;
         _strandId = -1;
         Color = s_defaultColor;
+        if (_domain != null)
+        {
+            GameObject.Destroy(_domain.gameObject);
+        }
+        _domain = null;
     }
 
     // Start is called before the first frame update
