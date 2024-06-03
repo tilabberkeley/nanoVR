@@ -559,19 +559,20 @@ public class Strand
 
             domain.Add(dnaComp);
             
-            if (ntc != null && ntc.HasXover)
+            if (i == 0 || (ntc != null && ntc.HasXover))
             {
                 XoverComponent xoverComp = ntc.Xover.GetComponent<XoverComponent>();
                 xoverComp.Color = _color;
-                newDomain = !newDomain;
 
                 if (newDomain)
                 {
                     DrawPoint.MakeDomainCollider(domain);
                     domain.Clear();
                 }
+                newDomain = !newDomain; // Since xover endpoint nucleotides are sequential, this stops us from overcounting.
             }
         }
+
         /*for (int i = 0; i < _xovers.Count; i++)
         {
             SetXoverColor(_xovers[i]);
