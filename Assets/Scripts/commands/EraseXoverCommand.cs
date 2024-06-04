@@ -20,14 +20,14 @@ public class EraseXoverCommand : ICommand
     private int _endHelixId;
     private int _endDirection;
 
-    public EraseXoverCommand(GameObject xover, int strandId, Color color)
+    public EraseXoverCommand(GameObject xover, int strandId)
     {
         _xover = xover;
         var xoverComp = xover.GetComponent<XoverComponent>();
         _startGO = xoverComp.PrevGO;
         _endGO = xoverComp.NextGO;
         _strandId = strandId;
-        _color = color;
+        _color = xoverComp.SavedColor;
 
         var startNtc = _startGO.GetComponent<NucleotideComponent>();
         _startId = startNtc.Id;

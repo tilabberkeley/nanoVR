@@ -176,7 +176,7 @@ public class DrawCrossover : MonoBehaviour
     }
 
     /// <summary>
-    /// Splits strands (if necessary), draws loopout, and merges strands connected by loopout
+    /// Splits strands (if necessary), draws xover, and merges strands connected by xover
     /// </summary>
     public static GameObject CreateXover(GameObject startGO, GameObject endGO)
     {
@@ -236,7 +236,7 @@ public class DrawCrossover : MonoBehaviour
     /// </summary>
     public static void DoEraseXover(GameObject xover)
     {
-        ICommand command = new EraseXoverCommand(xover, s_numStrands, xover.GetComponent<XoverComponent>().Color);
+        ICommand command = new EraseXoverCommand(xover, s_numStrands);
         CommandManager.AddCommand(command);
         //command.Do();
     }

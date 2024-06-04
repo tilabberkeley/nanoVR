@@ -28,7 +28,7 @@ public class DrawLoopout : MonoBehaviour
     private bool gripReleased = true;
     private static GameObject s_startGO = null;
     private static GameObject s_endGO = null;
-    private static GameObject s_loopout = null;
+    public static GameObject s_loopout = null;
     private static bool s_menuEnabled;
     private static RaycastHit s_hit;
 
@@ -235,7 +235,7 @@ public class DrawLoopout : MonoBehaviour
     /// </summary>
     public static void DoEraseLoopout(GameObject loopout)
     {
-        ICommand command = new EraseLoopoutCommand(loopout, s_numStrands, loopout.GetComponent<XoverComponent>().SavedColor);
+        ICommand command = new EraseLoopoutCommand(loopout, s_numStrands);
         CommandManager.AddCommand(command);
         //command.Do();
     }
@@ -283,11 +283,8 @@ public class DrawLoopout : MonoBehaviour
     /// <summary>
     /// Displays edit panel for loopout editting.
     /// </summary>
-    private void ShowEditPanel()
+    public void ShowEditPanel()
     {
-        s_menuEnabled = _menu.enabled;
-        _menu.enabled = false;
-        _editPanel.enabled = true;
         _currLengthText.SetText(CURRENT_LENGTH_PREFIX + s_loopout.GetComponent<LoopoutComponent>().SequenceLength);
     }
 

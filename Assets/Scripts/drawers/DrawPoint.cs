@@ -258,13 +258,17 @@ public static class DrawPoint
         float dist = Vector3.Distance(nextGO.transform.position, prevGO.transform.position);
         xover.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
 
+        NucleotideComponent prevNucleotideComponent = prevGO.GetComponent<NucleotideComponent>();
+        NucleotideComponent nextNucleotideComponent = nextGO.GetComponent<NucleotideComponent>();
+
         var xoverComp = xover.GetComponent<XoverComponent>();
         xoverComp.StrandId = strandId;
         xoverComp.PrevStrandId = prevStrandId;
         xoverComp.Length = dist;
-        xoverComp.Color = prevGO.GetComponent<NucleotideComponent>().Color;
-        prevGO.GetComponent<NucleotideComponent>().Xover = xover;
-        nextGO.GetComponent<NucleotideComponent>().Xover = xover;
+        xoverComp.Color = prevNucleotideComponent.Color;
+        xoverComp.SavedColor = nextNucleotideComponent.Color;
+        prevNucleotideComponent.Xover = xover;
+        nextNucleotideComponent.Xover = xover;
         xoverComp.PrevGO = prevGO;
         xoverComp.NextGO = nextGO;
         SaveGameObject(xover);
@@ -354,7 +358,7 @@ public static class DrawPoint
         loopoutComponent.StrandId = strandId;
         loopoutComponent.PrevStrandId = prevStrandId;
         loopoutComponent.Color = prevNucleotideComponent.Color;
-        loopoutComponent.SavedColor = prevNucleotideComponent.Color;
+        loopoutComponent.SavedColor = nextNucleotideComponent.Color;
 
         // Assign to meshGO that has the loopout component.
         prevNucleotideComponent.Xover = meshGO;
