@@ -11,7 +11,9 @@ public class XoverCommand : ICommand
     private GameObject _second;
     private GameObject _xover;
     private bool _firstIsHead;
+    private bool _firstIsTail;
     private bool _firstIsEnd;
+    private bool _secondIsHead;
     private bool _secondIsEnd;
     private Color _prevColor;
 
@@ -22,7 +24,7 @@ public class XoverCommand : ICommand
     private int _endHelixId;
     private int _endDirection;
 
-    public XoverCommand(GameObject first, GameObject second, bool firstIsEnd, bool secondIsEnd, bool firstIsHead)
+    public XoverCommand(GameObject first, GameObject second, bool firstIsHead, bool firstIsTail, bool secondIsHead, bool secondIsEnd)
     {
         _first = first;
         _second = second;
@@ -38,14 +40,24 @@ public class XoverCommand : ICommand
         _endHelixId = endNtc.HelixId;
         _endDirection = endNtc.Direction;
 
-        _firstIsEnd = firstIsEnd;
-        _secondIsEnd = secondIsEnd;
         _firstIsHead = firstIsHead;
+        _firstIsTail = firstIsTail;
+        _firstIsEnd = firstIsHead || firstIsTail;
+        _secondIsHead = secondIsHead;
+        _secondIsEnd = secondIsEnd;
     }
 
     public void Do()
     {
-        _xover = DrawCrossover.CreateXover(_first, _second);
+        if (_secondIsHead || _firstIsTail)
+        {
+            bool splitFirstAfter = true;
+            _xover = DrawCrossover.CreateXover(_first, _second, splitFirstAfter);
+        }
+        else
+        {
+            _xover = DrawCrossover.CreateXover(_first, _second);
+        }
     }
 
     public void Undo()
@@ -55,7 +67,8 @@ public class XoverCommand : ICommand
         _xover = startGO.GetComponent<NucleotideComponent>().Xover;
         int prevStrandId = _xover.GetComponent<XoverComponent>().PrevStrandId;
 
-        DrawCrossover.EraseXover(_xover, prevStrandId, _prevColor, _firstIsHead);
+        bool splitAfter = _secondIsHead || _firstIsTail;
+        DrawCrossover.EraseXover(_xover, prevStrandId, _prevColor, splitAfter);
         if (!_firstIsEnd) { DrawMerge.MergeStrand(startGO); }
         if (!_secondIsEnd) { DrawMerge.MergeStrand(endGO); }
     }
@@ -65,6 +78,14 @@ public class XoverCommand : ICommand
         GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
         GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
 
-        _xover = DrawCrossover.CreateXover(startGO, endGO);
+        if (_secondIsHead || _firstIsTail)
+        {
+            bool splitFirstAfter = true;
+            _xover = DrawCrossover.CreateXover(_first, _second, splitFirstAfter);
+        }
+        else
+        {
+            _xover = DrawCrossover.CreateXover(_first, _second);
+        }
     }
 }

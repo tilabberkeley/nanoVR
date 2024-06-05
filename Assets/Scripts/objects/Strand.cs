@@ -239,16 +239,12 @@ public class Strand
         return _xovers.Count > 0;
     }*/
 
-    // Adds GameObject to front of nucleotide list.
-    public void AddToHead(GameObject newNucl)
+    /// <summary>
+    /// Adds backbone to front of nucleotide list.
+    /// </summary>
+    public void AddBackboneToHead(GameObject backbone)
     {
-        _nucleotides.Insert(0, newNucl);
-        _head = _nucleotides[0];
-        SetCone();
-        _sequenceWasChanged = true;
-        _lengthWasChanged = true;
-
-        //_cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
+        _nucleotides.Insert(0, backbone);
     }
 
     // Adds list of GameObjects to front of nucleotide list.
@@ -264,13 +260,12 @@ public class Strand
         //CheckForXoverSuggestions();
     }
 
-    // Adds GameObject to end of nucleotide list.
-    public void AddToTail(GameObject newNucl)
+    /// <summary>
+    /// Adds backbone to back of nucleotide list.
+    /// </summary>
+    public void AddBackboneToTail(GameObject backbone)
     {
-        _nucleotides.Add(newNucl);
-        _tail = _nucleotides.Last();
-        _sequenceWasChanged = true;
-        _lengthWasChanged = true;
+        _nucleotides.Add(backbone);  
     }
 
     // Adds list of GameObjects to end of nucleotide list.
@@ -351,11 +346,11 @@ public class Strand
         int splitIndex = _nucleotides.IndexOf(go);
 
         splitList.AddRange(_nucleotides.GetRange(0, splitIndex));
-        if (splitList.Count % 2 == 0)
+        BackBoneComponent backbone = splitList.Last().GetComponent<BackBoneComponent>();
+        if (backbone != null)
         {
-            GameObject backbone = splitList[splitList.Count - 1];
-            splitList.Remove(backbone);
-            backbone.GetComponent<BackBoneComponent>().ResetComponent();
+            splitList.Remove(backbone.gameObject);
+            backbone.ResetComponent();
         }
       
         _nucleotides.RemoveRange(0, splitIndex);
@@ -395,11 +390,12 @@ public class Strand
         int count = _nucleotides.Count - splitIndex - 1;
         
         splitList.AddRange(_nucleotides.GetRange(splitIndex + 1, count));
-        if (splitList.Count % 2 == 0)
+        BackBoneComponent backbone = splitList[0].GetComponent<BackBoneComponent>();
+
+        if (backbone != null)
         {
-            GameObject backbone = splitList[0];
-            splitList.Remove(backbone);
-            backbone.GetComponent<BackBoneComponent>().ResetComponent();
+            splitList.Remove(backbone.gameObject);
+            backbone.ResetComponent();
         }
       
         _nucleotides.RemoveRange(splitIndex + 1, count);

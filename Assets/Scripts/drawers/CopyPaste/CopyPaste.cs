@@ -88,27 +88,22 @@ public class CopyPaste : MonoBehaviour
         if (pasting && rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             GameObject go = s_hit.collider.gameObject;
-            if (go.GetComponent<NucleotideComponent>() && !go.GetComponent<NucleotideComponent>().IsBackbone)
+            if (go.GetComponent<NucleotideComponent>() != null)
             {
-                List<GameObject> nucleotides = GetNucleotides(s_copied, go);
+                List<GameObject> nucleotides = null;
+                if (s_currNucleotides == null)
+                {
+                    nucleotides = GetNucleotides(s_copied, go);
+                }
                 bool valid = IsValid(nucleotides);
                 UnhighlightNucleotideSelection(s_currNucleotides, false);
                 s_currNucleotides = nucleotides;
-
-                /*if (valid)
-                {
-                    HighlightNucleotideSelection(s_currNucleotides, valid);
-                }
-                else
-                {
-                    HighlightNucleotideSelection(s_currNucleotides, !valid);
-                }*/
                 HighlightNucleotideSelection(s_currNucleotides, valid);
 
-                Debug.Log("Finished highlighting hovering strand!");
+                //Debug.Log("Finished highlighting hovering strand!");
 
 
-                if (triggerValue && triggerReleased)
+                if (_device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue) && triggerValue && triggerReleased)
                 {
                     triggerReleased = false;
                     UnhighlightNucleotideSelection(s_currNucleotides, false);

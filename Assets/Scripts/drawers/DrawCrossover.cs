@@ -167,10 +167,11 @@ public class DrawCrossover : MonoBehaviour
         Strand secondStr = Utils.GetStrand(second);
 
         // Bools help check if strands should merge with neighbors when xover is deleted or undo.
-        bool firstIsEnd = first == firstStr.Head || first == firstStr.Tail;
-        bool secondIsEnd = second == secondStr.Head || second == secondStr.Tail;
         bool firstIsHead = first == firstStr.Head;
-        ICommand command = new XoverCommand(first, second, firstIsEnd, secondIsEnd, firstIsHead);
+        bool firstIsTail = first == firstStr.Tail;
+        bool secondIsHead = second == secondStr.Head;
+        bool secondIsEnd = secondIsHead || second == secondStr.Tail;
+        ICommand command = new XoverCommand(first, second, firstIsHead, firstIsTail, secondIsHead, secondIsEnd);
         CommandManager.AddCommand(command);
         //command.Do();
     }
@@ -178,7 +179,7 @@ public class DrawCrossover : MonoBehaviour
     /// <summary>
     /// Splits strands (if necessary), draws xover, and merges strands connected by xover
     /// </summary>
-    public static GameObject CreateXover(GameObject startGO, GameObject endGO)
+    public static GameObject CreateXover(GameObject startGO, GameObject endGO, bool splitFirstAfter = false)
     {
         if (!IsValid(startGO, endGO))
         {
@@ -188,8 +189,8 @@ public class DrawCrossover : MonoBehaviour
         NucleotideComponent firstNtc = startGO.GetComponent<NucleotideComponent>();
         NucleotideComponent secondNtc = endGO.GetComponent<NucleotideComponent>();
 
-        DrawSplit.SplitStrand(startGO, s_numStrands, Strand.GetDifferentColor(firstNtc.Color), false);
-        DrawSplit.SplitStrand(endGO, s_numStrands, Strand.GetDifferentColor(secondNtc.Color), true);
+        DrawSplit.SplitStrand(startGO, s_numStrands, Strand.GetDifferentColor(firstNtc.Color), splitFirstAfter);
+        DrawSplit.SplitStrand(endGO, s_numStrands, Strand.GetDifferentColor(secondNtc.Color), !splitFirstAfter);
 
         GameObject xover = CreateXoverHelper(startGO, endGO);
 
@@ -244,22 +245,22 @@ public class DrawCrossover : MonoBehaviour
     /// <summary>
     /// Removes given crossover and creates a new strand with given strand id and color due to crossover deletion.
     /// </summary>
-    public static void EraseXover(GameObject xover, int strandId, Color color, bool splitBefore)
+    public static void EraseXover(GameObject xover, int strandId, Color color, bool splitAfter)
     {
         XoverComponent xoverComp = xover.GetComponent<XoverComponent>();
         GameObject nucleotide;
 
-        if (splitBefore)
-        {
-            nucleotide = xoverComp.NextGO;
-        }
-        else
+        if (splitAfter)
         {
             nucleotide = xoverComp.PrevGO;
         }
+        else
+        {
+            nucleotide = xoverComp.NextGO;
+        }
         Strand strand = s_strandDict[xoverComp.StrandId];
         strand.DeleteXover(xover);
-        DrawSplit.SplitStrand(nucleotide, strandId, color, !splitBefore); // CHECK THIS
+        DrawSplit.SplitStrand(nucleotide, strandId, color, splitAfter); // CHECK THIS
     }
 
     /* public static void SplitStrand(GameObject go, int id, Color color, bool splitAfter)

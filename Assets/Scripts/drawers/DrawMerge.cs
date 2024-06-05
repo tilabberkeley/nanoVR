@@ -178,13 +178,13 @@ public class DrawMerge
 
         if (isHead)
         {
-            firstStrand.AddToHead(backbone);
+            firstStrand.AddBackboneToHead(backbone);
             if (!circularStrand) firstStrand.AddToHead(secondStrand.Nucleotides);
             else firstStrand.ShowHideCone(false);
         }
         else
         {
-            firstStrand.AddToTail(backbone);
+            firstStrand.AddBackboneToTail(backbone);
             if (!circularStrand) firstStrand.AddToTail(secondStrand.Nucleotides);
             else firstStrand.ShowHideCone(false);
         }
