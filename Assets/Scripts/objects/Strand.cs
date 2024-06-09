@@ -793,11 +793,11 @@ public class Strand
     /// <summary>
     /// Activates or deactivates all domain components of this strand based on input.
     /// </summary>
-    public void SetDomainActivity(bool activity)
+    public void SetDomainActivity(bool active)
     {
         foreach (DomainComponent domain in _domains)
         {
-            domain.gameObject.SetActive(activity);
+            domain.gameObject.SetActive(active);
         }
     }
 }

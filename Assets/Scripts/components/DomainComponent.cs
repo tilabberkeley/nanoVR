@@ -43,7 +43,11 @@ public class DomainComponent : MonoBehaviour
 
     public void DeleteBezier()
     {
-
+        if (_beziers.Count > 0)
+        {
+            foreach (GameObject bezier in _beziers) { GameObject.Destroy(bezier); }
+            _beziers.Clear();
+        }
     }
 
     public void ShowHideCone(bool enabled)
@@ -59,6 +63,7 @@ public class DomainComponent : MonoBehaviour
             nucleotide.Complement.gameObject.SetActive(true);
         }
 
+        DeleteBezier();
         // Should deactivate itself to allow interaction with nucleotides
         gameObject.SetActive(false);
     }
@@ -71,6 +76,7 @@ public class DomainComponent : MonoBehaviour
             nucleotide.Complement.gameObject.SetActive(false);
         }
 
+        DrawBezier();
         // Should activate itself if nucleotides aren't visable
         gameObject.SetActive(true);
     }
