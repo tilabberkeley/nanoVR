@@ -364,25 +364,23 @@ public static class DrawPoint
         return meshGO;
     }
 
-    public static GameObject MakeDomainCollider(List<DNAComponent> domain)
+    public static DomainComponent MakeDomain(List<DNAComponent> dnaList)
     {
-        GameObject domainCollider = Instantiate(DomainCollider,
+        GameObject domain = Instantiate(Domain,
                    Vector3.zero,
-                   Quaternion.identity) as GameObject;
+                   Quaternion.identity);
 
-        DomainComponent dc = domainCollider.GetComponent<DomainComponent>();
-        CapsuleCollider cc = domainCollider.GetComponent<CapsuleCollider>();
+        DomainComponent domainComponent = domain.GetComponent<DomainComponent>();
 
-        foreach (DNAComponent nucleotide in domain)
+        foreach (DNAComponent nucleotide in dnaList)
         {
-            dc.Nucleotides.Add(nucleotide);
-            nucleotide.Domain = dc;
+            domainComponent.Nucleotides.Add(nucleotide);
+            nucleotide.Domain = domainComponent;
         }
 
-        cc.center = Vector3.Lerp(domain[0].transform.position, domain.Last().transform.position, 0.5f);
-        cc.height = Vector3.Distance(domain[0].transform.position, domain.Last().transform.position) / 2;
+        domainComponent.UpdateCapsuleCollider();
 
-        return domainCollider;
+        return domainComponent;
     }
 }
 

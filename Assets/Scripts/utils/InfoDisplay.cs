@@ -122,7 +122,6 @@ public class InfoDisplay : MonoBehaviour
         if (s_visualMode)
         {
             s_visStrandDict.TryGetValue(strandId, out strand);
-
         }
         else
         {

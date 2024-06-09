@@ -45,6 +45,7 @@ public class ViewingPerspective : MonoBehaviour
             strand.DeleteBezier();
             strand.ShowHideCone(true);
             strand.ShowHideXovers(true);
+            strand.SetDomainActivity(false);
         }
         foreach (Helix helix in s_helixDict.Values)
         {
@@ -78,6 +79,7 @@ public class ViewingPerspective : MonoBehaviour
             strand.ShowHideCone(false);
             strand.ShowHideXovers(false);
             strand.DrawBezier();
+            strand.SetDomainActivity(true);
             yield return new WaitForEndOfFrame();
         }
     }

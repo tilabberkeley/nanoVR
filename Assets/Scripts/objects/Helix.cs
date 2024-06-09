@@ -35,7 +35,9 @@ public class Helix
     public int Length { get { return _length; } }
 
     // Grid Component that helix is on.
+    // TODO: make all public references to _gridComponent use the property instead.
     public GridComponent _gridComponent;
+    public GridComponent GridComponent { get { return _gridComponent; } }
 
     // Mesh Combiner component of GridComponent.
     private MeshCombiner _meshCombiner;
