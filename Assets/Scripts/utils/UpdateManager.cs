@@ -150,7 +150,6 @@ public class UpdateManager : MonoBehaviour
         if (triggerReleased && triggerValue && hit)
         {
             triggerReleased = false;
-
             // clicking grid circle
             GridComponent gc = s_hit.collider.GetComponent<GridComponent>();
             if (gc != null)

@@ -455,7 +455,7 @@ public abstract class DNAGrid
         CommandManager.AddCommand(command);
     }
 
-    public void AddHelix(int id, Vector3 startPoint, int length, string orientation, GridComponent gridComponent)
+    public Helix AddHelix(int id, Vector3 startPoint, int length, string orientation, GridComponent gridComponent)
     {
         Helix helix = new Helix(id, orientation, length, gridComponent);
         gridComponent.Helix = helix;
@@ -471,6 +471,7 @@ public abstract class DNAGrid
             s_helixDict.Add(id, helix);
             s_numHelices += 1;
         }
+        return helix;
      }
 
     public void ChangeStencilView()

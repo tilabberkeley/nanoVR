@@ -125,7 +125,7 @@ public class Strand
             {
                 _color = Colors[s_numStrands % Colors.Length];
             }
-            SetComponents(); // Updates all strand objects colors
+            SetColors(); // Updates all strand objects colors
         } 
     }
 
@@ -559,11 +559,14 @@ public class Strand
 
             domain.Add(dnaComp);
             
-            if (i == 0 || (ntc != null && ntc.HasXover))
+            if (ntc != null && i > 0 && _nucleotides[i - 1].GetComponent<NucleotideComponent>() != null)
             {
-                XoverComponent xoverComp = ntc.Xover.GetComponent<XoverComponent>();
-                xoverComp.Color = _color;
-
+                if (ntc.HasXover)
+                {
+                    XoverComponent xoverComp = ntc.Xover.GetComponent<XoverComponent>();
+                    xoverComp.Color = _color;
+                }
+               
                 if (newDomain)
                 {
                     DrawPoint.MakeDomainCollider(domain);
@@ -572,13 +575,22 @@ public class Strand
                 newDomain = !newDomain; // Since xover endpoint nucleotides are sequential, this stops us from overcounting.
             }
         }
-
-        /*for (int i = 0; i < _xovers.Count; i++)
-        {
-            SetXoverColor(_xovers[i]);
-        }*/
-        //SetSequence();
+        DrawPoint.MakeDomainCollider(domain); // Draw the last domain
+        
         SetCone();
+    }
+
+    /// <summary>
+    /// Sets nucleotide and cone colors whenever Strand is set or unset to scaffold.
+    /// </summary>
+    public void SetColors()
+    {
+        for (int i = _nucleotides.Count - 1; i >= 0; i--)
+        {
+            DNAComponent dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
+            dnaComp.Color = _color;
+        }
+        _cone.GetComponent<ConeComponent>().Color = _color;
     }
 
     private void DrawDomainCollider(List<DNAComponent> domain)

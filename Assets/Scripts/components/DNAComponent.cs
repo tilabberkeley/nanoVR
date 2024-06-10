@@ -83,7 +83,7 @@ public abstract class DNAComponent : MonoBehaviour
         _selected = false;
         _strandId = -1;
         Color = s_defaultColor;
-        if (_domain != null)
+        if (_domain != null && _domain.gameObject != null)
         {
             GameObject.Destroy(_domain.gameObject);
         }
