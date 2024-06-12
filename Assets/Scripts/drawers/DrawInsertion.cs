@@ -49,7 +49,7 @@ public class DrawInsertion : MonoBehaviour
         _OKButton.onClick.AddListener(() => HideEditPanel());
         _OKButton.onClick.AddListener(() => DoEditInsertion());
         _cancelButton.onClick.AddListener(() => HideEditPanel());
-        //_inputField.onSelect.AddListener(delegate {TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
+        _inputField.onSelect.AddListener(delegate {TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
     }
 
     /*void OnEnable()
@@ -204,5 +204,6 @@ public class DrawInsertion : MonoBehaviour
     {
         _menu.enabled = s_menuEnabled;
         _editPanel.enabled = false;
+        Highlight.UnhighlightGO(EditOptionsManager.s_GO, false);
     }
 }

@@ -12,17 +12,19 @@ using UnityEngine.XR.Interaction.Toolkit;
 using Newtonsoft.Json.Linq;
 using SimpleFileBrowser;
 using System.Collections;
-using TMPro;
 using static GlobalVariables;
 using static Utils;
-using System.Threading.Tasks;
 
+/// <summary>
+/// Handles all file importing into nanoVR.
+/// </summary>
 public class FileImport : MonoBehaviour
 {
     [SerializeField] private Canvas Menu;
     [SerializeField] private Canvas loadingMenu;
     private Canvas fileBrowser;
     private static XRRayInteractor rayInteractor;
+    public static FileImport Instance;
 
     private const string PLANE = "XY";
     private const int MAX_NUCLEOTIDES = 20000;
@@ -32,6 +34,8 @@ public class FileImport : MonoBehaviour
         FileBrowser.HideDialog();
         FileBrowser.SingleClickMode = true;
         FileBrowser.Instance.enabled = false;
+        loadingMenu.enabled = false;
+        Instance = this;
 
 #if UNITY_ANDROID
         typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, (bool?)false);
@@ -64,7 +68,6 @@ public class FileImport : MonoBehaviour
     {
         fileBrowser = FileBrowser.Instance.GetComponent<Canvas>();
         fileBrowser.gameObject.SetActive(false);
-        loadingMenu.enabled = false;
         rayInteractor = GameObject.Find("RightHand Controller").GetComponent<XRRayInteractor>();
     }
 
@@ -95,6 +98,7 @@ public class FileImport : MonoBehaviour
             if (fileType.Equals(".sc") || fileType.Equals(".sc.txt"))
             {
                 //StartCoroutine(ParseSC(@fileContent, false));
+                loadingMenu.enabled = true;
                 DoFileImport(fileContent);
             }
             else if (fileType.Equals(".json"))
@@ -116,22 +120,26 @@ public class FileImport : MonoBehaviour
     {
         /*ICommand command = new ImportCommand(json);
         CommandManager.AddCommand(command);*/
-        loadingMenu.enabled = true;
         ParseSC(json);
-        loadingMenu.enabled = false;
     }
 
-    // Using LINQ JSON
-    public static async void ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
+    /// <summary>
+    /// Parses through a scadnano file and draws out all Grids, Helices, and Strands.
+    /// Also called when copy and pasting a Grid or converting the entire scene into visual mode (expanding out mutations).
+    /// </summary>
+    /// <param name="fileContents">Contents of scadnano file</param>
+    /// <param name="isCopyPaste">Whether this is being called for copy/pasting a grid</param>
+    /// <param name="visualMode">Whether this is being called for converting to visual mode</param>
+    /// <returns>List of grids created</returns>
+    public async void ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
     {
         List<DNAGrid> grids = new List<DNAGrid>();
-        // TODO: Split these in different methods?
         JObject origami = JObject.Parse(fileContents);
         JArray helices = JArray.Parse(origami["helices"].ToString());
         JArray strands = JArray.Parse(origami["strands"].ToString());
 
         /**
-         * Drawing grids
+         * Parse grids
          */
         if (origami["groups"] != null)
         {
@@ -197,10 +205,9 @@ public class FileImport : MonoBehaviour
             DrawGrid.CreateGrid(s_numGrids.ToString(), PLANE, rayInteractor.transform.position, gridType);
         }
         
-        /**
-         * Drawing helices
-         */
-        int prevNumHelices = s_numHelices;
+        int lastHelixId = s_numHelices;
+
+        // Parse helices.
         for (int i = 0; i < helices.Count; i++)
         {
             JArray coord = JArray.Parse(helices[i]["grid_position"].ToString());
@@ -217,13 +224,13 @@ public class FileImport : MonoBehaviour
             }
 
             DNAGrid grid = s_gridDict[gridName];
-            int xGrid = (int) coord[0];
-            int yGrid = (int) coord[1] * -1;
-         
+            int xGrid = (int)coord[0];
+            int yGrid = (int)coord[1] * -1;
+
             /**
              * Expands grid if necessary so that helix coordinates exist.
              */
-            GridPoint minBound = grid.MinimumBound; // TODO: Put in another method
+            GridPoint minBound = grid.MinimumBound;
             GridPoint maxBound = grid.MaximumBound;
             while (xGrid <= minBound.X)
             {
@@ -249,14 +256,71 @@ public class FileImport : MonoBehaviour
             await helix.ExtendAsync(length);
             grid.CheckExpansion(gc);
         }
-        CoRunner.Instance.Run(DrawStrands(strands, prevNumHelices));
+
+        // Parse strands.
+        StartCoroutine(ParseStrands(strands, lastHelixId));
         //return grids;
+    }
+
+    /// <summary>
+    /// Async method to parse and draw Helices from scadnano file
+    /// </summary>
+    private static async void ParseHelices(JArray helices)
+    {
+        for (int i = 0; i < helices.Count; i++)
+        {
+            JArray coord = JArray.Parse(helices[i]["grid_position"].ToString());
+            int length = (int) helices[i]["max_offset"];
+            string gridName;
+            if (helices[i]["group"] != null)
+            {
+                string origName = CleanSlash(helices[i]["group"].ToString());
+                gridName = GetGridName(origName);
+            }
+            else
+            {
+                gridName = (s_numGrids - 1).ToString();
+            }
+
+            DNAGrid grid = s_gridDict[gridName];
+            int xGrid = (int) coord[0];
+            int yGrid = (int) coord[1] * -1;
+
+            /**
+             * Expands grid if necessary so that helix coordinates exist.
+             */
+            GridPoint minBound = grid.MinimumBound;
+            GridPoint maxBound = grid.MaximumBound;
+            while (xGrid <= minBound.X)
+            {
+                grid.ExpandWest();
+            }
+            while (xGrid >= maxBound.X)
+            {
+                grid.ExpandEast();
+            }
+            while (yGrid <= minBound.Y)
+            {
+                grid.ExpandSouth();
+            }
+            while (yGrid >= maxBound.Y)
+            {
+                grid.ExpandNorth();
+            }
+
+            int xInd = grid.GridXToIndex(xGrid);
+            int yInd = grid.GridYToIndex(yGrid);
+            GridComponent gc = grid.Grid2D[xInd, yInd];
+            Helix helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
+            await helix.ExtendAsync(length);
+            grid.CheckExpansion(gc);
+        }
     }
     
     /// <summary>
-    /// Coroutine to parse and draw Strands from scadnano files
+    /// Coroutine to parse and draw Strands from scadnano file
     /// </summary>
-    private static IEnumerator DrawStrands(JArray strands, int prevNumHelices)
+    private IEnumerator ParseStrands(JArray strands, int lastHelixId)
     {
         int totalNucleotides = 0;
 
@@ -271,7 +335,7 @@ public class FileImport : MonoBehaviour
             bool isScaffold = false;
             if (strands[i]["is_scaffold"] != null)
             {
-                isScaffold = (bool)strands[i]["is_scaffold"];
+                isScaffold = (bool) strands[i]["is_scaffold"];
             }
             List<GameObject> nucleotides = new List<GameObject>();
             List<GameObject> xoverEndpoints = new List<GameObject>();
@@ -283,10 +347,10 @@ public class FileImport : MonoBehaviour
             {
                 if (domains[j]["helix"] != null)
                 {
-                    int helixId = (int)domains[j]["helix"] + prevNumHelices;
-                    bool forward = (bool)domains[j]["forward"];
-                    int startId = (int)domains[j]["start"];
-                    int endId = (int)domains[j]["end"] - 1; // End id is exclusive in .sc file
+                    int helixId = (int) domains[j]["helix"] + lastHelixId;
+                    bool forward = (bool) domains[j]["forward"];
+                    int startId = (int) domains[j]["start"];
+                    int endId = (int) domains[j]["end"] - 1; // End id is exclusive in .sc file
                     JArray deletions = new JArray();
                     JArray insertions = new JArray();
                     if (domains[j]["deletions"] != null) { deletions = JArray.Parse(domains[j]["deletions"].ToString()); }
@@ -296,13 +360,13 @@ public class FileImport : MonoBehaviour
                     // Store deletions and insertions.
                     for (int k = 0; k < deletions.Count; k++)
                     {
-                        GameObject nt = helix.GetNucleotide((int)deletions[k], Convert.ToInt32(forward));
+                        GameObject nt = helix.GetNucleotide((int) deletions[k], Convert.ToInt32(forward));
                         sDeletions.Add(nt);
                     }
                     for (int k = 0; k < insertions.Count; k++)
                     {
-                        GameObject nt = helix.GetNucleotide((int)insertions[k][0], Convert.ToInt32(forward));
-                        sInsertions.Add((nt, (int)insertions[k][1]));
+                        GameObject nt = helix.GetNucleotide((int) insertions[k][0], Convert.ToInt32(forward));
+                        sInsertions.Add((nt, (int) insertions[k][1]));
                     }
 
                     // Store domains of strand.
@@ -312,23 +376,23 @@ public class FileImport : MonoBehaviour
                     // Store xover endpoints.
                     if (j == 0)
                     {
-                        xoverEndpoints.Add(domain[0]);
+                        xoverEndpoints.Insert(0, domain[0]);
                     }
                     else if (j == domains.Count - 1)
                     {
-                        xoverEndpoints.Add(domain.Last());
+                        xoverEndpoints.Insert(0, domain.Last());
                     }
                     else
                     {
-                        xoverEndpoints.Add(domain.Last());
-                        xoverEndpoints.Add(domain[0]);
+                        xoverEndpoints.Insert(0, domain.Last());
+                        xoverEndpoints.Insert(0, domain[0]);
                     }
                 }
                 else // Parse loopout
                 {
-                    int loopoutLength = (int)domains[j]["loopout"];
-                    GameObject prevEndpoint = xoverEndpoints.Last();
-                    loopouts[prevEndpoint] = loopoutLength;
+                    int loopoutLength = (int) domains[j]["loopout"];
+                    GameObject nextEndpoint = xoverEndpoints[0];
+                    loopouts[nextEndpoint] = loopoutLength;
                 }
             }
 
@@ -336,18 +400,17 @@ public class FileImport : MonoBehaviour
             totalNucleotides += nucleotides.Count;
 
             // Add xovers to strand object.
-            xoverEndpoints.Reverse();
             for (int j = 1; j < xoverEndpoints.Count; j += 2)
             {
-                GameObject prevGO = xoverEndpoints[j];
-                if (loopouts.ContainsKey(prevGO))
+                GameObject nextGO = xoverEndpoints[j];
+                if (loopouts.ContainsKey(nextGO))
                 {
                     // TODO: Check this works
-                    strand.Xovers.Add(DrawLoopout.CreateLoopoutHelper(prevGO, xoverEndpoints[j - 1], loopouts[prevGO]));
+                    strand.Xovers.Add(DrawLoopout.CreateLoopoutHelper(xoverEndpoints[j - 1], nextGO, loopouts[nextGO]));
                 }
                 else
                 {
-                    strand.Xovers.Add(DrawCrossover.CreateXoverHelper(prevGO, xoverEndpoints[j - 1]));
+                    strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], nextGO));
                 }
             }
 
@@ -364,6 +427,8 @@ public class FileImport : MonoBehaviour
             Togglers.StrandViewToggled();
             ViewingPerspective.Instance.ViewStrand();
         }
+
+        loadingMenu.enabled = false;
     }
 
     /// <summary>

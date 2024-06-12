@@ -40,7 +40,7 @@ public class ExpandStrands : MonoBehaviour
             go.SetActive(false);
         }
         //StartCoroutine(ParseSC(json));
-        FileImport.ParseSC(json, false, true); // TODO: Test this
+        FileImport.Instance.ParseSC(json, false, true); // TODO: Test this
     }
 
     public void ConvertToEditMode()

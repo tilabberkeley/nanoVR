@@ -208,20 +208,6 @@ public class FileExport : MonoBehaviour
                     continue;
                 }
 
-                // Adds loopout objects
-                if (ntc.HasXover)
-                {
-                    LoopoutComponent loopComp = ntc.Xover.GetComponent<LoopoutComponent>();
-                    if (loopComp != null && loopComp.PrevGO == ntc.gameObject)
-                    {
-                        JObject loopout = new JObject
-                        {
-                            ["loopout"] = loopComp.SequenceLength,
-                        };
-                        domains.Add(loopout);
-                    }
-                }
-
                 if (ntc.IsDeletion)
                 {
                     deletions.Add(ntc.Id);
@@ -260,6 +246,20 @@ public class FileExport : MonoBehaviour
                     domains.Add(domain);
                     insertions.Clear();
                     deletions.Clear();
+                }
+
+                // Adds loopout objects
+                if (ntc.HasXover)
+                {
+                    LoopoutComponent loopComp = ntc.Xover.GetComponent<LoopoutComponent>();
+                    if (loopComp != null && loopComp.NextGO == ntc.gameObject)
+                    {
+                        JObject loopout = new JObject
+                        {
+                            ["loopout"] = loopComp.SequenceLength,
+                        };
+                        domains.Add(loopout);
+                    }
                 }
             }
 

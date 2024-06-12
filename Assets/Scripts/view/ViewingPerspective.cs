@@ -63,7 +63,7 @@ public class ViewingPerspective : MonoBehaviour
             helix.ChangeRendering();
         }
 
-        StartCoroutine(ViewStrandHelper());
+        CoRunner.Instance.Run(ViewStrandHelper());
     }
 
     /// <summary>

@@ -19,6 +19,11 @@ public class LoopoutSequenceEdit : MonoBehaviour
     private static LoopoutComponent s_loopout;
     public static LoopoutComponent Loopout { set { s_loopout = value; } }
 
+    private void Start()
+    {
+        _sequenceInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
+    }
+
     /// <summary>
     /// Sets loopout DNA sequence. Called by Loopout Sequence Edit OK button.
     /// </summary>
@@ -49,8 +54,6 @@ public class LoopoutSequenceEdit : MonoBehaviour
         s_loopout.Sequence = sequence;
     }
 
-
-
     /// <summary>
     /// Checks that DNA sequence only has A, T, G, and C.
     /// </summary>
@@ -71,5 +74,6 @@ public class LoopoutSequenceEdit : MonoBehaviour
     public void HideMenu()
     {
         _loopoutSequenceEditMenu.enabled = false;
+        Highlight.UnhighlightGO(EditOptionsManager.s_GO, false);
     }
 }

@@ -295,5 +295,6 @@ public class DrawLoopout : MonoBehaviour
     {
         _menu.enabled = s_menuEnabled;
         _editPanel.enabled = false;
+        Highlight.UnhighlightGO(EditOptionsManager.s_GO, false);
     }
 }

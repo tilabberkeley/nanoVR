@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
 using static GlobalVariables;
+using Oculus.Interaction.PoseDetection;
 
 /// <summary>
 /// Strand object keeps track of an individual strand of nucleotides.
@@ -142,20 +143,21 @@ public class Strand
             {
                 _lengthWasChanged = false;
                 int count = 0;
-                foreach (GameObject nucl in _nucleotides)
+                for (int i = _nucleotides.Count - 1; i >=0; i--)
                 {
-                    NucleotideComponent ntc = nucl.GetComponent<NucleotideComponent>();
+                    NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
                     if (ntc != null)
                     {
                         count += 1 + ntc.Insertion;
                     }
-                }
-                foreach (GameObject xover in _xovers)
-                {
-                    LoopoutComponent loopComp = xover.GetComponent<LoopoutComponent>();
-                    if (loopComp != null)
+
+                    if (ntc.HasXover)
                     {
-                        count += loopComp.SequenceLength;
+                        LoopoutComponent loopComp = ntc.Xover.GetComponent<LoopoutComponent>();
+                        if (loopComp != null && loopComp.NextGO == ntc.gameObject)
+                        {
+                            count += loopComp.SequenceLength;
+                        }
                     }
                 }
                 _length = count;
@@ -623,18 +625,6 @@ public class Strand
             // Sets DNA sequence to nucleotides
             if (ntc != null)
             {
-                if (ntc.HasXover)
-                {
-                    LoopoutComponent loopComp = ntc.Xover.GetComponent<LoopoutComponent>();
-                    //SequenceComponent loopSequence = ntc.Xover.GetComponent<SequenceComponent>();
-
-                    if (loopComp != null && loopComp.PrevGO == ntc.gameObject)
-                    {
-                        loopComp.Sequence = sequence.Substring(seqCount, loopComp.SequenceLength);
-                        seqCount += loopComp.SequenceLength;
-                    }
-                }
-
                 if (ntc.IsDeletion)
                 {
                     ntc.Sequence = "X";
@@ -643,6 +633,18 @@ public class Strand
                 {
                     ntc.Sequence = sequence.Substring(seqCount, ntc.Insertion + 1); // TODO: Change ntc.Insertion to seqComp.SequenceLength??
                     seqCount += ntc.Insertion + 1;
+                }
+
+                if (ntc.HasXover)
+                {
+                    LoopoutComponent loopComp = ntc.Xover.GetComponent<LoopoutComponent>();
+                    //SequenceComponent loopSequence = ntc.Xover.GetComponent<SequenceComponent>();
+
+                    if (loopComp != null && loopComp.NextGO == ntc.gameObject)
+                    {
+                        loopComp.Sequence = sequence.Substring(seqCount, loopComp.SequenceLength);
+                        seqCount += loopComp.SequenceLength;
+                    }
                 }
             }
         }
