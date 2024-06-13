@@ -69,7 +69,7 @@ public static class GlobalVariables
     private static GameObject _gridCircle = Resources.Load("GridCircle") as GameObject;
     private static GameObject _gizmos = Resources.Load("Gizmos") as GameObject;
     private static GameObject _loopout = Resources.Load("Loopout") as GameObject;
-    private static GameObject _domainCollider = Resources.Load("DomainCollider") as GameObject;
+    private static GameObject _domain = Resources.Load("Domain") as GameObject;
 
     public static GameObject Nucleotide { get { return _nucleotide; } }
     public static GameObject Cone { get { return _cone; } }
@@ -79,7 +79,7 @@ public static class GlobalVariables
     public static GameObject GridCircle { get { return _gridCircle; } }
     public static GameObject Loopout { get { return _loopout; } }
     public static GameObject Gizmos { get { return _gizmos; } }
-    public static GameObject DomainCollider { get => _domainCollider; }
+    public static GameObject Domain { get => _domain; }
 
 
     // Strand colors

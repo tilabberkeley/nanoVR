@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
 using static GlobalVariables;
-using Oculus.Interaction.PoseDetection;
+using static UnityEngine.EventSystems.EventTrigger;
 
 /// <summary>
 /// Strand object keeps track of an individual strand of nucleotides.
@@ -18,7 +18,7 @@ public class Strand
     private const int PERIOD = 10;
     private const int START_OFFSET_3_5 = 3; // First crossover suggestion begins on the fourth nucleotide of helix going from 3->5.
     private const int START_OFFSET_5_3 = 8; // First crossover suggestion begins on the fourth nucleotide of helix going from 5->3.
-    private const int BEZIER_COUNT = 128;    // Number of nucleotides (including backbones) included in one "Bezier" of the Strand View.
+    public const int BEZIER_COUNT = 128;    // Number of nucleotides (including backbones) included in one "Bezier" of the Strand View.
 
     // List of nucleotide and backbone GameObjects included in this strand.
     private List<GameObject> _nucleotides;
@@ -82,6 +82,7 @@ public class Strand
     private List<GameObject> _beziers;
 
     private List<DomainComponent> _domains;
+    public List<DomainComponent> Domains { get { return _domains; } }
 
     /// <summary>
     /// Whether or not _sequence has potentially changed since last Sequence call.
@@ -560,25 +561,26 @@ public class Strand
             dnaComp.Color = _color;
 
             domain.Add(dnaComp);
-            
-            if (ntc != null && i > 0 && _nucleotides[i - 1].GetComponent<NucleotideComponent>() != null)
+
+            if (ntc != null && ntc.HasXover)
             {
-                if (ntc.HasXover)
-                {
-                    XoverComponent xoverComp = ntc.Xover.GetComponent<XoverComponent>();
-                    xoverComp.Color = _color;
-                }
-               
+                XoverComponent xoverComp = ntc.Xover.GetComponent<XoverComponent>();
+                xoverComp.Color = _color;
+
                 if (newDomain)
                 {
-                    DrawPoint.MakeDomainCollider(domain);
+                    // DomainComponent domainComponent = DrawPoint.MakeDomainCollider(domain);
+                    // _domains.Add(domainComponent);
                     domain.Clear();
                 }
                 newDomain = !newDomain; // Since xover endpoint nucleotides are sequential, this stops us from overcounting.
             }
         }
-        DrawPoint.MakeDomainCollider(domain); // Draw the last domain
-        
+
+        DomainComponent domainComponent = DrawPoint.MakeDomain(domain);
+        _domains.Add(domainComponent);
+        Debug.Log("Created domain");
+
         SetCone();
     }
 
@@ -593,12 +595,6 @@ public class Strand
             dnaComp.Color = _color;
         }
         _cone.GetComponent<ConeComponent>().Color = _color;
-    }
-
-    private void DrawDomainCollider(List<DNAComponent> domain)
-    {
-        GameObject domainCollider = DrawPoint.MakeDomainCollider(domain);
-
     }
 
     public void SetSequence(string sequence)
@@ -806,5 +802,16 @@ public class Strand
             return Colors[(s_numStrands + 1) % Colors.Length];
         }
         return nextColor;
+    }
+
+    /// <summary>
+    /// Activates or deactivates all domain components of this strand based on input.
+    /// </summary>
+    public void SetDomainActivity(bool active)
+    {
+        foreach (DomainComponent domain in _domains)
+        {
+            domain.gameObject.SetActive(active);
+        }
     }
 }

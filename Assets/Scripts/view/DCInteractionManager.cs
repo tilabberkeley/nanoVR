@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR;
 using static GlobalVariables;
+using UnityEngine.EventSystems;
 
 public class DCInteractionManager : MonoBehaviour
 {
@@ -69,22 +70,23 @@ public class DCInteractionManager : MonoBehaviour
         if (leftTriggerValue && leftReleased && leftRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             leftReleased = false;
-            DomainComponent dc = s_hit.collider.GetComponent<DomainComponent>();
-            if (dc != null)
+            DomainComponent domainComponent = s_hit.collider.GetComponent<DomainComponent>();
+            if (domainComponent != null)
             {
-                domains.Add(dc);
-                dc.ShowNucleotides();
+                domains.Add(domainComponent);
+                // HAVE TO DELETE STRAND BEZIERS
+                domainComponent.ShowNucleotides();
             }
         }
 
         if (rightTriggerValue && rightReleased && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             rightReleased = false;
-            DomainComponent dc = s_hit.collider.GetComponent<DomainComponent>();
-            if (dc != null)
+            DomainComponent domainComponent = s_hit.collider.GetComponent<DomainComponent>();
+            if (domainComponent != null)
             {
-                domains.Add(dc);
-                dc.ShowNucleotides();
+                domains.Add(domainComponent);
+                domainComponent.ShowNucleotides();
             }
         }
 
@@ -110,10 +112,5 @@ public class DCInteractionManager : MonoBehaviour
         {
             rightReleased = true;
         }
-    }
-
-    public void ShowDomainNucleotides(DomainComponent domain)
-    {
-        domain.ShowNucleotides();
     }
 }
