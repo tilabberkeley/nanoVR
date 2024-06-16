@@ -57,7 +57,7 @@ public class LoopoutCommand : ICommand
         _loopout = startGO.GetComponent<NucleotideComponent>().Xover;
         int prevStrandId = _loopout.GetComponent<XoverComponent>().PrevStrandId;
 
-        _prevColor = _loopout.GetComponent<XoverComponent>().SavedColor;
+        // _prevColor = _loopout.GetComponent<XoverComponent>().SavedColor;
 
         DrawLoopout.EraseLoopout(_loopout, prevStrandId, _prevColor, _firstIsHead);
         if (!_firstIsEnd) { DrawMerge.MergeStrand(startGO); }

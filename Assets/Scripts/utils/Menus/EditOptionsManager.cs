@@ -19,7 +19,7 @@ public class EditOptionsManager : MonoBehaviour
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rayInteractor;
-    private static GameObject s_GO;
+    public static GameObject s_GO;
     private bool gripReleased = true;
 
     // Edit Options UI elements
@@ -134,7 +134,7 @@ public class EditOptionsManager : MonoBehaviour
         Highlight.UnhighlightGO(s_GO, false);
     }
 
-    private void ShowCorrectButtons() // TODO: Add loopout button functionality
+    private void ShowCorrectButtons()
     {
         NucleotideComponent ntc = s_GO.GetComponent<NucleotideComponent>();
         LoopoutComponent loopoutComp = s_GO.GetComponent<LoopoutComponent>();
@@ -212,10 +212,12 @@ public class EditOptionsManager : MonoBehaviour
         _insEditMenu.enabled = true;
     }
 
-    private void ShowLoopoutLengthEdit()
+    public void ShowLoopoutLengthEdit()
     {
         _editMenu.enabled = false;
         _loopoutLengthEditMenu.enabled = true;
+        DrawLoopout.s_loopout = s_GO;
+        GetComponent<DrawLoopout>().ShowEditPanel();
     }
 
     private void ShowLoopoutSequenceEdit()

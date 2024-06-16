@@ -12,13 +12,11 @@ public class ViewingPerspective : MonoBehaviour
     /// Singleton which provides a single static instance for this class. Allows other
     /// scripts to access instance methods in this class.
     /// </summary>
-    #region Singleton
-    public static ViewingPerspective instance;
-    #endregion
+    public static ViewingPerspective Instance;
 
     private void Awake()
     {
-        instance = this;
+        Instance = this;
     }
 
     /// <summary>
@@ -66,7 +64,7 @@ public class ViewingPerspective : MonoBehaviour
             helix.ChangeRendering();
         }
 
-        StartCoroutine(ViewStrandHelper());
+        CoRunner.Instance.Run(ViewStrandHelper());
     }
 
     /// <summary>
@@ -80,7 +78,7 @@ public class ViewingPerspective : MonoBehaviour
             strand.ShowHideXovers(false);
             strand.DrawBezier();
             strand.SetDomainActivity(true);
-            yield return new WaitForEndOfFrame();
+            yield return null;
         }
     }
 

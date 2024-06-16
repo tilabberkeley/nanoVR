@@ -15,11 +15,16 @@ using System.Collections;
 using static GlobalVariables;
 using static Utils;
 
+/// <summary>
+/// Handles all file importing into nanoVR.
+/// </summary>
 public class FileImport : MonoBehaviour
 {
     [SerializeField] private Canvas Menu;
+    [SerializeField] private Canvas loadingMenu;
     private Canvas fileBrowser;
     private static XRRayInteractor rayInteractor;
+    public static FileImport Instance;
 
     private const string PLANE = "XY";
     private const int MAX_NUCLEOTIDES = 20000;
@@ -29,6 +34,8 @@ public class FileImport : MonoBehaviour
         FileBrowser.HideDialog();
         FileBrowser.SingleClickMode = true;
         FileBrowser.Instance.enabled = false;
+        loadingMenu.enabled = false;
+        Instance = this;
 
 #if UNITY_ANDROID
         typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, (bool?)false);
@@ -91,6 +98,7 @@ public class FileImport : MonoBehaviour
             if (fileType.Equals(".sc") || fileType.Equals(".sc.txt"))
             {
                 //StartCoroutine(ParseSC(@fileContent, false));
+                loadingMenu.enabled = true;
                 DoFileImport(fileContent);
             }
             else if (fileType.Equals(".json"))
@@ -112,215 +120,30 @@ public class FileImport : MonoBehaviour
     {
         /*ICommand command = new ImportCommand(json);
         CommandManager.AddCommand(command);*/
-        StartCoroutine(ParseSC(json));
+        ParseSC(json);
     }
 
-    /* public static List<DNAGrid> ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
-     {
-         List<DNAGrid> grids = new List<DNAGrid>();
-         JSONNode origami = JSON.Parse(fileContents);
-         JSONArray helices = origami["helices"].AsArray;
-         JSONArray strands = origami["strands"].AsArray;
-         if (origami["groups"] != null)
-         {
-             JSONNode groupObject = JSONNode.Parse(origami["groups"]);
-             Dictionary<string, JSONNode> groups = groupObject.AsObject;
-             foreach (var item in groups)
-             {
-                 string origName = CleanSlash(item.Key);
-                 string gridName = origName;
-                 if (!visualMode)
-                 {
-                     gridName = GetGridName(origName);
-                     UpdateGridCopies(origName);
-                 }
-                 dynamic info = item.Value;
-                 float x = 0;
-                 float y = 0;
-                 float z = 0;
-                 if (info["position"] != null)
-                 {
-                     x = (float)info["position"]["x"];
-                     y = (float)info["position"]["y"];
-                     z = (float)info["position"]["z"];
-                 }
-                 string gridType = CleanSlash(info["grid"].ToString());
-                 Vector3 startPos;
-                 if (isCopyPaste)
-                 {
-                     startPos = rayInteractor.transform.position;
-                 }
-                 else
-                 {
-                     startPos = new Vector3(x, y, z);
-                 }
-                 DNAGrid grid = DrawGrid.CreateGrid(gridName, PLANE, startPos, gridType);
-                 grids.Add(grid);
-
-                 // Handle rotation
-                 float pitch = 0f;
-                 float roll = 0f;
-                 float yaw = 0f;
-                 if (info["pitch"] != null)
-                 {
-                     yaw = (float)info["pitch"];
-                 }
-                 if (info["roll"] != null)
-                 {
-                     roll = (float)info["roll"];
-                 }
-                 if (info["yaw"] != null)
-                 {
-                     pitch = (float)info["yaw"];
-                 }
-                 if (pitch > 0 || roll > 0 || yaw > 0)
-                 {
-                     grid.Rotate(pitch, roll, yaw);
-                 }
-             }
-         }
-         else
-         {
-             string gridType = CleanSlash(origami["grid"].ToString());
-             DrawGrid.CreateGrid(s_numGrids.ToString(), PLANE, rayInteractor.transform.position, gridType);
-         }
-
-         int prevNumHelices = s_numHelices;
-         for (int i = 0; i < helices.Count; i++)
-         {
-             dynamic coord = JArray.Parse(helices[i]["grid_position"].ToString());
-             int length = (int)helices[i]["max_offset"];
-             string gridName;
-             if (helices[i]["group"] != null)
-             {
-                 string origName = CleanSlash(helices[i]["group"].ToString());
-                 gridName = GetGridName(origName);
-             }
-             else
-             {
-                 gridName = (s_numGrids - 1).ToString();
-             }
-
-             DNAGrid grid = s_gridDict[gridName];
-             int xInd = grid.GridXToIndex((int)coord[0]);
-             int yInd = grid.GridYToIndex((int)coord[1]);
-             GridComponent gc = grid.Grid2D[xInd, yInd];
-             grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
-             grid.CheckExpansion(gc);
-         }
-
-         for (int i = 0; i < strands.Count; i++)
-         {
-             dynamic domains = JArray.Parse(strands[i]["domains"].ToString());
-             string sequence = CleanSlash(strands[i]["sequence"].ToString());
-             string hexColor = CleanSlash(strands[i]["color"].ToString());
-             ColorUtility.TryParseHtmlString(hexColor, out Color color);
-             int strandId = s_numStrands;
-             bool isScaffold = false;
-             if (strands[i]["is_scaffold"] != null)
-             {
-                 isScaffold = (bool)strands[i]["is_scaffold"];
-             }
-             List<GameObject> nucleotides = new List<GameObject>();
-             List<GameObject> xoverEndpoints = new List<GameObject>();
-             List<GameObject> sDeletions = new List<GameObject>();
-             List<(GameObject, int)> sInsertions = new List<(GameObject, int)>();
-             Dictionary<GameObject, int> loopouts = new Dictionary<GameObject, int>();
-
-             for (int j = 0; j < domains.Count; j++)
-             {
-                 if (domains[j]["helix"] != null)
-                 {
-                     int helixId = (int)domains[j]["helix"] + prevNumHelices;
-                     bool forward = (bool)domains[j]["forward"];
-                     int startId = (int)domains[j]["start"];
-                     int endId = (int)domains[j]["end"] - 1; // End id is exclusive in .sc file
-                     dynamic deletions = new JArray();
-                     dynamic insertions = new JArray();
-                     if (domains[j]["deletions"] != null) { deletions = JArray.Parse(domains[j]["deletions"].ToString()); }
-                     if (domains[j]["insertions"] != null) { insertions = JArray.Parse(domains[j]["insertions"].ToString()); }
-                     Helix helix = s_helixDict[helixId];
-
-                     // Store deletions and insertions.
-                     for (int k = 0; k < deletions.Count; k++)
-                     {
-                         GameObject nt = helix.GetNucleotide((int)deletions[k], Convert.ToInt32(forward));
-                         sDeletions.Add(nt);
-                     }
-                     for (int k = 0; k < insertions.Count; k++)
-                     {
-                         GameObject nt = helix.GetNucleotide((int)insertions[k][0], Convert.ToInt32(forward));
-                         sInsertions.Add((nt, (int)insertions[k][1]));
-                     }
-
-                     // Store domains of strand.
-                     List<GameObject> domain = helix.GetHelixSub(startId, endId, Convert.ToInt32(forward));
-                     nucleotides.InsertRange(0, domain);
-
-                     // Store xover endpoints.
-                     if (j == 0)
-                     {
-                         xoverEndpoints.Add(domain[0]);
-                     }
-                     else if (j == domains.Count - 1)
-                     {
-                         xoverEndpoints.Add(domain.Last());
-                     }
-                     else
-                     {
-                         xoverEndpoints.Add(domain.Last());
-                         xoverEndpoints.Add(domain[0]);
-                     }
-                 }
-                 else // Parse loopout
-                 {
-                     int loopoutLength = (int)domains[j]["loopout"];
-                     GameObject prevEndpoint = xoverEndpoints.Last();
-                     loopouts[prevEndpoint] = loopoutLength;
-                 }
-             }
-
-             Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
-
-             // Add xovers to strand object.
-             xoverEndpoints.Reverse();
-             for (int j = 1; j < xoverEndpoints.Count; j += 2)
-             {
-                 GameObject prevGO = xoverEndpoints[j];
-                 if (loopouts.ContainsKey(prevGO))
-                 {
-                     strand.Xovers.Add(DrawLoopout.CreateLoopoutHelper(prevGO, xoverEndpoints[j - 1], loopouts[prevGO]));
-                 }
-                 else
-                 {
-                     strand.Xovers.Add(DrawCrossover.CreateXoverHelper(prevGO, xoverEndpoints[j - 1]));
-                 }
-             }
-
-             // Set sequence and check for mismatches with complement strands
-             strand.Sequence = sequence;
-             CheckMismatch(strand);
-
-         }
-         return grids;
-     }
- */
-    /*public static List<DNAGrid> ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
+    /// <summary>
+    /// Parses through a scadnano file and draws out all Grids, Helices, and Strands.
+    /// Also called when copy and pasting a Grid or converting the entire scene into visual mode (expanding out mutations).
+    /// </summary>
+    /// <param name="fileContents">Contents of scadnano file</param>
+    /// <param name="isCopyPaste">Whether this is being called for copy/pasting a grid</param>
+    /// <param name="visualMode">Whether this is being called for converting to visual mode</param>
+    /// <returns>List of grids created</returns>
+    public async void ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
     {
-        JsonTextReader reader = new JsonTextReader(new StringReader(fileContents));
         List<DNAGrid> grids = new List<DNAGrid>();
+        JObject origami = JObject.Parse(fileContents);
+        JArray helices = JArray.Parse(origami["helices"].ToString());
+        JArray strands = JArray.Parse(origami["strands"].ToString());
 
-        *//*while (reader.Read())
-        {
-
-        }*//*
-        // TODO: Split these in different methods?
-        dynamic origami = JObject.Parse(fileContents);
-        dynamic helices = JArray.Parse(origami["helices"].ToString());
-        dynamic strands = JArray.Parse(origami["strands"].ToString());
+        /**
+         * Parse grids
+         */
         if (origami["groups"] != null)
         {
-            dynamic groupObject = JObject.Parse(origami["groups"].ToString());
+            JObject groupObject = JObject.Parse(origami["groups"].ToString());
             Dictionary<string, JObject> groups = groupObject.ToObject<Dictionary<string, JObject>>();
             foreach (var item in groups)
             {
@@ -331,7 +154,7 @@ public class FileImport : MonoBehaviour
                     gridName = GetGridName(origName);
                     UpdateGridCopies(origName);
                 }
-                dynamic info = item.Value;
+                JObject info = item.Value;
                 float x = 0;
                 float y = 0;
                 float z = 0;
@@ -381,207 +204,10 @@ public class FileImport : MonoBehaviour
             string gridType = CleanSlash(origami["grid"].ToString());
             DrawGrid.CreateGrid(s_numGrids.ToString(), PLANE, rayInteractor.transform.position, gridType);
         }
-
-        int prevNumHelices = s_numHelices;
-        for (int i = 0; i < helices.Count; i++)
-        {
-            dynamic coord = JArray.Parse(helices[i]["grid_position"].ToString());
-            int length = (int)helices[i]["max_offset"];
-            string gridName;
-            if (helices[i]["group"] != null)
-            {
-                string origName = CleanSlash(helices[i]["group"].ToString());
-                gridName = GetGridName(origName);
-            }
-            else
-            {
-                gridName = (s_numGrids - 1).ToString();
-            }
-
-            DNAGrid grid = s_gridDict[gridName];
-            int xInd = grid.GridXToIndex((int)coord[0]);
-            int yInd = grid.GridYToIndex((int)coord[1]);
-            GridComponent gc = grid.Grid2D[xInd, yInd];
-            grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
-            grid.CheckExpansion(gc);
-        }
-
-        for (int i = 0; i < strands.Count; i++)
-        {
-            dynamic domains = JArray.Parse(strands[i]["domains"].ToString());
-            string sequence = CleanSlash(strands[i]["sequence"].ToString());
-            string hexColor = CleanSlash(strands[i]["color"].ToString());
-            ColorUtility.TryParseHtmlString(hexColor, out Color color);
-            int strandId = s_numStrands;
-            bool isScaffold = false;
-            if (strands[i]["is_scaffold"] != null)
-            {
-                isScaffold = (bool)strands[i]["is_scaffold"];
-            }
-            List<GameObject> nucleotides = new List<GameObject>();
-            List<GameObject> xoverEndpoints = new List<GameObject>();
-            List<GameObject> sDeletions = new List<GameObject>();
-            List<(GameObject, int)> sInsertions = new List<(GameObject, int)>();
-            Dictionary<GameObject, int> loopouts = new Dictionary<GameObject, int>();
-
-            for (int j = 0; j < domains.Count; j++)
-            {
-                if (domains[j]["helix"] != null)
-                {
-                    int helixId = (int)domains[j]["helix"] + prevNumHelices;
-                    bool forward = (bool)domains[j]["forward"];
-                    int startId = (int)domains[j]["start"];
-                    int endId = (int)domains[j]["end"] - 1; // End id is exclusive in .sc file
-                    dynamic deletions = new JArray();
-                    dynamic insertions = new JArray();
-                    if (domains[j]["deletions"] != null) { deletions = JArray.Parse(domains[j]["deletions"].ToString()); }
-                    if (domains[j]["insertions"] != null) { insertions = JArray.Parse(domains[j]["insertions"].ToString()); }
-                    Helix helix = s_helixDict[helixId];
-
-                    // Store deletions and insertions.
-                    for (int k = 0; k < deletions.Count; k++)
-                    {
-                        GameObject nt = helix.GetNucleotide((int)deletions[k], Convert.ToInt32(forward));
-                        sDeletions.Add(nt);
-                    }
-                    for (int k = 0; k < insertions.Count; k++)
-                    {
-                        GameObject nt = helix.GetNucleotide((int)insertions[k][0], Convert.ToInt32(forward));
-                        sInsertions.Add((nt, (int)insertions[k][1]));
-                    }
-
-                    // Store domains of strand.
-                    List<GameObject> domain = helix.GetHelixSub(startId, endId, Convert.ToInt32(forward));
-                    nucleotides.InsertRange(0, domain);
-
-                    // Store xover endpoints.
-                    if (j == 0)
-                    {
-                        xoverEndpoints.Add(domain[0]);
-                    }
-                    else if (j == domains.Count - 1)
-                    {
-                        xoverEndpoints.Add(domain.Last());
-                    }
-                    else
-                    {
-                        xoverEndpoints.Add(domain.Last());
-                        xoverEndpoints.Add(domain[0]);
-                    }
-                }
-                else // Parse loopout
-                {
-                    int loopoutLength = (int)domains[j]["loopout"];
-                    GameObject prevEndpoint = xoverEndpoints.Last();
-                    loopouts[prevEndpoint] = loopoutLength;
-                }
-            }
-
-            Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
-
-            // Add xovers to strand object.
-            xoverEndpoints.Reverse();
-            for (int j = 1; j < xoverEndpoints.Count; j += 2)
-            {
-                GameObject prevGO = xoverEndpoints[j];
-                if (loopouts.ContainsKey(prevGO))
-                {
-                    strand.Xovers.Add(DrawLoopout.CreateLoopoutHelper(prevGO, xoverEndpoints[j - 1], loopouts[prevGO]));
-                }
-                else
-                {
-                    strand.Xovers.Add(DrawCrossover.CreateXoverHelper(prevGO, xoverEndpoints[j - 1]));
-                }
-            }
-
-            // Set sequence and check for mismatches with complement strands
-            strand.Sequence = sequence;
-            CheckMismatch(strand);
-
-        }
-        return grids;
-    }*/
-
-    // Using LINQ JSON
-    public static IEnumerator ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
-    {
-        //List<DNAGrid> grids = new List<DNAGrid>();
-        // TODO: Split these in different methods?
-        JObject origami = JObject.Parse(fileContents);
-        JArray helices = JArray.Parse(origami["helices"].ToString());
-        JArray strands = JArray.Parse(origami["strands"].ToString());
-        int totalNucleotides = 0;
-
-        // Drawing grids
-        if (origami["groups"] != null)
-        {
-            JObject groupObject = JObject.Parse(origami["groups"].ToString());
-            Dictionary<string, JObject> groups = groupObject.ToObject<Dictionary<string, JObject>>();
-            foreach (var item in groups)
-            {
-                string origName = CleanSlash(item.Key);
-                string gridName = origName;
-                if (!visualMode)
-                {
-                    gridName = GetGridName(origName);
-                    UpdateGridCopies(origName);
-                }
-                JObject info = item.Value;
-                float x = 0;
-                float y = 0;
-                float z = 0;
-                if (info["position"] != null)
-                {
-                    x = (float)info["position"]["x"];
-                    y = (float)info["position"]["y"];
-                    z = (float)info["position"]["z"];
-                }
-                string gridType = CleanSlash(info["grid"].ToString());
-                Vector3 startPos;
-                if (isCopyPaste)
-                {
-                    startPos = rayInteractor.transform.position;
-                }
-                else
-                {
-                    startPos = new Vector3(x, y, z);
-                }
-                DNAGrid grid = DrawGrid.CreateGrid(gridName, PLANE, startPos, gridType);
-                //grids.Add(grid);
-
-                // Handle rotation
-                float pitch = 0f;
-                float roll = 0f;
-                float yaw = 0f;
-                if (info["pitch"] != null)
-                {
-                    yaw = (float)info["pitch"];
-                }
-                if (info["roll"] != null)
-                {
-                    roll = (float)info["roll"];
-                }
-                if (info["yaw"] != null)
-                {
-                    pitch = (float)info["yaw"];
-                }
-                if (pitch > 0 || roll > 0 || yaw > 0)
-                {
-                    grid.Rotate(pitch, roll, yaw);
-                }
-            }
-            yield return new WaitForEndOfFrame();
-        }
-        else
-        {
-            string gridType = CleanSlash(origami["grid"].ToString());
-            DrawGrid.CreateGrid(s_numGrids.ToString(), PLANE, rayInteractor.transform.position, gridType);
-        }
         
-        /**
-         * Drawing helices
-         */
-        int prevNumHelices = s_numHelices;
+        int lastHelixId = s_numHelices;
+
+        // Parse helices.
         for (int i = 0; i < helices.Count; i++)
         {
             JArray coord = JArray.Parse(helices[i]["grid_position"].ToString());
@@ -598,13 +224,13 @@ public class FileImport : MonoBehaviour
             }
 
             DNAGrid grid = s_gridDict[gridName];
-            int xGrid = (int) coord[0];
-            int yGrid = (int) coord[1] * -1;
-         
+            int xGrid = (int)coord[0];
+            int yGrid = (int)coord[1] * -1;
+
             /**
              * Expands grid if necessary so that helix coordinates exist.
              */
-            GridPoint minBound = grid.MinimumBound; // TODO: Put in another method
+            GridPoint minBound = grid.MinimumBound;
             GridPoint maxBound = grid.MaximumBound;
             while (xGrid <= minBound.X)
             {
@@ -626,10 +252,77 @@ public class FileImport : MonoBehaviour
             int xInd = grid.GridXToIndex(xGrid);
             int yInd = grid.GridYToIndex(yGrid);
             GridComponent gc = grid.Grid2D[xInd, yInd];
-            grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
+            Helix helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
+            await helix.ExtendAsync(length);
             grid.CheckExpansion(gc);
-            yield return new WaitForSeconds(0.1f);
         }
+
+        // Parse strands.
+        StartCoroutine(ParseStrands(strands, lastHelixId));
+        //return grids;
+    }
+
+    /// <summary>
+    /// Async method to parse and draw Helices from scadnano file
+    /// </summary>
+    private static async void ParseHelices(JArray helices)
+    {
+        for (int i = 0; i < helices.Count; i++)
+        {
+            JArray coord = JArray.Parse(helices[i]["grid_position"].ToString());
+            int length = (int) helices[i]["max_offset"];
+            string gridName;
+            if (helices[i]["group"] != null)
+            {
+                string origName = CleanSlash(helices[i]["group"].ToString());
+                gridName = GetGridName(origName);
+            }
+            else
+            {
+                gridName = (s_numGrids - 1).ToString();
+            }
+
+            DNAGrid grid = s_gridDict[gridName];
+            int xGrid = (int) coord[0];
+            int yGrid = (int) coord[1] * -1;
+
+            /**
+             * Expands grid if necessary so that helix coordinates exist.
+             */
+            GridPoint minBound = grid.MinimumBound;
+            GridPoint maxBound = grid.MaximumBound;
+            while (xGrid <= minBound.X)
+            {
+                grid.ExpandWest();
+            }
+            while (xGrid >= maxBound.X)
+            {
+                grid.ExpandEast();
+            }
+            while (yGrid <= minBound.Y)
+            {
+                grid.ExpandSouth();
+            }
+            while (yGrid >= maxBound.Y)
+            {
+                grid.ExpandNorth();
+            }
+
+            int xInd = grid.GridXToIndex(xGrid);
+            int yInd = grid.GridYToIndex(yGrid);
+            GridComponent gc = grid.Grid2D[xInd, yInd];
+            Helix helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
+            await helix.ExtendAsync(length);
+            grid.CheckExpansion(gc);
+        }
+    }
+    
+    /// <summary>
+    /// Coroutine to parse and draw Strands from scadnano file
+    /// </summary>
+    private IEnumerator ParseStrands(JArray strands, int lastHelixId)
+    {
+        int totalNucleotides = 0;
 
         // Drawing strands
         for (int i = 0; i < strands.Count; i++)
@@ -642,7 +335,7 @@ public class FileImport : MonoBehaviour
             bool isScaffold = false;
             if (strands[i]["is_scaffold"] != null)
             {
-                isScaffold = (bool)strands[i]["is_scaffold"];
+                isScaffold = (bool) strands[i]["is_scaffold"];
             }
             List<GameObject> nucleotides = new List<GameObject>();
             List<GameObject> xoverEndpoints = new List<GameObject>();
@@ -654,10 +347,10 @@ public class FileImport : MonoBehaviour
             {
                 if (domains[j]["helix"] != null)
                 {
-                    int helixId = (int)domains[j]["helix"] + prevNumHelices;
-                    bool forward = (bool)domains[j]["forward"];
-                    int startId = (int)domains[j]["start"];
-                    int endId = (int)domains[j]["end"] - 1; // End id is exclusive in .sc file
+                    int helixId = (int) domains[j]["helix"] + lastHelixId;
+                    bool forward = (bool) domains[j]["forward"];
+                    int startId = (int) domains[j]["start"];
+                    int endId = (int) domains[j]["end"] - 1; // End id is exclusive in .sc file
                     JArray deletions = new JArray();
                     JArray insertions = new JArray();
                     if (domains[j]["deletions"] != null) { deletions = JArray.Parse(domains[j]["deletions"].ToString()); }
@@ -667,13 +360,13 @@ public class FileImport : MonoBehaviour
                     // Store deletions and insertions.
                     for (int k = 0; k < deletions.Count; k++)
                     {
-                        GameObject nt = helix.GetNucleotide((int)deletions[k], Convert.ToInt32(forward));
+                        GameObject nt = helix.GetNucleotide((int) deletions[k], Convert.ToInt32(forward));
                         sDeletions.Add(nt);
                     }
                     for (int k = 0; k < insertions.Count; k++)
                     {
-                        GameObject nt = helix.GetNucleotide((int)insertions[k][0], Convert.ToInt32(forward));
-                        sInsertions.Add((nt, (int)insertions[k][1]));
+                        GameObject nt = helix.GetNucleotide((int) insertions[k][0], Convert.ToInt32(forward));
+                        sInsertions.Add((nt, (int) insertions[k][1]));
                     }
 
                     // Store domains of strand.
@@ -683,23 +376,23 @@ public class FileImport : MonoBehaviour
                     // Store xover endpoints.
                     if (j == 0)
                     {
-                        xoverEndpoints.Add(domain[0]);
+                        xoverEndpoints.Insert(0, domain[0]);
                     }
                     else if (j == domains.Count - 1)
                     {
-                        xoverEndpoints.Add(domain.Last());
+                        xoverEndpoints.Insert(0, domain.Last());
                     }
                     else
                     {
-                        xoverEndpoints.Add(domain.Last());
-                        xoverEndpoints.Add(domain[0]);
+                        xoverEndpoints.Insert(0, domain.Last());
+                        xoverEndpoints.Insert(0, domain[0]);
                     }
                 }
                 else // Parse loopout
                 {
-                    int loopoutLength = (int)domains[j]["loopout"];
-                    GameObject prevEndpoint = xoverEndpoints.Last();
-                    loopouts[prevEndpoint] = loopoutLength;
+                    int loopoutLength = (int) domains[j]["loopout"];
+                    GameObject nextEndpoint = xoverEndpoints[0];
+                    loopouts[nextEndpoint] = loopoutLength;
                 }
             }
 
@@ -707,26 +400,24 @@ public class FileImport : MonoBehaviour
             totalNucleotides += nucleotides.Count;
 
             // Add xovers to strand object.
-            xoverEndpoints.Reverse();
             for (int j = 1; j < xoverEndpoints.Count; j += 2)
             {
-                GameObject prevGO = xoverEndpoints[j];
-                if (loopouts.ContainsKey(prevGO))
+                GameObject nextGO = xoverEndpoints[j];
+                if (loopouts.ContainsKey(nextGO))
                 {
                     // TODO: Check this works
-                    strand.Xovers.Add(DrawLoopout.CreateLoopoutHelper(prevGO, xoverEndpoints[j - 1], loopouts[prevGO]));
+                    strand.Xovers.Add(DrawLoopout.CreateLoopoutHelper(xoverEndpoints[j - 1], nextGO, loopouts[nextGO]));
                 }
                 else
                 {
-                    strand.Xovers.Add(DrawCrossover.CreateXoverHelper(prevGO, xoverEndpoints[j - 1]));
+                    strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], nextGO));
                 }
             }
 
-            // Set sequence and check for mismatches with complement strands
+            // Set sequence and check for mismatches with complement strands.
             strand.Sequence = sequence;
             CheckMismatch(strand);
-            yield return new WaitForEndOfFrame();
-
+            yield return null;
         }
 
         // Abstracts to Strand View if there are more than MAX_NUCLEOTIDES in scene.
@@ -734,12 +425,11 @@ public class FileImport : MonoBehaviour
         if (totalNucleotides > MAX_NUCLEOTIDES)
         {
             Togglers.StrandViewToggled();
-            ViewingPerspective.instance.ViewStrand();
+            ViewingPerspective.Instance.ViewStrand();
         }
-        //return grids;
+
+        loadingMenu.enabled = false;
     }
-
-
 
     /// <summary>
     /// Strips away slashes from scadnano files.

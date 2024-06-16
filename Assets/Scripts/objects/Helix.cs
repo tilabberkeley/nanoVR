@@ -5,6 +5,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using static GlobalVariables;
 using static Utils;
@@ -101,17 +102,18 @@ public class Helix
         _meshCombiner.DeactivateCombinedChildrenMeshRenderers = false;
         _meshCombiner.CreateMultiMaterialMesh = false;
        */
-        Extend(length);
+        //ExtendAsync(length);
         //ChangeRendering();
     }
 
     /// <summary>
-    /// Draws the nucleotides of the helix.
+    /// Draws the nucleotides of the helix in background thread.
     /// </summary>
-    public void Extend(int length)
+    public async Task ExtendAsync(int length)
     {
         int prevLength = _length;
         _length += length;
+
         for (int i = prevLength; i < _length; i++)
         {
             float angleA = (float)(i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
@@ -141,53 +143,48 @@ public class Helix
             sphereB.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
             sphereB.transform.RotateAround(StartPoint, Vector3.right, _gridComponent.transform.eulerAngles.x);
             sphereB.transform.RotateAround(StartPoint, Vector3.up, _gridComponent.transform.eulerAngles.y);
+            await Task.Yield();
         }
-        if (prevLength == 0) 
-        { 
-            DrawBackbones(prevLength + 1);
+        if (prevLength == 0)
+        {
+            await DrawBackbones(prevLength + 1);
         }
         else
         {
             // Needs to add backbone to connect previous set of nucleotides
-            DrawBackbones(prevLength);
+            await DrawBackbones(prevLength);
         }
 
         /* Batches static (non-moving) gameobjects so that they are drawn together.
          * This reduces number of Draw calls and increases FPS. 
          */
         StaticBatchingUtility.Combine(_helixA.ToArray(), _helixA[0]);
-
+        await Task.Yield();
         StaticBatchingUtility.Combine(_helixB.ToArray(), _helixB[0]);
+        await Task.Yield();
 
         _helixA.Clear();
         _helixB.Clear();
-
-        // Combine meshes
-        //_meshCombiner.CombineMeshes(false);
     }
 
     /// <summary>
     /// Draws the backbones between the nucleotides in the helix.
     /// </summary>
     /// <param name="start">Start index of nucleotide to begin drawing backbones.</param>
-    private void DrawBackbones(int start)
+    private async Task DrawBackbones(int start)
     {
-        // Backbones for A nucleotides
         for (int i = start; i < _nucleotidesA.Count; i++)
         {
-            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, _id, 1, NucleotidesA[i].transform.position, NucleotidesA[i - 1].transform.position);
-            _backbonesA.Add(cylinder);
-            _helixA.Add(cylinder);
+            GameObject cylinderA = DrawPoint.MakeBackbone(i - 1, _id, 1, NucleotidesA[i].transform.position, NucleotidesA[i - 1].transform.position);
+            _backbonesA.Add(cylinderA);
+            _helixA.Add(cylinderA);
             //cylinder.transform.SetParent(_parent.transform);
-        }
 
-        // Backbones for B nucleotides
-        for (int i = start; i < _nucleotidesB.Count; i++)
-        {
-            GameObject cylinder = DrawPoint.MakeBackbone(i - 1, _id, 0, NucleotidesB[i].transform.position, NucleotidesB[i - 1].transform.position);
-            _backbonesB.Add(cylinder);
-            _helixB.Add(cylinder);
+            GameObject cylinderB = DrawPoint.MakeBackbone(i - 1, _id, 0, NucleotidesB[i].transform.position, NucleotidesB[i - 1].transform.position);
+            _backbonesB.Add(cylinderB);
+            _helixB.Add(cylinderB);
             //cylinder.transform.SetParent(_parent.transform);
+            await Task.Yield();
         }
     }
 
@@ -203,7 +200,7 @@ public class Helix
     {
         if (sIndex < 0 || eIndex >= _nucleotidesA.Count)
         {
-            //Debug.Log("Nucleotides A length: " + _nucleotidesA.Count);
+            Debug.Log("Nucleotides A length: " + _nucleotidesA.Count);
             return null;
         }
         List<GameObject> temp = new List<GameObject>();

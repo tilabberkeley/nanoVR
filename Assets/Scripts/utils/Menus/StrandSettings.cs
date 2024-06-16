@@ -35,6 +35,12 @@ public class StrandSettings : MonoBehaviour
     private static bool s_isScaffold;
     public static bool IsScaffold { set { s_isScaffold = value; } }
 
+    private void Start()
+    {
+        _sequenceInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
+        _rotationInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
+    }
+
 
     /// <summary>
     /// Sets strand settings such as DNA sequence and scaffold.
@@ -240,5 +246,6 @@ public class StrandSettings : MonoBehaviour
     {
         _menu.enabled = true;
         _strandSettings.enabled = false;
+        Highlight.UnhighlightGO(EditOptionsManager.s_GO, false);
     }
 }

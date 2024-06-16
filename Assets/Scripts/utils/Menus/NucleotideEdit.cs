@@ -23,6 +23,11 @@ public class NucleotideEdit : MonoBehaviour
     private static NucleotideComponent s_ntc;
     public static NucleotideComponent Nucleotide { set { s_ntc = value; } }
 
+    private void Start()
+    {
+        _sequenceInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default); });
+    }
+
     /// <summary>
     /// Calls command for setting nucleotide DNA sequence. Called by Nucleotide Edit OK button.
     /// </summary>
@@ -134,5 +139,6 @@ public class NucleotideEdit : MonoBehaviour
     public void HideNuclEdit()
     {
         _nuclEditMenu.enabled = false;
+        Highlight.UnhighlightGO(EditOptionsManager.s_GO, false);
     }
 }

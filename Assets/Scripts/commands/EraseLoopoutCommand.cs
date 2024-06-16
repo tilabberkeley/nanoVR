@@ -20,7 +20,7 @@ public class EraseLoopoutCommand : ICommand
 
     private int _sequenceLength;
 
-    public EraseLoopoutCommand(GameObject loopout, int strandId, Color color)
+    public EraseLoopoutCommand(GameObject loopout, int strandId)
     {
         _loopout = loopout;
         LoopoutComponent loopoutComponent = loopout.GetComponent<LoopoutComponent>();
@@ -28,7 +28,7 @@ public class EraseLoopoutCommand : ICommand
         _startGO = loopoutComponent.PrevGO;
         _endGO = loopoutComponent.NextGO;
         _strandId = strandId;
-        _savedColor = color;
+        _savedColor = loopout.GetComponent<LoopoutComponent>().SavedColor;
 
         NucleotideComponent startNtc = _startGO.GetComponent<NucleotideComponent>();
         _startId = startNtc.Id;

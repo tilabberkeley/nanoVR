@@ -126,7 +126,7 @@ public class Strand
             {
                 _color = Colors[s_numStrands % Colors.Length];
             }
-            SetComponents(); // Updates all strand objects colors
+            SetColors(); // Updates all strand objects colors
         } 
     }
 
@@ -143,20 +143,21 @@ public class Strand
             {
                 _lengthWasChanged = false;
                 int count = 0;
-                foreach (GameObject nucl in _nucleotides)
+                for (int i = _nucleotides.Count - 1; i >=0; i--)
                 {
-                    NucleotideComponent ntc = nucl.GetComponent<NucleotideComponent>();
+                    NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
                     if (ntc != null)
                     {
                         count += 1 + ntc.Insertion;
                     }
-                }
-                foreach (GameObject xover in _xovers)
-                {
-                    LoopoutComponent loopComp = xover.GetComponent<LoopoutComponent>();
-                    if (loopComp != null)
+
+                    if (ntc.HasXover)
                     {
-                        count += loopComp.SequenceLength;
+                        LoopoutComponent loopComp = ntc.Xover.GetComponent<LoopoutComponent>();
+                        if (loopComp != null && loopComp.NextGO == ntc.gameObject)
+                        {
+                            count += loopComp.SequenceLength;
+                        }
                     }
                 }
                 _length = count;
@@ -559,7 +560,7 @@ public class Strand
             dnaComp.Color = _color;
 
             domain.Add(dnaComp);
-            
+
             if (ntc != null && ntc.HasXover)
             {
                 XoverComponent xoverComp = ntc.Xover.GetComponent<XoverComponent>();
@@ -579,6 +580,19 @@ public class Strand
         _domains.Add(domainComponent);
 
         SetCone();
+    }
+
+    /// <summary>
+    /// Sets nucleotide and cone colors whenever Strand is set or unset to scaffold.
+    /// </summary>
+    public void SetColors()
+    {
+        for (int i = _nucleotides.Count - 1; i >= 0; i--)
+        {
+            DNAComponent dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
+            dnaComp.Color = _color;
+        }
+        _cone.GetComponent<ConeComponent>().Color = _color;
     }
 
     public void SetSequence(string sequence)
@@ -605,18 +619,6 @@ public class Strand
             // Sets DNA sequence to nucleotides
             if (ntc != null)
             {
-                if (ntc.HasXover)
-                {
-                    LoopoutComponent loopComp = ntc.Xover.GetComponent<LoopoutComponent>();
-                    //SequenceComponent loopSequence = ntc.Xover.GetComponent<SequenceComponent>();
-
-                    if (loopComp != null && loopComp.PrevGO == ntc.gameObject)
-                    {
-                        loopComp.Sequence = sequence.Substring(seqCount, loopComp.SequenceLength);
-                        seqCount += loopComp.SequenceLength;
-                    }
-                }
-
                 if (ntc.IsDeletion)
                 {
                     ntc.Sequence = "X";
@@ -625,6 +627,18 @@ public class Strand
                 {
                     ntc.Sequence = sequence.Substring(seqCount, ntc.Insertion + 1); // TODO: Change ntc.Insertion to seqComp.SequenceLength??
                     seqCount += ntc.Insertion + 1;
+                }
+
+                if (ntc.HasXover)
+                {
+                    LoopoutComponent loopComp = ntc.Xover.GetComponent<LoopoutComponent>();
+                    //SequenceComponent loopSequence = ntc.Xover.GetComponent<SequenceComponent>();
+
+                    if (loopComp != null && loopComp.NextGO == ntc.gameObject)
+                    {
+                        loopComp.Sequence = sequence.Substring(seqCount, loopComp.SequenceLength);
+                        seqCount += loopComp.SequenceLength;
+                    }
                 }
             }
         }
