@@ -34,12 +34,14 @@ public class CreateHelixCommand : ICommand
 
     public void Do()
     {
-        _grid.AddHelix(_id, _startPoint, _length, _orientation, _gridComp);
+        Helix helix = _grid.AddHelix(_id, _startPoint, _length, _orientation, _gridComp);
+        helix.ExtendAsync(_length);
     }
 
     public void Redo()
     {
-        _grid.AddHelix(_id, _startPoint, _length, _orientation, _gridComp);
+        Helix helix = _grid.AddHelix(_id, _startPoint, _length, _orientation, _gridComp);
+        helix.ExtendAsync(_length);
     }
 
     public void Undo()

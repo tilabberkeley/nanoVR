@@ -130,7 +130,8 @@ public class ExpandStrands : MonoBehaviour
             int xInd = grid.GridXToIndex((int)coord[0]);
             int yInd = grid.GridYToIndex((int)(coord[1]) * -1);
             GridComponent gc = grid.Grid2D[xInd, yInd];
-            grid.AddHelix(s_numVisHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, "XY", gc);
+            Helix helix = grid.AddHelix(s_numVisHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, "XY", gc);
+            helix.ExtendAsync(length);
             grid.CheckExpansion(gc);
         }
 

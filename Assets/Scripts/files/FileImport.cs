@@ -14,6 +14,8 @@ using SimpleFileBrowser;
 using System.Collections;
 using static GlobalVariables;
 using static Utils;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 
 /// <summary>
 /// Handles all file importing into nanoVR.
@@ -28,6 +30,7 @@ public class FileImport : MonoBehaviour
 
     private const string PLANE = "XY";
     private const int MAX_NUCLEOTIDES = 20000;
+    Stopwatch st = new Stopwatch();
 
     void Awake()
     {
@@ -133,6 +136,7 @@ public class FileImport : MonoBehaviour
     /// <returns>List of grids created</returns>
     public async void ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
     {
+        st.Start();
         List<DNAGrid> grids = new List<DNAGrid>();
         JObject origami = JObject.Parse(fileContents);
         JArray helices = JArray.Parse(origami["helices"].ToString());
@@ -253,7 +257,8 @@ public class FileImport : MonoBehaviour
             int yInd = grid.GridYToIndex(yGrid);
             GridComponent gc = grid.Grid2D[xInd, yInd];
             Helix helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
-            await helix.ExtendAsync(length);
+            bool hideNucleotides = true;
+            await helix.ExtendAsync(length, hideNucleotides);
             grid.CheckExpansion(gc);
         }
 
@@ -322,8 +327,6 @@ public class FileImport : MonoBehaviour
     /// </summary>
     private IEnumerator ParseStrands(JArray strands, int lastHelixId)
     {
-        int totalNucleotides = 0;
-
         // Drawing strands
         for (int i = 0; i < strands.Count; i++)
         {
@@ -397,7 +400,6 @@ public class FileImport : MonoBehaviour
             }
 
             Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
-            totalNucleotides += nucleotides.Count;
 
             // Add xovers to strand object.
             for (int j = 1; j < xoverEndpoints.Count; j += 2)
@@ -422,13 +424,18 @@ public class FileImport : MonoBehaviour
 
         // Abstracts to Strand View if there are more than MAX_NUCLEOTIDES in scene.
         // This helps with performance.
-        if (totalNucleotides > MAX_NUCLEOTIDES)
+        if (GlobalVariables.allGameObjects.Count > MAX_NUCLEOTIDES)
         {
-            Togglers.StrandViewToggled();
             ViewingPerspective.Instance.ViewStrand();
+        }
+        else
+        {
+            ViewingPerspective.Instance.ViewNucleotide();
         }
 
         loadingMenu.enabled = false;
+        st.Stop();
+        Debug.Log(string.Format("Overall import took {0} ms to complete", st.ElapsedMilliseconds));
     }
 
     /// <summary>

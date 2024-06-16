@@ -3,51 +3,12 @@
  * author: David Yang <davidmyang@berkeley.edu>
  */
 using UnityEngine;
+using UnityEngine.UI;
 using static GlobalVariables;
 
 public class Togglers : MonoBehaviour
 {
-    /*public void LineToggled() 
-    {
-        s_lineTogOn = true;
-        s_curveTogOn = false;
-        s_gridTogOn = false;
-        s_honeycombTogOn = false;
-        s_cameraTogOn = false;
-    }
-
-    public void CurveToggled() 
-    {
-        s_lineTogOn = false;
-        s_curveTogOn = true;
-        s_gridTogOn = false;
-        s_honeycombTogOn = false;
-        s_cameraTogOn = false;
-    }
-
-    public void LoopToggled() 
-    {
-        s_loopTogOn = !s_loopTogOn;
-    }
-
-    public void GridToggled() 
-    {
-        s_lineTogOn = false;
-        s_curveTogOn = false;
-        s_gridTogOn = true;
-        s_honeycombTogOn = false;
-        s_cameraTogOn = false;
-    }
-
-    public void HoneycombToggled() 
-    {
-        s_lineTogOn = false;
-        s_curveTogOn = false;
-        s_gridTogOn = false;
-        s_honeycombTogOn = true;
-        s_cameraTogOn = false;
-    }
-
+    /*
     public void CameraToggled()
     {
         s_lineTogOn = false;
@@ -174,7 +135,7 @@ public class Togglers : MonoBehaviour
         s_hideStencils = !s_hideStencils;
     }
 
-    public void NucleotideViewToggled()
+    public static void NucleotideViewToggled()
     {
         s_strandView = false;
         s_helixView = false;

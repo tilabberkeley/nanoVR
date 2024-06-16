@@ -82,9 +82,13 @@ public class FileExport : MonoBehaviour
         {
             WriteSCFile();
         }
-        else
+        else if (exportType.Equals("oxdna"))
         {
             StartCoroutine(CreateOxdnaFiles());
+        }
+        else
+        {
+            //WriteCSV();
         }
     }
 

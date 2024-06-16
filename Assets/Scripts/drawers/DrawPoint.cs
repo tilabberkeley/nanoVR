@@ -29,7 +29,7 @@ public static class DrawPoint
     /// <param name="helixId">Id of helix nucleotide is in.</param>
     /// <param name="ssDirection">Direction of nucleotide.</param>
     /// <returns>GameObject of Nucleotide.</returns>
-    public static GameObject MakeNucleotide(Vector3 position, int id, int helixId, int direction)
+    public static GameObject MakeNucleotide(Vector3 position, int id, int helixId, int direction, bool hideNucleotide = false)
     {
         GameObject sphere =
                     Instantiate(GlobalVariables.Nucleotide,
@@ -46,6 +46,7 @@ public static class DrawPoint
         //seqComp.HasComplement = true;
         SaveGameObject(sphere);
         sphere.isStatic = true;
+        sphere.SetActive(!hideNucleotide);
         return sphere;
     }
 
@@ -66,7 +67,7 @@ public static class DrawPoint
     /// <param name="start">Position of start nucleotide.</param>
     /// <param name="end">Position of end nucleotide.</param>
     /// <returns>GameObject of backbone.</returns>
-    public static GameObject MakeBackbone(int id, int helixId, int direction, Vector3 start, Vector3 end)
+    public static GameObject MakeBackbone(int id, int helixId, int direction, Vector3 start, Vector3 end, bool hideBackbone = false)
     {
         GameObject cylinder = Instantiate(Backbone,
                                     Vector3.zero,
@@ -92,6 +93,7 @@ public static class DrawPoint
 
         SaveGameObject(cylinder);
         cylinder.isStatic = true;
+        cylinder.SetActive(!hideBackbone);
         return cylinder;
     }
 

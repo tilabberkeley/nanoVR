@@ -150,14 +150,14 @@ public class Strand
                     if (ntc != null)
                     {
                         count += 1 + ntc.Insertion;
-                    }
 
-                    if (ntc.HasXover)
-                    {
-                        LoopoutComponent loopComp = ntc.Xover.GetComponent<LoopoutComponent>();
-                        if (loopComp != null && loopComp.NextGO == ntc.gameObject)
+                        if (ntc.HasXover)
                         {
-                            count += loopComp.SequenceLength;
+                            LoopoutComponent loopComp = ntc.Xover.GetComponent<LoopoutComponent>();
+                            if (loopComp != null && loopComp.NextGO == ntc.gameObject)
+                            {
+                                count += loopComp.SequenceLength;
+                            }
                         }
                     }
                 }

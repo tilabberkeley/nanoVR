@@ -4,6 +4,7 @@
  */
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using static GlobalVariables;
 
 public class ViewingPerspective : MonoBehaviour
@@ -13,6 +14,9 @@ public class ViewingPerspective : MonoBehaviour
     /// scripts to access instance methods in this class.
     /// </summary>
     public static ViewingPerspective Instance;
+
+    public Toggle nucleotideViewTog;
+    public Toggle strandViewTog;
 
     private void Awake()
     {
@@ -37,17 +41,20 @@ public class ViewingPerspective : MonoBehaviour
     /// </summary>
     public void ViewNucleotide()
     {
-        if (!s_nucleotideView) { return; }
+        Togglers.NucleotideViewToggled();
+        nucleotideViewTog.isOn = true;
+
+        foreach (Helix helix in s_helixDict.Values)
+        {
+            helix.ChangeRendering();
+        }
+
         foreach (Strand strand in s_strandDict.Values)
         {
             strand.DeleteBezier();
             strand.ShowHideCone(true);
             strand.ShowHideXovers(true);
             strand.SetDomainActivity(false);
-        }
-        foreach (Helix helix in s_helixDict.Values)
-        {
-            helix.ChangeRendering();
         }
     }
 
@@ -57,7 +64,8 @@ public class ViewingPerspective : MonoBehaviour
     /// </summary>
     public void ViewStrand() 
     {
-        if (!s_strandView) { return; }
+        Togglers.StrandViewToggled();
+        strandViewTog.isOn = true;
 
         foreach (Helix helix in s_helixDict.Values)
         {

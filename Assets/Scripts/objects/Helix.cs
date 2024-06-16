@@ -5,10 +5,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using UnityEngine;
 using static GlobalVariables;
 using static Utils;
+using Debug = UnityEngine.Debug;
 
 /// <summary>
 /// Helix object keeps track of nucleotides in the helix.
@@ -75,6 +77,8 @@ public class Helix
     private List<GameObject> _helixA;
     private List<GameObject> _helixB;
 
+    Stopwatch sw = new Stopwatch();
+
     // Helix constructor.
     public Helix(int id, string orientation, int length, GridComponent gridComponent)
     {
@@ -109,13 +113,20 @@ public class Helix
     /// <summary>
     /// Draws the nucleotides of the helix in background thread.
     /// </summary>
-    public async Task ExtendAsync(int length)
+    public async Task ExtendAsync(int length, bool hideNucleotides = false)
     {
         int prevLength = _length;
         _length += length;
+        float intialPositionTotal = 0f;
+        float instantiationTotal = 0f;
+        float rotationTotal = 0f;
+        float staticBatchingTotal = 0f;
+        float clearingHelixTotal = 0f;
+        sw.Start();
 
         for (int i = prevLength; i < _length; i++)
         {
+            //sw.Start();
             float angleA = (float)(i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
             float angleB = (float)((i + 4.5f) * (2 * Math.PI / NUM_BASE_PAIRS)); //TODO: check this new offset
             float axisOneChangeA = (float)(RADIUS * Mathf.Cos(angleA));
@@ -124,18 +135,25 @@ public class Helix
             float axisTwoChangeB = (float)(RADIUS * Mathf.Sin(angleB));
             _lastPositionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
             _lastPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
+            //sw.Stop();
+            //intialPositionTotal += sw.ElapsedMilliseconds;
 
-            GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, i, _id, 1);
+            //sw.Reset();
+            //sw.Start();
+            GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, i, _id, 1, hideNucleotides);
             _nucleotidesA.Add(sphereA);
             _helixA.Add(sphereA);
             //sphereA.transform.SetParent(_parent.transform);
 
-            GameObject sphereB = DrawPoint.MakeNucleotide(_lastPositionB, i, _id, 0);
+            GameObject sphereB = DrawPoint.MakeNucleotide(_lastPositionB, i, _id, 0, hideNucleotides);
             _nucleotidesB.Add(sphereB);
             _helixB.Add(sphereB);
             //sphereB.transform.SetParent(_parent.transform);
+            //sw.Stop();
+            //instantiationTotal += sw.ElapsedMilliseconds;
 
-
+            //sw.Reset();
+            //sw.Start();
             // Rotate nucleotides to correct position based on grid's rotation
             sphereA.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
             sphereA.transform.RotateAround(StartPoint, Vector3.right, _gridComponent.transform.eulerAngles.x);
@@ -143,48 +161,77 @@ public class Helix
             sphereB.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
             sphereB.transform.RotateAround(StartPoint, Vector3.right, _gridComponent.transform.eulerAngles.x);
             sphereB.transform.RotateAround(StartPoint, Vector3.up, _gridComponent.transform.eulerAngles.y);
-            await Task.Yield();
+            //sw.Stop();
+            //rotationTotal += sw.ElapsedMilliseconds;
+
+            if (i % 8 == 0)
+            {
+                await Task.Yield();
+            }
         }
         if (prevLength == 0)
         {
-            await DrawBackbones(prevLength + 1);
+            await DrawBackbones(prevLength + 1, hideNucleotides);
         }
         else
         {
             // Needs to add backbone to connect previous set of nucleotides
-            await DrawBackbones(prevLength);
+            await DrawBackbones(prevLength, hideNucleotides);
         }
 
         /* Batches static (non-moving) gameobjects so that they are drawn together.
          * This reduces number of Draw calls and increases FPS. 
          */
+        //sw.Reset();
+        //sw.Start();
         StaticBatchingUtility.Combine(_helixA.ToArray(), _helixA[0]);
-        await Task.Yield();
+        //sw.Stop();
+        //Debug.Log(string.Format("Static batching helixA took {0}ms to complete", sw.ElapsedMilliseconds));
+        //staticBatchingTotal += sw.ElapsedMilliseconds * 2;
+        //await Task.Yield();
         StaticBatchingUtility.Combine(_helixB.ToArray(), _helixB[0]);
         await Task.Yield();
 
+        //sw.Reset();
+        //sw.Start();
         _helixA.Clear();
         _helixB.Clear();
+        sw.Stop();
+        //Debug.Log(string.Format("Clearing both helices took {0}ms to complete", sw.ElapsedMilliseconds));
+        //clearingHelixTotal += sw.ElapsedMilliseconds;
+        Debug.Log(string.Format("Total time for helix length 64 creation: ~{0}", sw.ElapsedMilliseconds));
+
+        /*Debug.Log(string.Format("Total time for helix length 64 creation: ~{0}", intialPositionTotal + instantiationTotal + rotationTotal + staticBatchingTotal + clearingHelixTotal));
+        Debug.Log(string.Format("Total time for intial nucleotide position calcution: ~{0}", intialPositionTotal));
+        Debug.Log(string.Format("Total time for instiating nucleotides: ~{0}", instantiationTotal));
+        Debug.Log(string.Format("Total time for rotating nucleotide calcution: ~{0}", rotationTotal));
+        Debug.Log(string.Format("Total time for static batching: ~{0}", staticBatchingTotal));
+        Debug.Log(string.Format("Total time for clearing helices: ~{0}", clearingHelixTotal));
+        Debug.Log(string.Format("There are {0} helices in the scene", s_numHelices));*/
     }
 
     /// <summary>
     /// Draws the backbones between the nucleotides in the helix.
     /// </summary>
     /// <param name="start">Start index of nucleotide to begin drawing backbones.</param>
-    private async Task DrawBackbones(int start)
+    private async Task DrawBackbones(int start, bool hideBackbone)
     {
         for (int i = start; i < _nucleotidesA.Count; i++)
         {
-            GameObject cylinderA = DrawPoint.MakeBackbone(i - 1, _id, 1, NucleotidesA[i].transform.position, NucleotidesA[i - 1].transform.position);
+            GameObject cylinderA = DrawPoint.MakeBackbone(i - 1, _id, 1, NucleotidesA[i].transform.position, NucleotidesA[i - 1].transform.position, hideBackbone);
             _backbonesA.Add(cylinderA);
             _helixA.Add(cylinderA);
             //cylinder.transform.SetParent(_parent.transform);
 
-            GameObject cylinderB = DrawPoint.MakeBackbone(i - 1, _id, 0, NucleotidesB[i].transform.position, NucleotidesB[i - 1].transform.position);
+            GameObject cylinderB = DrawPoint.MakeBackbone(i - 1, _id, 0, NucleotidesB[i].transform.position, NucleotidesB[i - 1].transform.position, hideBackbone);
             _backbonesB.Add(cylinderB);
             _helixB.Add(cylinderB);
             //cylinder.transform.SetParent(_parent.transform);
-            await Task.Yield();
+            
+            if (i % 8 == 0)
+            {
+                await Task.Yield();
+            }
         }
     }
 
