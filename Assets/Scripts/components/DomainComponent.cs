@@ -12,6 +12,8 @@ using static OVRPlugin;
 
 public class DomainComponent : MonoBehaviour
 {
+    private const int BEZIER_COUNT = 128;    // Number of nucleotides (including backbones) included in one "Bezier" of the Strand View.
+
     private CapsuleCollider _capsuleCollider;
     private Helix _helix;
     public Helix Helix { get => _helix; set => _helix = value; }
@@ -19,40 +21,41 @@ public class DomainComponent : MonoBehaviour
     private List<DNAComponent> _nucleotides = new List<DNAComponent>();
     public List<DNAComponent> Nucleotides { get => _nucleotides; set => _nucleotides = value; }
 
-    private List<GameObject> _beziers;
+    private GameObject _bezier = null;
+
+    private Strand _strand;
+    public Strand Strand { get => _strand; set => _strand = value; }
 
     public void DrawBezier()
     {
-        if (_beziers.Count == 0)
+        List<DNAComponent> nuclSubList = new List<DNAComponent>();
+        for (int i = 0; i < _nucleotides.Count; i++)
         {
-            List<GameObject> nuclSubList = new List<GameObject>();
-            for (int i = 0; i < _nucleotides.Count; i++)
+            nuclSubList.Add(_nucleotides[i]);
+            if (nuclSubList.Count % BEZIER_COUNT == 0 || i == _nucleotides.Count - 1)
             {
-                DNAComponent dnaComponent = _nucleotides[i];
-                nuclSubList.Add(dnaComponent.gameObject);
-                if (nuclSubList.Count % Strand.BEZIER_COUNT == 0 || i == _nucleotides.Count - 1)
-                {
-                    Color color = dnaComponent.Color;
-                    GameObject bezier = DrawPoint.MakeBezier(nuclSubList, color);
-                    _beziers.Add(bezier);
-                    nuclSubList.RemoveRange(0, nuclSubList.Count - 1); // Remove all but last nucl to keep Beziers continuous.
-                }
+                Debug.Log("Drawing bezier");
+                Debug.Log(_strand == null);
+                _bezier = DrawPoint.MakeBezier(nuclSubList, Color.black);
+                nuclSubList.RemoveRange(0, nuclSubList.Count - 1); // Remove all but last nucl to keep Beziers continuous.
             }
         }
     }
 
     public void DeleteBezier()
     {
-        if (_beziers.Count > 0)
+        if (_bezier != null)
         {
-            foreach (GameObject bezier in _beziers) { GameObject.Destroy(bezier); }
-            _beziers.Clear();
+            Debug.Log("Destroyed!");
+            Destroy(_bezier);
+            _bezier = null;
         }
     }
 
     public void ShowHideCone(bool enabled)
     {
         // TODO
+        // Maybe always keeping the cone visiable is find? So you know the direction of the abstracted strand?
     }
 
     public void ShowNucleotides()
@@ -91,9 +94,9 @@ public class DomainComponent : MonoBehaviour
         Vector3 domainCenter = Vector3.Lerp(_nucleotides[0].transform.position, _nucleotides.Last().transform.position, 0.5f);
         // Center of the gridcircle will be the center the domain component (dependent on axis), default is the z position being constant,
         // TODO: configure domain component to be centered correctly around any orientation.
-        Vector3 gridCircleCetner = Helix.GridComponent.transform.position;
-        domainCenter.x = gridCircleCetner.x;
-        domainCenter.y = gridCircleCetner.y;
+        Vector3 gridCircleCenter = Helix.GridComponent.transform.position;
+        domainCenter.x = gridCircleCenter.x;
+        domainCenter.y = gridCircleCenter.y;
         transform.position = domainCenter;
 
         // TODO: Update rotation as of the collider to by dependent on the rotation of the helix/grid.

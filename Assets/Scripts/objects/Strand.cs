@@ -18,7 +18,6 @@ public class Strand
     private const int PERIOD = 10;
     private const int START_OFFSET_3_5 = 3; // First crossover suggestion begins on the fourth nucleotide of helix going from 3->5.
     private const int START_OFFSET_5_3 = 8; // First crossover suggestion begins on the fourth nucleotide of helix going from 5->3.
-    public const int BEZIER_COUNT = 128;    // Number of nucleotides (including backbones) included in one "Bezier" of the Strand View.
 
     // List of nucleotide and backbone GameObjects included in this strand.
     private List<GameObject> _nucleotides;
@@ -578,7 +577,6 @@ public class Strand
 
         DomainComponent domainComponent = DrawPoint.MakeDomain(domain);
         _domains.Add(domainComponent);
-        Debug.Log("Created domain");
 
         SetCone();
     }
@@ -750,28 +748,32 @@ public class Strand
 
     public void DrawBezier()
     {
-        if (_beziers.Count == 0)
+        //if (_beziers.Count == 0)
+        //{
+        //    List<GameObject> nuclSubList = new List<GameObject>();
+        //    for (int i = 0; i < _nucleotides.Count; i++)
+        //    {
+        //        nuclSubList.Add(_nucleotides[i]);
+        //        if (nuclSubList.Count % BEZIER_COUNT == 0 || i == _nucleotides.Count - 1)
+        //        {
+        //            GameObject bezier = DrawPoint.MakeBezier(nuclSubList, _color);
+        //            _beziers.Add(bezier);
+        //            nuclSubList.RemoveRange(0, nuclSubList.Count - 1); // Remove all but last nucl to keep Beziers continuous.
+        //        }
+        //    }
+        //}
+        foreach (DomainComponent domain in _domains)
         {
-            List<GameObject> nuclSubList = new List<GameObject>();
-            for (int i = 0; i < _nucleotides.Count; i++)
-            {
-                nuclSubList.Add(_nucleotides[i]);
-                if (nuclSubList.Count % BEZIER_COUNT == 0 || i == _nucleotides.Count - 1)
-                {
-                    GameObject bezier = DrawPoint.MakeBezier(nuclSubList, _color);
-                    _beziers.Add(bezier);
-                    nuclSubList.RemoveRange(0, nuclSubList.Count - 1); // Remove all but last nucl to keep Beziers continuous.
-                }
-            }
+            domain.DrawBezier();
         }
     }
 
     public void DeleteBezier()
     {
-        if (_beziers.Count > 0)
+        Debug.Log("Deleting");
+        foreach (DomainComponent domain in _domains)
         {
-            foreach (GameObject bezier in _beziers) { GameObject.Destroy(bezier); }
-            _beziers.Clear();
+            domain.DeleteBezier();
         }
     }
 
