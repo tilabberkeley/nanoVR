@@ -33,7 +33,7 @@ public static class GlobalVariables
     public static Dictionary<string, DNAGrid> s_gridDict = new Dictionary<string, DNAGrid>();
     public static HashSet<XoverSuggestionComponent> s_xoverSuggestions = new HashSet<XoverSuggestionComponent>();
     public static int s_numStrands = 1;
-    public static int s_numHelices = 1;
+    public static int s_numHelices = 0;
     public static int s_numGrids = 1;
     public static List<GameObject> allGameObjects = new List<GameObject>();
 
@@ -45,7 +45,7 @@ public static class GlobalVariables
     public static Dictionary<int, Strand> s_visStrandDict = new Dictionary<int, Strand>();
     public static Dictionary<string, DNAGrid> s_visGridDict = new Dictionary<string, DNAGrid>();
     public static int s_numVisStrands = 1;
-    public static int s_numVisHelices = 1;
+    public static int s_numVisHelices = 0;
     public static int s_numVisGrids = 1;
     public static List<GameObject> allVisGameObjects = new List<GameObject>();
 
