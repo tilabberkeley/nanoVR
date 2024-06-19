@@ -148,7 +148,13 @@ public class Strand
                     NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
                     if (ntc != null)
                     {
+                        // Nucleotide
                         count += 1 + ntc.Insertion;
+                    }
+                    else
+                    {
+                        // Backbone
+                        continue;
                     }
 
                     if (ntc.HasXover)
