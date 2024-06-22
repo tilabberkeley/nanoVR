@@ -266,6 +266,7 @@ public class Strand
         _nucleotidesOnly.Insert(0, newNucl.GetComponent<NucleotideComponent>());
         _head = _nucleotides[0];
         SetCone();
+        ResetDomains();
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
         //_cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
@@ -283,6 +284,7 @@ public class Strand
         _head = _nucleotides[0];
         //_cone.transform.position = _head.transform.position;
         SetCone();
+        ResetDomains();
         _xoversWasChanged = true;
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
@@ -316,6 +318,7 @@ public class Strand
         newNucls.ForEach(n => nucleotideComponents.Add(n.GetComponent<NucleotideComponent>()));
         _nucleotidesOnly.AddRange(nucleotideComponents);
         _tail = _nucleotides.Last();
+        ResetDomains();
         _xoversWasChanged = true;
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
@@ -343,6 +346,7 @@ public class Strand
             SetCone();
         }
         ResetComponents(nucleotides);
+        ResetDomains();
         _xoversWasChanged = true;
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
@@ -361,6 +365,7 @@ public class Strand
             _tail = _nucleotides.Last();
         }
         ResetComponents(nucleotides);
+        ResetDomains();
         _xoversWasChanged = true;
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
@@ -372,6 +377,7 @@ public class Strand
     public void RemoveStrand()
     {
         GameObject.Destroy(_cone);
+        DeleteDomains();
         s_strandDict.Remove(_strandId);
     }
 
@@ -382,6 +388,7 @@ public class Strand
     {
         ResetComponents(_nucleotides);
         DeleteXovers();
+        DeleteDomains();
         RemoveStrand();
     }
 
@@ -408,7 +415,8 @@ public class Strand
         SetCone();
         SetNucleotidesOnly();
         ResetComponents(splitList);
-        UpdateFirstDomain();
+        // UpdateFirstDomain();
+        ResetDomains();
         _xoversWasChanged = true;
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
@@ -477,7 +485,8 @@ public class Strand
         _lengthWasChanged = true;
         SetNucleotidesOnly();
         ResetComponents(splitList);
-        UpdateLastDomain();
+        // UpdateLastDomain();
+        ResetDomains();
         return splitList;
     }
 
@@ -549,13 +558,54 @@ public class Strand
         GameObject.Destroy(xover);
     }
 
+    private void DeleteDomains()
+    {
+        foreach (DomainComponent domainComponent in _domains)
+        {
+            GameObject.Destroy(domainComponent.gameObject);
+        }
+        _domains.Clear();
+    }
+
+
+    public void ResetDomains()
+    {
+        DeleteDomains();
+
+        List<DNAComponent> domain = new List<DNAComponent>();
+        for (int i = _nucleotides.Count - 1; i >= 0; i--)
+        {
+            DNAComponent dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
+            NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+
+            domain.Add(dnaComp);
+
+            if (ntc != null && ntc.HasXover)
+            {
+                DomainComponent nextDomianComponent = DrawPoint.MakeDomain(domain, this);
+                _domains.Add(nextDomianComponent);
+                domain.Clear();
+
+                //if (newDomain)
+                //{
+                //    // DomainComponent domainComponent = DrawPoint.MakeDomainCollider(domain);
+                //    // _domains.Add(domainComponent);
+                //    domain.Clear();
+                //}
+                //newDomain = !newDomain; // Since xover endpoint nucleotides are sequential, this stops us from overcounting.
+            }
+        }
+
+        // Always create a domain component for the last domain
+        DomainComponent lastDomainComponent = DrawPoint.MakeDomain(domain, this);
+        _domains.Add(lastDomainComponent);
+    }
+
     /// <summary>
     /// Sets variables of each GameObject's component (strandId, color, etc).
     /// </summary>
     public void SetComponents()
     {
-        bool newDomain = true;
-        List<DNAComponent> domain = new List<DNAComponent>();
         for (int i = _nucleotides.Count - 1; i >= 0; i--)
         {
             DNAComponent dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
@@ -565,26 +615,14 @@ public class Strand
             dnaComp.StrandId = _strandId;
             dnaComp.Color = _color;
 
-            domain.Add(dnaComp);
-
             if (ntc != null && ntc.HasXover)
             {
                 XoverComponent xoverComp = ntc.Xover.GetComponent<XoverComponent>();
                 xoverComp.Color = _color;
-
-                if (newDomain)
-                {
-                    // DomainComponent domainComponent = DrawPoint.MakeDomainCollider(domain);
-                    // _domains.Add(domainComponent);
-                    domain.Clear();
-                }
-                newDomain = !newDomain; // Since xover endpoint nucleotides are sequential, this stops us from overcounting.
             }
         }
 
-        DomainComponent domainComponent = DrawPoint.MakeDomain(domain);
-        _domains.Add(domainComponent);
-
+        ResetDomains();
         SetCone();
     }
 
@@ -691,7 +729,7 @@ public class Strand
             NucleotideComponent ntc = nucleotides[i].GetComponent<NucleotideComponent>();
             if (ntc != null)
             { 
-                ntc.ResetComponent(); 
+                ntc.ResetComponent();
             }
         }
     }
@@ -768,32 +806,28 @@ public class Strand
 
     public void DrawBezier()
     {
-        //if (_beziers.Count == 0)
-        //{
-        //    List<GameObject> nuclSubList = new List<GameObject>();
-        //    for (int i = 0; i < _nucleotides.Count; i++)
-        //    {
-        //        nuclSubList.Add(_nucleotides[i]);
-        //        if (nuclSubList.Count % BEZIER_COUNT == 0 || i == _nucleotides.Count - 1)
-        //        {
-        //            GameObject bezier = DrawPoint.MakeBezier(nuclSubList, _color);
-        //            _beziers.Add(bezier);
-        //            nuclSubList.RemoveRange(0, nuclSubList.Count - 1); // Remove all but last nucl to keep Beziers continuous.
-        //        }
-        //    }
-        //}
+        Debug.Log("Draw Called");
+        Debug.Log(_domains.Count);
         foreach (DomainComponent domain in _domains)
         {
-            domain.DrawBezier();
+            if (domain == null)
+            {
+                Debug.Log("Null Domain!");
+            }
+            domain.HideNucleotides();
         }
     }
 
     public void DeleteBezier()
     {
-        Debug.Log("Deleting");
+        Debug.Log("Delete Called");
         foreach (DomainComponent domain in _domains)
         {
-            domain.DeleteBezier();
+            if (domain == null)
+            {
+                Debug.Log("Null Domain!");
+            }
+            domain.ShowNucleotides();
         }
     }
 

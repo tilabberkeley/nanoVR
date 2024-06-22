@@ -16,7 +16,7 @@ using System.Linq;
 /// </summary>
 public static class DrawPoint
 {
-    private const int SPLINE_RESOLUTION = 8;
+    private const int SPLINE_RESOLUTION = 128;
     private const float TUBE_SIZE = 0.01f;
     // private const float LOOPOUT_SIZE = 0.005f;
     // Factor determines how much loopout "bends." Higher factor, more bending.
@@ -203,22 +203,22 @@ public static class DrawPoint
         meshRend.material.SetColor("_Color", color);
 
         // TODO: figure out how to make this smoother. Increase resolution? 
-        //SplineMaker splineMaker = tube.AddComponent<SplineMaker>();
-        //splineMaker.onUpdated.AddListener((points) => tubeRend.points = points); // updates tube renderer points when anchorPoints is changed.
-        //splineMaker.pointsPerSegment = SPLINE_RESOLUTION;
-        /*Vector3[] anchorPoints = new Vector3[nucleotides.Count];
+        SplineMaker splineMaker = tube.AddComponent<SplineMaker>();
+        splineMaker.onUpdated.AddListener((points) => tubeRend.points = points); // updates tube renderer points when anchorPoints is changed.
+        splineMaker.pointsPerSegment = SPLINE_RESOLUTION;
+        Vector3[] anchorPoints = new Vector3[nucleotides.Count];
 
         for (int i = 0; i < nucleotides.Count; i += 1)
         {
             anchorPoints[i] = nucleotides[i].transform.position;
         }
-        splineMaker.anchorPoints = anchorPoints;*/
+        splineMaker.anchorPoints = anchorPoints;
 
-        tubeRend.points = new Vector3[nucleotides.Count];
-        for (int i = 0; i < nucleotides.Count; i += 1)
-        {
-            tubeRend.points[i] = nucleotides[i].transform.position;
-        }
+        //tubeRend.points = new Vector3[nucleotides.Count];
+        //for (int i = 0; i < nucleotides.Count; i += 1)
+        //{
+        //    tubeRend.points[i] = nucleotides[i].transform.position;
+        //}
         return tube;
     }
 
@@ -372,7 +372,7 @@ public static class DrawPoint
     /// <summary>
     /// Creates a domain given a list of DNA components.
     /// </summary>
-    public static DomainComponent MakeDomain(List<DNAComponent> dnaList)
+    public static DomainComponent MakeDomain(List<DNAComponent> dnaList, Strand strand)
     {
         if (dnaList.Count == 0)
         {
@@ -391,9 +391,6 @@ public static class DrawPoint
             nucleotide.Domain = domainComponent;
         }
 
-        s_strandDict.TryGetValue(dnaList[0].StrandId, out Strand strand);
-        Debug.Log("This");
-        Debug.Log(strand == null);
         domainComponent.Strand = strand;
         domainComponent.UpdateCapsuleCollider();
 

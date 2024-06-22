@@ -34,7 +34,7 @@ public class FileImport : MonoBehaviour
         FileBrowser.HideDialog();
         FileBrowser.SingleClickMode = true;
         FileBrowser.Instance.enabled = false;
-        loadingMenu.enabled = false;
+        // loadingMenu.enabled = false;
         Instance = this;
 
 #if UNITY_ANDROID
@@ -98,7 +98,7 @@ public class FileImport : MonoBehaviour
             if (fileType.Equals(".sc") || fileType.Equals(".sc.txt"))
             {
                 //StartCoroutine(ParseSC(@fileContent, false));
-                loadingMenu.enabled = true;
+                // loadingMenu.enabled = true;
                 DoFileImport(fileContent);
             }
             else if (fileType.Equals(".json"))
@@ -414,6 +414,8 @@ public class FileImport : MonoBehaviour
                 }
             }
 
+            strand.ResetDomains();
+
             // Set sequence and check for mismatches with complement strands.
             strand.Sequence = sequence;
             CheckMismatch(strand);
@@ -428,7 +430,7 @@ public class FileImport : MonoBehaviour
             ViewingPerspective.Instance.ViewStrand();
         }
 
-        loadingMenu.enabled = false;
+        // loadingMenu.enabled = false;
     }
 
     /// <summary>

@@ -21,35 +21,45 @@ public class DomainComponent : MonoBehaviour
     private List<DNAComponent> _nucleotides = new List<DNAComponent>();
     public List<DNAComponent> Nucleotides { get => _nucleotides; set => _nucleotides = value; }
 
-    private GameObject _bezier = null;
+    private List<GameObject> _beziers = new List<GameObject>();
 
     private Strand _strand;
     public Strand Strand { get => _strand; set => _strand = value; }
 
-    public void DrawBezier()
+    private void DrawBezier()
     {
-        List<DNAComponent> nuclSubList = new List<DNAComponent>();
-        for (int i = 0; i < _nucleotides.Count; i++)
+        if (_beziers.Count == 0)
         {
-            nuclSubList.Add(_nucleotides[i]);
-            if (nuclSubList.Count % BEZIER_COUNT == 0 || i == _nucleotides.Count - 1)
+            List<DNAComponent> nuclSubList = new List<DNAComponent>();
+            for (int i = 0; i < _nucleotides.Count; i++)
             {
-                Debug.Log("Drawing bezier");
-                Debug.Log(_strand == null);
-                _bezier = DrawPoint.MakeBezier(nuclSubList, Color.black);
-                nuclSubList.RemoveRange(0, nuclSubList.Count - 1); // Remove all but last nucl to keep Beziers continuous.
+                nuclSubList.Add(_nucleotides[i]);
+                if (nuclSubList.Count % BEZIER_COUNT == 0 || i == _nucleotides.Count - 1)
+                {
+                    GameObject bezier = DrawPoint.MakeBezier(nuclSubList, _strand.Color);
+                    _beziers.Add(bezier);
+                    nuclSubList.RemoveRange(0, nuclSubList.Count - 1); // Remove all but last nucl to keep Beziers continuous.
+                }
             }
         }
     }
 
-    public void DeleteBezier()
+    private void DeleteBezier()
     {
-        if (_bezier != null)
+        if (_beziers.Count > 0)
         {
-            Debug.Log("Destroyed!");
-            Destroy(_bezier);
-            _bezier = null;
+            foreach (GameObject bezier in _beziers)
+            {
+                Destroy(bezier);
+            }
+            _beziers.Clear();
         }
+        
+        //if (_bezier != null)
+        //{
+        //    Destroy(_bezier);
+        //    _bezier = null;
+        //}
     }
 
     public void ShowHideCone(bool enabled)

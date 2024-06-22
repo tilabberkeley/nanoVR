@@ -38,17 +38,20 @@ public class ViewingPerspective : MonoBehaviour
     public void ViewNucleotide()
     {
         if (!s_nucleotideView) { return; }
-        foreach (Strand strand in s_strandDict.Values)
-        {
-            strand.DeleteBezier();
-            strand.ShowHideCone(true);
-            strand.ShowHideXovers(true);
-            strand.SetDomainActivity(false);
-        }
+
         foreach (Helix helix in s_helixDict.Values)
         {
             helix.ChangeRendering();
         }
+
+        foreach (Strand strand in s_strandDict.Values)
+        {
+            strand.DeleteBezier();
+            strand.ShowHideCone(true);
+            // strand.ShowHideXovers(true);
+            // strand.SetDomainActivity(false);
+        }
+        
     }
 
     /// <summary>
@@ -64,7 +67,15 @@ public class ViewingPerspective : MonoBehaviour
             helix.ChangeRendering();
         }
 
-        StartCoroutine(ViewStrandHelper());
+        foreach (Strand strand in s_strandDict.Values)
+        {
+            strand.ShowHideCone(false);
+            // strand.ShowHideXovers(false);
+            strand.DrawBezier();
+            // strand.SetDomainActivity(true);
+        }
+
+        // StartCoroutine(ViewStrandHelper());
 
         // CoRunner.Instance.Run(ViewStrandHelper());
     }
@@ -74,12 +85,13 @@ public class ViewingPerspective : MonoBehaviour
     /// </summary>
     private IEnumerator ViewStrandHelper()
     {
+        if (!s_strandView) { yield return null; }
         foreach (Strand strand in s_strandDict.Values)
         {
             strand.ShowHideCone(false);
-            strand.ShowHideXovers(false);
+            // strand.ShowHideXovers(false);
             strand.DrawBezier();
-            strand.SetDomainActivity(true);
+            // strand.SetDomainActivity(true);
             yield return null;
         }
     }
