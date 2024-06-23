@@ -12,7 +12,7 @@ using static OVRPlugin;
 
 public class DomainComponent : MonoBehaviour
 {
-    private const int BEZIER_COUNT = 128;    // Number of nucleotides (including backbones) included in one "Bezier" of the Strand View.
+    private const int BEZIER_COUNT = 8;    // Number of nucleotides (including backbones) included in one "Bezier" of the Strand View.
 
     private CapsuleCollider _capsuleCollider;
     private Helix _helix;

@@ -290,6 +290,7 @@ public class Strand
         _lengthWasChanged = true;
 
         // Append "?" to DNA sequence if this strand has been assigned a sequence and newNucls haven't.
+        // The first item in newNucls should be a nucleotide.
         if (newNucls[0].GetComponent<NucleotideComponent>().Sequence.Equals("") 
             && !this._nucleotides[0].GetComponent<NucleotideComponent>().Sequence.Equals(""))
         {
@@ -324,7 +325,8 @@ public class Strand
         _lengthWasChanged = true;
 
         // Append "?" to DNA sequence if this strand has been assigned a sequence and newNucls haven't.
-        if (newNucls[0].GetComponent<NucleotideComponent>().Sequence.Equals("")
+        // The last item in newNucls should be a nucleotide.
+        if (newNucls.Last().GetComponent<NucleotideComponent>().Sequence.Equals("")
             && !this._nucleotides[0].GetComponent<NucleotideComponent>().Sequence.Equals(""))
         {
             Utils.SetUnknownSequence(newNucls);
