@@ -425,25 +425,6 @@ public class Strand
         return splitList;
     }
 
-    public void UpdateFirstDomain()
-    {
-        DNAComponent dnaComponent = _nucleotides[0].GetComponent<DNAComponent>();
-        DomainComponent domainComponent = dnaComponent.Domain;
-        List<DNAComponent> domain = new List<DNAComponent>();
-        for (int i = 0; i < _nucleotides.Count; i++)
-        {
-            DNAComponent dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
-            NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
-            domain.Add(dnaComp);
-            if (ntc != null && ntc.HasXover)
-            {
-                break;
-            }
-        }
-        domainComponent.Nucleotides = domain;
-        domainComponent.UpdateCapsuleCollider();
-    }
-
     public void SplitCircularBefore(GameObject go)
     {
         //TODO: Add DomainCollider logic
@@ -490,26 +471,6 @@ public class Strand
         // UpdateLastDomain();
         ResetDomains();
         return splitList;
-    }
-
-    public void UpdateLastDomain()
-    {
-        DNAComponent dnaComponent = _nucleotides.Last().GetComponent<DNAComponent>();
-        DomainComponent domainComponent = dnaComponent.Domain;
-        List<DNAComponent> domain = new List<DNAComponent>();
-        for (int i = _nucleotides.Count - 1; i >= 0; i--)
-        {
-            DNAComponent dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
-            NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
-            domain.Add(dnaComp);
-            if (ntc != null && ntc.HasXover)
-            {
-                break;
-            }
-        }
-        domain.Reverse();
-        domainComponent.Nucleotides = domain;
-        domainComponent.UpdateCapsuleCollider();
     }
 
     public void SplitCircularAfter(GameObject go)
@@ -578,7 +539,7 @@ public class Strand
     }
 
     /// <summary>
-    /// Resets the domains for this strand.
+    /// Resets the domains for this strand. This should be called whenever _nucleotides changes. 
     /// </summary>
     private void ResetDomains()
     {
