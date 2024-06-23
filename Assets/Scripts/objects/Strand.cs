@@ -567,11 +567,16 @@ public class Strand
         _domains.Clear();
     }
 
+    public void SetDomains()
+    {
+        ResetDomains();
+    }
 
-    public void ResetDomains()
+    private void ResetDomains()
     {
         DeleteDomains();
 
+        bool xoverBefore = false;
         List<DNAComponent> domain = new List<DNAComponent>();
         for (int i = _nucleotides.Count - 1; i >= 0; i--)
         {
@@ -582,17 +587,18 @@ public class Strand
 
             if (ntc != null && ntc.HasXover)
             {
-                DomainComponent nextDomianComponent = DrawPoint.MakeDomain(domain, this);
-                _domains.Add(nextDomianComponent);
-                domain.Clear();
-
-                //if (newDomain)
-                //{
-                //    // DomainComponent domainComponent = DrawPoint.MakeDomainCollider(domain);
-                //    // _domains.Add(domainComponent);
-                //    domain.Clear();
-                //}
-                //newDomain = !newDomain; // Since xover endpoint nucleotides are sequential, this stops us from overcounting.
+                if (!xoverBefore)
+                {
+                    DomainComponent nextDomianComponent = DrawPoint.MakeDomain(domain, this);
+                    _domains.Add(nextDomianComponent);
+                    domain.Clear();
+                    // Since xover endpoint nucleotides are sequential, this creating more domains than needed.
+                    xoverBefore = true;
+                }
+                else
+                {
+                    xoverBefore = false; 
+                }
             }
         }
 

@@ -414,7 +414,7 @@ public class FileImport : MonoBehaviour
                 }
             }
 
-            strand.ResetDomains();
+            strand.SetDomains();
 
             // Set sequence and check for mismatches with complement strands.
             strand.Sequence = sequence;
