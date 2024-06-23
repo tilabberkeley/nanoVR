@@ -426,8 +426,8 @@ public class FileImport : MonoBehaviour
         // This helps with performance.
         if (totalNucleotides > MAX_NUCLEOTIDES)
         {
-            Togglers.StrandViewToggled();
-            ViewingPerspective.Instance.ViewStrand();
+            Togglers.Instance.StrandViewToggled();
+            // ViewingPerspective.ViewStrand();
         }
 
         // loadingMenu.enabled = false;

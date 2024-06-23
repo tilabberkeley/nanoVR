@@ -3,27 +3,17 @@
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections;
+using System;
 using UnityEngine;
 using static GlobalVariables;
 
-public class ViewingPerspective : MonoBehaviour
+public static class ViewingPerspective 
 {
-    /// <summary>
-    /// Singleton which provides a single static instance for this class. Allows other
-    /// scripts to access instance methods in this class.
-    /// </summary>
-    public static ViewingPerspective Instance;
-
-    private void Awake()
-    {
-        Instance = this;
-    }
-
     /// <summary>
     /// Toggles stencils (Grid circles and unused nucleotides) on and off.
     /// Called by StencilViewTog in View Panel of Menu.
     /// </summary>
-    public void ChangeStencilsView()
+    public static void ChangeStencilsView()
     {
         foreach (DNAGrid grid in s_gridDict.Values)
         {
@@ -35,7 +25,7 @@ public class ViewingPerspective : MonoBehaviour
     /// Changes viewing mode to Nucleotide View (individual nucleotides).
     /// Called by NucleotideViewTog in the View Panel of Menu.
     /// </summary>
-    public void ViewNucleotide()
+    public static void ViewNucleotide()
     {
         if (!s_nucleotideView) { return; }
 
@@ -58,7 +48,7 @@ public class ViewingPerspective : MonoBehaviour
     /// Changes viewing mode to Strand View (abstracted Strands).
     /// Called by StrandViewTog in the View Panel of Menu.
     /// </summary>
-    public void ViewStrand() 
+    public static void ViewStrand() 
     {
         if (!s_strandView) { return; }
 
@@ -67,23 +57,13 @@ public class ViewingPerspective : MonoBehaviour
             helix.ChangeRendering();
         }
 
-        foreach (Strand strand in s_strandDict.Values)
-        {
-            strand.ShowHideCone(false);
-            // strand.ShowHideXovers(false);
-            strand.DrawBezier();
-            // strand.SetDomainActivity(true);
-        }
-
-        // StartCoroutine(ViewStrandHelper());
-
-        // CoRunner.Instance.Run(ViewStrandHelper());
+        CoRunner.Instance.Run(ViewStrandHelper());
     }
 
     /// <summary>
     /// Helper Coroutine for converting all Strands into abstracted Strand View.
     /// </summary>
-    private IEnumerator ViewStrandHelper()
+    private static IEnumerator ViewStrandHelper()
     {
         if (!s_strandView) { yield return null; }
         foreach (Strand strand in s_strandDict.Values)
@@ -96,13 +76,13 @@ public class ViewingPerspective : MonoBehaviour
         }
     }
 
-    public void EditMode()
+    public static void EditMode()
     {
-
+        throw new NotImplementedException();
     }
 
-    public void VisualMode()
+    public static void VisualMode()
     {
-
+        throw new NotImplementedException();
     }
 }

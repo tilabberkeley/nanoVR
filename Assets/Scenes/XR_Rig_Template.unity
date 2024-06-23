@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028305, g: 0.22571313, b: 0.3069213, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1006,7 +1006,6 @@ GameObject:
   - component: {fileID: 44542767}
   - component: {fileID: 44542770}
   - component: {fileID: 44542768}
-  - component: {fileID: 44542769}
   m_Layer: 0
   m_Name: ViewGroup
   m_TagString: Untagged
@@ -1046,18 +1045,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 664a74fb0df36ce43aed0bcc454fe75a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &44542769
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 44542766}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3522f339fdcd9e341bbf6bb2de1abcb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &44542770
@@ -4585,6 +4572,7 @@ GameObject:
   - component: {fileID: 247845233}
   - component: {fileID: 247845232}
   - component: {fileID: 247845231}
+  - component: {fileID: 247845234}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -4658,6 +4646,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &247845234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 247845230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1d461e4e7d5bbc4bab20b0d25a69967, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &248779478
 GameObject:
   m_ObjectHideFlags: 0
@@ -5602,18 +5602,6 @@ MonoBehaviour:
       - m_Target: {fileID: 44542768}
         m_TargetAssemblyTypeName: Togglers, Assembly-CSharp
         m_MethodName: StrandViewToggled
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 44542769}
-        m_TargetAssemblyTypeName: ViewingPerspective, Assembly-CSharp
-        m_MethodName: ViewStrand
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -12616,7 +12604,6 @@ GameObject:
   m_Component:
   - component: {fileID: 721356198}
   - component: {fileID: 721356199}
-  - component: {fileID: 721356201}
   - component: {fileID: 721356200}
   m_Layer: 0
   m_Name: StencilViewTog
@@ -12693,7 +12680,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 721356201}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ViewingPerspective, Assembly-CSharp
         m_MethodName: ChangeStencilsView
         m_Mode: 1
@@ -12728,18 +12715,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 664a74fb0df36ce43aed0bcc454fe75a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &721356201
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 721356197}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3522f339fdcd9e341bbf6bb2de1abcb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &724943434
@@ -20107,6 +20082,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Menu: {fileID: 1010908918}
+  loadingMenu: {fileID: 0}
 --- !u!114 &1284379037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23265,18 +23241,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 44542769}
-        m_TargetAssemblyTypeName: ViewingPerspective, Assembly-CSharp
-        m_MethodName: ViewHelix
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
   m_IsOn: 0
 --- !u!1 &1486429323
 GameObject:
@@ -25750,18 +25714,6 @@ MonoBehaviour:
       - m_Target: {fileID: 44542768}
         m_TargetAssemblyTypeName: Togglers, Assembly-CSharp
         m_MethodName: NucleotideViewToggled
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 44542769}
-        m_TargetAssemblyTypeName: ViewingPerspective, Assembly-CSharp
-        m_MethodName: ViewNucleotide
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

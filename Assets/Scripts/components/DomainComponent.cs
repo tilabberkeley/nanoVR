@@ -26,6 +26,9 @@ public class DomainComponent : MonoBehaviour
     private Strand _strand;
     public Strand Strand { get => _strand; set => _strand = value; }
 
+    /// <summary>
+    /// Draws the bezier curve representation of this domain.
+    /// </summary>
     private void DrawBezier()
     {
         if (_beziers.Count == 0)
@@ -44,6 +47,9 @@ public class DomainComponent : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Deletes the bezier curve representation of this domain.
+    /// </summary>
     private void DeleteBezier()
     {
         if (_beziers.Count > 0)
@@ -54,20 +60,18 @@ public class DomainComponent : MonoBehaviour
             }
             _beziers.Clear();
         }
-        
-        //if (_bezier != null)
-        //{
-        //    Destroy(_bezier);
-        //    _bezier = null;
-        //}
     }
 
     public void ShowHideCone(bool enabled)
     {
+        throw new NotImplementedException();
         // TODO
         // Maybe always keeping the cone visiable is find? So you know the direction of the abstracted strand?
     }
 
+    /// <summary>
+    /// Shows the nucleotide representation of this domain.
+    /// </summary>
     public void ShowNucleotides()
     {
         foreach(DNAComponent nucleotide in _nucleotides)
@@ -81,6 +85,9 @@ public class DomainComponent : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// Shows the bezier curve representation of this domain.
+    /// </summary>
     public void HideNucleotides()
     {
         foreach (DNAComponent nucleotide in _nucleotides)

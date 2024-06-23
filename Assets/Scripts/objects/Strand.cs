@@ -567,11 +567,17 @@ public class Strand
         _domains.Clear();
     }
 
+    /// <summary>
+    /// Sets the domains for this strand.
+    /// </summary>
     public void SetDomains()
     {
         ResetDomains();
     }
 
+    /// <summary>
+    /// Resets the domains for this strand.
+    /// </summary>
     private void ResetDomains()
     {
         DeleteDomains();
@@ -809,30 +815,26 @@ public class Strand
             }
         }
     }
-
+    
+    /// <summary>
+    /// Draws the simplified bezier curve representation of this strand.
+    /// </summary>
     public void DrawBezier()
     {
-        Debug.Log("Draw Called");
-        Debug.Log(_domains.Count);
         foreach (DomainComponent domain in _domains)
         {
-            if (domain == null)
-            {
-                Debug.Log("Null Domain!");
-            }
             domain.HideNucleotides();
         }
     }
 
+    /// <summary>
+    /// Returns this strand from the simplified bezier curve representation to
+    /// the default nucleotide view.
+    /// </summary>
     public void DeleteBezier()
     {
-        Debug.Log("Delete Called");
         foreach (DomainComponent domain in _domains)
         {
-            if (domain == null)
-            {
-                Debug.Log("Null Domain!");
-            }
             domain.ShowNucleotides();
         }
     }
