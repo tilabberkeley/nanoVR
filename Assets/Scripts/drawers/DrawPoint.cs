@@ -2,6 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -195,7 +196,7 @@ public static class DrawPoint
         return gridCircle;
     }
 
-    public static GameObject MakeBezier(List<GameObject> nucleotides, Color32 color)
+    public static GameObject MakeBezier(List<DNAComponent> nucleotides, Color32 color)
     {
         GameObject tube = new GameObject("tube");
         MeshRenderer meshRend = tube.AddComponent<MeshRenderer>();
@@ -370,8 +371,16 @@ public static class DrawPoint
         return meshGO;
     }
 
+    /// <summary>
+    /// Creates a domain given a list of DNA components.
+    /// </summary>
     public static DomainComponent MakeDomain(List<DNAComponent> dnaList)
     {
+        if (dnaList.Count == 0)
+        {
+            throw new ArgumentException("dnaList must be non empty.");
+        }
+
         GameObject domain = Instantiate(Domain,
                    Vector3.zero,
                    Quaternion.identity);
@@ -384,6 +393,10 @@ public static class DrawPoint
             nucleotide.Domain = domainComponent;
         }
 
+        s_strandDict.TryGetValue(dnaList[0].StrandId, out Strand strand);
+        Debug.Log("This");
+        Debug.Log(strand == null);
+        domainComponent.Strand = strand;
         domainComponent.UpdateCapsuleCollider();
 
         return domainComponent;

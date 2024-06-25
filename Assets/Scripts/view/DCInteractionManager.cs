@@ -74,7 +74,6 @@ public class DCInteractionManager : MonoBehaviour
             if (domainComponent != null)
             {
                 domains.Add(domainComponent);
-                // HAVE TO DELETE STRAND BEZIERS
                 domainComponent.ShowNucleotides();
             }
         }
@@ -100,6 +99,7 @@ public class DCInteractionManager : MonoBehaviour
             {
                 domain.HideNucleotides();
             }
+            domains.Clear();
         }
 
         // Resets triggers to avoid multiple selections.                                              
