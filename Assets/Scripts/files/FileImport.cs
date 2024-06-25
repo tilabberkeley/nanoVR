@@ -16,6 +16,7 @@ using static GlobalVariables;
 using static Utils;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Handles all file importing into nanoVR.
@@ -134,7 +135,7 @@ public class FileImport : MonoBehaviour
     /// <param name="isCopyPaste">Whether this is being called for copy/pasting a grid</param>
     /// <param name="visualMode">Whether this is being called for converting to visual mode</param>
     /// <returns>List of grids created</returns>
-    public async void ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
+    public async Task<List<DNAGrid>> ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
     {
         st.Start();
         List<DNAGrid> grids = new List<DNAGrid>();
@@ -210,10 +211,29 @@ public class FileImport : MonoBehaviour
         }
         
         int lastHelixId = s_numHelices;
+        await ParseHelices(helices);
+        //Task.Run(async () => await ParseHelices(helices)).Wait();
+        Debug.Log("Done parsing helices");
+        // Parse strands.
+        if (!gameObject.activeInHierarchy)
+        {
+            Debug.Log("Not active!" + gameObject.name);
+        }
+        CoRunner.Instance.Run(ParseStrands(strands, lastHelixId));
+        return grids;
+    }
 
-        // Parse helices.
+    /// <summary>
+    /// Async method to parse and draw Helices from scadnano file
+    /// </summary>
+    private async Task ParseHelices(JArray helices)
+    {
+        Stopwatch sw = new Stopwatch();
+        List<Task> tasks = new List<Task>();
         for (int i = 0; i < helices.Count; i++)
         {
+            sw.Reset();
+            sw.Start();
             JArray coord = JArray.Parse(helices[i]["grid_position"].ToString());
             int length = (int)helices[i]["max_offset"];
             string gridName;
@@ -258,78 +278,31 @@ public class FileImport : MonoBehaviour
             GridComponent gc = grid.Grid2D[xInd, yInd];
             Helix helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
             bool hideNucleotides = true;
-            await helix.ExtendAsync(length, hideNucleotides);
-            grid.CheckExpansion(gc);
-        }
-
-        // Parse strands.
-        StartCoroutine(ParseStrands(strands, lastHelixId));
-        //return grids;
-    }
-
-    /// <summary>
-    /// Async method to parse and draw Helices from scadnano file
-    /// </summary>
-    private static async void ParseHelices(JArray helices)
-    {
-        for (int i = 0; i < helices.Count; i++)
-        {
-            JArray coord = JArray.Parse(helices[i]["grid_position"].ToString());
-            int length = (int) helices[i]["max_offset"];
-            string gridName;
-            if (helices[i]["group"] != null)
+            //await helix.ExtendAsync(length, hideNucleotides);
+            Task task = helix.ExtendAsync(length, hideNucleotides);
+            tasks.Add(task);
+            sw.Stop();
+            //Debug.Log(string.Format("Parsing helix took {0} ms", sw.ElapsedMilliseconds));
+            // Parellelize every 4 helices
+            if (i % 8 == 0 || i == helices.Count - 1)
             {
-                string origName = CleanSlash(helices[i]["group"].ToString());
-                gridName = GetGridName(origName);
+                await Task.WhenAll(tasks);
+                tasks.Clear();
             }
-            else
-            {
-                gridName = (s_numGrids - 1).ToString();
-            }
-
-            DNAGrid grid = s_gridDict[gridName];
-            int xGrid = (int) coord[0];
-            int yGrid = (int) coord[1] * -1;
-
-            /**
-             * Expands grid if necessary so that helix coordinates exist.
-             */
-            GridPoint minBound = grid.MinimumBound;
-            GridPoint maxBound = grid.MaximumBound;
-            while (xGrid <= minBound.X)
-            {
-                grid.ExpandWest();
-            }
-            while (xGrid >= maxBound.X)
-            {
-                grid.ExpandEast();
-            }
-            while (yGrid <= minBound.Y)
-            {
-                grid.ExpandSouth();
-            }
-            while (yGrid >= maxBound.Y)
-            {
-                grid.ExpandNorth();
-            }
-
-            int xInd = grid.GridXToIndex(xGrid);
-            int yInd = grid.GridYToIndex(yGrid);
-            GridComponent gc = grid.Grid2D[xInd, yInd];
-            Helix helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
-            await helix.ExtendAsync(length);
-            grid.CheckExpansion(gc);
+            //grid.CheckExpansion(gc);
         }
     }
-    
+
     /// <summary>
     /// Coroutine to parse and draw Strands from scadnano file
     /// </summary>
     private IEnumerator ParseStrands(JArray strands, int lastHelixId)
     {
+        Stopwatch sw = new Stopwatch();
         // Drawing strands
         for (int i = 0; i < strands.Count; i++)
         {
+            sw.Restart();
             JArray domains = JArray.Parse(strands[i]["domains"].ToString());
             string sequence = CleanSlash(strands[i]["sequence"].ToString());
             string hexColor = CleanSlash(strands[i]["color"].ToString());
@@ -419,6 +392,8 @@ public class FileImport : MonoBehaviour
             // Set sequence and check for mismatches with complement strands.
             strand.Sequence = sequence;
             CheckMismatch(strand);
+            sw.Stop();
+            //Debug.Log(string.Format("Parsing Strand took {0} ms", sw.ElapsedMilliseconds));
             yield return null;
         }
 

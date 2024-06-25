@@ -61,7 +61,7 @@ public static class DrawPoint
     }
 
     /// <summary>
-    /// Creates a backbone between given two nucleotides.
+    /// Creates a backbone between two nucleotides.
     /// </summary>
     /// <param name="id">id of backbone.</param>
     /// <param name="start">Position of start nucleotide.</param>

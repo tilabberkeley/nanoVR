@@ -579,7 +579,7 @@ public class Strand
 
         DomainComponent domainComponent = DrawPoint.MakeDomain(domain);
         _domains.Add(domainComponent);
-        Debug.Log("Created domain");
+        //Debug.Log("Created domain");
 
         SetCone();
     }

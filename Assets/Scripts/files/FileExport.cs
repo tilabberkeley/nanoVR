@@ -11,12 +11,12 @@ using UnityEngine.Networking;
 using SimpleFileBrowser;
 using Newtonsoft.Json.Linq;
 using UnityEngine.UI;
-using System.Reflection;
 using System.Collections;
 using System.Text;
 using System.Text.RegularExpressions;
 using static GlobalVariables;
 using static Utils;
+using System.Reflection; // This is used by Android during build process
 
 public class FileExport : MonoBehaviour
 {
@@ -26,6 +26,7 @@ public class FileExport : MonoBehaviour
 
     [SerializeField] private Dropdown exportTypeDropdown;
     [SerializeField] private Canvas Menu;
+    [SerializeField] private Toggle includeScaffoldTog;
     private Canvas fileBrowser;
 
     void Awake()
@@ -56,9 +57,9 @@ public class FileExport : MonoBehaviour
         }
 
         // Added this because wasn't getting access to files.
-        #if !UNITY_EDITOR && UNITY_ANDROID
+#if !UNITY_EDITOR && UNITY_ANDROID
         typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, (bool?)false);
-        #endif
+#endif
     }
 
     private void Start()
@@ -348,10 +349,15 @@ public class FileExport : MonoBehaviour
     /// </summary>
     private string GetCSV()
     {
+        bool includeScaffold = includeScaffoldTog.isOn;
         StringBuilder csv = new StringBuilder();
 
         foreach (Strand strand in s_strandDict.Values)
         {
+            if (!includeScaffold && strand.IsScaffold)
+            {
+                continue;
+            }
             NucleotideComponent startNtc = strand.Nucleotides.Last().GetComponent<NucleotideComponent>();
             NucleotideComponent endNtc = strand.Nucleotides[0].GetComponent<NucleotideComponent>();
 
@@ -359,13 +365,14 @@ public class FileExport : MonoBehaviour
             int startNuclId = startNtc.Id;
             int endHelixId = endNtc.HelixId;
             int endNuclId = endNtc.Id;
-            string sequence = strand.Sequence;
+            string sequence = strand.Sequence.Replace("X", ""); // Remove 'X' (deletion) from sequence
             string strandName = string.Format("ST{0}[{1}]{2}[{3}]", startHelixId, startNuclId, endHelixId, endNuclId);
             if (strand.IsScaffold)
             {
                 strandName = strandName.Replace("ST", "SCAF");
             }
             string strandText = string.Format("{0}, {1}", strandName, sequence);
+
             csv.AppendLine(strandText);
         }
         return csv.ToString();

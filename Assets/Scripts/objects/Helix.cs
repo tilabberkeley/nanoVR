@@ -164,12 +164,26 @@ public class Helix
             //sw.Stop();
             //rotationTotal += sw.ElapsedMilliseconds;
 
-            if (i % 8 == 0)
+
+            // Draw backbones
+            if (_nucleotidesA.Count > 1)
+            {
+                GameObject cylinderA = DrawPoint.MakeBackbone(i - 1, _id, 1, _nucleotidesA[i].transform.position, _nucleotidesA[i - 1].transform.position, hideNucleotides);
+                _backbonesA.Add(cylinderA);
+                _helixA.Add(cylinderA);
+
+                GameObject cylinderB = DrawPoint.MakeBackbone(i - 1, _id, 0, _nucleotidesB[i].transform.position, _nucleotidesB[i - 1].transform.position, hideNucleotides);
+                _backbonesB.Add(cylinderB);
+                _helixB.Add(cylinderB);
+            }
+            //await Task.Yield();
+
+            if (i % 2 == 0)
             {
                 await Task.Yield();
             }
         }
-        if (prevLength == 0)
+        /*if (prevLength == 0)
         {
             await DrawBackbones(prevLength + 1, hideNucleotides);
         }
@@ -178,7 +192,7 @@ public class Helix
             // Needs to add backbone to connect previous set of nucleotides
             await DrawBackbones(prevLength, hideNucleotides);
         }
-
+*/
         /* Batches static (non-moving) gameobjects so that they are drawn together.
          * This reduces number of Draw calls and increases FPS. 
          */
@@ -199,7 +213,7 @@ public class Helix
         sw.Stop();
         //Debug.Log(string.Format("Clearing both helices took {0}ms to complete", sw.ElapsedMilliseconds));
         //clearingHelixTotal += sw.ElapsedMilliseconds;
-        Debug.Log(string.Format("Total time for helix length 64 creation: ~{0}", sw.ElapsedMilliseconds));
+        //Debug.Log(string.Format("Total time for helix length 64 creation: ~{0}", sw.ElapsedMilliseconds));
 
         /*Debug.Log(string.Format("Total time for helix length 64 creation: ~{0}", intialPositionTotal + instantiationTotal + rotationTotal + staticBatchingTotal + clearingHelixTotal));
         Debug.Log(string.Format("Total time for intial nucleotide position calcution: ~{0}", intialPositionTotal));
@@ -228,7 +242,7 @@ public class Helix
             _helixB.Add(cylinderB);
             //cylinder.transform.SetParent(_parent.transform);
             
-            if (i % 8 == 0)
+            //if (i % 2 == 0)
             {
                 await Task.Yield();
             }
