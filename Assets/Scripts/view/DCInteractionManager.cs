@@ -20,12 +20,14 @@ public class DCInteractionManager : MonoBehaviour
     [SerializeField] private XRRayInteractor leftRayInteractor;
     [SerializeField] private XRRayInteractor rightRayInteractor;
 
-
     // Helper variables
     private static RaycastHit s_hit;
-    private bool leftReleased = true;
-    private bool rightReleased = true;
-    private List<DomainComponent> domains = new List<DomainComponent>();
+    private bool _leftTriggerReleased = true;
+    private bool _leftGripReleased = true;
+    private bool _rightTriggerReleased = true;
+    private bool _rightGripReleased = true;
+    // private List<DomainComponent> _domains = new List<DomainComponent>();
+    private DomainComponent _savedDomainComponent = null;
 
     void GetDevice()
     {
@@ -63,54 +65,162 @@ public class DCInteractionManager : MonoBehaviour
             return;
         }
 
+        HandleLeftHandInteraction();
+        HandleRightHandInteraction();
+        //// If both triggers pressed, reset all nucleotides back to Strand View
+        //if (leftTriggerValue && rightTriggerValue
+        //        && _leftTriggerReleased && _rightTriggerReleased)
+        //{
+        //    _leftTriggerReleased = false;
+        //    _rightTriggerReleased = false;
+        //    foreach (DomainComponent domain in _domains)
+        //    {
+        //        domain.HideNucleotides();
+        //    }
+        //    _domains.Clear();
+        //}
+    }
+
+    private void HandleLeftHandInteraction()
+    {
         _leftDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool leftTriggerValue);
-        _rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool rightTriggerValue);
+        _leftDevice.TryGetFeatureValue(CommonUsages.gripButton, out bool leftGripValue);
 
+        _rightDevice.TryGetFeatureValue(CommonUsages.gripButton, out bool rightGripValue);
 
-        if (leftTriggerValue && leftReleased && leftRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        bool leftRayInteractorHit = leftRayInteractor.TryGetCurrent3DRaycastHit(out s_hit);
+
+        // Check for hiding a domain if grip is pressed
+        if (leftGripValue && _leftGripReleased && leftRayInteractorHit)
         {
-            leftReleased = false;
+            _leftGripReleased = false;
             DomainComponent domainComponent = s_hit.collider.GetComponent<DomainComponent>();
             if (domainComponent != null)
             {
-                domains.Add(domainComponent);
+                _savedDomainComponent = domainComponent;
+                domainComponent.gameObject.SetActive(false);
+            }
+        }
+        // Handle holding down grip when not looking at a domain
+        else if (leftGripValue && _leftGripReleased)
+        {
+            _leftGripReleased = false;
+        }
+
+        // Handle interacting with nucleotides when holding down grip
+        if (leftGripValue && leftTriggerValue && _leftTriggerReleased && leftRayInteractorHit)
+        {
+            _leftTriggerReleased = false;
+            NucleotideComponent nucleotideComponent = s_hit.collider.GetComponent<NucleotideComponent>();
+            // Nucleotide complement must be apart of the domain to turn it 
+            if (nucleotideComponent != null)
+            {
+                nucleotideComponent.Domain.HideNucleotides();
+            }
+        }
+        // Handle showing nucleotides of domain on click - shouldn't be able to show nucleotides when holding grip.
+        else if (leftTriggerValue && _leftTriggerReleased && leftRayInteractorHit)
+        {
+            _leftTriggerReleased = false;
+            DomainComponent domainComponent = s_hit.collider.GetComponent<DomainComponent>();
+            if (domainComponent != null)
+            {
                 domainComponent.ShowNucleotides();
             }
         }
 
-        if (rightTriggerValue && rightReleased && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
-        {
-            rightReleased = false;
-            DomainComponent domainComponent = s_hit.collider.GetComponent<DomainComponent>();
-            if (domainComponent != null)
-            {
-                domains.Add(domainComponent);
-                domainComponent.ShowNucleotides();
-            }
-        }
-
-        // If both triggers pressed, reset all nucleotides back to Strand View
-        if (leftTriggerValue && rightTriggerValue
-                && leftReleased && rightReleased)
-        {
-            leftReleased = false;
-            rightReleased = false;
-            foreach (DomainComponent domain in domains)
-            {
-                domain.HideNucleotides();
-            }
-            domains.Clear();
-        }
-
-        // Resets triggers to avoid multiple selections.                                              
+        // Resets triggers and grips to avoid multiple selections.                                              
         if (!leftTriggerValue)
         {
-            leftReleased = true;
+            _leftTriggerReleased = true;
         }
 
+        if (!leftGripValue)
+        {
+            _leftGripReleased = true;
+        }
+
+        if (!leftGripValue && !rightGripValue)
+        {
+            // Reactivate saved domain if grip released.
+            ReactivateSavedDomain();
+        }
+    }
+
+    private void HandleRightHandInteraction()
+    {
+        _rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool rightTriggerValue);
+        _rightDevice.TryGetFeatureValue(CommonUsages.gripButton, out bool rightGripValue);
+
+        _leftDevice.TryGetFeatureValue(CommonUsages.gripButton, out bool leftGripValue);
+
+        bool rightRayInteractorHit = rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit);
+
+        // Check for hiding a domain if grip is pressed
+        if (rightGripValue && _rightGripReleased && rightRayInteractorHit)
+        {
+            _rightGripReleased = false;
+            DomainComponent domainComponent = s_hit.collider.GetComponent<DomainComponent>();
+            if (domainComponent != null)
+            {
+                _savedDomainComponent = domainComponent;
+                domainComponent.gameObject.SetActive(false);
+            }
+        }
+        // Handle holding down grip when not looking at a domain
+        else if (rightGripValue && _rightGripReleased)
+        {
+            _rightGripReleased = false;
+        }
+
+        // Handle interacting with nucleotides when holding down grip
+        if (rightGripValue && rightTriggerValue && _rightTriggerReleased && rightRayInteractorHit)
+        {
+            _rightTriggerReleased = false;
+            NucleotideComponent nucleotideComponent = s_hit.collider.GetComponent<NucleotideComponent>();
+            // Nucleotide complement must be apart of the domain to turn it 
+            if (nucleotideComponent != null)
+            {
+                nucleotideComponent.Domain.HideNucleotides();
+            }
+        }
+        // Handle showing nucleotides of domain on click - shouldn't be able to show nucleotides when holding grip.
+        else if (rightTriggerValue && _rightTriggerReleased && rightRayInteractorHit)
+        {
+            _rightTriggerReleased = false;
+            DomainComponent domainComponent = s_hit.collider.GetComponent<DomainComponent>();
+            if (domainComponent != null)
+            {
+                domainComponent.ShowNucleotides();
+            }
+        }
+
+        // Resets triggers and grips to avoid multiple selections.
         if (!rightTriggerValue)
         {
-            rightReleased = true;
+            _rightTriggerReleased = true;
+        }
+
+        if (!rightGripValue)
+        {
+            _rightGripReleased = true;
+            // Reactivate saved domain if grip released.
+            ReactivateSavedDomain();
+        }
+
+        if (!leftGripValue && !rightGripValue)
+        {
+            // Reactivate saved domain if grip released.
+            ReactivateSavedDomain();
+        }
+    }
+
+    private void ReactivateSavedDomain()
+    {
+        if (_savedDomainComponent != null)
+        {
+            _savedDomainComponent.gameObject.SetActive(true);
+            _savedDomainComponent = null;
         }
     }
 }
