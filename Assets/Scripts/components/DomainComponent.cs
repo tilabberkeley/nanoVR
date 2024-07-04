@@ -13,7 +13,7 @@ using static OVRPlugin;
 public class DomainComponent : MonoBehaviour
 {
     // Number of nucleotides included in one "Bezier" of the Strand View.
-    private const int BEZIER_COUNT = 16;  
+    private const int BEZIER_COUNT = 128;  
 
     private CapsuleCollider _capsuleCollider;
     private Helix _helix;

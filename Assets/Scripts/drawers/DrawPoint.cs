@@ -16,7 +16,7 @@ using System.Linq;
 /// </summary>
 public static class DrawPoint
 {
-    private const int SPLINE_RESOLUTION = 8;
+    private const int SPLINE_RESOLUTION = 16;
     private const float TUBE_SIZE = 0.003f;
     // private const float LOOPOUT_SIZE = 0.005f;
     // Factor determines how much loopout "bends." Higher factor, more bending.
@@ -203,9 +203,9 @@ public static class DrawPoint
         meshRend.material.SetColor("_Color", color);
 
         // TODO: figure out how to make this smoother. Increase resolution? 
-        //SplineMaker splineMaker = tube.AddComponent<SplineMaker>();
-        //splineMaker.onUpdated.AddListener((points) => tubeRend.points = points); // updates tube renderer points when anchorPoints is changed.
-        //splineMaker.pointsPerSegment = SPLINE_RESOLUTION;
+        /*SplineMaker splineMaker = tube.AddComponent<SplineMaker>();
+        splineMaker.onUpdated.AddListener((points) => tubeRend.points = points); // updates tube renderer points when anchorPoints is changed.
+        splineMaker.pointsPerSegment = SPLINE_RESOLUTION;*/
         Vector3[] anchorPoints = new Vector3[nucleotides.Count];
 
         for (int i = 0; i < nucleotides.Count; i += 1)
@@ -213,11 +213,7 @@ public static class DrawPoint
             anchorPoints[i] = nucleotides[i].transform.position;
         }
 
-        Debug.Log("Initial points are: " + anchorPoints.Length);
-
-        anchorPoints = SplineInterpolation.GenerateIntermediatePoints(anchorPoints, 4);
-
-        Debug.Log("Final anchor points length: " + anchorPoints.Length);
+        anchorPoints = SplineInterpolation.GenerateIntermediatePointsBezier(anchorPoints, 3);
 
         // splineMaker.anchorPoints = anchorPoints;
 

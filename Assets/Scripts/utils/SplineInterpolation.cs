@@ -19,6 +19,7 @@ public static class SplineInterpolation
         float t2 = t * t;
         float t3 = t2 * t;
 
+        // Cubic Hermite basic functions
         float H_0t = 2 * t3 - 3 * t2 + 1;
         float H_1t = -2 * t3 + 3 * t2;
         float H_2t = t3 - 2 * t2 + t;
@@ -26,6 +27,20 @@ public static class SplineInterpolation
 
         return p0 * H_0t + p1 * H_1t + p2 * H_2t + p3 * H_3t;
         // return 0.5f * ((2f * p1) + (p2 - p0) * t + (2f * p0 - 5f * p1 + 4f * p2 - p3) * t2 + (-p0 + 3f * p1 - 3f * p2 + p3) * t3);
+    }
+
+    private static Vector3 BezierCurveInterpolation(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
+    {
+        float t2 = t * t;
+        float t3 = t2 * t;
+
+        // Bezier Curve basic functions
+        float H_0t = (float) Math.Pow(1 - t, 3);
+        float H_1t = 3 * ((float) Math.Pow(1 - t, 2)) * t;
+        float H_2t = 3 * (1 - t) * t2;
+        float H_3t = t3;
+
+        return p0 * H_0t + p1 * H_1t + p2 * H_2t + p3 * H_3t;
     }
 
     /// <summary>
@@ -123,6 +138,36 @@ public static class SplineInterpolation
         Vector3 newEndAdjacent = EstimateAdjacentPoint(newPoints[newPoints.Length - 2], newPoints[newPoints.Length - 1], false);
 
         return GenerateIntermediatePoints(newPoints, newStartAdjacent, newEndAdjacent, depth - 1);
+    }
+
+    public static Vector3[] GenerateIntermediatePointsBezier(Vector3[] points, int resolution = 1)
+    {
+        int totalCurves = (points.Length + 1) / 4;
+        int newPointsPerCurve = (int)Math.Pow(2, resolution) - 1;
+        int totalPoints = (totalCurves + 1) + newPointsPerCurve * totalCurves;
+        Vector3[] newPoints = new Vector3[totalPoints];
+
+        float tIncrement = 1 / (float)Math.Pow(2, resolution);
+
+        for (int i = 0; i < totalCurves; i++)
+        {
+            Vector3 p0 = points[4 * i - i];
+            Vector3 p1 = points[4 * i + 1 - i]; // Control point
+            Vector3 p2 = points[4 * i + 2 - i]; // Control point
+            Vector3 p3 = points[4 * i + 3 - i];
+
+            // Interpolate points
+            int startIndex = i * (newPointsPerCurve + 1);
+            for (int j = 0; j <= newPointsPerCurve; j++)
+            {
+                newPoints[startIndex + j] = BezierCurveInterpolation(p0, p1, p2, p3, j * tIncrement);
+            }
+        }
+
+        // Add last point edge case
+        newPoints[newPoints.Length - 1] = points[points.Length - 1];
+
+        return newPoints;
     }
 }
 
