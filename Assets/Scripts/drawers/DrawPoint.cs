@@ -17,7 +17,7 @@ using System.Linq;
 public static class DrawPoint
 {
     private const int SPLINE_RESOLUTION = 8;
-    private const float TUBE_SIZE = 0.01f;
+    private const float TUBE_SIZE = 0.003f;
     // private const float LOOPOUT_SIZE = 0.005f;
     // Factor determines how much loopout "bends." Higher factor, more bending.
     private const float LOOPOUT_BEND_FACTOR = 0.25f;
