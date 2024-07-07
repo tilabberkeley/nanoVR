@@ -8,6 +8,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR;
 using static GlobalVariables;
 using UnityEngine.EventSystems;
+using System.Security.AccessControl;
 
 public class DCInteractionManager : MonoBehaviour
 {
@@ -65,29 +66,24 @@ public class DCInteractionManager : MonoBehaviour
             return;
         }
 
-        HandleLeftHandInteraction();
-        HandleRightHandInteraction();
-        //// If both triggers pressed, reset all nucleotides back to Strand View
-        //if (leftTriggerValue && rightTriggerValue
-        //        && _leftTriggerReleased && _rightTriggerReleased)
-        //{
-        //    _leftTriggerReleased = false;
-        //    _rightTriggerReleased = false;
-        //    foreach (DomainComponent domain in _domains)
-        //    {
-        //        domain.HideNucleotides();
-        //    }
-        //    _domains.Clear();
-        //}
-    }
-
-    private void HandleLeftHandInteraction()
-    {
         _leftDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool leftTriggerValue);
         _leftDevice.TryGetFeatureValue(CommonUsages.gripButton, out bool leftGripValue);
 
+        _rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool rightTriggerValue);
         _rightDevice.TryGetFeatureValue(CommonUsages.gripButton, out bool rightGripValue);
 
+        HandleLeftHandInteraction(leftTriggerValue, leftGripValue, rightGripValue);
+        HandleRightHandInteraction(rightTriggerValue, rightGripValue, leftGripValue);
+
+        if (!leftGripValue && !rightGripValue)
+        {
+            // Reactivate saved domain if grip released.
+            ReactivateSavedDomain();
+        }
+    }
+
+    private void HandleLeftHandInteraction(bool leftTriggerValue, bool leftGripValue, bool rightGripValue)
+    {
         bool leftRayInteractorHit = leftRayInteractor.TryGetCurrent3DRaycastHit(out s_hit);
 
         // Check for hiding a domain if grip is pressed
@@ -115,7 +111,7 @@ public class DCInteractionManager : MonoBehaviour
             // Nucleotide complement must be apart of the domain to turn it 
             if (nucleotideComponent != null)
             {
-                nucleotideComponent.Domain.HideNucleotides();
+                nucleotideComponent.Domain.HideNucleotidesWithoutComplement();
             }
         }
         // Handle showing nucleotides of domain on click - shouldn't be able to show nucleotides when holding grip.
@@ -139,21 +135,10 @@ public class DCInteractionManager : MonoBehaviour
         {
             _leftGripReleased = true;
         }
-
-        if (!leftGripValue && !rightGripValue)
-        {
-            // Reactivate saved domain if grip released.
-            ReactivateSavedDomain();
-        }
     }
 
-    private void HandleRightHandInteraction()
+    private void HandleRightHandInteraction(bool rightTriggerValue, bool rightGripValue, bool leftGripValue)
     {
-        _rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool rightTriggerValue);
-        _rightDevice.TryGetFeatureValue(CommonUsages.gripButton, out bool rightGripValue);
-
-        _leftDevice.TryGetFeatureValue(CommonUsages.gripButton, out bool leftGripValue);
-
         bool rightRayInteractorHit = rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit);
 
         // Check for hiding a domain if grip is pressed
@@ -181,7 +166,7 @@ public class DCInteractionManager : MonoBehaviour
             // Nucleotide complement must be apart of the domain to turn it 
             if (nucleotideComponent != null)
             {
-                nucleotideComponent.Domain.HideNucleotides();
+                nucleotideComponent.Domain.HideNucleotidesWithoutComplement();
             }
         }
         // Handle showing nucleotides of domain on click - shouldn't be able to show nucleotides when holding grip.
@@ -204,12 +189,6 @@ public class DCInteractionManager : MonoBehaviour
         if (!rightGripValue)
         {
             _rightGripReleased = true;
-            // Reactivate saved domain if grip released.
-            ReactivateSavedDomain();
-        }
-
-        if (!leftGripValue && !rightGripValue)
-        {
             // Reactivate saved domain if grip released.
             ReactivateSavedDomain();
         }

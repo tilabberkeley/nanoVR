@@ -164,6 +164,12 @@ public static class SplineInterpolation
             }
         }
 
+        // Use last four inputted points to generate the final spline
+        Vector3 point0 = points[points.Length - 4];
+        Vector3 point1 = points[points.Length - 3]; // Control point
+        Vector3 point2 = points[points.Length - 2]; // Control point
+        Vector3 point3 = points[points.Length - 1];
+
         // Add last point edge case
         newPoints[newPoints.Length - 1] = points[points.Length - 1];
 

@@ -87,7 +87,7 @@ public class DomainComponent : MonoBehaviour
     }
 
     /// <summary>
-    /// Shows the bezier curve representation of this domain.
+    /// Shows the bezier curve representation of this domain. Hides the complement nucleotides.
     /// </summary>
     public void HideNucleotides()
     {
@@ -95,6 +95,21 @@ public class DomainComponent : MonoBehaviour
         {
             nucleotide.gameObject.SetActive(false);
             nucleotide.Complement.gameObject.SetActive(false);
+        }
+
+        DrawBezier();
+        // Should activate itself if nucleotides aren't visable
+        gameObject.SetActive(true);
+    }
+
+    /// <summary>
+    /// Shows the bezier curve representation of this domain. Doesn't hide the complement nucleotides.
+    /// </summary>
+    public void HideNucleotidesWithoutComplement()
+    {
+        foreach (DNAComponent nucleotide in _nucleotides)
+        {
+            nucleotide.gameObject.SetActive(false);
         }
 
         DrawBezier();
