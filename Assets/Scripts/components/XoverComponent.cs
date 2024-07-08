@@ -4,6 +4,7 @@
  */
 using System;
 using UnityEngine;
+using static GlobalVariables;
 
 /// <summary>
 /// Component attached to each xover gameobject. Handles direct Ray interactions and gameobject visuals.
@@ -92,5 +93,29 @@ public class XoverComponent : MonoBehaviour
         _ntRenderer = gameObject.GetComponent<Renderer>();
         _outline = gameObject.GetComponent<Outline>();
         _outline.enabled = false;
+    }
+
+    private GameObject _bezier = null;
+
+    public void Show()
+    {
+        if (_bezier == null)
+        {
+            return;
+        }
+
+        Destroy(_bezier); 
+        _bezier = null;
+        gameObject.SetActive(true);
+    }
+
+    public void Hide()
+    {
+        if (_bezier == null)
+        {
+            s_strandDict.TryGetValue(_strandId, out Strand strand);
+            _bezier = DrawPoint.MakeXoverBezier(this, strand.Color);
+            gameObject.SetActive(false);
+        }
     }
 }

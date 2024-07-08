@@ -62,7 +62,7 @@ public class Strand
     private bool _xoversWasChanged = true;
     // List of this strand's crossovers and loopouts (needs testing).
     private List<GameObject> _xovers;
-    public List<GameObject> Xovers 
+    public List<GameObject> Xovers
     { 
         get 
         { 
@@ -788,6 +788,11 @@ public class Strand
         {
             domain.HideNucleotides();
         }
+
+        foreach (GameObject xover in _xovers)
+        {
+            xover.GetComponent<XoverComponent>().Hide();
+        }
     }
 
     /// <summary>
@@ -799,6 +804,11 @@ public class Strand
         foreach (DomainComponent domain in _domains)
         {
             domain.ShowNucleotides();
+        }
+
+        foreach (GameObject xover in _xovers)
+        {
+            xover.GetComponent<XoverComponent>().Show();
         }
     }
 

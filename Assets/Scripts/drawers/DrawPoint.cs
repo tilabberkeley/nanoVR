@@ -194,7 +194,10 @@ public static class DrawPoint
         return gridCircle;
     }
 
-    public static GameObject MakeBezier(List<DNAComponent> nucleotides, Color32 color)
+    /// <summary>
+    /// Creates a simpler bezier representation gameobject of a domain. 
+    /// </summary>
+    public static GameObject MakeDomainBezier(List<DNAComponent> nucleotides, Color32 color)
     {
         GameObject tube = new GameObject("tube");
         MeshRenderer meshRend = tube.AddComponent<MeshRenderer>();
@@ -219,6 +222,28 @@ public static class DrawPoint
 
         tubeRend.points = anchorPoints;
        
+        return tube;
+    }
+
+    /// <summary>
+    /// Creates a simpler bezier represetation gameobject of a xover.
+    /// </summary>
+    public static GameObject MakeXoverBezier(XoverComponent xoverComponent, Color32 color)
+    {
+        GameObject tube = new GameObject("tube");
+        MeshRenderer meshRend = tube.AddComponent<MeshRenderer>();
+        TubeRenderer tubeRend = tube.AddComponent<TubeRenderer>();
+        tubeRend.radius = TUBE_SIZE;
+        meshRend.material.SetColor("_Color", color);
+
+        Vector3[] anchorPoints = new Vector3[2];
+
+        // Set nucleotides to be start and end point of bezier xover.
+        anchorPoints[0] = xoverComponent.PrevGO.transform.position;
+        anchorPoints[1] = xoverComponent.NextGO.transform.position;
+
+        tubeRend.points = anchorPoints;
+
         return tube;
     }
 

@@ -40,7 +40,7 @@ public class DomainComponent : MonoBehaviour
                 nuclSubList.Add(_nucleotides[i]);
                 if (nuclSubList.Count % BEZIER_COUNT == 0 || i == _nucleotides.Count - 1)
                 {
-                    GameObject bezier = DrawPoint.MakeBezier(nuclSubList, _strand.Color);
+                    GameObject bezier = DrawPoint.MakeDomainBezier(nuclSubList, _strand.Color);
                     _beziers.Add(bezier);
                     nuclSubList.RemoveRange(0, nuclSubList.Count - 1); // Remove all but last nucl to keep Beziers continuous.
                 }
