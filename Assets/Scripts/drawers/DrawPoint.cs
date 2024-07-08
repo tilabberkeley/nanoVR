@@ -412,7 +412,7 @@ public static class DrawPoint
 
         foreach (DNAComponent nucleotide in dnaList)
         {
-            domainComponent.Nucleotides.Add(nucleotide);
+            domainComponent.DNAComponents.Add(nucleotide);
             nucleotide.Domain = domainComponent;
         }
 

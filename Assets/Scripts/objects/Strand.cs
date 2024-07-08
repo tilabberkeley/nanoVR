@@ -525,6 +525,7 @@ public class Strand
     {
         foreach (DomainComponent domainComponent in _domains)
         {
+            domainComponent.DeleteBezier(); // Remove bezier if it exits
             GameObject.Destroy(domainComponent.gameObject);
         }
         _domains.Clear();
@@ -791,7 +792,7 @@ public class Strand
 
         foreach (GameObject xover in _xovers)
         {
-            xover.GetComponent<XoverComponent>().Hide();
+            xover.GetComponent<XoverComponent>().Hide(_color);
         }
     }
 

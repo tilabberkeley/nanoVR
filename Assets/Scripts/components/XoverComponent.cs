@@ -97,6 +97,9 @@ public class XoverComponent : MonoBehaviour
 
     private GameObject _bezier = null;
 
+    /// <summary>
+    /// Returns xover back from simplified strand view.
+    /// </summary>
     public void Show()
     {
         if (_bezier == null)
@@ -109,12 +112,15 @@ public class XoverComponent : MonoBehaviour
         gameObject.SetActive(true);
     }
 
-    public void Hide()
+    /// <summary>
+    /// Puts xover in simplified strand view.
+    /// </summary>
+    /// <param name="color">Color to make simplifiec version.</param>
+    public void Hide(Color32 color)
     {
         if (_bezier == null)
         {
-            s_strandDict.TryGetValue(_strandId, out Strand strand);
-            _bezier = DrawPoint.MakeXoverBezier(this, strand.Color);
+            _bezier = DrawPoint.MakeXoverBezier(this, color);
             gameObject.SetActive(false);
         }
     }
