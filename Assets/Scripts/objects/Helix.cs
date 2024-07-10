@@ -64,10 +64,6 @@ public class Helix
     private List<int> _strandIds;
     public List<int> StrandIds { get { return _strandIds; } }
 
-    // Positions of last nucleotides in helix
-    private Vector3 _lastPositionA;
-    private Vector3 _lastPositionB;
-
     // Empty parent gameobject that contains the combined mesh of a Helix.
     private GameObject _parent;
     private MeshFilter _parentMesh;
@@ -87,8 +83,6 @@ public class Helix
         _nucleotidesB = new List<GameObject>();
         _backbonesB = new List<GameObject>();
         _strandIds = new List<int>();
-        _lastPositionA = Vector3.zero;
-        _lastPositionB = Vector3.zero;
         _helixA = new List<GameObject>();
         _helixB = new List<GameObject>();
         /*_parent = new GameObject();
@@ -116,25 +110,17 @@ public class Helix
 
         for (int i = prevLength; i < _length; i++)
         {
-            float angleA = (float)(i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
-            float angleB = (float)((i + 4.5f) * (2 * Math.PI / NUM_BASE_PAIRS)); //TODO: check this new offset
-            float axisOneChangeA = (float)(RADIUS * Mathf.Cos(angleA));
-            float axisTwoChangeA = (float)(RADIUS * Mathf.Sin(angleA));
-            float axisOneChangeB = (float)(RADIUS * Mathf.Cos(angleB));
-            float axisTwoChangeB = (float)(RADIUS * Mathf.Sin(angleB));
-            _lastPositionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
-            _lastPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
+            calculateNextNucleotidePositions(i, out Vector3 nextPositionA, out Vector3 nextPositionB);
 
-            GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, i, _id, 1);
+            GameObject sphereA = DrawPoint.MakeNucleotide(nextPositionA, i, _id, 1);
             _nucleotidesA.Add(sphereA);
             _helixA.Add(sphereA);
             //sphereA.transform.SetParent(_parent.transform);
 
-            GameObject sphereB = DrawPoint.MakeNucleotide(_lastPositionB, i, _id, 0);
+            GameObject sphereB = DrawPoint.MakeNucleotide(nextPositionB, i, _id, 0);
             _nucleotidesB.Add(sphereB);
             _helixB.Add(sphereB);
             //sphereB.transform.SetParent(_parent.transform);
-
 
             // Rotate nucleotides to correct position based on grid's rotation
             sphereA.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
@@ -165,6 +151,21 @@ public class Helix
 
         _helixA.Clear();
         _helixB.Clear();
+    }
+
+    /// <summary>
+    /// Calculates the position of the nucleotides at the given index i.
+    /// </summary>
+    public void calculateNextNucleotidePositions(int i, out Vector3 nextPositionA, out Vector3 nextPositionB)
+    {
+        float angleA = (float)(i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
+        float angleB = (float)((i + 4.5f) * (2 * Math.PI / NUM_BASE_PAIRS)); //TODO: check this new offset
+        float axisOneChangeA = (float)(RADIUS * Mathf.Cos(angleA));
+        float axisTwoChangeA = (float)(RADIUS * Mathf.Sin(angleA));
+        float axisOneChangeB = (float)(RADIUS * Mathf.Cos(angleB));
+        float axisTwoChangeB = (float)(RADIUS * Mathf.Sin(angleB));
+        nextPositionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
+        nextPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
     }
 
     /// <summary>
