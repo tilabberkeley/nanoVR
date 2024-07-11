@@ -783,7 +783,6 @@ public class Strand
 
     public void DeleteBezier()
     {
-        Debug.Log("Deleting");
         foreach (DomainComponent domain in _domains)
         {
             domain.DeleteBezier();

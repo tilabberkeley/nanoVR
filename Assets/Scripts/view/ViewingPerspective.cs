@@ -58,6 +58,16 @@ public class ViewingPerspective : MonoBehaviour
         }
     }
 
+    public void ShowStencils()
+    {
+        Togglers.NucleotideViewToggled();
+        nucleotideViewTog.isOn = true;
+        foreach (Helix helix in s_helixDict.Values)
+        {
+            helix.ChangeRendering();
+        }
+    }
+
     /// <summary>
     /// Changes viewing mode to Strand View (abstracted Strands).
     /// Called by StrandViewTog in the View Panel of Menu.

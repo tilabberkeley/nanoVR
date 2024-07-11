@@ -28,10 +28,13 @@ public class FileImport : MonoBehaviour
     private Canvas fileBrowser;
     private static XRRayInteractor rayInteractor;
     public static FileImport Instance;
+    private int originalCullingMask;
 
     private const string PLANE = "XY";
     private const int MAX_NUCLEOTIDES = 20000;
     Stopwatch st = new Stopwatch();
+
+    private const string DEFAULT_GRID_NAME = "default_group";
 
     void Awake()
     {
@@ -124,6 +127,8 @@ public class FileImport : MonoBehaviour
     {
         /*ICommand command = new ImportCommand(json);
         CommandManager.AddCommand(command);*/
+        originalCullingMask = Camera.main.cullingMask;
+        Camera.main.cullingMask = LayerMask.GetMask("Loading Screen");
         ParseSC(json);
     }
 
@@ -142,6 +147,7 @@ public class FileImport : MonoBehaviour
         JObject origami = JObject.Parse(fileContents);
         JArray helices = JArray.Parse(origami["helices"].ToString());
         JArray strands = JArray.Parse(origami["strands"].ToString());
+        bool isMultiGrid = false;
 
         /**
          * Parse grids
@@ -150,6 +156,7 @@ public class FileImport : MonoBehaviour
         {
             JObject groupObject = JObject.Parse(origami["groups"].ToString());
             Dictionary<string, JObject> groups = groupObject.ToObject<Dictionary<string, JObject>>();
+            isMultiGrid = groups.Count > 1;
             foreach (var item in groups)
             {
                 string origName = CleanSlash(item.Key);
@@ -165,9 +172,9 @@ public class FileImport : MonoBehaviour
                 float z = 0;
                 if (info["position"] != null)
                 {
-                    x = (float)info["position"]["x"];
-                    y = (float)info["position"]["y"];
-                    z = (float)info["position"]["z"];
+                    x = (float)info["position"]["x"] / SCALE;
+                    y = (float)info["position"]["y"] / SCALE;
+                    z = (float)info["position"]["z"] / SCALE;
                 }
                 string gridType = CleanSlash(info["grid"].ToString());
                 Vector3 startPos;
@@ -211,7 +218,7 @@ public class FileImport : MonoBehaviour
         }
         
         int lastHelixId = s_numHelices;
-        await ParseHelices(helices);
+        await ParseHelices(helices, isMultiGrid);
         //Task.Run(async () => await ParseHelices(helices)).Wait();
         Debug.Log("Done parsing helices");
         // Parse strands.
@@ -226,7 +233,7 @@ public class FileImport : MonoBehaviour
     /// <summary>
     /// Async method to parse and draw Helices from scadnano file
     /// </summary>
-    private async Task ParseHelices(JArray helices)
+    private async Task ParseHelices(JArray helices, bool isMultiGrid)
     {
         Stopwatch sw = new Stopwatch();
         List<Task> tasks = new List<Task>();
@@ -240,6 +247,11 @@ public class FileImport : MonoBehaviour
             if (helices[i]["group"] != null)
             {
                 string origName = CleanSlash(helices[i]["group"].ToString());
+                gridName = GetGridName(origName);
+            }
+            else if (isMultiGrid)
+            {
+                string origName = DEFAULT_GRID_NAME;
                 gridName = GetGridName(origName);
             }
             else
@@ -278,17 +290,17 @@ public class FileImport : MonoBehaviour
             GridComponent gc = grid.Grid2D[xInd, yInd];
             Helix helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
             bool hideNucleotides = true;
-            //await helix.ExtendAsync(length, hideNucleotides);
-            Task task = helix.ExtendAsync(length, hideNucleotides);
-            tasks.Add(task);
+            await helix.ExtendAsync(length, hideNucleotides);
+            //Task task = helix.ExtendAsync(length, hideNucleotides);
+            //tasks.Add(task);
             sw.Stop();
             //Debug.Log(string.Format("Parsing helix took {0} ms", sw.ElapsedMilliseconds));
             // Parellelize every 4 helices
-            if (i % 8 == 0 || i == helices.Count - 1)
+            /*if (i % 8 == 0 || i == helices.Count - 1)
             {
                 await Task.WhenAll(tasks);
                 tasks.Clear();
-            }
+            }*/
             //grid.CheckExpansion(gc);
         }
     }
@@ -405,10 +417,11 @@ public class FileImport : MonoBehaviour
         }
         else
         {
-            ViewingPerspective.Instance.ViewNucleotide();
+            ViewingPerspective.Instance.ShowStencils();
         }
 
         loadingMenu.enabled = false;
+        Camera.main.cullingMask = originalCullingMask;
         st.Stop();
         Debug.Log(string.Format("Overall import took {0} ms to complete", st.ElapsedMilliseconds));
     }

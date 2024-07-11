@@ -15,7 +15,7 @@ public abstract class DNAComponent : MonoBehaviour
 
     // Components
     protected Renderer _ntRenderer;
-    protected MeshFilter _meshFilter;
+    //protected MeshFilter _meshFilter;
     protected MaterialPropertyBlock _mpb;
     protected Outline _outline;
 
@@ -94,7 +94,7 @@ public abstract class DNAComponent : MonoBehaviour
     protected virtual void Awake()
     {
         _ntRenderer = GetComponent<Renderer>();
-        _meshFilter = GetComponent<MeshFilter>();
+        //_meshFilter = GetComponent<MeshFilter>();
         _mpb = new MaterialPropertyBlock();
         _outline = GetComponent<Outline>();
         _outline.enabled = false;

@@ -339,7 +339,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
     /// Extends the helix of given nucleoltide if the nucleotide is last in the helix.
     /// </summary>
     /// <param name="nucComp">Nucleotide Component of the nucleotide game object.</param>
-    private void ExtendIfLastNucleotide(NucleotideComponent nucComp)
+    public static void ExtendIfLastNucleotide(NucleotideComponent nucComp)
     {
         if (nucComp.IsEndHelix())
         {
