@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -155,7 +156,7 @@ public static class SplineInterpolation
         int splineLength = dnaComponents.Count + pointsToAdd;
 
         // Get spline locations
-        Vector3[] points = ExtendNucleotidePositions(dnaComponents, pointsToAdd, splineLength);
+        Vector3[] points = SetSplinePoints(dnaComponents, pointsToAdd, splineLength);
 
         int totalCurves = (splineLength - 4) / 3 + 1;
         int newPointsPerCurve = (int)Math.Pow(2, resolution) - 1;
@@ -170,6 +171,15 @@ public static class SplineInterpolation
             Vector3 p1 = points[4 * i + 1 - i]; // Control point
             Vector3 p2 = points[4 * i + 2 - i]; // Control point
             Vector3 p3 = points[4 * i + 3 - i];
+            
+            if (i > 0 && i < totalCurves - 1)
+            {
+                // Set endpoints to be the mid points of adjacent control points.
+                Vector3 pMinus1 = points[4 * i - 1 - i]; // adjacent control point.
+                p0 = (pMinus1 + p1) / 2;
+                Vector3 p4 = points[4 * i + 4 - i]; // adjace control point,
+                p3 = (p2 + p4) / 2;
+            }
 
             // Interpolate points
             int startIndex = i * (newPointsPerCurve + 1);
@@ -178,6 +188,8 @@ public static class SplineInterpolation
                 newPoints[startIndex + j] = BezierCurveInterpolation(p0, p1, p2, p3, j * tIncrement);
             }
         }
+
+        // For the last curve the need the position of the dnaComponent one after for a smooth spline.
 
         // Add last point edge case
         newPoints[newPoints.Length - 1] = points[points.Length - 1];
@@ -191,7 +203,7 @@ public static class SplineInterpolation
         return newPoints;
     }
 
-    private static Vector3[] ExtendNucleotidePositions(List<DNAComponent> dnaComponents, int pointsToAdd, int splineLength)
+    private static Vector3[] SetSplinePoints(List<DNAComponent> dnaComponents, int pointsToAdd, int splineLength)
     {
         Vector3[] points = new Vector3[splineLength];
 
@@ -201,44 +213,56 @@ public static class SplineInterpolation
             points[i] = dnaComponents[i].transform.position;
         }
 
+        Vector3 prevNucleotidePosition;
+        Vector3 prevBackbonePosition;
+        Vector3 nextNuceotidePosition;
+        Vector3 nextBackbonePosition;
+
+        // For the first curve, we need the position of the dnaComponent one before for a smooth spline.
+        // So adjust the first point to be the midpoint of adjacent control points
+        NucleotideComponent firstNucleotideComponent = (NucleotideComponent)dnaComponents[0];
+        GetAdjacentPositions(
+            firstNucleotideComponent,
+            out prevNucleotidePosition,
+            out prevBackbonePosition,
+            out nextNuceotidePosition,
+            out nextBackbonePosition);
+
+        points[0] = (prevBackbonePosition + nextBackbonePosition) / 2.0f;
+
         if (pointsToAdd == 0)
         {
+            NucleotideComponent lastNucleotideComponent = (NucleotideComponent)dnaComponents[dnaComponents.Count - 1];
+            GetAdjacentPositions(
+                lastNucleotideComponent,
+                out prevNucleotidePosition,
+                out prevBackbonePosition,
+                out nextNuceotidePosition,
+                out nextBackbonePosition);
+
+            points[splineLength - 1] = (prevBackbonePosition + nextBackbonePosition) / 2.0f;
+
             return points;
         }
 
-        // Last DNAComponent in list should be a nucletoide
+        // We need to extend, so get last nucleotide component.
         NucleotideComponent nucleotideComponent = (NucleotideComponent)dnaComponents[dnaComponents.Count - 1];
-        s_helixDict.TryGetValue(nucleotideComponent.HelixId, out Helix helix);
-        int direction = nucleotideComponent.Direction;
-        int index = nucleotideComponent.Id;
-        Vector3 lastLocation = nucleotideComponent.gameObject.transform.position;
-        Vector3 extraBackBoneLocation;
-        Vector3 extraNucleotidePosition;
-
-        // TODO: Fix this for rotations
-        if (direction == 1) // 1 corresponds to position A - sorry for the magic numbers. Prob want an enum eventually.
-        {
-            helix.CalculateNextNucleotidePositions(index + 1, out Vector3 nextPositionA, out Vector3 nextPositionB);
-            extraNucleotidePosition = nextPositionA;
-        }
-        else
-        {
-            helix.CalculateNextNucleotidePositions(index - 1, out Vector3 nextPositionA, out Vector3 nextPositionB);
-            extraNucleotidePosition = nextPositionB;
-        }
-
-        // Calculate where the back bone would be - in between the nucleotides.
-        extraBackBoneLocation = (extraNucleotidePosition + lastLocation) / 2.0f;
+        GetAdjacentPositions(
+            nucleotideComponent,
+            out prevNucleotidePosition,
+            out prevBackbonePosition,
+            out nextNuceotidePosition,
+            out nextBackbonePosition);
 
         // Either have to add one or two extra points to have a complete spline.
         if (pointsToAdd == 1)
         {
-            points[points.Length - 1] = extraBackBoneLocation;
+            points[points.Length - 1] = nextBackbonePosition;
         }
         else 
         {
-            points[points.Length - 2] = extraBackBoneLocation;
-            points[points.Length - 1] = extraNucleotidePosition;
+            points[points.Length - 2] = nextBackbonePosition;
+            points[points.Length - 1] = nextNuceotidePosition;
         }
 
         return points;
@@ -248,6 +272,39 @@ public static class SplineInterpolation
     {
         int indexOfLastPoint = Array.IndexOf(points, lastPoint);
         return points.Take(indexOfLastPoint + 1).ToArray();
+    }
+
+    private static void GetAdjacentPositions(
+        NucleotideComponent nucleotideComponent, 
+        out Vector3 prevNucleotidePosition,
+        out Vector3 prevBackbonePosition,
+        out Vector3 nextNuceotidePosition, 
+        out Vector3 nextBackbonePosition,
+        int offset = 1)
+    {
+        s_helixDict.TryGetValue(nucleotideComponent.HelixId, out Helix helix);
+        int direction = nucleotideComponent.Direction;
+        int index = nucleotideComponent.Id;
+        Vector3 currentPosition = nucleotideComponent.gameObject.transform.position;
+
+        helix.CalculateNextNucleotidePositions(index + offset, out Vector3 nextPositionA, out Vector3 nextPositionB);
+        helix.CalculateNextNucleotidePositions(index - offset, out Vector3 prevPositionA, out Vector3 prevPositionB);
+
+        // TODO: Fix this for rotations
+        if (direction == 1) // 1 corresponds to position A - sorry for the magic numbers. Prob want an enum eventually.
+        {
+            nextNuceotidePosition = nextPositionA;
+            prevNucleotidePosition = prevPositionA;
+        }
+        else // With the other direction, the positioning gets swapped.
+        {
+            nextNuceotidePosition = prevPositionB;
+            prevNucleotidePosition = nextPositionB;
+        }
+
+        // Calculate where the back bone would be - in between the nucleotides.
+        nextBackbonePosition = (nextNuceotidePosition + currentPosition) / 2.0f;
+        prevBackbonePosition = (prevNucleotidePosition + currentPosition) / 2.0f;
     }
 }
 
