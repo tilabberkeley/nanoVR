@@ -197,7 +197,7 @@ public static class DrawPoint
     /// <summary>
     /// Creates a simpler bezier representation gameobject of a domain. 
     /// </summary>
-    public static GameObject MakeDomainBezier(List<DNAComponent> nucleotides, Color32 color)
+    public static GameObject MakeDomainBezier(List<DNAComponent> dnaComponents, Color32 color)
     {
         GameObject tube = new GameObject("tube");
         MeshRenderer meshRend = tube.AddComponent<MeshRenderer>();
@@ -209,14 +209,8 @@ public static class DrawPoint
         /*SplineMaker splineMaker = tube.AddComponent<SplineMaker>();
         splineMaker.onUpdated.AddListener((points) => tubeRend.points = points); // updates tube renderer points when anchorPoints is changed.
         splineMaker.pointsPerSegment = SPLINE_RESOLUTION;*/
-        Vector3[] anchorPoints = new Vector3[nucleotides.Count];
-
-        for (int i = 0; i < nucleotides.Count; i += 1)
-        {
-            anchorPoints[i] = nucleotides[i].transform.position;
-        }
-
-        anchorPoints = SplineInterpolation.GenerateIntermediatePointsBezier(anchorPoints, 3);
+        
+        Vector3[] anchorPoints = SplineInterpolation.GenerateIntermediatePointsBezier(dnaComponents, 3);
 
         // splineMaker.anchorPoints = anchorPoints;
 

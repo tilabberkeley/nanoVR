@@ -110,7 +110,7 @@ public class Helix
 
         for (int i = prevLength; i < _length; i++)
         {
-            calculateNextNucleotidePositions(i, out Vector3 nextPositionA, out Vector3 nextPositionB);
+            CalculateNextNucleotidePositions(i, out Vector3 nextPositionA, out Vector3 nextPositionB);
 
             GameObject sphereA = DrawPoint.MakeNucleotide(nextPositionA, i, _id, 1);
             _nucleotidesA.Add(sphereA);
@@ -156,7 +156,7 @@ public class Helix
     /// <summary>
     /// Calculates the position of the nucleotides at the given index i.
     /// </summary>
-    public void calculateNextNucleotidePositions(int i, out Vector3 nextPositionA, out Vector3 nextPositionB)
+    public void CalculateNextNucleotidePositions(int i, out Vector3 nextPositionA, out Vector3 nextPositionB)
     {
         float angleA = (float)(i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
         float angleB = (float)((i + 4.5f) * (2 * Math.PI / NUM_BASE_PAIRS)); //TODO: check this new offset

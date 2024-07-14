@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using static GlobalVariables;
 
 public static class SplineInterpolation
 {
@@ -140,9 +143,21 @@ public static class SplineInterpolation
         return GenerateIntermediatePoints(newPoints, newStartAdjacent, newEndAdjacent, depth - 1);
     }
 
-    public static Vector3[] GenerateIntermediatePointsBezier(Vector3[] points, int resolution = 1)
+    public static Vector3[] GenerateIntermediatePointsBezier(List<DNAComponent> dnaComponents, int resolution = 1)
     {
-        int totalCurves = (points.Length + 1) / 4;
+        if (dnaComponents.Count < 4)
+        {
+            throw new NotImplementedException(); // TODO: Handle case with small domain
+        }
+
+        int excessPoints = (dnaComponents.Count - 4) % 3;
+        int pointsToAdd = (3 - excessPoints) % 3;
+        int splineLength = dnaComponents.Count + pointsToAdd;
+
+        // Get spline locations
+        Vector3[] points = ExtendNucleotidePositions(dnaComponents, pointsToAdd, splineLength);
+
+        int totalCurves = (splineLength - 4) / 3 + 1;
         int newPointsPerCurve = (int)Math.Pow(2, resolution) - 1;
         int totalPoints = (totalCurves + 1) + newPointsPerCurve * totalCurves;
         Vector3[] newPoints = new Vector3[totalPoints];
@@ -164,16 +179,75 @@ public static class SplineInterpolation
             }
         }
 
-        // Use last four inputted points to generate the final spline
-        Vector3 point0 = points[points.Length - 4];
-        Vector3 point1 = points[points.Length - 3]; // Control point
-        Vector3 point2 = points[points.Length - 2]; // Control point
-        Vector3 point3 = points[points.Length - 1];
-
         // Add last point edge case
         newPoints[newPoints.Length - 1] = points[points.Length - 1];
 
+        //if (pointsToAdd > 0)
+        //{
+        //    Vector3 lastPoint = dnaComponents[dnaComponents.Count - 1].gameObject.transform.position;
+        //    newPoints = CutoffGeneratedPoints(newPoints, lastPoint);
+        //}
+        
         return newPoints;
+    }
+
+    private static Vector3[] ExtendNucleotidePositions(List<DNAComponent> dnaComponents, int pointsToAdd, int splineLength)
+    {
+        Vector3[] points = new Vector3[splineLength];
+
+        // Add already existing nucleotide locations
+        for (int i = 0; i < dnaComponents.Count; i += 1)
+        {
+            points[i] = dnaComponents[i].transform.position;
+        }
+
+        if (pointsToAdd == 0)
+        {
+            return points;
+        }
+
+        // Last DNAComponent in list should be a nucletoide
+        NucleotideComponent nucleotideComponent = (NucleotideComponent)dnaComponents[dnaComponents.Count - 1];
+        s_helixDict.TryGetValue(nucleotideComponent.HelixId, out Helix helix);
+        int direction = nucleotideComponent.Direction;
+        int index = nucleotideComponent.Id;
+        Vector3 lastLocation = nucleotideComponent.gameObject.transform.position;
+        Vector3 extraBackBoneLocation;
+        Vector3 extraNucleotidePosition;
+
+        // TODO: Fix this for rotations
+        if (direction == 1) // 1 corresponds to position A - sorry for the magic numbers. Prob want an enum eventually.
+        {
+            helix.CalculateNextNucleotidePositions(index + 1, out Vector3 nextPositionA, out Vector3 nextPositionB);
+            extraNucleotidePosition = nextPositionA;
+        }
+        else
+        {
+            helix.CalculateNextNucleotidePositions(index - 1, out Vector3 nextPositionA, out Vector3 nextPositionB);
+            extraNucleotidePosition = nextPositionB;
+        }
+
+        // Calculate where the back bone would be - in between the nucleotides.
+        extraBackBoneLocation = (extraNucleotidePosition + lastLocation) / 2.0f;
+
+        // Either have to add one or two extra points to have a complete spline.
+        if (pointsToAdd == 1)
+        {
+            points[points.Length - 1] = extraBackBoneLocation;
+        }
+        else 
+        {
+            points[points.Length - 2] = extraBackBoneLocation;
+            points[points.Length - 1] = extraNucleotidePosition;
+        }
+
+        return points;
+    }
+
+    private static Vector3[] CutoffGeneratedPoints(Vector3[] points, Vector3 lastPoint)
+    {
+        int indexOfLastPoint = Array.IndexOf(points, lastPoint);
+        return points.Take(indexOfLastPoint + 1).ToArray();
     }
 }
 
