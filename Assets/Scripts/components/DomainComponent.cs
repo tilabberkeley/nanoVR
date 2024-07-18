@@ -28,6 +28,12 @@ public class DomainComponent : MonoBehaviour
     private Strand _strand;
     public Strand Strand { get => _strand; set => _strand = value; }
 
+    private Vector3 _bezierStartPoint;
+    public Vector3 BezierStartPoint { get => _bezierStartPoint; }
+
+    private Vector3 _bezierEndPoint;
+    public Vector3 BezierEndPoint { get => _bezierEndPoint; }
+
     /// <summary>
     /// Draws the bezier curve representation of this domain.
     /// </summary>
@@ -41,7 +47,17 @@ public class DomainComponent : MonoBehaviour
                 nuclSubList.Add(_dnaComponents[i]);
                 if (nuclSubList.Count % BEZIER_COUNT == 0 || i == _dnaComponents.Count - 1)
                 {
-                    GameObject bezier = DrawPoint.MakeDomainBezier(nuclSubList, _strand.Color);
+                    GameObject bezier = DrawPoint.MakeDomainBezier(nuclSubList, _strand.Color, out Vector3 bezierStartPoint, out Vector3 bezierEndPoint);
+
+                    if (_beziers.Count == 0)
+                    {
+                        _bezierStartPoint = bezierStartPoint;
+                    }
+                    if (i == _dnaComponents.Count - 1)
+                    {
+                        _bezierEndPoint = bezierEndPoint;
+                    }
+
                     _beziers.Add(bezier);
                     nuclSubList.RemoveRange(0, nuclSubList.Count - 1); // Remove all but last nucl to keep Beziers continuous.
                 }
@@ -108,14 +124,14 @@ public class DomainComponent : MonoBehaviour
             nucleotide.Complement.gameObject.SetActive(false);
 
             // If nucleotide is connected to a xover, then it should be hidden too.
-            if (!nucleotide.IsBackbone)
-            {
-                XoverComponent xoverComponent = ((NucleotideComponent)nucleotide).Xover?.GetComponent<XoverComponent>();
-                if (xoverComponent != null)
-                {
-                    xoverComponent.Hide(_strand.Color);
-                }
-            }
+            //if (!nucleotide.IsBackbone)
+            //{
+            //    XoverComponent xoverComponent = ((NucleotideComponent)nucleotide).Xover?.GetComponent<XoverComponent>();
+            //    if (xoverComponent != null)
+            //    {
+            //        xoverComponent.Hide(_strand.Color);
+            //    }
+            //}
         }
 
         DrawBezier();

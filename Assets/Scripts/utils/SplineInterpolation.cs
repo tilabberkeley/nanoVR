@@ -35,7 +35,7 @@ public static class SplineInterpolation
 
     /// <summary>
     /// https://en.wikipedia.org/wiki/B%C3%A9zier_curve
-    /// Cubic Bezier curves section.
+    /// Cubic Bezier curves section. Variables are the same as provided.
     /// </summary>
     private static Vector3 BezierCurveInterpolation(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
     {
@@ -148,16 +148,28 @@ public static class SplineInterpolation
         return GenerateIntermediatePoints(newPoints, newStartAdjacent, newEndAdjacent, depth - 1);
     }
 
-    public static Vector3[] GenerateIntermediatePointsBezier(List<DNAComponent> dnaComponents, int resolution = 1)
+    /// <summary>
+    /// Returns the points of a bezier spline.
+    /// </summary>
+    /// <param name="dnaComponents">Initial points to generate the spline.</param>
+    /// <param name="resolution">How smooth the spline is. Increase exponentially.</param>
+    /// <returns>3D points of the bezier spline.</returns>
+    public static Vector3[] GenerateBezierSpline(List<DNAComponent> dnaComponents, int resolution = 1)
     {
-        if (dnaComponents.Count < 4)
-        {
-            throw new NotImplementedException(); // TODO: Handle case with small domain
-        }
-
         int excessPoints = (dnaComponents.Count - 4) % 3;
         int pointsToAdd = (3 - excessPoints) % 3;
         int splineLength = dnaComponents.Count + pointsToAdd;
+
+        // Spline very small edge case - just make it a straight cylinder
+        if (dnaComponents.Count < 4)
+        {
+            Vector3[] result = new Vector3[dnaComponents.Count];
+            for (int i = 0; i < dnaComponents.Count; i++)
+            {
+                result[i] = dnaComponents[i].transform.position;
+            }
+            return result;
+        }
 
         // Get spline locations
         Vector3[] points = SetSplinePoints(dnaComponents, pointsToAdd, splineLength);
@@ -196,12 +208,11 @@ public static class SplineInterpolation
         // Add last point edge case
         interpolatedPoints[interpolatedPoints.Length - 1] = points[points.Length - 1];
 
-        //if (pointsToAdd > 0)
-        //{
-        //    Vector3 lastPoint = dnaComponents[dnaComponents.Count - 1].gameObject.transform.position;
-        //    newPoints = CutoffGeneratedPoints(newPoints, lastPoint);
-        //}
-        
+        if (pointsToAdd > 0)
+        {
+            interpolatedPoints = CutoffExcessPoints(interpolatedPoints, pointsToAdd, newPointsPerCurve);
+        }
+
         return interpolatedPoints;
     }
 
@@ -240,6 +251,9 @@ public static class SplineInterpolation
         prevBackbonePosition = (prevNucleotidePosition + currentPosition) / 2.0f;
     }
 
+    /// <summary>
+    /// Sets the bezier spline points, extending if necessary.
+    /// </summary>
     private static Vector3[] SetSplinePoints(List<DNAComponent> dnaComponents, int pointsToAdd, int splineLength)
     {
         Vector3[] points = new Vector3[splineLength];
@@ -318,10 +332,15 @@ public static class SplineInterpolation
         return points;
     }
 
-    private static Vector3[] CutoffGeneratedPoints(Vector3[] points, Vector3 lastPoint)
+    private const float CUTOFF_FACTOR = 0.33f;
+
+    /// <summary>
+    /// Removes excess points generated from spline extension.
+    /// </summary>
+    private static Vector3[] CutoffExcessPoints(Vector3[] points, int pointsToAdd, int newPointsPerCurve)
     {
-        int indexOfLastPoint = Array.IndexOf(points, lastPoint);
-        return points.Take(indexOfLastPoint + 1).ToArray();
+        int numPointsToCutoff = (int)Math.Round(CUTOFF_FACTOR * pointsToAdd * newPointsPerCurve);
+        return points.Take(points.Length - numPointsToCutoff).ToArray();
     }
 }
 

@@ -10,6 +10,8 @@ using static UnityEngine.Object;
 using static GlobalVariables;
 using SplineMesh;
 using System.Linq;
+using System.Net;
+using System.Security.Cryptography;
 
 /// <summary>
 /// Creates needed gameobjects like nucleotides, backbones, cones, Xovers, spheres, and grids.
@@ -197,25 +199,26 @@ public static class DrawPoint
     /// <summary>
     /// Creates a simpler bezier representation gameobject of a domain. 
     /// </summary>
-    public static GameObject MakeDomainBezier(List<DNAComponent> dnaComponents, Color32 color)
+    public static GameObject MakeDomainBezier(List<DNAComponent> dnaComponents, Color32 color, out Vector3 bezierStartPoint, out Vector3 bezierEndPoint)
     {
         GameObject tube = new GameObject("tube");
         MeshRenderer meshRend = tube.AddComponent<MeshRenderer>();
         TubeRenderer tubeRend = tube.AddComponent<TubeRenderer>();
         tubeRend.radius = TUBE_SIZE;
         meshRend.material.SetColor("_Color", color);
-
-        // TODO: figure out how to make this smoother. Increase resolution? 
-        /*SplineMaker splineMaker = tube.AddComponent<SplineMaker>();
-        splineMaker.onUpdated.AddListener((points) => tubeRend.points = points); // updates tube renderer points when anchorPoints is changed.
-        splineMaker.pointsPerSegment = SPLINE_RESOLUTION;*/
         
-        Vector3[] anchorPoints = SplineInterpolation.GenerateIntermediatePointsBezier(dnaComponents, 3);
-
-        // splineMaker.anchorPoints = anchorPoints;
+        Vector3[] anchorPoints = SplineInterpolation.GenerateBezierSpline(dnaComponents, 3);
 
         tubeRend.points = anchorPoints;
-       
+
+        bezierStartPoint = anchorPoints[0];
+        bezierEndPoint = anchorPoints[anchorPoints.Length - 1];
+
+        GameObject endpoint = MakeBezierEndpoint(bezierStartPoint, color);
+        endpoint.transform.SetParent(tube.transform);
+        endpoint = MakeBezierEndpoint(bezierEndPoint, color);
+        endpoint.transform.SetParent(tube.transform);
+
         return tube;
     }
 
@@ -233,12 +236,36 @@ public static class DrawPoint
         Vector3[] anchorPoints = new Vector3[2];
 
         // Set nucleotides to be start and end point of bezier xover.
-        anchorPoints[0] = xoverComponent.PrevGO.transform.position;
-        anchorPoints[1] = xoverComponent.NextGO.transform.position;
+        anchorPoints[0] = xoverComponent.PrevGO.GetComponent<DNAComponent>().Domain.BezierStartPoint;
+        anchorPoints[1] = xoverComponent.NextGO.GetComponent<DNAComponent>().Domain.BezierEndPoint;
 
         tubeRend.points = anchorPoints;
 
+        // Set endpoints to parent, so they are destroyed when tube is destroyed
+        GameObject endpoint = MakeBezierEndpoint(anchorPoints[0], color);
+        endpoint.transform.SetParent(tube.transform);
+        endpoint = MakeBezierEndpoint(anchorPoints[1], color);
+        endpoint.transform.SetParent(tube.transform);
+
         return tube;
+    }
+
+    /// <summary>
+    /// Instantiates a bezier endpoint at the given location
+    /// </summary>
+    private static GameObject MakeBezierEndpoint(Vector3 position, Color32 color)
+    {
+        GameObject bezierEndpoint = Instantiate(
+            BezierEndpoint,
+            position,
+            Quaternion.identity);
+
+        bezierEndpoint.name = "Bezier Endpoint";
+        bezierEndpoint.GetComponent<MeshRenderer>().material.SetColor("_Color", color);
+        // Set sphere's radius
+        bezierEndpoint.transform.localScale = new Vector3(TUBE_SIZE * 2, TUBE_SIZE * 2, TUBE_SIZE * 2);
+
+        return bezierEndpoint;
     }
 
     private static void SaveGameObject(GameObject go)
