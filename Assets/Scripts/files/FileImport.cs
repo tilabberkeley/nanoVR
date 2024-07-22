@@ -80,6 +80,11 @@ public class FileImport : MonoBehaviour
 
     public void OpenFile()
     {
+        if (fileBrowser == null) 
+        {
+            fileBrowser = FileBrowser.Instance.GetComponent<Canvas>();
+        } 
+
         // enable file browser, disable menu
         fileBrowser.gameObject.SetActive(true);
         Menu.enabled = false;
