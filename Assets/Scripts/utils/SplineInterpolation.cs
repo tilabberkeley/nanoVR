@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using UnityEngine;
 using static GlobalVariables;
@@ -160,19 +161,17 @@ public static class SplineInterpolation
         int pointsToAdd = (3 - excessPoints) % 3;
         int splineLength = dnaComponents.Count + pointsToAdd;
 
-        // Spline very small edge case - just make it a straight cylinder
-        if (dnaComponents.Count < 4)
-        {
-            Vector3[] result = new Vector3[dnaComponents.Count];
-            for (int i = 0; i < dnaComponents.Count; i++)
-            {
-                result[i] = dnaComponents[i].transform.position;
-            }
-            return result;
-        }
+        Vector3[] points;
 
-        // Get spline locations
-        Vector3[] points = SetSplinePoints(dnaComponents, pointsToAdd, splineLength);
+        // Spline very small edge case
+        if (dnaComponents.Count <= 4)
+        {
+            points = HandleSmallSplineEdgecase(dnaComponents, resolution);
+        }
+        else
+        {
+            points = SetSplinePoints(dnaComponents, pointsToAdd, splineLength);
+        }
 
         int totalCurves = (splineLength - 4) / 3 + 1;
         int newPointsPerCurve = (int)Math.Pow(2, resolution) - 1;
@@ -208,7 +207,7 @@ public static class SplineInterpolation
         // Add last point edge case
         interpolatedPoints[interpolatedPoints.Length - 1] = points[points.Length - 1];
 
-        if (pointsToAdd > 0)
+        if (pointsToAdd > 0 && dnaComponents.Count > 4)
         {
             interpolatedPoints = CutoffExcessPoints(interpolatedPoints, pointsToAdd, newPointsPerCurve);
         }
@@ -328,6 +327,54 @@ public static class SplineInterpolation
             points[points.Length - 2] = nextBackbonePosition;
             points[points.Length - 1] = nextNuceotidePosition;
         }
+
+        return points;
+    }
+
+    private static Vector3[] HandleSmallSplineEdgecase(List<DNAComponent> dnaComponents, int resolution)
+    {
+        Vector3[] points = new Vector3[dnaComponents.Count + 1];
+
+        // There will either 1 or three nucleotids
+        if (dnaComponents.Count == 1)
+        {
+            // TODO
+            return points;
+        }
+
+        // Add already existing nucleotide locations
+        for (int i = 0; i < dnaComponents.Count; i += 1)
+        {
+            points[i] = dnaComponents[i].transform.position;
+        }
+
+        /* For the first curve, we need the position of the dnaComponent one before for a smooth spline.
+         * So adjust the first point to be the midpoint of adjacent control points
+         * This is needed for very large domains that have multiple bezier curves. If they're not adjusted,
+         * the concatenation of the splines won't be smooth because the splines are adjusting to
+         * midpoints as well as seen in GenerateIntermediatePointsBezier.
+         */
+        NucleotideComponent firstNucleotideComponent = (NucleotideComponent)dnaComponents[0];
+        GetAdjacentPositions(
+            firstNucleotideComponent,
+            out Vector3 prevNucleotidePosition,
+            out Vector3 prevBackbonePosition,
+            out Vector3 nextNuceotidePosition,
+            out Vector3 nextBackbonePosition);
+
+        points[0] = (prevBackbonePosition + nextBackbonePosition) / 2.0f;
+
+        // Last DNA component will be a nucleotide 
+        NucleotideComponent lastNucleotide = (NucleotideComponent) dnaComponents[dnaComponents.Count - 1];
+        GetAdjacentPositions(
+            lastNucleotide,
+            out prevNucleotidePosition,
+            out prevBackbonePosition,
+            out nextNuceotidePosition,
+            out nextBackbonePosition);
+
+        // Extend spline to be four points total, using the next backbone.
+        points[points.Length - 1] = nextBackbonePosition;
 
         return points;
     }
