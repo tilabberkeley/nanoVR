@@ -5,10 +5,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEngine;
 using static GlobalVariables;
 using static Utils;
+using Debug = UnityEngine.Debug;
 
 /// <summary>
 /// Helix object keeps track of nucleotides in the helix.
@@ -71,6 +74,8 @@ public class Helix
     private List<GameObject> _helixA;
     private List<GameObject> _helixB;
 
+    Stopwatch sw = new Stopwatch();
+
     // Helix constructor.
     public Helix(int id, string orientation, int length, GridComponent gridComponent)
     {
@@ -103,24 +108,25 @@ public class Helix
     /// <summary>
     /// Draws the nucleotides of the helix in background thread.
     /// </summary>
-    public async Task ExtendAsync(int length)
+    public async Task ExtendAsync(int length, bool hideNucleotides = false)
     {
         int prevLength = _length;
         _length += length;
 
-        for (int i = prevLength; i < _length; i++)
+        // Draw double helix
+        await GenerateGameObjects(length, hideNucleotides);
+
+        for (int i = prevLength, j = 0; i < _length; i++, j += 2)
         {
             CalculateNextNucleotidePositions(i, out Vector3 nextPositionA, out Vector3 nextPositionB);
 
-            GameObject sphereA = DrawPoint.MakeNucleotide(nextPositionA, i, _id, 1);
-            _nucleotidesA.Add(sphereA);
-            _helixA.Add(sphereA);
-            //sphereA.transform.SetParent(_parent.transform);
+            GameObject sphereA = _nucleotidesA[i];
+            GameObject sphereB = _nucleotidesB[i];
+            DrawPoint.SetNucleotide(sphereA, nextPositionA, i, _id, 1, hideNucleotides);
+            DrawPoint.SetNucleotide(sphereB, nextPositionB, i, _id, 0, hideNucleotides);
 
-            GameObject sphereB = DrawPoint.MakeNucleotide(nextPositionB, i, _id, 0);
-            _nucleotidesB.Add(sphereB);
+            _helixA.Add(sphereA);
             _helixB.Add(sphereB);
-            //sphereB.transform.SetParent(_parent.transform);
 
             // Rotate nucleotides to correct position based on grid's rotation
             sphereA.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
@@ -129,28 +135,249 @@ public class Helix
             sphereB.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
             sphereB.transform.RotateAround(StartPoint, Vector3.right, _gridComponent.transform.eulerAngles.x);
             sphereB.transform.RotateAround(StartPoint, Vector3.up, _gridComponent.transform.eulerAngles.y);
-            await Task.Yield();
-        }
-        if (prevLength == 0)
-        {
-            await DrawBackbones(prevLength + 1);
-        }
-        else
-        {
-            // Needs to add backbone to connect previous set of nucleotides
-            await DrawBackbones(prevLength);
-        }
 
+
+            // Draw backbones
+            if (i > 0)
+            {
+                GameObject cylinderA = _backbonesA[i - 1];
+                DrawPoint.SetBackbone(cylinderA, i - 1, _id, 1, _nucleotidesA[i].transform.position, _nucleotidesA[i - 1].transform.position, hideNucleotides);
+                _helixA.Add(cylinderA);
+
+                GameObject cylinderB = _backbonesB[i - 1];
+                DrawPoint.SetBackbone(cylinderB, i - 1, _id, 0, _nucleotidesB[i].transform.position, _nucleotidesB[i - 1].transform.position, hideNucleotides);
+                _helixB.Add(cylinderB);
+            }
+
+        }
+      
         /* Batches static (non-moving) gameobjects so that they are drawn together.
          * This reduces number of Draw calls and increases FPS. 
          */
         StaticBatchingUtility.Combine(_helixA.ToArray(), _helixA[0]);
-        await Task.Yield();
         StaticBatchingUtility.Combine(_helixB.ToArray(), _helixB[0]);
         await Task.Yield();
 
         _helixA.Clear();
         _helixB.Clear();
+    }
+
+    /*public async Task ExtendAsync(int length, bool hideNucleotides = false)
+    {
+        int prevLength = _length;
+        _length += length;
+        float intialPositionTotal = 0f;
+        float instantiationTotal = 0f;
+        float rotationTotal = 0f;
+        float staticBatchingTotal = 0f;
+        float clearingHelixTotal = 0f;
+        sw.Start();
+
+        for (int i = prevLength; i < _length; i++)
+        {
+            //sw.Start();
+            float angleA = (float)(i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
+            float angleB = (float)((i + 4.5f) * (2 * Math.PI / NUM_BASE_PAIRS)); //TODO: check this new offset
+            float axisOneChangeA = (float)(RADIUS * Mathf.Cos(angleA));
+            float axisTwoChangeA = (float)(RADIUS * Mathf.Sin(angleA));
+            float axisOneChangeB = (float)(RADIUS * Mathf.Cos(angleB));
+            float axisTwoChangeB = (float)(RADIUS * Mathf.Sin(angleB));
+            _lastPositionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
+            _lastPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
+            //sw.Stop();
+            //intialPositionTotal += sw.ElapsedMilliseconds;
+
+            //sw.Reset();
+            //sw.Start();
+            GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, i, _id, 1, hideNucleotides);
+            _nucleotidesA.Add(sphereA);
+            _helixA.Add(sphereA);
+            //sphereA.transform.SetParent(_parent.transform);
+
+            GameObject sphereB = DrawPoint.MakeNucleotide(_lastPositionB, i, _id, 0, hideNucleotides);
+            _nucleotidesB.Add(sphereB);
+            _helixB.Add(sphereB);
+            //sphereB.transform.SetParent(_parent.transform);
+            //sw.Stop();
+            //instantiationTotal += sw.ElapsedMilliseconds;
+
+            //sw.Reset();
+            //sw.Start();
+            // Rotate nucleotides to correct position based on grid's rotation
+            sphereA.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
+            sphereA.transform.RotateAround(StartPoint, Vector3.right, _gridComponent.transform.eulerAngles.x);
+            sphereA.transform.RotateAround(StartPoint, Vector3.up, _gridComponent.transform.eulerAngles.y);
+            sphereB.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
+            sphereB.transform.RotateAround(StartPoint, Vector3.right, _gridComponent.transform.eulerAngles.x);
+            sphereB.transform.RotateAround(StartPoint, Vector3.up, _gridComponent.transform.eulerAngles.y);
+            //sw.Stop();
+            //rotationTotal += sw.ElapsedMilliseconds;
+
+
+            // Draw backbones
+            if (_nucleotidesA.Count > 1)
+            {
+                GameObject cylinderA = DrawPoint.MakeBackbone(i - 1, _id, 1, _nucleotidesA[i].transform.position, _nucleotidesA[i - 1].transform.position, hideNucleotides);
+                _backbonesA.Add(cylinderA);
+                _helixA.Add(cylinderA);
+
+                GameObject cylinderB = DrawPoint.MakeBackbone(i - 1, _id, 0, _nucleotidesB[i].transform.position, _nucleotidesB[i - 1].transform.position, hideNucleotides);
+                _backbonesB.Add(cylinderB);
+                _helixB.Add(cylinderB);
+            }
+            //await Task.Yield();
+
+            if (i % 2 == 0)
+            {
+                await Task.Yield();
+            }
+        }
+        *//*if (prevLength == 0)
+        {
+            await DrawBackbones(prevLength + 1, hideNucleotides);
+        }
+        else
+        {
+            // Needs to add backbone to connect previous set of nucleotides
+            await DrawBackbones(prevLength, hideNucleotides);
+        }
+*/
+    /* Batches static (non-moving) gameobjects so that they are drawn together.
+     * This reduces number of Draw calls and increases FPS. 
+     *//*
+    //sw.Reset();
+    //sw.Start();
+    StaticBatchingUtility.Combine(_helixA.ToArray(), _helixA[0]);
+    //sw.Stop();
+    //Debug.Log(string.Format("Static batching helixA took {0}ms to complete", sw.ElapsedMilliseconds));
+    //staticBatchingTotal += sw.ElapsedMilliseconds * 2;
+    //await Task.Yield();
+    StaticBatchingUtility.Combine(_helixB.ToArray(), _helixB[0]);
+    await Task.Yield();
+
+    //sw.Reset();
+    //sw.Start();
+    _helixA.Clear();
+    _helixB.Clear();
+    sw.Stop();
+    //Debug.Log(string.Format("Clearing both helices took {0}ms to complete", sw.ElapsedMilliseconds));
+    //clearingHelixTotal += sw.ElapsedMilliseconds;
+    //Debug.Log(string.Format("Total time for helix length 64 creation: ~{0}", sw.ElapsedMilliseconds));
+
+    *//*Debug.Log(string.Format("Total time for helix length 64 creation: ~{0}", intialPositionTotal + instantiationTotal + rotationTotal + staticBatchingTotal + clearingHelixTotal));
+    Debug.Log(string.Format("Total time for intial nucleotide position calcution: ~{0}", intialPositionTotal));
+    Debug.Log(string.Format("Total time for instiating nucleotides: ~{0}", instantiationTotal));
+    Debug.Log(string.Format("Total time for rotating nucleotide calcution: ~{0}", rotationTotal));
+    Debug.Log(string.Format("Total time for static batching: ~{0}", staticBatchingTotal));
+    Debug.Log(string.Format("Total time for clearing helices: ~{0}", clearingHelixTotal));
+    Debug.Log(string.Format("There are {0} helices in the scene", s_numHelices));*//*
+}*/
+
+    private async Task GenerateGameObjects(int length, bool hideGameObjects)
+    {
+        int num64nt = length / 64;
+        length %= 64;
+        int num32nt = length / 32;
+        length %= 32;
+        int num16nt = length / 16;
+        length %= 16; 
+        int num8nt = length / 8;
+        length %= 8;
+        int num4nt = length / 4;
+        length %= 4;
+        int num2nt = length / 2;
+        length %= 2;
+        int num1nt = length / 1;
+
+        int numConnectingBackbones = num64nt + num32nt + num16nt + num8nt + num4nt + num2nt + num1nt - 1;
+        //int numConnectingBackbones = num16nt + num8nt + num4nt + num2nt + num1nt - 1;
+
+
+        for (int i = 0; i < num64nt; i++)
+        {
+            _nucleotidesA.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_64, hideGameObjects));
+            //await Task.Yield();
+
+            _nucleotidesB.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_64, hideGameObjects));
+            await Task.Yield();
+
+            _backbonesA.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_63, hideGameObjects));
+            //await Task.Yield();
+
+            _backbonesB.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_63, hideGameObjects));
+            await Task.Yield();
+
+        }
+        //await Task.Yield();
+        for (int i = 0; i < num32nt; i++)
+        {
+            _nucleotidesA.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_32, hideGameObjects));
+            //await Task.Yield();
+
+            _nucleotidesB.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_32, hideGameObjects));
+            await Task.Yield();
+
+            _backbonesA.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_31, hideGameObjects));
+            //await Task.Yield();
+
+            _backbonesB.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_31, hideGameObjects));
+            await Task.Yield();
+
+        }
+
+        for (int i = 0; i < num16nt; i++)
+        {
+            _nucleotidesA.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_16, hideGameObjects));
+            //await Task.Yield();
+
+            _nucleotidesB.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_16, hideGameObjects));
+            //await Task.Yield();
+
+            _backbonesA.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_15, hideGameObjects)); 
+            //await Task.Yield();
+
+            _backbonesB.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_15, hideGameObjects));
+            await Task.Yield();
+        }
+
+
+        for (int i = 0; i < num8nt; i++)
+        {
+            _nucleotidesA.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_8, hideGameObjects));
+            _nucleotidesB.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_8, hideGameObjects));
+            _backbonesA.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_7, hideGameObjects));
+            _backbonesB.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_7, hideGameObjects));
+        }
+        await Task.Yield();
+
+        for (int i = 0; i < num4nt; i++)
+        {
+            _nucleotidesA.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_4, hideGameObjects));
+            _nucleotidesB.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_4, hideGameObjects));
+            _backbonesA.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_3, hideGameObjects));
+            _backbonesB.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_3, hideGameObjects));
+        }
+
+        for (int i = 0; i < num2nt; i++)
+        {
+            _nucleotidesA.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_2, hideGameObjects));
+            _nucleotidesB.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_2, hideGameObjects));
+            _backbonesA.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_1, hideGameObjects));
+            _backbonesB.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_1, hideGameObjects));
+        }
+
+        for (int i = 0; i < num1nt; i++)
+        {
+            _nucleotidesA.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_1, hideGameObjects));
+            _nucleotidesB.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_1, hideGameObjects));
+        }
+
+        for (int i = 0; i < numConnectingBackbones; i++)
+        {
+            _backbonesA.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_1, hideGameObjects));
+            _backbonesB.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_1, hideGameObjects));
+        }
+        await Task.Yield();
     }
 
     /// <summary>
@@ -172,20 +399,24 @@ public class Helix
     /// Draws the backbones between the nucleotides in the helix.
     /// </summary>
     /// <param name="start">Start index of nucleotide to begin drawing backbones.</param>
-    private async Task DrawBackbones(int start)
+    private async Task DrawBackbones(int start, bool hideBackbone)
     {
         for (int i = start; i < _nucleotidesA.Count; i++)
         {
-            GameObject cylinderA = DrawPoint.MakeBackbone(i - 1, _id, 1, NucleotidesA[i].transform.position, NucleotidesA[i - 1].transform.position);
+            GameObject cylinderA = DrawPoint.MakeBackbone(i - 1, _id, 1, NucleotidesA[i].transform.position, NucleotidesA[i - 1].transform.position, hideBackbone);
             _backbonesA.Add(cylinderA);
             _helixA.Add(cylinderA);
             //cylinder.transform.SetParent(_parent.transform);
 
-            GameObject cylinderB = DrawPoint.MakeBackbone(i - 1, _id, 0, NucleotidesB[i].transform.position, NucleotidesB[i - 1].transform.position);
+            GameObject cylinderB = DrawPoint.MakeBackbone(i - 1, _id, 0, NucleotidesB[i].transform.position, NucleotidesB[i - 1].transform.position, hideBackbone);
             _backbonesB.Add(cylinderB);
             _helixB.Add(cylinderB);
             //cylinder.transform.SetParent(_parent.transform);
-            await Task.Yield();
+            
+            //if (i % 2 == 0)
+            {
+                await Task.Yield();
+            }
         }
     }
 

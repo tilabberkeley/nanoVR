@@ -134,8 +134,6 @@ public class DrawGrid : MonoBehaviour
         if (!gc.Selected)
         {
             gc.Grid.DoAddHelix(id, startPos, length, orientation, gc);
-            s_helixDict.TryGetValue(id, out Helix helix);
-            helix.ExtendAsync(length);
             gc.Grid.CheckExpansion(gc);
         }
     }

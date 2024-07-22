@@ -7,7 +7,7 @@ using System;
 using UnityEngine;
 using static GlobalVariables;
 
-public static class ViewingPerspective 
+public static class ViewingPerspective
 {
     /// <summary>
     /// Toggles stencils (Grid circles and unused nucleotides) on and off.
@@ -41,14 +41,14 @@ public static class ViewingPerspective
             // strand.ShowHideXovers(true);
             // strand.SetDomainActivity(false);
         }
-        
+
     }
 
     /// <summary>
     /// Changes viewing mode to Strand View (abstracted Strands).
     /// Called by StrandViewTog in the View Panel of Menu.
     /// </summary>
-    public static void ViewStrand() 
+    public static void ViewStrand()
     {
         if (!s_strandView) { return; }
 

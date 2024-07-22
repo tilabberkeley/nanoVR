@@ -9,9 +9,6 @@ using UnityEngine.XR.Interaction.Toolkit;
 using static UnityEngine.Object;
 using static GlobalVariables;
 using SplineMesh;
-using System.Linq;
-using System.Net;
-using System.Security.Cryptography;
 
 /// <summary>
 /// Creates needed gameobjects like nucleotides, backbones, cones, Xovers, spheres, and grids.
@@ -32,7 +29,7 @@ public static class DrawPoint
     /// <param name="helixId">Id of helix nucleotide is in.</param>
     /// <param name="ssDirection">Direction of nucleotide.</param>
     /// <returns>GameObject of Nucleotide.</returns>
-    public static GameObject MakeNucleotide(Vector3 position, int id, int helixId, int direction)
+    public static GameObject MakeNucleotide(Vector3 position, int id, int helixId, int direction, bool hideNucleotide = false)
     {
         GameObject sphere =
                     Instantiate(GlobalVariables.Nucleotide,
@@ -49,7 +46,118 @@ public static class DrawPoint
         //seqComp.HasComplement = true;
         SaveGameObject(sphere);
         sphere.isStatic = true;
+        sphere.SetActive(!hideNucleotide);
         return sphere;
+    }
+
+    public static void SetNucleotide(GameObject sphere, Vector3 position, int id, int helixId, int direction, bool hideNucleotide = false)
+    {
+        sphere.transform.position = position;
+        sphere.name = "nucleotide" + id;
+
+        NucleotideComponent ntc = sphere.GetComponent<NucleotideComponent>();
+        //SequenceComponent seqComp = sphere.GetComponent<SequenceComponent>();
+        ntc.Id = id;
+        ntc.HelixId = helixId;
+        ntc.Direction = direction;
+        //ntc.IsBackbone = false;
+        //seqComp.HasComplement = true;
+        SaveGameObject(sphere);
+        //sphere.isStatic = true;
+        sphere.SetActive(!hideNucleotide);
+    }
+
+
+    public static List<GameObject> MakeNucleotides(NucleotideSize size, bool hide)
+    {
+        List<GameObject> children = new List<GameObject>();
+
+        switch (size)
+        {
+            case NucleotideSize.LENGTH_64:
+                {
+                    GameObject spheres =
+                       Instantiate(GlobalVariables.Nucleotide64,
+                       Vector3.zero,
+                       Quaternion.identity) as GameObject;
+                    for (int j = 0; j < 64; j++)
+                    {
+                        children.Add(spheres.transform.GetChild(j).gameObject);
+                    }
+                    break;
+                }
+            case NucleotideSize.LENGTH_32:
+                {
+                    GameObject spheres =
+                       Instantiate(GlobalVariables.Nucleotide32,
+                       Vector3.zero,
+                       Quaternion.identity) as GameObject;
+                    for (int j = 0; j < 32; j++)
+                    {
+                        children.Add(spheres.transform.GetChild(j).gameObject);
+                    }
+                    break;
+                }
+            case NucleotideSize.LENGTH_16:
+                {
+                    GameObject spheres =
+                       Instantiate(GlobalVariables.Nucleotide16,
+                       Vector3.zero,
+                       Quaternion.identity) as GameObject;
+                    for (int j = 0; j < 16; j++)
+                    {
+                        children.Add(spheres.transform.GetChild(j).gameObject);
+                    }
+                    break;
+                }
+            case NucleotideSize.LENGTH_8:
+                {
+                    GameObject spheres =
+                       Instantiate(GlobalVariables.Nucleotide8,
+                       Vector3.zero,
+                       Quaternion.identity) as GameObject;
+                    for (int j = 0; j < 8; j++)
+                    {
+                        children.Add(spheres.transform.GetChild(j).gameObject);
+                    }
+                    break;
+                }
+            case NucleotideSize.LENGTH_4:
+                {
+                    GameObject spheres =
+                       Instantiate(GlobalVariables.Nucleotide4,
+                       Vector3.zero,
+                       Quaternion.identity) as GameObject;
+                    for (int j = 0; j < 4; j++)
+                    {
+                        children.Add(spheres.transform.GetChild(j).gameObject);
+                    }
+                    break;
+                }
+            case NucleotideSize.LENGTH_2:
+                {
+                    GameObject spheres =
+                       Instantiate(GlobalVariables.Nucleotide2,
+                       Vector3.zero,
+                       Quaternion.identity) as GameObject;
+                    for (int j = 0; j < 2; j++)
+                    {
+                        children.Add(spheres.transform.GetChild(j).gameObject);
+                    }
+                    break;
+                }
+            case NucleotideSize.LENGTH_1:
+                {
+                    GameObject spheres =
+                       Instantiate(GlobalVariables.Nucleotide,
+                       Vector3.zero,
+                       Quaternion.identity) as GameObject;
+                    children.Add(spheres);
+                    break;
+                }
+        }
+        
+        return children;
     }
 
     /// <summary>
@@ -63,13 +171,13 @@ public static class DrawPoint
     }
 
     /// <summary>
-    /// Creates a backbone between given two nucleotides.
+    /// Creates a backbone between two nucleotides.
     /// </summary>
     /// <param name="id">id of backbone.</param>
     /// <param name="start">Position of start nucleotide.</param>
     /// <param name="end">Position of end nucleotide.</param>
     /// <returns>GameObject of backbone.</returns>
-    public static GameObject MakeBackbone(int id, int helixId, int direction, Vector3 start, Vector3 end)
+    public static GameObject MakeBackbone(int id, int helixId, int direction, Vector3 start, Vector3 end, bool hideBackbone = false)
     {
         GameObject cylinder = Instantiate(Backbone,
                                     Vector3.zero,
@@ -80,7 +188,7 @@ public static class DrawPoint
         backBoneComponent.Id = id;
         backBoneComponent.HelixId = helixId;
         backBoneComponent.Direction = direction;
-        backBoneComponent.IsBackbone = true;     
+        //backBoneComponent.IsBackbone = true;     
 
         // Scale        
         float dist = Vector3.Distance(end, start);
@@ -94,8 +202,114 @@ public static class DrawPoint
         cylinder.transform.up = end - start;
 
         SaveGameObject(cylinder);
-        cylinder.isStatic = true;
+        //cylinder.isStatic = true;
+        cylinder.SetActive(!hideBackbone);
         return cylinder;
+    }
+
+    public static List<GameObject> MakeBackbones(BackboneSize size, bool hide)
+    {
+        List<GameObject> children = new List<GameObject>();
+
+        switch (size)
+        {
+            case BackboneSize.LENGTH_63:
+                {
+                    GameObject spheres =
+                       Instantiate(GlobalVariables.Backbone63,
+                       Vector3.zero,
+                       Quaternion.identity) as GameObject;
+                    for (int j = 0; j < 63; j++)
+                    {
+                        children.Add(spheres.transform.GetChild(j).gameObject);
+                    }
+                    break;
+                }
+            case BackboneSize.LENGTH_31:
+                {
+                    GameObject spheres =
+                       Instantiate(GlobalVariables.Backbone31,
+                       Vector3.zero,
+                       Quaternion.identity) as GameObject;
+                    for (int j = 0; j < 31; j++)
+                    {
+                        children.Add(spheres.transform.GetChild(j).gameObject);
+                    }
+                    break;
+                }
+            case BackboneSize.LENGTH_15:
+                {
+                    GameObject spheres =
+                       Instantiate(GlobalVariables.Backbone15,
+                       Vector3.zero,
+                       Quaternion.identity) as GameObject;
+                    for (int j = 0; j < 15; j++)
+                    {
+                        children.Add(spheres.transform.GetChild(j).gameObject);
+                    }
+                    break;
+                }
+            case BackboneSize.LENGTH_7:
+                {
+                    GameObject spheres =
+                       Instantiate(GlobalVariables.Backbone7,
+                       Vector3.zero,
+                       Quaternion.identity) as GameObject;
+                    for (int j = 0; j < 7; j++)
+                    {
+                        children.Add(spheres.transform.GetChild(j).gameObject);
+                    }
+                    break;
+                }
+            case BackboneSize.LENGTH_3:
+                {
+                    GameObject spheres =
+                       Instantiate(GlobalVariables.Backbone3,
+                       Vector3.zero,
+                       Quaternion.identity) as GameObject;
+                    for (int j = 0; j < 3; j++)
+                    {
+                        children.Add(spheres.transform.GetChild(j).gameObject);
+                    }
+                    break;
+                }
+            case BackboneSize.LENGTH_1:
+                {
+                    GameObject spheres =
+                       Instantiate(GlobalVariables.Backbone,
+                       Vector3.zero,
+                       Quaternion.identity) as GameObject;
+                    children.Add(spheres);
+                    break;
+                }
+        }
+
+        return children;
+    }
+
+    public static void SetBackbone(GameObject cylinder, int id, int helixId, int direction, Vector3 start, Vector3 end, bool hideBackbone = false)
+    {
+        cylinder.name = "Backbone" + id;
+
+        BackBoneComponent backBoneComponent = cylinder.GetComponent<BackBoneComponent>();
+        backBoneComponent.Id = id;
+        backBoneComponent.HelixId = helixId;
+        backBoneComponent.Direction = direction;
+        backBoneComponent.IsBackbone = true;
+
+        // Scale        
+        float dist = Vector3.Distance(end, start);
+        cylinder.transform.localScale = new Vector3(0.25f, dist / 2, 0.25f);   // For "Cylinder" (Probuilder) prefab
+
+        // Position
+        cylinder.transform.position = (end + start) / 2.0F;
+
+        // Rotation
+        cylinder.transform.up = end - start;
+
+        SaveGameObject(cylinder);
+        cylinder.isStatic = true;
+        cylinder.SetActive(!hideBackbone);
     }
 
     /// <summary>

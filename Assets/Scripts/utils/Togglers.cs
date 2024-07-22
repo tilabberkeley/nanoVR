@@ -20,56 +20,6 @@ public class Togglers : MonoBehaviour
         Instance = this;
     }
 
-    /*public void LineToggled() 
-    {
-        s_lineTogOn = true;
-        s_curveTogOn = false;
-        s_gridTogOn = false;
-        s_honeycombTogOn = false;
-        s_cameraTogOn = false;
-    }
-
-    public void CurveToggled() 
-    {
-        s_lineTogOn = false;
-        s_curveTogOn = true;
-        s_gridTogOn = false;
-        s_honeycombTogOn = false;
-        s_cameraTogOn = false;
-    }
-
-    public void LoopToggled() 
-    {
-        s_loopTogOn = !s_loopTogOn;
-    }
-
-    public void GridToggled() 
-    {
-        s_lineTogOn = false;
-        s_curveTogOn = false;
-        s_gridTogOn = true;
-        s_honeycombTogOn = false;
-        s_cameraTogOn = false;
-    }
-
-    public void HoneycombToggled() 
-    {
-        s_lineTogOn = false;
-        s_curveTogOn = false;
-        s_gridTogOn = false;
-        s_honeycombTogOn = true;
-        s_cameraTogOn = false;
-    }
-
-    public void CameraToggled()
-    {
-        s_lineTogOn = false;
-        s_curveTogOn = false;
-        s_gridTogOn = false;
-        s_honeycombTogOn = false;
-        s_cameraTogOn = true;
-    }*/
-
     public void SelectToggled()
     {
         s_selectTogOn = true;

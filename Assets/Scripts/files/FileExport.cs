@@ -11,12 +11,12 @@ using UnityEngine.Networking;
 using SimpleFileBrowser;
 using Newtonsoft.Json.Linq;
 using UnityEngine.UI;
-using System.Reflection;
 using System.Collections;
 using System.Text;
 using System.Text.RegularExpressions;
 using static GlobalVariables;
 using static Utils;
+using System.Reflection; // This is used by Android during build process
 
 public class FileExport : MonoBehaviour
 {
@@ -26,6 +26,7 @@ public class FileExport : MonoBehaviour
 
     [SerializeField] private Dropdown exportTypeDropdown;
     [SerializeField] private Canvas Menu;
+    [SerializeField] private Toggle includeScaffoldTog;
     private Canvas fileBrowser;
 
     void Awake()
@@ -56,9 +57,9 @@ public class FileExport : MonoBehaviour
         }
 
         // Added this because wasn't getting access to files.
-        #if !UNITY_EDITOR && UNITY_ANDROID
+#if !UNITY_EDITOR && UNITY_ANDROID
         typeof(SimpleFileBrowser.FileBrowserHelpers).GetField("m_shouldUseSAF", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, (bool?)false);
-        #endif
+#endif
     }
 
     private void Start()
@@ -82,9 +83,13 @@ public class FileExport : MonoBehaviour
         {
             WriteSCFile();
         }
-        else
+        else if (exportType.Equals("oxdna"))
         {
             StartCoroutine(CreateOxdnaFiles());
+        }
+        else
+        {
+            WriteCSVFile();
         }
     }
 
@@ -310,8 +315,67 @@ public class FileExport : MonoBehaviour
         bool result = FileBrowser.ShowSaveDialog((paths) => { CreateSCFile(paths[0], GetSCJSON()); },
             () => { Debug.Log("Canceled"); },
             FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
+    }
 
-        Debug.Log("Download result: " + result);
+    /// <summary>
+    /// Creates .csv file and writes to it given the file path and content.
+    /// </summary>
+    /// <param name="path">File path to write to.</param>
+    /// <param name="content">Content of the .csv file.</param>
+    private void CreateCSVFile(string path, string content)
+    {
+        if (!path.Contains(".csv"))
+        {
+            path += ".csv";
+        }
+        File.WriteAllText(path, content);
+    }
+
+    /// <summary>
+    /// Writes .csv file to file browser.
+    /// </summary>
+    /// <param name="content">Contennt of the .csv file.</param>
+    private void WriteCSVFile()
+    {
+        fileBrowser.enabled = true;
+        fileBrowser.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 0.8f;
+        bool result = FileBrowser.ShowSaveDialog((paths) => { CreateCSVFile(paths[0], GetCSV()); },
+            () => { Debug.Log("Canceled"); },
+            FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
+    }
+
+    /// <summary>
+    /// Returns CSV file of DNA seqeunces for all Strands.
+    /// </summary>
+    private string GetCSV()
+    {
+        bool includeScaffold = includeScaffoldTog.isOn;
+        StringBuilder csv = new StringBuilder();
+
+        foreach (Strand strand in s_strandDict.Values)
+        {
+            if (!includeScaffold && strand.IsScaffold)
+            {
+                continue;
+            }
+            NucleotideComponent startNtc = strand.Nucleotides.Last().GetComponent<NucleotideComponent>();
+            NucleotideComponent endNtc = strand.Nucleotides[0].GetComponent<NucleotideComponent>();
+
+            int startHelixId = startNtc.HelixId;
+            int startNuclId = startNtc.Id;
+            int endHelixId = endNtc.HelixId;
+            int endNuclId = endNtc.Id;
+            string sequence = strand.Sequence.Replace("X", ""); // Remove 'X' (deletion) from sequence
+            string strandName = string.Format("ST{0}[{1}]{2}[{3}]", startHelixId, startNuclId, endHelixId, endNuclId);
+            if (strand.IsScaffold)
+            {
+                strandName = strandName.Replace("ST", "SCAF");
+            }
+            string strandText = string.Format("{0}, {1}", strandName, sequence);
+
+            csv.AppendLine(strandText);
+        }
+        return csv.ToString();
     }
 
     /// <summary>

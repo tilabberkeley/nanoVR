@@ -62,8 +62,8 @@ public abstract class DNAGrid
     {
         get
         {
-            int i = GridXToIndex(-2);
-            int j = GridYToIndex(-2);
+            int i = GridXToIndex(0);
+            int j = GridYToIndex(0);
             if (_grid2D[i, j] == null)
             {
                 return null;

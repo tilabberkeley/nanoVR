@@ -14,6 +14,9 @@ using SimpleFileBrowser;
 using System.Collections;
 using static GlobalVariables;
 using static Utils;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Handles all file importing into nanoVR.
@@ -25,9 +28,13 @@ public class FileImport : MonoBehaviour
     private Canvas fileBrowser;
     private static XRRayInteractor rayInteractor;
     public static FileImport Instance;
+    private int originalCullingMask;
 
     private const string PLANE = "XY";
     private const int MAX_NUCLEOTIDES = 20000;
+    Stopwatch st = new Stopwatch();
+
+    private const string DEFAULT_GRID_NAME = "default_group";
 
     void Awake()
     {
@@ -120,6 +127,8 @@ public class FileImport : MonoBehaviour
     {
         /*ICommand command = new ImportCommand(json);
         CommandManager.AddCommand(command);*/
+        originalCullingMask = Camera.main.cullingMask;
+        Camera.main.cullingMask = LayerMask.GetMask("Loading Screen");
         ParseSC(json);
     }
 
@@ -131,12 +140,14 @@ public class FileImport : MonoBehaviour
     /// <param name="isCopyPaste">Whether this is being called for copy/pasting a grid</param>
     /// <param name="visualMode">Whether this is being called for converting to visual mode</param>
     /// <returns>List of grids created</returns>
-    public async void ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
+    public async Task<List<DNAGrid>> ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
     {
+        st.Start();
         List<DNAGrid> grids = new List<DNAGrid>();
         JObject origami = JObject.Parse(fileContents);
         JArray helices = JArray.Parse(origami["helices"].ToString());
         JArray strands = JArray.Parse(origami["strands"].ToString());
+        bool isMultiGrid = false;
 
         /**
          * Parse grids
@@ -145,6 +156,7 @@ public class FileImport : MonoBehaviour
         {
             JObject groupObject = JObject.Parse(origami["groups"].ToString());
             Dictionary<string, JObject> groups = groupObject.ToObject<Dictionary<string, JObject>>();
+            isMultiGrid = groups.Count > 1;
             foreach (var item in groups)
             {
                 string origName = CleanSlash(item.Key);
@@ -160,9 +172,9 @@ public class FileImport : MonoBehaviour
                 float z = 0;
                 if (info["position"] != null)
                 {
-                    x = (float)info["position"]["x"];
-                    y = (float)info["position"]["y"];
-                    z = (float)info["position"]["z"];
+                    x = (float)info["position"]["x"] / SCALE;
+                    y = (float)info["position"]["y"] / SCALE;
+                    z = (float)info["position"]["z"] / SCALE;
                 }
                 string gridType = CleanSlash(info["grid"].ToString());
                 Vector3 startPos;
@@ -206,16 +218,40 @@ public class FileImport : MonoBehaviour
         }
         
         int lastHelixId = s_numHelices;
+        await ParseHelices(helices, isMultiGrid);
+        //Task.Run(async () => await ParseHelices(helices)).Wait();
+        Debug.Log("Done parsing helices");
+        // Parse strands.
+        if (!gameObject.activeInHierarchy)
+        {
+            Debug.Log("Not active!" + gameObject.name);
+        }
+        CoRunner.Instance.Run(ParseStrands(strands, lastHelixId));
+        return grids;
+    }
 
-        // Parse helices.
+    /// <summary>
+    /// Async method to parse and draw Helices from scadnano file
+    /// </summary>
+    private async Task ParseHelices(JArray helices, bool isMultiGrid)
+    {
+        Stopwatch sw = new Stopwatch();
+        List<Task> tasks = new List<Task>();
         for (int i = 0; i < helices.Count; i++)
         {
+            sw.Reset();
+            sw.Start();
             JArray coord = JArray.Parse(helices[i]["grid_position"].ToString());
             int length = (int)helices[i]["max_offset"];
             string gridName;
             if (helices[i]["group"] != null)
             {
                 string origName = CleanSlash(helices[i]["group"].ToString());
+                gridName = GetGridName(origName);
+            }
+            else if (isMultiGrid)
+            {
+                string origName = DEFAULT_GRID_NAME;
                 gridName = GetGridName(origName);
             }
             else
@@ -253,80 +289,32 @@ public class FileImport : MonoBehaviour
             int yInd = grid.GridYToIndex(yGrid);
             GridComponent gc = grid.Grid2D[xInd, yInd];
             Helix helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
-            await helix.ExtendAsync(length);
-            grid.CheckExpansion(gc);
-        }
-
-        // Parse strands.
-        StartCoroutine(ParseStrands(strands, lastHelixId));
-        //return grids;
-    }
-
-    /// <summary>
-    /// Async method to parse and draw Helices from scadnano file
-    /// </summary>
-    private static async void ParseHelices(JArray helices)
-    {
-        for (int i = 0; i < helices.Count; i++)
-        {
-            JArray coord = JArray.Parse(helices[i]["grid_position"].ToString());
-            int length = (int) helices[i]["max_offset"];
-            string gridName;
-            if (helices[i]["group"] != null)
+            bool hideNucleotides = true;
+            await helix.ExtendAsync(length, hideNucleotides);
+            //Task task = helix.ExtendAsync(length, hideNucleotides);
+            //tasks.Add(task);
+            sw.Stop();
+            //Debug.Log(string.Format("Parsing helix took {0} ms", sw.ElapsedMilliseconds));
+            // Parellelize every 4 helices
+            /*if (i % 8 == 0 || i == helices.Count - 1)
             {
-                string origName = CleanSlash(helices[i]["group"].ToString());
-                gridName = GetGridName(origName);
-            }
-            else
-            {
-                gridName = (s_numGrids - 1).ToString();
-            }
-
-            DNAGrid grid = s_gridDict[gridName];
-            int xGrid = (int) coord[0];
-            int yGrid = (int) coord[1] * -1;
-
-            /**
-             * Expands grid if necessary so that helix coordinates exist.
-             */
-            GridPoint minBound = grid.MinimumBound;
-            GridPoint maxBound = grid.MaximumBound;
-            while (xGrid <= minBound.X)
-            {
-                grid.ExpandWest();
-            }
-            while (xGrid >= maxBound.X)
-            {
-                grid.ExpandEast();
-            }
-            while (yGrid <= minBound.Y)
-            {
-                grid.ExpandSouth();
-            }
-            while (yGrid >= maxBound.Y)
-            {
-                grid.ExpandNorth();
-            }
-
-            int xInd = grid.GridXToIndex(xGrid);
-            int yInd = grid.GridYToIndex(yGrid);
-            GridComponent gc = grid.Grid2D[xInd, yInd];
-            Helix helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
-            await helix.ExtendAsync(length);
-            grid.CheckExpansion(gc);
+                await Task.WhenAll(tasks);
+                tasks.Clear();
+            }*/
+            //grid.CheckExpansion(gc);
         }
     }
-    
+
     /// <summary>
     /// Coroutine to parse and draw Strands from scadnano file
     /// </summary>
     private IEnumerator ParseStrands(JArray strands, int lastHelixId)
     {
-        int totalNucleotides = 0;
-
+        Stopwatch sw = new Stopwatch();
         // Drawing strands
         for (int i = 0; i < strands.Count; i++)
         {
+            sw.Restart();
             JArray domains = JArray.Parse(strands[i]["domains"].ToString());
             string sequence = CleanSlash(strands[i]["sequence"].ToString());
             string hexColor = CleanSlash(strands[i]["color"].ToString());
@@ -397,7 +385,6 @@ public class FileImport : MonoBehaviour
             }
 
             Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
-            totalNucleotides += nucleotides.Count;
 
             // Add xovers to strand object.
             for (int j = 1; j < xoverEndpoints.Count; j += 2)
@@ -419,18 +406,28 @@ public class FileImport : MonoBehaviour
             // Set sequence and check for mismatches with complement strands.
             strand.Sequence = sequence;
             CheckMismatch(strand);
+            sw.Stop();
+            //Debug.Log(string.Format("Parsing Strand took {0} ms", sw.ElapsedMilliseconds));
             yield return null;
         }
 
         // Abstracts to Strand View if there are more than MAX_NUCLEOTIDES in scene.
         // This helps with performance.
-        if (totalNucleotides > MAX_NUCLEOTIDES)
+        if (GlobalVariables.allGameObjects.Count > MAX_NUCLEOTIDES)
         {
             Togglers.Instance.StrandViewToggled();
-            // ViewingPerspective.ViewStrand();
+            // ViewingPerspective.ViewStrand();]]
+        }
+        else
+        {
+            Togglers.Instance.NucleotideViewToggled();
+            // ViewingPerspective.Instance.ShowStencils();
         }
 
-        // loadingMenu.enabled = false;
+        loadingMenu.enabled = false;
+        Camera.main.cullingMask = originalCullingMask;
+        st.Stop();
+        Debug.Log(string.Format("Overall import took {0} ms to complete", st.ElapsedMilliseconds));
     }
 
     /// <summary>
