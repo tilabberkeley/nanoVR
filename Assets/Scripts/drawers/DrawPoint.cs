@@ -15,7 +15,7 @@ using SplineMesh;
 /// </summary>
 public static class DrawPoint
 {
-    private const int SPLINE_RESOLUTION = 16;
+    private const int SPLINE_RESOLUTION = 1;
     private const float TUBE_SIZE = 0.01f;
     // private const float LOOPOUT_SIZE = 0.005f;
     // Factor determines how much loopout "bends." Higher factor, more bending.
@@ -421,7 +421,7 @@ public static class DrawPoint
         tubeRend.radius = TUBE_SIZE;
         meshRend.material.SetColor("_Color", color);
         
-        Vector3[] anchorPoints = SplineInterpolation.GenerateBezierSpline(dnaComponents, 3);
+        Vector3[] anchorPoints = SplineInterpolation.GenerateBezierSpline(dnaComponents, SPLINE_RESOLUTION);
 
         tubeRend.points = anchorPoints;
 

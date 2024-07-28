@@ -420,16 +420,14 @@ public class FileImport : MonoBehaviour
         // This helps with performance.
         if (GlobalVariables.allGameObjects.Count > MAX_NUCLEOTIDES)
         {
-            Togglers.Instance.StrandViewToggled();
-            // ViewingPerspective.ViewStrand();]]
+            ViewingPerspective.ViewStrand();
         }
         else
-        {
-            Togglers.Instance.NucleotideViewToggled();
-            // ViewingPerspective.Instance.ShowStencils();
+        { 
+            ViewingPerspective.ViewNucleotide();
         }
 
-        loadingMenu.enabled = false;
+        // loadingMenu.enabled = false;
         Camera.main.cullingMask = originalCullingMask;
         st.Stop();
         Debug.Log(string.Format("Overall import took {0} ms to complete", st.ElapsedMilliseconds));
