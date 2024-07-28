@@ -174,11 +174,11 @@ public static class SplineInterpolation
         }
 
         int totalCurves = (splineLength - 4) / 3 + 1;
-        int newPointsPerCurve = (int)Math.Pow(2, resolution) - 1;
+        int newPointsPerCurve = 2; // (int)Math.Pow(2, resolution) - 1;
         int totalPoints = (totalCurves + 1) + newPointsPerCurve * totalCurves;
         Vector3[] interpolatedPoints = new Vector3[totalPoints];
 
-        float tIncrement = 1 / (float)Math.Pow(2, resolution);
+        float tIncrement = 1.0f / 3.0f; // (float)Math.Pow(2, resolution);
 
         for (int i = 0; i < totalCurves; i++)
         {

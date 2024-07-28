@@ -13,8 +13,8 @@ using static OVRPlugin;
 public class DomainComponent : MonoBehaviour
 {
     // Number of nucleotides included in one "Bezier" of the Strand View.
-    // It is crucial that this is some multiple of 3 + 4 and odd. See SplineInterpolation.SetSplinePoints for the reason why.
-    private const int BEZIER_COUNT = 37;  
+    // It is crucial that this is some multiple of 3 so 3n + 4 and odd. See SplineInterpolation.SetSplinePoints for the reason why.
+    private const int BEZIER_COUNT = 67;  
 
     private CapsuleCollider _capsuleCollider;
     private Helix _helix;
