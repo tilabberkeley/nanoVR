@@ -781,18 +781,18 @@ public class Strand
     }
     
     /// <summary>
-    /// Draws the simplified bezier curve representation of this strand.
+    /// Draws the simplified bezier curve representation of this strand (strand view).
     /// </summary>
-    public void DrawBezier()
+    public void ToStrandView()
     {
         foreach (DomainComponent domain in _domains)
         {
-            domain.HideNucleotides();
+            domain.StrandView();
         }
 
         foreach (GameObject xover in _xovers)
         {
-            xover.GetComponent<XoverComponent>().Hide(_color);
+            xover.GetComponent<XoverComponent>().StrandView(_color);
         }
     }
 
@@ -800,16 +800,16 @@ public class Strand
     /// Returns this strand from the simplified bezier curve representation to
     /// the default nucleotide view.
     /// </summary>
-    public void DeleteBezier()
+    public void ToNucleotideView()
     {
         foreach (DomainComponent domain in _domains)
         {
-            domain.ShowNucleotides();
+            domain.NucleotideView();
         }
 
         foreach (GameObject xover in _xovers)
         {
-            xover.GetComponent<XoverComponent>().Show();
+            xover.GetComponent<XoverComponent>().NucleotideView();
         }
     }
 

@@ -98,9 +98,9 @@ public class XoverComponent : MonoBehaviour
     private GameObject _bezier = null;
 
     /// <summary>
-    /// Returns xover back from simplified strand view.
+    /// Returns xover back from simplified strand view (nucleotide view).
     /// </summary>
-    public void Show()
+    public void NucleotideView()
     {
         if (_bezier == null)
         {
@@ -115,8 +115,8 @@ public class XoverComponent : MonoBehaviour
     /// <summary>
     /// Puts xover in simplified strand view.
     /// </summary>
-    /// <param name="color">Color to make simplifiec version.</param>
-    public void Hide(Color32 color)
+    /// <param name="color">Color to make simplified version.</param>
+    public void StrandView(Color32 color)
     {
         if (_bezier == null)
         {

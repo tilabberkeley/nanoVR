@@ -29,19 +29,18 @@ public static class ViewingPerspective
     {
         if (!s_nucleotideView) { return; }
 
-        foreach (Helix helix in s_helixDict.Values)
-        {
-            helix.ChangeRendering();
-        }
-
         foreach (Strand strand in s_strandDict.Values)
         {
-            strand.DeleteBezier();
+            strand.ToNucleotideView();
             strand.ShowHideCone(true);
             // strand.ShowHideXovers(true);
             // strand.SetDomainActivity(false);
         }
 
+        foreach (Helix helix in s_helixDict.Values)
+        {
+            helix.ChangeRendering();
+        }
     }
 
     /// <summary>
@@ -52,12 +51,20 @@ public static class ViewingPerspective
     {
         if (!s_strandView) { return; }
 
+        // CoRunner.Instance.Run(ViewStrandHelper());
+
+        foreach (Strand strand in s_strandDict.Values)
+        {
+            strand.ToStrandView();
+            strand.ShowHideCone(false);
+            // strand.ShowHideXovers(true);
+            // strand.SetDomainActivity(false);
+        }
+
         foreach (Helix helix in s_helixDict.Values)
         {
             helix.ChangeRendering();
         }
-
-        CoRunner.Instance.Run(ViewStrandHelper());
     }
 
     /// <summary>
@@ -70,7 +77,7 @@ public static class ViewingPerspective
         {
             strand.ShowHideCone(false);
             // strand.ShowHideXovers(false);
-            strand.DrawBezier();
+            strand.ToStrandView();
             // strand.SetDomainActivity(true);
             yield return null;
         }

@@ -644,15 +644,9 @@ public static class DrawPoint
                    Quaternion.identity);
 
         DomainComponent domainComponent = domain.GetComponent<DomainComponent>();
-
-        foreach (DNAComponent nucleotide in dnaList)
-        {
-            domainComponent.DNAComponents.Add(nucleotide);
-            nucleotide.Domain = domainComponent;
-        }
-
         domainComponent.Strand = strand;
-        domainComponent.UpdateCapsuleCollider();
+
+        domainComponent.Configure(dnaList);
 
         return domainComponent;
     }

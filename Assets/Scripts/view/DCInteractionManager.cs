@@ -111,7 +111,7 @@ public class DCInteractionManager : MonoBehaviour
             // Nucleotide complement must be apart of the domain to turn it 
             if (nucleotideComponent != null)
             {
-                nucleotideComponent.Domain.HideNucleotidesWithoutComplement();
+                nucleotideComponent.Domain.StrandViewWithoutComplement();
             }
         }
         // Handle showing nucleotides of domain on click - shouldn't be able to show nucleotides when holding grip.
@@ -121,7 +121,7 @@ public class DCInteractionManager : MonoBehaviour
             DomainComponent domainComponent = s_hit.collider.GetComponent<DomainComponent>();
             if (domainComponent != null)
             {
-                domainComponent.ShowNucleotides();
+                domainComponent.NucleotideView();
             }
         }
 
@@ -166,7 +166,7 @@ public class DCInteractionManager : MonoBehaviour
             // Nucleotide complement must be apart of the domain to turn it 
             if (nucleotideComponent != null)
             {
-                nucleotideComponent.Domain.HideNucleotidesWithoutComplement();
+                nucleotideComponent.Domain.StrandViewWithoutComplement();
             }
         }
         // Handle showing nucleotides of domain on click - shouldn't be able to show nucleotides when holding grip.
@@ -176,7 +176,7 @@ public class DCInteractionManager : MonoBehaviour
             DomainComponent domainComponent = s_hit.collider.GetComponent<DomainComponent>();
             if (domainComponent != null)
             {
-                domainComponent.ShowNucleotides();
+                domainComponent.NucleotideView();
             }
         }
 

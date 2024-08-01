@@ -35,6 +35,25 @@ public class DomainComponent : MonoBehaviour
     public Vector3 BezierEndPoint { get => _bezierEndPoint; }
 
     /// <summary>
+    /// Configures the domain with given dna components.
+    /// </summary>
+    public void Configure(List<DNAComponent> dnaList)
+    {
+        foreach (DNAComponent nucleotide in dnaList)
+        {
+            _dnaComponents.Add(nucleotide);
+            nucleotide.Domain = this;
+        }
+
+        UpdateCapsuleCollider();
+        // Create bezier on domain creation. And then hide it.
+        DrawBezier();
+        HideBezier();
+        // Should always be disabled when created
+        gameObject.SetActive(false);
+    }
+
+    /// <summary>
     /// Draws the bezier curve representation of this domain.
     /// </summary>
     private void DrawBezier()
@@ -80,17 +99,33 @@ public class DomainComponent : MonoBehaviour
         }
     }
 
+    private void ShowBezier()
+    {
+        foreach (GameObject bezier in _beziers)
+        {
+            bezier.SetActive(true);
+        }
+    }
+
+    private void HideBezier()
+    {
+        foreach (GameObject bezier in _beziers)
+        {
+            bezier.SetActive(false);
+        }
+    }
+
     public void ShowHideCone(bool enabled)
     {
         throw new NotImplementedException();
         // TODO
-        // Maybe always keeping the cone visiable is find? So you know the direction of the abstracted strand?
+        // Maybe always keeping the cone visiable is fine? So you know the direction of the abstracted strand?
     }
 
     /// <summary>
     /// Shows the nucleotide representation of this domain.
     /// </summary>
-    public void ShowNucleotides()
+    public void NucleotideView()
     {
         foreach(DNAComponent nucleotide in _dnaComponents)
         {
@@ -103,20 +138,20 @@ public class DomainComponent : MonoBehaviour
                 XoverComponent xoverComponent = ((NucleotideComponent)nucleotide).Xover?.GetComponent<XoverComponent>();
                 if (xoverComponent != null)
                 {
-                    xoverComponent.Show();
+                    xoverComponent.NucleotideView();
                 }
             }
         }
 
-        DeleteBezier();
+        HideBezier();
         // Should deactivate itself to allow interaction with nucleotides
         gameObject.SetActive(false);
     }
 
     /// <summary>
-    /// Shows the bezier curve representation of this domain. Hides the complement nucleotides.
+    /// Shows the bezier curve representation of this domain (strand view). Hides the complement nucleotides.
     /// </summary>
-    public void HideNucleotides()
+    public void StrandView()
     {
         foreach (DNAComponent nucleotide in _dnaComponents)
         {
@@ -134,15 +169,15 @@ public class DomainComponent : MonoBehaviour
             //}
         }
 
-        DrawBezier();
+        ShowBezier();
         // Should activate itself if nucleotides aren't visable
         gameObject.SetActive(true);
     }
 
     /// <summary>
-    /// Shows the bezier curve representation of this domain. Doesn't hide the complement nucleotides.
+    /// Shows the bezier curve representation of this domain (strand view). Doesn't hide the complement nucleotides.
     /// </summary>
-    public void HideNucleotidesWithoutComplement()
+    public void StrandViewWithoutComplement()
     {
         foreach (DNAComponent nucleotide in _dnaComponents)
         {
@@ -154,12 +189,12 @@ public class DomainComponent : MonoBehaviour
                 XoverComponent xoverComponent = ((NucleotideComponent)nucleotide).Xover?.GetComponent<XoverComponent>();
                 if (xoverComponent != null)
                 {
-                    xoverComponent.Hide(_strand.Color);
+                    xoverComponent.StrandView(_strand.Color);
                 }
             }
         }
 
-        DrawBezier();
+        ShowBezier();
         // Should activate itself if nucleotides aren't visable
         gameObject.SetActive(true);
     }
