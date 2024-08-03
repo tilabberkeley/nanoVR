@@ -50,7 +50,7 @@ public static class DrawPoint
         return sphere;
     }
 
-    public static void SetNucleotide(GameObject sphere, Vector3 position, int id, int helixId, int direction, bool hideNucleotide = false)
+    public static void SetNucleotide(GameObject sphere, Vector3 position, int id, int helixId, int direction, bool hideNucleotide = false, bool isOxview = false)
     {
         sphere.transform.position = position;
         sphere.name = "nucleotide" + id;
@@ -60,10 +60,13 @@ public static class DrawPoint
         ntc.Id = id;
         ntc.HelixId = helixId;
         ntc.Direction = direction;
-        //ntc.IsBackbone = false;
+        ntc.IsOxview = isOxview;
+        ntc.IsBackbone = false;
         //seqComp.HasComplement = true;
+        sphere.transform.SetParent(null);
         SaveGameObject(sphere);
-        //sphere.isStatic = true;
+        sphere.isStatic = true;
+        //sphere.SetActive(!hideNucleotide);
         sphere.SetActive(!hideNucleotide);
     }
 
@@ -82,7 +85,9 @@ public static class DrawPoint
                        Quaternion.identity) as GameObject;
                     for (int j = 0; j < 64; j++)
                     {
-                        children.Add(spheres.transform.GetChild(j).gameObject);
+                        GameObject sphere = spheres.transform.GetChild(j).gameObject;
+                        //sphere.transform.SetParent(null);
+                        children.Add(sphere);
                     }
                     break;
                 }
@@ -94,7 +99,9 @@ public static class DrawPoint
                        Quaternion.identity) as GameObject;
                     for (int j = 0; j < 32; j++)
                     {
-                        children.Add(spheres.transform.GetChild(j).gameObject);
+                        GameObject sphere = spheres.transform.GetChild(j).gameObject;
+                        //sphere.transform.SetParent(null);
+                        children.Add(sphere);
                     }
                     break;
                 }
@@ -106,7 +113,9 @@ public static class DrawPoint
                        Quaternion.identity) as GameObject;
                     for (int j = 0; j < 16; j++)
                     {
-                        children.Add(spheres.transform.GetChild(j).gameObject);
+                        GameObject sphere = spheres.transform.GetChild(j).gameObject;
+                        //sphere.transform.SetParent(null);
+                        children.Add(sphere);
                     }
                     break;
                 }
@@ -118,7 +127,9 @@ public static class DrawPoint
                        Quaternion.identity) as GameObject;
                     for (int j = 0; j < 8; j++)
                     {
-                        children.Add(spheres.transform.GetChild(j).gameObject);
+                        GameObject sphere = spheres.transform.GetChild(j).gameObject;
+                        //sphere.transform.SetParent(null);
+                        children.Add(sphere);
                     }
                     break;
                 }
@@ -130,7 +141,9 @@ public static class DrawPoint
                        Quaternion.identity) as GameObject;
                     for (int j = 0; j < 4; j++)
                     {
-                        children.Add(spheres.transform.GetChild(j).gameObject);
+                        GameObject sphere = spheres.transform.GetChild(j).gameObject;
+                        //sphere.transform.SetParent(null);
+                        children.Add(sphere);
                     }
                     break;
                 }
@@ -142,7 +155,9 @@ public static class DrawPoint
                        Quaternion.identity) as GameObject;
                     for (int j = 0; j < 2; j++)
                     {
-                        children.Add(spheres.transform.GetChild(j).gameObject);
+                        GameObject sphere = spheres.transform.GetChild(j).gameObject;
+                        //sphere.transform.SetParent(null);
+                        children.Add(sphere);
                     }
                     break;
                 }
@@ -188,7 +203,7 @@ public static class DrawPoint
         backBoneComponent.Id = id;
         backBoneComponent.HelixId = helixId;
         backBoneComponent.Direction = direction;
-        //backBoneComponent.IsBackbone = true;     
+        backBoneComponent.IsBackbone = true;     
 
         // Scale        
         float dist = Vector3.Distance(end, start);
@@ -196,14 +211,14 @@ public static class DrawPoint
         cylinder.transform.localScale = new Vector3(0.25f, dist / 2, 0.25f);   // For "Cylinder" (Probuilder) prefab
 
         // Position
-        cylinder.transform.position = (end + start) / 2.0F;
+        cylinder.transform.position = (end + start) / 2.0f;
 
         // Rotation
         cylinder.transform.up = end - start;
 
         SaveGameObject(cylinder);
-        //cylinder.isStatic = true;
-        cylinder.SetActive(!hideBackbone);
+        cylinder.isStatic = true;
+        cylinder.SetActive(false);
         return cylinder;
     }
 
@@ -221,7 +236,9 @@ public static class DrawPoint
                        Quaternion.identity) as GameObject;
                     for (int j = 0; j < 63; j++)
                     {
-                        children.Add(spheres.transform.GetChild(j).gameObject);
+                        GameObject sphere = spheres.transform.GetChild(j).gameObject;
+                        //sphere.transform.SetParent(null);
+                        children.Add(sphere);
                     }
                     break;
                 }
@@ -233,7 +250,9 @@ public static class DrawPoint
                        Quaternion.identity) as GameObject;
                     for (int j = 0; j < 31; j++)
                     {
-                        children.Add(spheres.transform.GetChild(j).gameObject);
+                        GameObject sphere = spheres.transform.GetChild(j).gameObject;
+                        //sphere.transform.SetParent(null);
+                        children.Add(sphere);
                     }
                     break;
                 }
@@ -245,7 +264,9 @@ public static class DrawPoint
                        Quaternion.identity) as GameObject;
                     for (int j = 0; j < 15; j++)
                     {
-                        children.Add(spheres.transform.GetChild(j).gameObject);
+                        GameObject sphere = spheres.transform.GetChild(j).gameObject;
+                        //sphere.transform.SetParent(null);
+                        children.Add(sphere);
                     }
                     break;
                 }
@@ -257,7 +278,9 @@ public static class DrawPoint
                        Quaternion.identity) as GameObject;
                     for (int j = 0; j < 7; j++)
                     {
-                        children.Add(spheres.transform.GetChild(j).gameObject);
+                        GameObject sphere = spheres.transform.GetChild(j).gameObject;
+                        //sphere.transform.SetParent(null);
+                        children.Add(sphere);
                     }
                     break;
                 }
@@ -269,7 +292,9 @@ public static class DrawPoint
                        Quaternion.identity) as GameObject;
                     for (int j = 0; j < 3; j++)
                     {
-                        children.Add(spheres.transform.GetChild(j).gameObject);
+                        GameObject sphere = spheres.transform.GetChild(j).gameObject;
+                        //sphere.transform.SetParent(null);
+                        children.Add(sphere);
                     }
                     break;
                 }
@@ -287,7 +312,7 @@ public static class DrawPoint
         return children;
     }
 
-    public static void SetBackbone(GameObject cylinder, int id, int helixId, int direction, Vector3 start, Vector3 end, bool hideBackbone = false)
+    public static void SetBackbone(GameObject cylinder, int id, int helixId, int direction, Vector3 start, Vector3 end, bool hideBackbone = false, bool isOxview = false)
     {
         cylinder.name = "Backbone" + id;
 
@@ -295,18 +320,19 @@ public static class DrawPoint
         backBoneComponent.Id = id;
         backBoneComponent.HelixId = helixId;
         backBoneComponent.Direction = direction;
+        backBoneComponent.IsOxview = isOxview;
         backBoneComponent.IsBackbone = true;
 
         // Scale        
         float dist = Vector3.Distance(end, start);
-        cylinder.transform.localScale = new Vector3(0.25f, dist / 2, 0.25f);   // For "Cylinder" (Probuilder) prefab
+        cylinder.transform.localScale = new Vector3(0.25f, dist, 0.25f);   // For "Cylinder" (Probuilder) prefab
 
         // Position
-        cylinder.transform.position = (end + start) / 2.0F;
+        cylinder.transform.position = (end + start) / 2.0f;
 
         // Rotation
         cylinder.transform.up = end - start;
-
+        cylinder.transform.SetParent(null);
         SaveGameObject(cylinder);
         cylinder.isStatic = true;
         cylinder.SetActive(!hideBackbone);

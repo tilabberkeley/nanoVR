@@ -35,12 +35,12 @@ public static class Utils
 
 
     // Create strand overloading methods.
-    public static Strand CreateStrand(List<GameObject> nucleotides, int strandId) { return CreateStrand(nucleotides, strandId, Colors[s_numStrands % Colors.Length], new List<(GameObject, int)>(), new List<GameObject>(), "", false); }
-    public static Strand CreateStrand(List<GameObject> nucleotides, int strandId, Color color) { return CreateStrand(nucleotides, strandId, color, new List<(GameObject, int)>(), new List<GameObject>(), "", false); }
+    public static Strand CreateStrand(List<GameObject> nucleotides, int strandId, bool isOxview = false) { return CreateStrand(nucleotides, strandId, Colors[s_numStrands % Colors.Length], new List<(GameObject, int)>(), new List<GameObject>(), "", false, isOxview); }
+    public static Strand CreateStrand(List<GameObject> nucleotides, int strandId, Color color, bool isOxView = false) { return CreateStrand(nucleotides, strandId, color, new List<(GameObject, int)>(), new List<GameObject>(), "", false, isOxView); }
     public static Strand CreateStrand(List<GameObject> nucleotides, int strandId, Color color, List<(GameObject, int)> insertions,
-                                      List<GameObject> deletions, string sequence, bool isScaffold)
+                                      List<GameObject> deletions, string sequence, bool isScaffold, bool isOxview = false)
     {
-        Strand strand = new Strand(nucleotides, strandId, color);
+        Strand strand = new Strand(nucleotides, strandId, color, isOxview);
         strand.SetComponents();
 
         foreach ((GameObject, int) nucl in insertions)

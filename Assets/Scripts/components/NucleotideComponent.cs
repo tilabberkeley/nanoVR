@@ -62,7 +62,7 @@ public class NucleotideComponent : DNAComponent
     {
         s_helixDict.TryGetValue(_helixId, out Helix helix);
         // This nucleotide is the last nucleotide if its id is equal to the length of its helix - 1
-        return Id == helix.Length - 1;
+        return _id == helix.Length - 1;
     }
 
     /// <summary>

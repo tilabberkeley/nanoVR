@@ -176,9 +176,11 @@ public class Strand
     private bool _isCircular = false;
     public bool IsCircular { get { return _isCircular; } set { _isCircular = value; } }
 
+    // Whether or not strand is from .oxview import
+    private bool _isOxview;
 
     // Strand constructor.
-    public Strand(List<GameObject> nucleotides, int strandId, Color color)
+    public Strand(List<GameObject> nucleotides, int strandId, Color color, bool isOxview = false)
     {
         _nucleotides = new List<GameObject>(nucleotides);
         _nucleotidesOnly = new List<NucleotideComponent>();
@@ -187,11 +189,15 @@ public class Strand
         _color = color;
         _head = _nucleotides[0];
         _tail = _nucleotides.Last();
-        _cone = DrawPoint.MakeCone();
+        if (!isOxview)
+        {
+            _cone = DrawPoint.MakeCone();
+        }
         _beziers = new List<GameObject>();
         _direction = nucleotides[0].GetComponent<NucleotideComponent>().Direction;
         _xovers = new List<GameObject>();
         _domains = new List<DomainComponent>();
+        _isOxview = isOxview;
         //SetComponents();
         //s_strandDict.Add(strandId, this);
         //CheckForXoverSuggestions();
@@ -591,6 +597,11 @@ public class Strand
             dnaComp.StrandId = _strandId;
             dnaComp.Color = _color;
 
+            if (dnaComp.IsOxview)
+            {
+                continue;
+            }
+
             if (ntc != null && ntc.HasXover)
             {
                 XoverComponent xoverComp = ntc.Xover.GetComponent<XoverComponent>();
@@ -669,6 +680,9 @@ public class Strand
     /// </summary>
     public void SetCone()
     { 
+        // No cones in oxView mode. Also no valid helixId anyways.
+        if (_isOxview) { return; }
+
         _cone.GetComponent<ConeComponent>().Color = _color;
         int helixId = _head.GetComponent<NucleotideComponent>().HelixId;
         GameObject neighbor;

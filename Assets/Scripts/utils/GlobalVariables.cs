@@ -58,6 +58,9 @@ public static class GlobalVariables
     public static int s_numGrids = 1;
     public static List<GameObject> allGameObjects = new List<GameObject>();
 
+    // OxView to keep track of all .oxview file imports
+    public static OxView oxView = new OxView();
+
     // Tracks how many copies of each gridName have been made
     public static Dictionary<string, int> s_gridCopies = new Dictionary<string, int>();
 
