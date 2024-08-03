@@ -3,6 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System;
+using System.Runtime.Remoting.Messaging;
 using UnityEngine;
 using static GlobalVariables;
 
@@ -29,6 +30,14 @@ public abstract class DNAComponent : MonoBehaviour
         }
         set
         {
+            if (_ntRenderer == null)
+            {
+                _ntRenderer = GetComponent<Renderer>();
+            }
+            if (_mpb == null)
+            {
+                _mpb = new MaterialPropertyBlock();
+            }
             _color = value;
             _mpb.SetColor("_Color", _color);
             _ntRenderer.SetPropertyBlock(_mpb);
@@ -61,6 +70,9 @@ public abstract class DNAComponent : MonoBehaviour
     // Whether DNA Component is a backbone.
     protected bool _isBackbone;
     public bool IsBackbone { get { return _isBackbone; } set { _isBackbone = value; } }
+
+    private bool _isOxview;
+    public bool IsOxview { get => _isOxview; set => _isOxview = value; }
 
     public GameObject Complement
     {

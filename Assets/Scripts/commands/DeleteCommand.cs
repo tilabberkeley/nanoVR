@@ -108,7 +108,7 @@ public class DeleteCommand : ICommand
 
         Debug.Log("Finished adding nucleotides");
 
-        Strand strand = CreateStrand(nucleotides, _strandId, _color);
+        //Strand strand = CreateStrand(nucleotides, _strandId, _color);
 
         Debug.Log("Finished creating strand");
 

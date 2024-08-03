@@ -41,13 +41,7 @@ public class ViewingPerspective : MonoBehaviour
     /// </summary>
     public void ViewNucleotide()
     {
-        Togglers.NucleotideViewToggled();
-        nucleotideViewTog.isOn = true;
-
-        foreach (Helix helix in s_helixDict.Values)
-        {
-            helix.ChangeRendering();
-        }
+        ShowAllHelices();
 
         foreach (Strand strand in s_strandDict.Values)
         {
@@ -58,7 +52,7 @@ public class ViewingPerspective : MonoBehaviour
         }
     }
 
-    public void ShowStencils()
+    public void ShowAllHelices()
     {
         Togglers.NucleotideViewToggled();
         nucleotideViewTog.isOn = true;

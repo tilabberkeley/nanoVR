@@ -34,8 +34,8 @@ public class DomainComponent : MonoBehaviour
             nuclSubList.Add(_nucleotides[i]);
             if (nuclSubList.Count % BEZIER_COUNT == 0 || i == _nucleotides.Count - 1)
             {
-                Debug.Log("Drawing bezier");
-                Debug.Log(_strand == null);
+                //Debug.Log("Drawing bezier");
+                //Debug.Log(_strand == null);
                 _bezier = DrawPoint.MakeBezier(nuclSubList, Color.black);
                 nuclSubList.RemoveRange(0, nuclSubList.Count - 1); // Remove all but last nucl to keep Beziers continuous.
             }

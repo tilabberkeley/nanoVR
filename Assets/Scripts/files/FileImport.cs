@@ -17,6 +17,8 @@ using static Utils;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
 using System.Threading.Tasks;
+using System.Text;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Handles all file importing into nanoVR.
@@ -108,9 +110,11 @@ public class FileImport : MonoBehaviour
                 loadingMenu.enabled = true;
                 DoFileImport(fileContent);
             }
-            else if (fileType.Equals(".json"))
+            else if (fileType.Equals(".oxview"))
             {
                 // Parse cadnano JSON
+                loadingMenu.enabled = true;
+                OxviewImport(fileContent);
             }
             else
             {
@@ -127,8 +131,6 @@ public class FileImport : MonoBehaviour
     {
         /*ICommand command = new ImportCommand(json);
         CommandManager.AddCommand(command);*/
-        originalCullingMask = Camera.main.cullingMask;
-        Camera.main.cullingMask = LayerMask.GetMask("Loading Screen");
         ParseSC(json);
     }
 
@@ -142,7 +144,6 @@ public class FileImport : MonoBehaviour
     /// <returns>List of grids created</returns>
     public async Task<List<DNAGrid>> ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
     {
-        st.Start();
         List<DNAGrid> grids = new List<DNAGrid>();
         JObject origami = JObject.Parse(fileContents);
         JArray helices = JArray.Parse(origami["helices"].ToString());
@@ -219,13 +220,8 @@ public class FileImport : MonoBehaviour
         
         int lastHelixId = s_numHelices;
         await ParseHelices(helices, isMultiGrid);
-        //Task.Run(async () => await ParseHelices(helices)).Wait();
-        Debug.Log("Done parsing helices");
+
         // Parse strands.
-        if (!gameObject.activeInHierarchy)
-        {
-            Debug.Log("Not active!" + gameObject.name);
-        }
         CoRunner.Instance.Run(ParseStrands(strands, lastHelixId));
         return grids;
     }
@@ -235,12 +231,8 @@ public class FileImport : MonoBehaviour
     /// </summary>
     private async Task ParseHelices(JArray helices, bool isMultiGrid)
     {
-        Stopwatch sw = new Stopwatch();
-        List<Task> tasks = new List<Task>();
         for (int i = 0; i < helices.Count; i++)
-        {
-            sw.Reset();
-            sw.Start();
+        { 
             JArray coord = JArray.Parse(helices[i]["grid_position"].ToString());
             int length = (int)helices[i]["max_offset"];
             string gridName;
@@ -291,17 +283,6 @@ public class FileImport : MonoBehaviour
             Helix helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
             bool hideNucleotides = true;
             await helix.ExtendAsync(length, hideNucleotides);
-            //Task task = helix.ExtendAsync(length, hideNucleotides);
-            //tasks.Add(task);
-            sw.Stop();
-            //Debug.Log(string.Format("Parsing helix took {0} ms", sw.ElapsedMilliseconds));
-            // Parellelize every 4 helices
-            /*if (i % 8 == 0 || i == helices.Count - 1)
-            {
-                await Task.WhenAll(tasks);
-                tasks.Clear();
-            }*/
-            //grid.CheckExpansion(gc);
         }
     }
 
@@ -310,11 +291,9 @@ public class FileImport : MonoBehaviour
     /// </summary>
     private IEnumerator ParseStrands(JArray strands, int lastHelixId)
     {
-        Stopwatch sw = new Stopwatch();
         // Drawing strands
         for (int i = 0; i < strands.Count; i++)
         {
-            sw.Restart();
             JArray domains = JArray.Parse(strands[i]["domains"].ToString());
             string sequence = CleanSlash(strands[i]["sequence"].ToString());
             string hexColor = CleanSlash(strands[i]["color"].ToString());
@@ -386,7 +365,7 @@ public class FileImport : MonoBehaviour
 
             Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
 
-            // Add xovers to strand object.
+            // Add xovers and loopouts to Strand object.
             for (int j = 1; j < xoverEndpoints.Count; j += 2)
             {
                 GameObject nextGO = xoverEndpoints[j];
@@ -404,8 +383,6 @@ public class FileImport : MonoBehaviour
             // Set sequence and check for mismatches with complement strands.
             strand.Sequence = sequence;
             CheckMismatch(strand);
-            sw.Stop();
-            //Debug.Log(string.Format("Parsing Strand took {0} ms", sw.ElapsedMilliseconds));
             yield return null;
         }
 
@@ -417,13 +394,68 @@ public class FileImport : MonoBehaviour
         }
         else
         {
-            ViewingPerspective.Instance.ShowStencils();
+            ViewingPerspective.Instance.ShowAllHelices();
         }
 
         loadingMenu.enabled = false;
-        Camera.main.cullingMask = originalCullingMask;
         st.Stop();
         Debug.Log(string.Format("Overall import took {0} ms to complete", st.ElapsedMilliseconds));
+    }
+
+    private async Task OxviewImport(string fileContents)
+    {
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
+        JObject origami = JObject.Parse(fileContents);
+        JArray systems = JArray.Parse(origami["systems"].ToString());
+        for (int i = 0; i < systems.Count; i++)
+        {
+            JArray strands = JArray.Parse(systems[i]["strands"].ToString());
+            for (int j = 0; j < strands.Count; j++)
+            {
+                JArray monomers = JArray.Parse(strands[j]["monomers"].ToString());
+                StringBuilder sequence = new StringBuilder();
+                List<Vector3> positions = new List<Vector3>();
+                List<Vector3> a1s = new List<Vector3>();
+                List<int> ids = new List<int>();
+                Color color = Color.white;
+
+                for (int k = 0; k < monomers.Count; k++)
+                {
+                    string type = monomers[k]["type"].ToString();
+                    sequence.Append(type);
+                    JArray p = JArray.Parse(monomers[k]["p"].ToString());
+                    Vector3 position = new Vector3((float) p[0], (float) p[1], (float) p[2]);
+                    positions.Add(position);
+
+                    JArray a1 = JArray.Parse(monomers[k]["a1"].ToString());
+                    Vector3 a1Vec = new Vector3((float) a1[0], (float) a1[1], (float) a1[2]);
+                    a1s.Add(a1Vec);
+
+                    int id = (int) monomers[k]["id"];
+                    ids.Add(id);
+
+                    // Convert base 10 color to hex.
+                    int decColor = (int) monomers[k]["color"];
+                    string hexColor = decColor.ToString("X6");
+
+                    // Set strand color once
+                    if (color.Equals(Color.white))
+                    {
+                        ColorUtility.TryParseHtmlString("#" + hexColor, out color);
+                    }
+                }
+                await oxView.BuildStructure(monomers.Count);
+                oxView.SetNucleotides(monomers.Count, positions, a1s, ids);
+                List<GameObject> nucleotides = oxView.GetSubstructure(monomers.Count);
+                Strand strand = CreateStrand(nucleotides, s_numStrands, color, true);
+                strand.SetSequence(sequence.ToString());
+                await Task.Yield();
+            }
+        }
+        sw.Stop();
+        loadingMenu.enabled = false;
+        Debug.Log(string.Format("OxView import took {0} ms to complete", sw.ElapsedMilliseconds));
     }
 
     /// <summary>
