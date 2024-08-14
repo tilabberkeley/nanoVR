@@ -400,7 +400,7 @@ public class FileImport : MonoBehaviour
             ViewingPerspective.ViewStrand();
         }
         else
-        { 
+        {
             ViewingPerspective.ViewNucleotide();
         }
 

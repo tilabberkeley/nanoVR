@@ -561,7 +561,14 @@ public class Strand
 
             domain.Add(dnaComp);
 
-            if (ntc != null && ntc.HasXover)
+            // If nucleotides are next to each other, then it has a xover.
+            bool nucleotideHasXover = i != 0 &&
+                                      i != _nucleotides.Count - 1 &&
+                                      ntc != null &&
+                                      (!_nucleotides[i - 1].GetComponent<DNAComponent>().IsBackbone ||
+                                      !_nucleotides[i + 1].GetComponent<DNAComponent>().IsBackbone);
+
+            if (nucleotideHasXover)
             {
                 if (!xoverBefore)
                 {
