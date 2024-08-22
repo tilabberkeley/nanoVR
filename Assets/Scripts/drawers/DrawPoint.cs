@@ -459,6 +459,9 @@ public static class DrawPoint
         endpoint = MakeBezierEndpoint(bezierEndPoint, color);
         endpoint.transform.SetParent(tube.transform);
 
+        // Enable static batching
+        tube.isStatic = true;
+
         return tube;
     }
 
@@ -487,6 +490,9 @@ public static class DrawPoint
         endpoint = MakeBezierEndpoint(anchorPoints[1], color);
         endpoint.transform.SetParent(tube.transform);
 
+        // Enable static batching
+        tube.isStatic = true;
+
         return tube;
     }
 
@@ -504,6 +510,9 @@ public static class DrawPoint
         bezierEndpoint.GetComponent<MeshRenderer>().material.SetColor("_Color", color);
         // Set sphere's radius
         bezierEndpoint.transform.localScale = new Vector3(TUBE_SIZE * 2, TUBE_SIZE * 2, TUBE_SIZE * 2);
+
+        // Enable static batching
+        bezierEndpoint.isStatic = true;
 
         return bezierEndpoint;
     }
