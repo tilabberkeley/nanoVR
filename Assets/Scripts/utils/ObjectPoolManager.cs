@@ -11,7 +11,7 @@ public class ObjectPoolManager : MonoBehaviour
     //[SerializeField] private List<GameObject> backbonePool = new List<GameObject>();
 
     public static ObjectPoolManager Instance;
-    private const int NUCLEOTIDE_TOTAL = 16384; // 2^14 = 16384
+    private const int NUCLEOTIDE_TOTAL = 24576; // 2^13 * 3 = 24576
     private int numNucleotidesUsed = 0;
     private int numBackbonesUsed = 0;
 

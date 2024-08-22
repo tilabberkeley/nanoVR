@@ -15,7 +15,7 @@ using SplineMesh;
 /// </summary>
 public static class DrawPoint
 {
-    private const int SPLINE_RESOLUTION = 8;
+    private const int SPLINE_RESOLUTION = 1;
     private const float TUBE_SIZE = 0.01f;
     // private const float LOOPOUT_SIZE = 0.005f;
     // Factor determines how much loopout "bends." Higher factor, more bending.
@@ -436,7 +436,36 @@ public static class DrawPoint
         return gridCircle;
     }
 
-    public static GameObject MakeBezier(List<DNAComponent> nucleotides, Color32 color)
+    /// <summary>
+    /// Creates a simpler bezier representation gameobject of a domain. 
+    /// </summary>
+    public static GameObject MakeDomainBezier(List<DNAComponent> dnaComponents, Color32 color, out Vector3 bezierStartPoint, out Vector3 bezierEndPoint)
+    {
+        GameObject tube = new GameObject("tube");
+        MeshRenderer meshRend = tube.AddComponent<MeshRenderer>();
+        TubeRenderer tubeRend = tube.AddComponent<TubeRenderer>();
+        tubeRend.radius = TUBE_SIZE;
+        meshRend.material.SetColor("_Color", color);
+        
+        Vector3[] anchorPoints = SplineInterpolation.GenerateBezierSpline(dnaComponents, SPLINE_RESOLUTION);
+
+        tubeRend.points = anchorPoints;
+
+        bezierStartPoint = anchorPoints[0];
+        bezierEndPoint = anchorPoints[anchorPoints.Length - 1];
+
+        GameObject endpoint = MakeBezierEndpoint(bezierStartPoint, color);
+        endpoint.transform.SetParent(tube.transform);
+        endpoint = MakeBezierEndpoint(bezierEndPoint, color);
+        endpoint.transform.SetParent(tube.transform);
+
+        return tube;
+    }
+
+    /// <summary>
+    /// Creates a simpler bezier represetation gameobject of a xover.
+    /// </summary>
+    public static GameObject MakeXoverBezier(XoverComponent xoverComponent, Color32 color)
     {
         GameObject tube = new GameObject("tube");
         MeshRenderer meshRend = tube.AddComponent<MeshRenderer>();
@@ -444,24 +473,39 @@ public static class DrawPoint
         tubeRend.radius = TUBE_SIZE;
         meshRend.material.SetColor("_Color", color);
 
-        // TODO: figure out how to make this smoother. Increase resolution? 
-        //SplineMaker splineMaker = tube.AddComponent<SplineMaker>();
-        //splineMaker.onUpdated.AddListener((points) => tubeRend.points = points); // updates tube renderer points when anchorPoints is changed.
-        //splineMaker.pointsPerSegment = SPLINE_RESOLUTION;
-        /*Vector3[] anchorPoints = new Vector3[nucleotides.Count];
+        Vector3[] anchorPoints = new Vector3[2];
 
-        for (int i = 0; i < nucleotides.Count; i += 1)
-        {
-            anchorPoints[i] = nucleotides[i].transform.position;
-        }
-        splineMaker.anchorPoints = anchorPoints;*/
+        // Set nucleotides to be start and end point of bezier xover.
+        anchorPoints[0] = xoverComponent.PrevGO.GetComponent<DNAComponent>().Domain.BezierStartPoint;
+        anchorPoints[1] = xoverComponent.NextGO.GetComponent<DNAComponent>().Domain.BezierEndPoint;
 
-        tubeRend.points = new Vector3[nucleotides.Count];
-        for (int i = 0; i < nucleotides.Count; i += 1)
-        {
-            tubeRend.points[i] = nucleotides[i].transform.position;
-        }
+        tubeRend.points = anchorPoints;
+
+        // Set endpoints to parent, so they are destroyed when tube is destroyed
+        GameObject endpoint = MakeBezierEndpoint(anchorPoints[0], color);
+        endpoint.transform.SetParent(tube.transform);
+        endpoint = MakeBezierEndpoint(anchorPoints[1], color);
+        endpoint.transform.SetParent(tube.transform);
+
         return tube;
+    }
+
+    /// <summary>
+    /// Instantiates a bezier endpoint at the given location
+    /// </summary>
+    private static GameObject MakeBezierEndpoint(Vector3 position, Color32 color)
+    {
+        GameObject bezierEndpoint = Instantiate(
+            BezierEndpoint,
+            position,
+            Quaternion.identity);
+
+        bezierEndpoint.name = "Bezier Endpoint";
+        bezierEndpoint.GetComponent<MeshRenderer>().material.SetColor("_Color", color);
+        // Set sphere's radius
+        bezierEndpoint.transform.localScale = new Vector3(TUBE_SIZE * 2, TUBE_SIZE * 2, TUBE_SIZE * 2);
+
+        return bezierEndpoint;
     }
 
     private static void SaveGameObject(GameObject go)
@@ -614,7 +658,7 @@ public static class DrawPoint
     /// <summary>
     /// Creates a domain given a list of DNA components.
     /// </summary>
-    public static DomainComponent MakeDomain(List<DNAComponent> dnaList)
+    public static DomainComponent MakeDomain(List<DNAComponent> dnaList, Strand strand)
     {
         if (dnaList.Count == 0)
         {
@@ -626,18 +670,9 @@ public static class DrawPoint
                    Quaternion.identity);
 
         DomainComponent domainComponent = domain.GetComponent<DomainComponent>();
-
-        foreach (DNAComponent nucleotide in dnaList)
-        {
-            domainComponent.Nucleotides.Add(nucleotide);
-            nucleotide.Domain = domainComponent;
-        }
-
-        s_strandDict.TryGetValue(dnaList[0].StrandId, out Strand strand);
-        //Debug.Log("This");
-        //Debug.Log(strand == null);
         domainComponent.Strand = strand;
-        domainComponent.UpdateCapsuleCollider();
+
+        domainComponent.Configure(dnaList);
 
         return domainComponent;
     }

@@ -3,31 +3,17 @@
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections;
+using System;
 using UnityEngine;
-using UnityEngine.UI;
 using static GlobalVariables;
 
-public class ViewingPerspective : MonoBehaviour
+public static class ViewingPerspective
 {
-    /// <summary>
-    /// Singleton which provides a single static instance for this class. Allows other
-    /// scripts to access instance methods in this class.
-    /// </summary>
-    public static ViewingPerspective Instance;
-
-    public Toggle nucleotideViewTog;
-    public Toggle strandViewTog;
-
-    private void Awake()
-    {
-        Instance = this;
-    }
-
     /// <summary>
     /// Toggles stencils (Grid circles and unused nucleotides) on and off.
     /// Called by StencilViewTog in View Panel of Menu.
     /// </summary>
-    public void ChangeStencilsView()
+    public static void ChangeStencilsView()
     {
         foreach (DNAGrid grid in s_gridDict.Values)
         {
@@ -39,23 +25,18 @@ public class ViewingPerspective : MonoBehaviour
     /// Changes viewing mode to Nucleotide View (individual nucleotides).
     /// Called by NucleotideViewTog in the View Panel of Menu.
     /// </summary>
-    public void ViewNucleotide()
+    public static void ViewNucleotide()
     {
-        ShowAllHelices();
+        if (!s_nucleotideView) { return; }
 
         foreach (Strand strand in s_strandDict.Values)
         {
-            strand.DeleteBezier();
+            strand.ToNucleotideView();
             strand.ShowHideCone(true);
-            strand.ShowHideXovers(true);
-            strand.SetDomainActivity(false);
+            // strand.ShowHideXovers(true);
+            // strand.SetDomainActivity(false);
         }
-    }
 
-    public void ShowAllHelices()
-    {
-        Togglers.NucleotideViewToggled();
-        nucleotideViewTog.isOn = true;
         foreach (Helix helix in s_helixDict.Values)
         {
             helix.ChangeRendering();
@@ -66,41 +47,49 @@ public class ViewingPerspective : MonoBehaviour
     /// Changes viewing mode to Strand View (abstracted Strands).
     /// Called by StrandViewTog in the View Panel of Menu.
     /// </summary>
-    public void ViewStrand() 
+    public static void ViewStrand()
     {
-        Togglers.StrandViewToggled();
-        strandViewTog.isOn = true;
+        if (!s_strandView) { return; }
+
+        // CoRunner.Instance.Run(ViewStrandHelper());
+
+        foreach (Strand strand in s_strandDict.Values)
+        {
+            strand.ToStrandView();
+            strand.ShowHideCone(false);
+            // strand.ShowHideXovers(true);
+            // strand.SetDomainActivity(false);
+        }
 
         foreach (Helix helix in s_helixDict.Values)
         {
             helix.ChangeRendering();
         }
-
-        CoRunner.Instance.Run(ViewStrandHelper());
     }
 
     /// <summary>
     /// Helper Coroutine for converting all Strands into abstracted Strand View.
     /// </summary>
-    private IEnumerator ViewStrandHelper()
+    private static IEnumerator ViewStrandHelper()
     {
+        if (!s_strandView) { yield return null; }
         foreach (Strand strand in s_strandDict.Values)
         {
             strand.ShowHideCone(false);
-            strand.ShowHideXovers(false);
-            strand.DrawBezier();
-            strand.SetDomainActivity(true);
+            // strand.ShowHideXovers(false);
+            strand.ToStrandView();
+            // strand.SetDomainActivity(true);
             yield return null;
         }
     }
 
-    public void EditMode()
+    public static void EditMode()
     {
-
+        throw new NotImplementedException();
     }
 
-    public void VisualMode()
+    public static void VisualMode()
     {
-
+        throw new NotImplementedException();
     }
 }

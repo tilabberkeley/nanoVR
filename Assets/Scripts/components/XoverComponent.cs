@@ -4,6 +4,7 @@
  */
 using System;
 using UnityEngine;
+using static GlobalVariables;
 
 /// <summary>
 /// Component attached to each xover gameobject. Handles direct Ray interactions and gameobject visuals.
@@ -92,5 +93,35 @@ public class XoverComponent : MonoBehaviour
         _ntRenderer = gameObject.GetComponent<Renderer>();
         _outline = gameObject.GetComponent<Outline>();
         _outline.enabled = false;
+    }
+
+    private GameObject _bezier = null;
+
+    /// <summary>
+    /// Returns xover back from simplified strand view (nucleotide view).
+    /// </summary>
+    public void NucleotideView()
+    {
+        if (_bezier == null)
+        {
+            return;
+        }
+
+        Destroy(_bezier); 
+        _bezier = null;
+        gameObject.SetActive(true);
+    }
+
+    /// <summary>
+    /// Puts xover in simplified strand view.
+    /// </summary>
+    /// <param name="color">Color to make simplified version.</param>
+    public void StrandView(Color32 color)
+    {
+        if (_bezier == null)
+        {
+            _bezier = DrawPoint.MakeXoverBezier(this, color);
+            gameObject.SetActive(false);
+        }
     }
 }

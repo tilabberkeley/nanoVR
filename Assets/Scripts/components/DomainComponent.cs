@@ -12,86 +12,201 @@ using static OVRPlugin;
 
 public class DomainComponent : MonoBehaviour
 {
-    private const int BEZIER_COUNT = 128;    // Number of nucleotides (including backbones) included in one "Bezier" of the Strand View.
+    // Number of nucleotides included in one "Bezier" of the Strand View.
+    // It is crucial that this is some multiple of 3 so 3n + 4 and odd. See SplineInterpolation.SetSplinePoints for the reason why.
+    private const int BEZIER_COUNT = 67;  
 
     private CapsuleCollider _capsuleCollider;
     private Helix _helix;
     public Helix Helix { get => _helix; set => _helix = value; }
 
-    private List<DNAComponent> _nucleotides = new List<DNAComponent>();
-    public List<DNAComponent> Nucleotides { get => _nucleotides; set => _nucleotides = value; }
+    private List<DNAComponent> _dnaComponents = new List<DNAComponent>();
+    public List<DNAComponent> DNAComponents { get => _dnaComponents; set => _dnaComponents = value; }
 
-    private GameObject _bezier = null;
+    private List<GameObject> _beziers = new List<GameObject>();
 
     private Strand _strand;
     public Strand Strand { get => _strand; set => _strand = value; }
 
-    public void DrawBezier()
+    private Vector3 _bezierStartPoint;
+    public Vector3 BezierStartPoint { get => _bezierStartPoint; }
+
+    private Vector3 _bezierEndPoint;
+    public Vector3 BezierEndPoint { get => _bezierEndPoint; }
+
+    /// <summary>
+    /// Configures the domain with given dna components.
+    /// </summary>
+    public void Configure(List<DNAComponent> dnaList)
     {
-        List<DNAComponent> nuclSubList = new List<DNAComponent>();
-        for (int i = 0; i < _nucleotides.Count; i++)
+        foreach (DNAComponent nucleotide in dnaList)
         {
-            nuclSubList.Add(_nucleotides[i]);
-            if (nuclSubList.Count % BEZIER_COUNT == 0 || i == _nucleotides.Count - 1)
+            _dnaComponents.Add(nucleotide);
+            nucleotide.Domain = this;
+        }
+
+        UpdateCapsuleCollider();
+        // Create bezier on domain creation. And then hide it.
+        DrawBezier();
+        HideBezier();
+        // Should always be disabled when created
+        gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// Draws the bezier curve representation of this domain.
+    /// </summary>
+    private void DrawBezier()
+    {
+        if (_beziers.Count == 0)
+        {
+            List<DNAComponent> nuclSubList = new List<DNAComponent>();
+            for (int i = 0; i < _dnaComponents.Count; i++)
             {
-                //Debug.Log("Drawing bezier");
-                //Debug.Log(_strand == null);
-                _bezier = DrawPoint.MakeBezier(nuclSubList, Color.black);
-                nuclSubList.RemoveRange(0, nuclSubList.Count - 1); // Remove all but last nucl to keep Beziers continuous.
+                nuclSubList.Add(_dnaComponents[i]);
+                if (nuclSubList.Count % BEZIER_COUNT == 0 || i == _dnaComponents.Count - 1)
+                {
+                    GameObject bezier = DrawPoint.MakeDomainBezier(nuclSubList, _strand.Color, out Vector3 bezierStartPoint, out Vector3 bezierEndPoint);
+
+                    if (_beziers.Count == 0)
+                    {
+                        _bezierStartPoint = bezierStartPoint;
+                    }
+                    if (i == _dnaComponents.Count - 1)
+                    {
+                        _bezierEndPoint = bezierEndPoint;
+                    }
+
+                    _beziers.Add(bezier);
+                    nuclSubList.RemoveRange(0, nuclSubList.Count - 1); // Remove all but last nucl to keep Beziers continuous.
+                }
             }
         }
     }
 
+    /// <summary>
+    /// Deletes the bezier curve representation of this domain.
+    /// </summary>
     public void DeleteBezier()
     {
-        if (_bezier != null)
+        if (_beziers.Count > 0)
         {
-            Debug.Log("Destroyed!");
-            Destroy(_bezier);
-            _bezier = null;
+            foreach (GameObject bezier in _beziers)
+            {
+                Destroy(bezier);
+            }
+            _beziers.Clear();
+        }
+    }
+
+    private void ShowBezier()
+    {
+        foreach (GameObject bezier in _beziers)
+        {
+            bezier.SetActive(true);
+        }
+    }
+
+    private void HideBezier()
+    {
+        foreach (GameObject bezier in _beziers)
+        {
+            bezier.SetActive(false);
         }
     }
 
     public void ShowHideCone(bool enabled)
     {
+        throw new NotImplementedException();
         // TODO
-        // Maybe always keeping the cone visiable is find? So you know the direction of the abstracted strand?
+        // Maybe always keeping the cone visiable is fine? So you know the direction of the abstracted strand?
     }
 
-    public void ShowNucleotides()
+    /// <summary>
+    /// Shows the nucleotide representation of this domain.
+    /// </summary>
+    public void NucleotideView()
     {
-        foreach(DNAComponent nucleotide in _nucleotides)
+        foreach(DNAComponent nucleotide in _dnaComponents)
         {
             nucleotide.gameObject.SetActive(true);
             nucleotide.Complement.gameObject.SetActive(true);
+
+            // If nucleotide is connected to a xover, then it should be shown too.
+            if (!nucleotide.IsBackbone)
+            {
+                XoverComponent xoverComponent = ((NucleotideComponent)nucleotide).Xover?.GetComponent<XoverComponent>();
+                if (xoverComponent != null)
+                {
+                    xoverComponent.NucleotideView();
+                }
+            }
         }
 
-        DeleteBezier();
+        HideBezier();
         // Should deactivate itself to allow interaction with nucleotides
         gameObject.SetActive(false);
     }
 
-    public void HideNucleotides()
+    /// <summary>
+    /// Shows the bezier curve representation of this domain (strand view). Hides the complement nucleotides.
+    /// </summary>
+    public void StrandView()
     {
-        foreach (DNAComponent nucleotide in _nucleotides)
+        foreach (DNAComponent nucleotide in _dnaComponents)
         {
             nucleotide.gameObject.SetActive(false);
             nucleotide.Complement.gameObject.SetActive(false);
+
+            // If nucleotide is connected to a xover, then it should be hidden too.
+            //if (!nucleotide.IsBackbone)
+            //{
+            //    XoverComponent xoverComponent = ((NucleotideComponent)nucleotide).Xover?.GetComponent<XoverComponent>();
+            //    if (xoverComponent != null)
+            //    {
+            //        xoverComponent.Hide(_strand.Color);
+            //    }
+            //}
         }
 
-        DrawBezier();
+        ShowBezier();
+        // Should activate itself if nucleotides aren't visable
+        gameObject.SetActive(true);
+    }
+
+    /// <summary>
+    /// Shows the bezier curve representation of this domain (strand view). Doesn't hide the complement nucleotides.
+    /// </summary>
+    public void StrandViewWithoutComplement()
+    {
+        foreach (DNAComponent nucleotide in _dnaComponents)
+        {
+            nucleotide.gameObject.SetActive(false);
+
+            // If nucleotide is connected to a xover, then it should be hidden too.
+            if (!nucleotide.IsBackbone)
+            {
+                XoverComponent xoverComponent = ((NucleotideComponent)nucleotide).Xover?.GetComponent<XoverComponent>();
+                if (xoverComponent != null)
+                {
+                    xoverComponent.StrandView(_strand.Color);
+                }
+            }
+        }
+
+        ShowBezier();
         // Should activate itself if nucleotides aren't visable
         gameObject.SetActive(true);
     }
 
     public void UpdateCapsuleCollider()
     {
-        DNAComponent firstNucleotide = _nucleotides[0].GetComponent<DNAComponent>();
+        DNAComponent firstNucleotide = _dnaComponents[0].GetComponent<DNAComponent>();
         Helix helix;
         s_helixDict.TryGetValue(firstNucleotide.HelixId, out helix);
         Helix = helix;
 
-        Vector3 domainCenter = Vector3.Lerp(_nucleotides[0].transform.position, _nucleotides.Last().transform.position, 0.5f);
+        Vector3 domainCenter = Vector3.Lerp(_dnaComponents[0].transform.position, _dnaComponents.Last().transform.position, 0.5f);
         // Center of the gridcircle will be the center the domain component (dependent on axis), default is the z position being constant,
         // TODO: configure domain component to be centered correctly around any orientation.
         Vector3 gridCircleCenter = Helix.GridComponent.transform.position;
@@ -100,7 +215,7 @@ public class DomainComponent : MonoBehaviour
         transform.position = domainCenter;
 
         // TODO: Update rotation as of the collider to by dependent on the rotation of the helix/grid.
-        _capsuleCollider.height = Vector3.Distance(_nucleotides[0].transform.position, _nucleotides.Last().transform.position);
+        _capsuleCollider.height = Vector3.Distance(_dnaComponents[0].transform.position, _dnaComponents.Last().transform.position);
 
         // Make capsule collider the same size as the grid circle. Dividing by two made it perfect? idk why didn't rly dive into this.
         _capsuleCollider.radius = Helix.GridComponent.transform.localScale.x / 2;

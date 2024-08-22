@@ -82,6 +82,11 @@ public class FileImport : MonoBehaviour
 
     public void OpenFile()
     {
+        if (fileBrowser == null) 
+        {
+            fileBrowser = FileBrowser.Instance.GetComponent<Canvas>();
+        } 
+
         // enable file browser, disable menu
         fileBrowser.gameObject.SetActive(true);
         Menu.enabled = false;
@@ -380,6 +385,8 @@ public class FileImport : MonoBehaviour
                 }
             }
 
+            strand.SetDomains();
+
             // Set sequence and check for mismatches with complement strands.
             strand.Sequence = sequence;
             CheckMismatch(strand);
@@ -390,15 +397,15 @@ public class FileImport : MonoBehaviour
         // This helps with performance.
         if (GlobalVariables.allGameObjects.Count > MAX_NUCLEOTIDES)
         {
-            ViewingPerspective.Instance.ViewStrand();
+            ViewingPerspective.ViewStrand();
         }
         else
         {
-            ViewingPerspective.Instance.ShowAllHelices();
+            ViewingPerspective.ViewNucleotide();
         }
 
         loadingMenu.enabled = false;
-        st.Stop();
+
         Debug.Log(string.Format("Overall import took {0} ms to complete", st.ElapsedMilliseconds));
     }
 
