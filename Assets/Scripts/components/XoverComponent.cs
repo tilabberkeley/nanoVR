@@ -96,6 +96,7 @@ public class XoverComponent : MonoBehaviour
     }
 
     private GameObject _bezier = null;
+    public GameObject Bezier { get => _bezier; }
 
     /// <summary>
     /// Returns xover back from simplified strand view (nucleotide view).

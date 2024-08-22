@@ -24,6 +24,7 @@ public class DomainComponent : MonoBehaviour
     public List<DNAComponent> DNAComponents { get => _dnaComponents; set => _dnaComponents = value; }
 
     private List<GameObject> _beziers = new List<GameObject>();
+    public List<GameObject> Beziers { get => _beziers; }
 
     private Strand _strand;
     public Strand Strand { get => _strand; set => _strand = value; }

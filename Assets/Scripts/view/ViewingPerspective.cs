@@ -6,9 +6,12 @@ using System.Collections;
 using System;
 using UnityEngine;
 using static GlobalVariables;
+using System.Collections.Generic;
 
 public static class ViewingPerspective
 {
+    private static GameObject s_staticBatchRoot;
+
     /// <summary>
     /// Toggles stencils (Grid circles and unused nucleotides) on and off.
     /// Called by StencilViewTog in View Panel of Menu.
@@ -52,10 +55,11 @@ public static class ViewingPerspective
         if (!s_strandView) { return; }
 
         // CoRunner.Instance.Run(ViewStrandHelper());
+        List<GameObject> staticBatchingGameObjects = new List<GameObject>();
 
         foreach (Strand strand in s_strandDict.Values)
         {
-            strand.ToStrandView();
+            staticBatchingGameObjects.AddRange(strand.ToStrandView());
             strand.ShowHideCone(false);
             // strand.ShowHideXovers(true);
             // strand.SetDomainActivity(false);
@@ -65,6 +69,14 @@ public static class ViewingPerspective
         {
             helix.ChangeRendering();
         }
+
+        if (s_staticBatchRoot == null)
+        {
+            s_staticBatchRoot = new GameObject("Domain Static Batch Root");
+            s_staticBatchRoot.isStatic = true;
+        }
+        
+        StaticBatchingUtility.Combine(staticBatchingGameObjects.ToArray(), s_staticBatchRoot);
     }
 
     /// <summary>

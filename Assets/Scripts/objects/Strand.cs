@@ -804,17 +804,24 @@ public class Strand
     /// <summary>
     /// Draws the simplified bezier curve representation of this strand (strand view).
     /// </summary>
-    public void ToStrandView()
+    public List<GameObject> ToStrandView()
     {
+        List<GameObject> beziers = new List<GameObject>();
+
         foreach (DomainComponent domain in _domains)
         {
             domain.StrandView();
+            beziers.AddRange(domain.Beziers);
         }
 
         foreach (GameObject xover in _xovers)
         {
-            xover.GetComponent<XoverComponent>().StrandView(_color);
+            XoverComponent xoverComponent = xover.GetComponent<XoverComponent>();
+            xoverComponent.StrandView(_color);
+            beziers.Add(xoverComponent.Bezier);
         }
+
+        return beziers;
     }
 
     /// <summary>
