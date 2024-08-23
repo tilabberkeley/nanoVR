@@ -52,10 +52,12 @@ public static class GlobalVariables
     public static Dictionary<int, Helix> s_helixDict = new Dictionary<int, Helix>();
     public static Dictionary<int, Strand> s_strandDict = new Dictionary<int, Strand>();
     public static Dictionary<string, DNAGrid> s_gridDict = new Dictionary<string, DNAGrid>();
+    public static Dictionary<int, SubGrid> s_subGridDict = new Dictionary<int, SubGrid>();
     public static HashSet<XoverSuggestionComponent> s_xoverSuggestions = new HashSet<XoverSuggestionComponent>();
     public static int s_numStrands = 1;
     public static int s_numHelices = 0;
     public static int s_numGrids = 1;
+    public static int s_numSubGrids = 1;
     public static List<GameObject> allGameObjects = new List<GameObject>();
 
     // OxView to keep track of all .oxview file imports

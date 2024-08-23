@@ -94,19 +94,6 @@ public class Helix
         _lastPositionB = Vector3.zero;
         _helixA = new List<GameObject>();
         _helixB = new List<GameObject>();
-        /*_parent = new GameObject();
-        _parent.transform.position = _gridComponent.transform.position;
-        _parentMesh = _parent.AddComponent<MeshFilter>();
-
-        // Set MeshCombiner properties
-        _meshCombiner = _parent.AddComponent<MeshCombiner>();
-        _meshCombiner.DeactivateCombinedChildren = false;
-        _meshCombiner.DestroyCombinedChildren = false;
-        _meshCombiner.DeactivateCombinedChildrenMeshRenderers = false;
-        _meshCombiner.CreateMultiMaterialMesh = false;
-       */
-        //ExtendAsync(length);
-        //ChangeRendering();
     }
 
     /// <summary>
@@ -120,6 +107,7 @@ public class Helix
         // Draw double helix
         // First check if ObjectPool has enough GameObjects to use (length is doubled to account for double Helix).
         // If not, generate them async.
+        int count64 = length / 64;
         if (ObjectPoolManager.Instance.CanGetNucleotides(2 * length) && ObjectPoolManager.Instance.CanGetBackbones(2 * (length - 1)))
         {
             _nucleotidesA.AddRange(ObjectPoolManager.Instance.GetNucleotides(length));
@@ -166,7 +154,6 @@ public class Helix
                     DrawPoint.SetBackbone(cylinderB, i - 1, _id, 0, _nucleotidesB[i].transform.position, _nucleotidesB[i - 1].transform.position, hideNucleotides);
                     _helixB.Add(cylinderB);
                 }
-
             }
         }
         else
@@ -721,29 +708,12 @@ public class Helix
         }
     }
 
-    // Hides helix GameObjects in world.
-    public void HideHelix()
-    {
-        HideObjects(_nucleotidesA);
-        HideObjects(_nucleotidesB);
-        HideObjects(_backbonesA);
-        HideObjects(_backbonesB);
-    }
-
-    // Helper method that hides a list of GameObjects in world.
-    public void HideObjects(List<GameObject> lst)
-    {
-        foreach (GameObject go in lst)
-        {
-            go.SetActive(false);
-        }
-    }
-
     /// <summary>
     /// Changes rendering of helix and its components.
     /// </summary>
     public void ChangeRendering()
     {
+        Debug.Log("nucleotide view: " + s_nucleotideView);
         for (int i = 0; i < _backbonesA.Count; i++)
         {
             _nucleotidesA[i].SetActive(s_nucleotideView);
@@ -840,65 +810,100 @@ public class Helix
     /// <param name="go">GameObject representing the transform gizmo.</param>
     public void SetParent(GameObject go)
     {
-        //Rigidbody rb = go.GetComponent<Rigidbody>();
-        foreach (GameObject nucleotide in NucleotidesA)
-        {
-            //nucleotide.GetComponent<FixedJoint>().connectedBody = rb;
-            nucleotide.transform.SetParent(go.transform, true);
-            Strand strand = Utils.GetStrand(nucleotide);
-            if (strand != null)
-            {
-                //strand.Cone.GetComponent<FixedJoint>().connectedBody = rb;
-                strand.Cone.transform.SetParent(go.transform, true);
-
-            }
-        }
-        foreach (GameObject nucleotide in NucleotidesB)
+        foreach (GameObject nucleotide in _nucleotidesA)
         {
             nucleotide.transform.SetParent(go.transform, true);
-            Strand strand = Utils.GetStrand(nucleotide);
-            if (strand != null)
-            { 
-                strand.Cone.transform.SetParent(go.transform, true);
-            }
+            //Strand strand = Utils.GetStrand(nucleotide);
+            //strand?.Cone.transform.SetParent(go.transform, true);
         }
-        foreach (GameObject nucleotide in BackbonesA)
+        foreach (GameObject nucleotide in _nucleotidesB)
+        {
+            nucleotide.transform.SetParent(go.transform, true);
+            //Strand strand = Utils.GetStrand(nucleotide);
+            //strand?.Cone.transform.SetParent(go.transform, true);
+        }
+        foreach (GameObject nucleotide in _backbonesA)
         {
             nucleotide.transform.SetParent(go.transform, true);
         }
-        foreach (GameObject nucleotide in BackbonesB)
+        foreach (GameObject nucleotide in _backbonesB)
         {
             nucleotide.transform.SetParent(go.transform, true);
         }
     }
 
+    /// <summary>
+    /// Resets parents of all Helix gameobjects to null. This is used in TranslateHandle.cs
+    /// </summary>
     public void ResetParent()
     {
-        foreach (GameObject nucleotide in NucleotidesA)
+        foreach (GameObject nucleotide in _nucleotidesA)
         {
             nucleotide.transform.SetParent(null);
-            Strand strand = Utils.GetStrand(nucleotide);
-            if (strand != null)
-            {
-                strand.Cone.transform.SetParent(null);
-            }
+            //Strand strand = Utils.GetStrand(nucleotide);
+            //strand?.Cone.transform.SetParent(null);
         }
-        foreach (GameObject nucleotide in NucleotidesB)
+        foreach (GameObject nucleotide in _nucleotidesB)
         {
             nucleotide.transform.SetParent(null);
-            Strand strand = Utils.GetStrand(nucleotide);
-            if (strand != null)
-            {
-                strand.Cone.transform.SetParent(null);
-            }
+            //Strand strand = Utils.GetStrand(nucleotide);
+            //fstrand?.Cone.transform.SetParent(null);
         }
-        foreach (GameObject nucleotide in BackbonesA)
+        foreach (GameObject nucleotide in _backbonesA)
         {
             nucleotide.transform.SetParent(null);
         }
-        foreach (GameObject nucleotide in BackbonesB)
+        foreach (GameObject nucleotide in _backbonesB)
         {
             nucleotide.transform.SetParent(null);
+        }
+    }
+
+    /// <summary>
+    /// Reflect entire helix vertically across y-coordinate.
+    /// </summary>
+    public void ReflectVectical(float distY)
+    {
+        ReflectVectical(_nucleotidesA, distY);
+        ReflectVectical(_nucleotidesB, distY);
+        ReflectVectical(_backbonesA, distY);
+        ReflectVectical(_backbonesB, distY);
+    }
+
+
+    /// <summary>
+    /// Helper function to reflect a list of gameobjects across y-coordinate
+    /// </summary>
+    private void ReflectVectical(List<GameObject> gos, float distY)
+    {
+        foreach (GameObject go in gos)
+        {
+            Transform transform = go.transform;
+            transform.position = new Vector3(transform.position.x, transform.position.y - distY, transform.position.z);
+        }
+    }
+
+    /// <summary>
+    /// Reflect entire helix vertically across y-coordinate.
+    /// </summary>
+    public void ReflectHorizontal(float distX)
+    {
+        ReflectHorizontal(_nucleotidesA, distX);
+        ReflectHorizontal(_nucleotidesB, distX);
+        ReflectHorizontal(_backbonesA, distX);
+        ReflectHorizontal(_backbonesB, distX);
+    }
+
+
+    /// <summary>
+    /// Helper function to reflect a list of gameobjects across y-coordinate
+    /// </summary>
+    private void ReflectHorizontal(List<GameObject> gos, float distX)
+    {
+        foreach (GameObject go in gos)
+        {
+            Transform transform = go.transform;
+            transform.position = new Vector3(transform.position.x - distX, transform.position.y, transform.position.z);
         }
     }
 }

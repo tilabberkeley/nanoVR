@@ -51,8 +51,8 @@ public class SelectGrid : MonoBehaviour
         if (triggerValue && triggerReleased && !rayInteractor.TryGetCurrent3DRaycastHit(out _))
         {
             triggerReleased = false;
-            UnhighlightGrid(s_grid);
-            Reset();
+            //UnhighlightGrid(s_grid);
+            //Reset();
         }
 
         // Resets trigger.                                          
@@ -70,8 +70,9 @@ public class SelectGrid : MonoBehaviour
         s_grid = null;
     }
 
-    public static void HighlightGrid(string gridId)
+    /*public static void HighlightGrid(string gridId)
     {
+        UnhighlightGrid(s_grid);
         s_gridDict.TryGetValue(gridId, out DNAGrid grid);
         s_grid = grid;
         foreach (GridComponent gc in grid.Grid2D)
@@ -84,7 +85,12 @@ public class SelectGrid : MonoBehaviour
         }
     }
 
-    private void UnhighlightGrid(DNAGrid grid)
+    public void UnhighlightGrid()
+    {
+        UnhighlightGrid(s_grid);
+    }
+
+    private static void UnhighlightGrid(DNAGrid grid)
     {
         if (grid == null) { return; }
         foreach (GridComponent gc in grid.Grid2D)
@@ -95,5 +101,29 @@ public class SelectGrid : MonoBehaviour
                 Highlight.UnhighlightHelix(gc.Helix);
             }
         }
+    }*/
+
+
+    /// <summary>
+    /// Shows grid circles of DNAGrid
+    /// </summary>
+    /// <param name="gridId">id of DNAGrid</param>
+    public static void ShowGridCircles(string gridId)
+    {
+        // First hide current selected grid's circles
+        HideGridCircles(s_grid);
+
+        s_gridDict.TryGetValue(gridId, out DNAGrid grid);
+        s_grid = grid;
+        grid.ToggleGridCircles(true);
+    }
+
+    /// <summary>
+    /// Hides grid circles of DNAGrid
+    /// </summary>
+    public static void HideGridCircles(DNAGrid grid)
+    {
+        if (grid == null) { return; }
+        grid.ToggleGridCircles(false);
     }
 }

@@ -524,6 +524,22 @@ public abstract class DNAGrid
     }
 
     /// <summary>
+    /// Shows or hides grid circles depending on parameter showCircles.
+    /// </summary>
+    /// <param name="showCircles">Whether or not to show grid circles</param>
+    public void ToggleGridCircles(bool showCircles)
+    {
+        for (int i = 0; i < _length; i++)
+        {
+            for (int j = 0; j < _width; j++)
+            {
+                GridComponent gc = _grid2D[i, j];
+                gc.gameObject.SetActive(showCircles);
+            }
+        }
+    }
+
+    /// <summary>
     /// Deletes grid.
     /// </summary>
     public void DeleteGrid()

@@ -125,6 +125,7 @@ public class DrawGrid : MonoBehaviour
             ObjectListManager.CreateGridButton(gridId);
             s_numGrids += 1;
         }
+        
         return grid;
     }
 

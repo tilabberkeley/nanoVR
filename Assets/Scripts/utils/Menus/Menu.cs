@@ -6,26 +6,45 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR;
+using UnityEngine.XR.Interaction.Toolkit;
 
 /// <summary>
 /// Toggles menu visibility.
 /// </summary>
 public class Menu : MonoBehaviour
 {
-    [SerializeField] private XRNode _xrNode;
+    [SerializeField] private XRNode _leftXRNode;
+    [SerializeField] private XRNode _rightXRNode;
     private List<InputDevice> _devices = new List<InputDevice>();
-    private InputDevice _device;
+    private InputDevice _leftDevice;
+    private InputDevice _rightDevice;
+    [SerializeField] private XRRayInteractor leftRayInteractor;
+    [SerializeField] private XRRayInteractor rightRayInteractor;
     [SerializeField] private Canvas _menu;
     public Button[] tabButtons;
     public GameObject[] panels;
     bool primaryReleased = true;
-    
-    void GetDevice()
+
+    private void GetDevice()
     {
-        InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
+        InputDevices.GetDevicesAtXRNode(_leftXRNode, _devices);
         if (_devices.Count > 0)
         {
-            _device = _devices[0];
+            _leftDevice = _devices[0];
+        }
+
+        InputDevices.GetDevicesAtXRNode(_rightXRNode, _devices);
+        if (_devices.Count > 0)
+        {
+            _rightDevice = _devices[0];
+        }
+    }
+
+    private void OnEnable()
+    {
+        if (!_leftDevice.isValid || !_rightDevice.isValid)
+        {
+            GetDevice();
         }
     }
 
@@ -59,15 +78,6 @@ public class Menu : MonoBehaviour
 
     }
 
-
-    void OnEnable()
-    {
-        if (!_device.isValid)
-        {
-            GetDevice();
-        }
-    }
-
     void Update()
     {
         /*
@@ -76,13 +86,14 @@ public class Menu : MonoBehaviour
             return;
         } */
 
-        if (!_device.isValid)
+        if (!_leftDevice.isValid || !_rightDevice.isValid)
         {
             GetDevice();
         }
-        
+
+
         bool primaryValue;
-        if (_device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out primaryValue)
+        if (_leftDevice.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out primaryValue)
             && primaryValue && primaryReleased)
         {
             primaryReleased = false;
@@ -90,7 +101,7 @@ public class Menu : MonoBehaviour
         }
 
         // Reset primary button
-        if (_device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out primaryValue)
+        if (_leftDevice.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out primaryValue)
             && !primaryValue)
         {
             primaryReleased = true;
@@ -101,5 +112,15 @@ public class Menu : MonoBehaviour
     public void ToggleMenu()
     {
         _menu.enabled = !_menu.enabled;
+        if (_menu.enabled )
+        {
+            leftRayInteractor.maxRaycastDistance = 1.5f;
+            rightRayInteractor.maxRaycastDistance = 1.5f;
+        }
+        else
+        {
+            leftRayInteractor.maxRaycastDistance = 0.4f;
+            rightRayInteractor.maxRaycastDistance = 0.4f;
+        }
     }
 }

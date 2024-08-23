@@ -25,6 +25,9 @@ public class OxView : MonoBehaviour
         // Draw strand.
         // First check if ObjectPool has enough GameObjects to use.
         // If not, generate them async.
+
+        // TODO: Testing this!! - 8/4/24 DY
+        int count64 = length / 64;
         if (ObjectPoolManager.Instance.CanGetNucleotides(length) && ObjectPoolManager.Instance.CanGetBackbones(length - 1))
         {
             nucleotides.AddRange(ObjectPoolManager.Instance.GetNucleotides(length));
