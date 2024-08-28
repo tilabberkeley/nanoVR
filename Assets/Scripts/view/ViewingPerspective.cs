@@ -10,7 +10,8 @@ using System.Collections.Generic;
 
 public static class ViewingPerspective
 {
-    private static GameObject s_staticBatchRoot;
+    private static GameObject s_staticBatchTubesRoot = new GameObject();
+    private static GameObject s_staticBatchEndpointsRoot = new GameObject();
 
     /// <summary>
     /// Toggles stencils (Grid circles and unused nucleotides) on and off.
@@ -55,11 +56,19 @@ public static class ViewingPerspective
         if (!s_strandView) { return; }
 
         // CoRunner.Instance.Run(ViewStrandHelper());
-        List<GameObject> staticBatchingGameObjects = new List<GameObject>();
+        List<GameObject> staticBatchingTubes = new List<GameObject>();
+        List<GameObject> staticBatchingEndpoints = new List<GameObject>();
 
         foreach (Strand strand in s_strandDict.Values)
         {
-            staticBatchingGameObjects.AddRange(strand.ToStrandView());
+            List<Bezier> strandBeziers = strand.ToStrandView();
+            foreach (Bezier bezier in strandBeziers)
+            {
+                staticBatchingTubes.Add(bezier.Tube);
+                staticBatchingEndpoints.Add(bezier.Endpoint0);
+                staticBatchingEndpoints.Add(bezier.Endpoint1);
+            }
+
             strand.ShowHideCone(false);
             // strand.ShowHideXovers(true);
             // strand.SetDomainActivity(false);
@@ -70,13 +79,8 @@ public static class ViewingPerspective
             helix.ChangeRendering();
         }
 
-        if (s_staticBatchRoot == null)
-        {
-            s_staticBatchRoot = new GameObject("Domain Static Batch Root");
-            s_staticBatchRoot.isStatic = true;
-        }
-        
-        StaticBatchingUtility.Combine(staticBatchingGameObjects.ToArray(), s_staticBatchRoot);
+        StaticBatchingUtility.Combine(staticBatchingTubes.ToArray(), s_staticBatchTubesRoot);
+        StaticBatchingUtility.Combine(staticBatchingEndpoints.ToArray(), s_staticBatchEndpointsRoot);
     }
 
     /// <summary>
