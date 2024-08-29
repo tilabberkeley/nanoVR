@@ -39,7 +39,7 @@ public class Helix
     // Grid Component that helix is on.
     // TODO: make all public references to _gridComponent use the property instead.
     public GridComponent _gridComponent;
-    public GridComponent GridComponent { get { return _gridComponent; } }
+    public GridComponent GridComponent { get { return _gridComponent; } } 
 
     // Mesh Combiner component of GridComponent.
     private MeshCombiner _meshCombiner;
@@ -111,9 +111,15 @@ public class Helix
         if (ObjectPoolManager.Instance.CanGetNucleotides(2 * length) && ObjectPoolManager.Instance.CanGetBackbones(2 * (length - 1)))
         {
             _nucleotidesA.AddRange(ObjectPoolManager.Instance.GetNucleotides(length));
+            await Task.Yield();
             _nucleotidesB.AddRange(ObjectPoolManager.Instance.GetNucleotides(length));
+            await Task.Yield();
+
             _backbonesA.AddRange(ObjectPoolManager.Instance.GetBackbones(length - 1));
+            await Task.Yield();
             _backbonesB.AddRange(ObjectPoolManager.Instance.GetBackbones(length - 1));
+            await Task.Yield();
+
             //await GenerateGameObjects(length, hideNucleotides);
             for (int i = prevLength; i < _length; i++)
             {
@@ -213,10 +219,10 @@ public class Helix
 
         StaticBatchingUtility.Combine(_helixA.ToArray(), _helixA[0]);
         StaticBatchingUtility.Combine(_helixB.ToArray(), _helixB[0]);
-        await Task.Yield();
-
         _helixA.Clear();
         _helixB.Clear();
+
+        await Task.Yield();
     }
 
     /*public async Task ExtendAsync(int length, bool hideNucleotides = false)

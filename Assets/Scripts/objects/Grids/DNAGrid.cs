@@ -151,7 +151,7 @@ public abstract class DNAGrid
                 int x = IndexToGridX(i);
                 int y = IndexToGridY(j);
                 GridPoint gridPoint = new GridPoint(x, y);
-                CreateGridCircle(gridPoint, i, j, i, j);
+                CreateGridCircle(gridPoint, i - 2, j - 2, i, j); // Note: Changed XY offset 8/27 DY
                 _size++;
             }
         }

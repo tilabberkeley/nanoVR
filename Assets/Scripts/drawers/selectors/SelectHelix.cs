@@ -2,6 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu>
  */
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
@@ -176,14 +177,104 @@ public class SelectHelix : MonoBehaviour
     }
 
     /// <summary>
-    /// Creates SubGrid object which contains a collection of Helices.
-    /// Called by CreateSubGrid button in scene.
+    /// Creates new Grid object which contains a collection of selected Helices made by user.
+    /// Called by CreateGridCollection button in scene.
     /// </summary>
-    public void CreateSubGrid()
+    public void CreateGridCollection()
     {
-        SubGrid subGrid = new SubGrid(s_numSubGrids, selectedHelices);
-        s_subGridDict.Add(s_numSubGrids, subGrid);
-        ObjectListManager.CreateSubGridButton(s_numSubGrids);
-        s_numSubGrids += 1;
+        /*
+         * 1. Find Helix that is closest to SubGrid center (google this).
+         * 2. Make this Helix [0, 0] of the new SubGrid.
+         * 3. Calculate all the other selected Helix grid coordinates relative to this new center.
+         * 4. Build a Grid with these selected helices, expand as needed (similar to file import).
+         * 5. Assign selected helices to new Grid's grid circles.
+         * 6. If necessary, remove Helix objects from old Grid's grid circles.
+        */
+
+        // Check selected helices are from same grid
+        bool valid = CheckHelicesFromSameGrid(selectedHelices);
+        if (!valid)
+        {
+            Debug.Log("Selected helices must be from same Grid to create new Grid collection.");
+            return;
+        }
+
+        // Step 1
+        float meanX = (float) selectedHelices.Average(gc => gc.GridPoint.X);
+        float meanY = (float) selectedHelices.Average(gc => gc.GridPoint.Y);
+        Vector2 meanPoint = new Vector2(meanX, meanY);
+
+        Vector2 closestCoordinate = Vector2.zero;
+        float closestDistance = float.MaxValue;
+
+        foreach (GridComponent gc in selectedHelices)
+        {
+            Vector2 coord = new Vector2(gc.GridPoint.X, gc.GridPoint.Y);
+            float distance = Vector2.Distance(meanPoint, coord);
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestCoordinate = coord;
+            }
+        }
+
+        // Step 2 & 3
+        Dictionary<GridPoint, GridComponent> newCoordinates = new Dictionary<GridPoint, GridComponent>();
+        foreach (GridComponent gc in selectedHelices)
+        {
+            Vector2 coord = new Vector2(gc.GridPoint.X, gc.GridPoint.Y);
+            Vector2 newCoord = coord - closestCoordinate;
+            GridPoint gp = new GridPoint((int) newCoord.x, (int) newCoord.y);
+            newCoordinates.Add(gp, gc);
+        }
+
+        // Step 4/5
+        DNAGrid grid = DrawGrid.CreateGrid(s_numGrids.ToString(), selectedHelices[0].Grid.Plane, selectedHelices[0].Grid.Position, selectedHelices[0].Grid.Type);
+
+        foreach (var pair in newCoordinates)
+        {
+            int xGrid = pair.Key.X;
+            int yGrid = pair.Key.Y;
+
+            /**
+             * Expands grid if necessary so that helix coordinates exist.
+             */
+            GridPoint minBound = grid.MinimumBound;
+            GridPoint maxBound = grid.MaximumBound;
+            while (xGrid <= minBound.X)
+            {
+                grid.ExpandWest();
+            }
+            while (xGrid >= maxBound.X)
+            {
+                grid.ExpandEast();
+            }
+            while (yGrid <= minBound.Y)
+            {
+                grid.ExpandSouth();
+            }
+            while (yGrid >= maxBound.Y)
+            {
+                grid.ExpandNorth();
+            }
+
+            int xInd = grid.GridXToIndex(xGrid);
+            int yInd = grid.GridYToIndex(yGrid);
+            GridComponent gc = grid.Grid2D[xInd, yInd];
+            gc.Helix = pair.Value.Helix;
+        }
+    }
+
+    private bool CheckHelicesFromSameGrid(List<GridComponent> selectedHelices)
+    {
+        string gridId = selectedHelices[0].GridId;
+        foreach(GridComponent gc in selectedHelices)
+        {
+            if (gc.GridId.Equals(gridId))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -10,7 +10,7 @@ public class ReflectGrid : MonoBehaviour
         DNAGrid grid = SelectGrid.Grid;
         if (grid == null)
         {
-            Debug.Log("Please select a grid firt.");
+            Debug.Log("Please select a grid first.");
             return;
         }
 
@@ -35,6 +35,8 @@ public class ReflectGrid : MonoBehaviour
                 Transform transform = grid.Grid2D[i, j].transform;
                 float distY = (transform.position.y - midY) * 2; // Multiply by 2 to get total distance needed to reflect
                 transform.position = new Vector3(transform.position.x, transform.position.y - distY, transform.position.z);
+                //transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, -transform.localEulerAngles.y, transform.localEulerAngles.z);
+                transform.Rotate(new Vector3(0, -transform.localEulerAngles.y * 2, 0));
                 grid.Grid2D[i, j].Helix?.ReflectVectical(distY);
             }
         }
@@ -67,6 +69,7 @@ public class ReflectGrid : MonoBehaviour
                 Transform transform = grid.Grid2D[i, j].transform;
                 float distX = (transform.position.x - midX) * 2; // Multiply by 2 to get total distance needed to reflect
                 transform.position = new Vector3(transform.position.x - distX, transform.position.y, transform.position.z);
+                transform.Rotate(new Vector3(-transform.localEulerAngles.x * 2, 0, 0));
                 grid.Grid2D[i, j].Helix?.ReflectHorizontal(distX);
             }
         }

@@ -240,7 +240,7 @@ public class FileImport : MonoBehaviour
 
         loadingMenu.enabled = false;
         st.Stop();
-        Debug.Log(string.Format("Overall sc import took {0} ms to complete", st.ElapsedMilliseconds));
+        //Debug.Log(string.Format("Overall sc import took {0} ms to complete", st.ElapsedMilliseconds));
 
         // Hide grid circles (unselect grids)
         foreach (DNAGrid grid in grids)
