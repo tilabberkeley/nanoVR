@@ -22,7 +22,6 @@ public class ObjectPoolManager : MonoBehaviour
     private int numBackPrefabsUsed = 0;
     private int numBackChildrenUsed = 0;
 
-
     void Awake()
     {
         Instance = this;

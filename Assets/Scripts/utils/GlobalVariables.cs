@@ -130,6 +130,7 @@ public static class GlobalVariables
     private static GameObject _gizmos = Resources.Load("Gizmos") as GameObject;
     private static GameObject _loopout = Resources.Load("Loopout") as GameObject;
     private static GameObject _domain = Resources.Load("Domain") as GameObject;
+    private static GameObject _bezierEndpoint = Resources.Load("BezierEndpoint") as GameObject;
 
     public static GameObject Cone { get { return _cone; } }
     public static GameObject Xover { get { return _xover; } }
@@ -138,6 +139,7 @@ public static class GlobalVariables
     public static GameObject Loopout { get { return _loopout; } }
     public static GameObject Gizmos { get { return _gizmos; } }
     public static GameObject Domain { get => _domain; }
+    public static GameObject BezierEndpoint { get => _bezierEndpoint; }
 
 
     // Strand colors

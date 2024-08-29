@@ -2,21 +2,23 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu>
  */
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using static GlobalVariables;
 
 public class Togglers : MonoBehaviour
 {
-    /*
-    public void CameraToggled()
+    /// <summary>
+    /// Singleton which provides a single static instance for this class. Allows other
+    /// scripts to access instance methods in this class.
+    /// </summary>
+    public static Togglers Instance;
+
+    private void Awake()
     {
-        s_lineTogOn = false;
-        s_curveTogOn = false;
-        s_gridTogOn = false;
-        s_honeycombTogOn = false;
-        s_cameraTogOn = true;
-    }*/
+        Instance = this;
+    }
 
     public void SelectToggled()
     {
@@ -135,18 +137,20 @@ public class Togglers : MonoBehaviour
         s_hideStencils = !s_hideStencils;
     }
 
-    public static void NucleotideViewToggled()
+    public void NucleotideViewToggled()
     {
         s_strandView = false;
         s_helixView = false;
         s_nucleotideView = true;
+        UpdateView();
     }
 
-    public static void StrandViewToggled()
+    public void StrandViewToggled()
     {
         s_strandView = true;
         s_helixView = false;
         s_nucleotideView = false;
+        UpdateView();
     }
 
     public void HelixViewToggled()
@@ -154,5 +158,35 @@ public class Togglers : MonoBehaviour
         s_strandView = false;
         s_helixView = true;
         s_nucleotideView = false;
+        UpdateView();
+    }
+
+    /// <summary>
+    /// Updates the view based on the values of the view togglers.
+    /// Note: I had to add this because the togglers trigger whatever method you have in OnValueChanged
+    /// whenever the toggle is turned on or off. This was breaking the domains because they would get
+    /// turned on then off because one toggler would turn them on and the other would turn them off.
+    /// This way, the view change only happens when one of them is turned on.
+    /// </summary>
+    private void UpdateView()
+    {
+        ToggleGroup toggleGroup = GetComponent<ToggleGroup>();
+
+        // Only one toggle should be on
+        Toggle activeToggle = toggleGroup.ActiveToggles().FirstOrDefault();
+        
+        // Magic strings unfortunately :(
+        if (activeToggle.name == "NucleotideViewTog")
+        {
+            ViewingPerspective.ViewNucleotide();
+        }
+        else if (activeToggle.name == "StrandViewTog")
+        {
+            ViewingPerspective.ViewStrand();
+        }
+        else
+        {
+            // TODO: Helix view
+        }
     }
 }

@@ -30,7 +30,6 @@ public class FileImport : MonoBehaviour
     private Canvas fileBrowser;
     private static XRRayInteractor rayInteractor;
     public static FileImport Instance;
-    private int originalCullingMask;
 
     private const string PLANE = "XY";
     private const int MAX_NUCLEOTIDES = 20000;
@@ -82,6 +81,11 @@ public class FileImport : MonoBehaviour
 
     public void OpenFile()
     {
+        if (fileBrowser == null) 
+        {
+            fileBrowser = FileBrowser.Instance.GetComponent<Canvas>();
+        } 
+
         // enable file browser, disable menu
         fileBrowser.gameObject.SetActive(true);
         Menu.enabled = false;
@@ -231,11 +235,11 @@ public class FileImport : MonoBehaviour
         // This helps with performance.
         if (GlobalVariables.allGameObjects.Count > MAX_NUCLEOTIDES)
         {
-            ViewingPerspective.Instance.ViewStrand();
+            ViewingPerspective.ViewStrand();
         }
         else
         {
-            ViewingPerspective.Instance.ShowAllHelices();
+            ViewingPerspective.ViewNucleotide();
         }
 
         loadingMenu.enabled = false;
@@ -404,6 +408,8 @@ public class FileImport : MonoBehaviour
                     strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], nextGO));
                 }
             }
+
+            strand.SetDomains();
 
             // Set sequence and check for mismatches with complement strands.
             strand.Sequence = sequence;
