@@ -489,9 +489,9 @@ public static class DrawPoint
         tubeRend.radius = TUBE_SIZE;
 
         // Set color with material property block. This doesn't change the underlying material, just the color. Enables static batching.
-        MaterialPropertyBlock materialPropertyBlock = new MaterialPropertyBlock();
-        materialPropertyBlock.SetColor("_Color", color);
-        renderer.SetPropertyBlock(materialPropertyBlock);
+        // MaterialPropertyBlock materialPropertyBlock = new MaterialPropertyBlock();
+        //materialPropertyBlock.SetColor("_Color", color);
+        //renderer.SetPropertyBlock(materialPropertyBlock);
 
         Vector3[] anchorPoints = new Vector3[2];
 
@@ -528,10 +528,10 @@ public static class DrawPoint
         bezierEndpoint.name = "Bezier Endpoint";
 
         // Set color with material property block. This doesn't change the underlying material, just the color. Enables static batching.
-        Renderer renderer = bezierEndpoint.GetComponent<Renderer>();
-        MaterialPropertyBlock materialPropertyBlock = new MaterialPropertyBlock();
-        materialPropertyBlock.SetColor("_Color", color);
-        renderer.SetPropertyBlock(materialPropertyBlock);
+        //Renderer renderer = bezierEndpoint.GetComponent<Renderer>();
+        //MaterialPropertyBlock materialPropertyBlock = new MaterialPropertyBlock();
+        //materialPropertyBlock.SetColor("_Color", color);
+        //renderer.SetPropertyBlock(materialPropertyBlock);
 
         // Set sphere's radius
         bezierEndpoint.transform.localScale = new Vector3(TUBE_SIZE * 2, TUBE_SIZE * 2, TUBE_SIZE * 2);
