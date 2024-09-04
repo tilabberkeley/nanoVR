@@ -64,7 +64,10 @@ public static class ViewingPerspective
             List<Bezier> strandBeziers = strand.ToStrandView();
             foreach (Bezier bezier in strandBeziers)
             {
-                staticBatchingTubes.Add(bezier.Tube);
+                GameObject tube = bezier.Tube;
+                tube.isStatic = true;
+                staticBatchingTubes.Add(tube);
+
                 staticBatchingEndpoints.Add(bezier.Endpoint0);
                 staticBatchingEndpoints.Add(bezier.Endpoint1);
             }

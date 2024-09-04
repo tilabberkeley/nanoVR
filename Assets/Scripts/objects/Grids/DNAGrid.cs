@@ -2,7 +2,9 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+using Newtonsoft.Json.Bson;
 using System.Collections.Generic;
+using TMPro.EditorUtilities;
 using UnityEngine;
 using static GlobalVariables;
 
@@ -96,6 +98,8 @@ public abstract class DNAGrid
      */
     protected int _numSouthExpansions;
     protected int _numWestExpansions;
+
+    private static GameObject s_staticBatchRoot = new GameObject();
 
     /// <summary>
     /// Grid constructor. 
@@ -570,5 +574,14 @@ public abstract class DNAGrid
             }
         }
         return true;*/
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    protected void StaticBatchGridGO(GameObject gridGO)
+    {
+        GameObject[] gridGOArray = { gridGO };
+        StaticBatchingUtility.Combine(gridGOArray, s_staticBatchRoot);
     }
 }
