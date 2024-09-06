@@ -60,7 +60,7 @@ public class TransformGrid : MonoBehaviour
             }
             if (distanceToGrid == Vector3.zero)
             {
-                distanceToGrid = gizmos.transform.position - gizmos.GetComponentInChildren<GridComponent>().Grid.StartPos;
+                //distanceToGrid = gizmos.transform.position - gizmos.GetComponentInChildren<GridComponent>().Grid.StartPos;
             }
 
             if (s_hit.collider.gameObject.Equals(xTransform))
@@ -87,7 +87,7 @@ public class TransformGrid : MonoBehaviour
             var gc = gizmos.GetComponentInChildren<GridComponent>();
             if (gc != null)
             {
-                gc.Grid.StartPos = gizmos.transform.position - distanceToGrid;
+                //gc.Grid.StartPos = gizmos.transform.position - distanceToGrid;
             }
             distanceFromRay = Vector3.zero;
             distanceToGrid = Vector3.zero;

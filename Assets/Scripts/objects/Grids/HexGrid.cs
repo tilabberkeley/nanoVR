@@ -40,7 +40,7 @@ public class HexGrid : DNAGrid
             yPosition -= HELIX_GAP / 2;
         }
 
-        GameObject gridGO = DrawPoint.MakeGridCircleGO(StartPos, StartGridCircle, xPosition, yPosition, _plane);
+        GameObject gridGO = DrawPoint.MakeGridCircleGO(Position, StartGridCircle, xPosition, yPosition, _plane);
         GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
         gridComponent.Grid = this;
         gridComponent.GridPoint = gridPoint;

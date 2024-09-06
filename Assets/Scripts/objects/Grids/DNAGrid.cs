@@ -214,7 +214,7 @@ public abstract class DNAGrid
             int x = IndexToGridX(i);
             int y = IndexToGridY(newJ);
             GridPoint gridPoint = new GridPoint(x, y);
-            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, i, newJ);
+            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset - 2, yCreationOffset - 2, i, newJ);
             gridCircles.Add(gridCircle);
             _size++;
         }
@@ -238,7 +238,7 @@ public abstract class DNAGrid
             int x = IndexToGridX(newI);
             int y = IndexToGridY(j);
             GridPoint gridPoint = new GridPoint(x, y);
-            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, newI, j);
+            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset - 2, yCreationOffset - 2, newI, j);
             gridCircles.Add(gridCircle);
             _size++;
         }
@@ -263,7 +263,7 @@ public abstract class DNAGrid
             int x = IndexToGridX(i);
             int y = IndexToGridY(newJ);
             GridPoint gridPoint = new GridPoint(x, y);
-            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, i, newJ);
+            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset - 2, yCreationOffset - 2, i, newJ);
             gridCircles.Add(gridCircle);
             _size++;
         }
@@ -289,7 +289,7 @@ public abstract class DNAGrid
             int x = IndexToGridX(newI);
             int y = IndexToGridY(j);
             GridPoint gridPoint = new GridPoint(x, y);
-            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, newI, j);
+            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset - 2 , yCreationOffset - 2, newI, j);
             gridCircles.Add(gridCircle);
             _size++;
         }
