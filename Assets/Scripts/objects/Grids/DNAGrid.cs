@@ -25,35 +25,20 @@ public abstract class DNAGrid
     protected string _plane;
     public string Plane { get { return _plane; } }
 
-    protected Vector3 _startPos;
-    public Vector3 StartPos 
-    { 
-        get 
-        {
-            int i = GridXToIndex(-2);
-            int j = GridYToIndex(-2);
-            if (_grid2D[i, j] == null)
-            {
-                return _startPos;
-            }
-            return _grid2D[i, j].transform.position; 
-        } 
-        set 
-        {
-            //Debug.Log("Setting grid start pos to " + value.ToString());
-            _startPos = value; 
-        } 
-    }
-
     /// <summary>
     /// Grid's position based on (0, 0) coordinate. This is used by .sc files.
     /// </summary>
+    private Vector3 _position;
     public Vector3 Position
     {
         get
         {
             int i = GridXToIndex(0);
             int j = GridYToIndex(0);
+            if (_grid2D[i, j] == null)
+            {
+                return _position;
+            }
             return _grid2D[i, j].transform.position;
         }
     }
@@ -107,9 +92,8 @@ public abstract class DNAGrid
     {
         _id = id;
         _plane = plane;
-        _startPos = startPos;
-
         _size = 0;
+        _position = startPos;
         SetBounds();
         // 2D array with _length rows and _width columns
         _grid2D = new GridComponent[_length, _width];

@@ -114,13 +114,13 @@ public class Menu : MonoBehaviour
         _menu.enabled = !_menu.enabled;
         if (_menu.enabled )
         {
-            leftRayInteractor.maxRaycastDistance = 1.5f;
-            rightRayInteractor.maxRaycastDistance = 1.5f;
+            leftRayInteractor.maxRaycastDistance = 1.2f;
+            rightRayInteractor.maxRaycastDistance = 1.2f;
         }
         else
         {
-            leftRayInteractor.maxRaycastDistance = 0.4f;
-            rightRayInteractor.maxRaycastDistance = 0.4f;
+            leftRayInteractor.maxRaycastDistance = 0.5f;
+            rightRayInteractor.maxRaycastDistance = 0.5f;
         }
     }
 }

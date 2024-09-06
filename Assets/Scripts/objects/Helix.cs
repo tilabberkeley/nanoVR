@@ -731,7 +731,7 @@ public class Helix
     /// </summary>
     public void ChangeRendering()
     {
-        Debug.Log("nucleotide view: " + s_nucleotideView);
+        //Debug.Log("nucleotide view: " + s_nucleotideView);
         for (int i = 0; i < _backbonesA.Count; i++)
         {
             _nucleotidesA[i].SetActive(s_nucleotideView);
