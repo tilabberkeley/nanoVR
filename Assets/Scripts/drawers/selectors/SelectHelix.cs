@@ -64,11 +64,11 @@ public class SelectHelix : MonoBehaviour
         _rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool rightTriggerValue);
         _rightDevice.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out bool axisClick);
 
-        if (leftTriggerValue)
+        /*if (leftTriggerValue)
         {
             leftTriggerReleased = false;
             selectMultiple = true;
-        }
+        }*/
 
         if (rightTriggerValue && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
@@ -83,10 +83,10 @@ public class SelectHelix : MonoBehaviour
             GridComponent gc = s_hit.collider.gameObject.GetComponent<GridComponent>();
             if (gc != null && gc.Selected)
             {
-                if (!selectMultiple)
+/*                if (!selectMultiple)
                 {
                     ResetHelices();
-                }
+                }*/
                 HighlightHelix(gc.gameObject);
                 selectedHelices.Add(gc);
             }
@@ -95,10 +95,10 @@ public class SelectHelix : MonoBehaviour
         if (axisClick && axisReleased)
         {
             axisReleased = false;
-            if (selectedHelices.Count > 0)
+            // Note: Make undo/redo command? DY 9/11
+            foreach (GridComponent gc in selectedHelices)
             {
-                // DELETE HELIX
-                DoDeleteHelix(selectedHelices[0].Helix.Id); //TODO: HANDLE MULTIPLE HELIX DELETION WITH LIST - DY 8/18/24
+                DeleteHelix(gc.Helix.Id);
             }
         }
 
@@ -113,11 +113,11 @@ public class SelectHelix : MonoBehaviour
             rightTriggerReleased = true;
         }
 
-        if (!leftTriggerValue)
+/*        if (!leftTriggerValue)
         {
             leftTriggerReleased = true;
             selectMultiple = false;
-        }
+        }*/
 
     }
 

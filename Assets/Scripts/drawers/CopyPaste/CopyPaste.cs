@@ -9,6 +9,7 @@ using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
 using static Highlight;
+using UnityEditor;
 
 public class CopyPaste : MonoBehaviour
 {
@@ -20,9 +21,10 @@ public class CopyPaste : MonoBehaviour
     private bool secondaryReleased = true;
     private bool triggerReleased = true;
     private bool pasting = false;
-    private static Strand s_copied = null;
+    private static List<Strand> s_copied = new List<Strand>();
     private static RaycastHit s_hit;
-    private static List<GameObject> s_currNucleotides = null;
+    private static List<GameObject> s_currNucleotides = new List<GameObject>();
+    private static List<List<GameObject>> newStrandNucls = new List<List<GameObject>>();
 
     private void GetDevice()
     {
@@ -58,7 +60,7 @@ public class CopyPaste : MonoBehaviour
         if (_device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryValue) && primaryValue && primaryReleased && !pasting)
         {
             primaryReleased = false;
-            s_copied = SelectStrand.Strand;
+            s_copied = SelectStrand.Strands;
             
 /*            if (s_copied != null)
             {
@@ -92,34 +94,41 @@ public class CopyPaste : MonoBehaviour
             if (ntc != null)
             {
                 DrawNucleotideDynamic.ExtendIfLastNucleotide(ntc);
-                List<GameObject> nucleotides = GetNucleotides(s_copied, go);
-                bool valid = IsValid(nucleotides);
-                UnhighlightNucleotideSelection(s_currNucleotides, false);
-                s_currNucleotides = nucleotides;
-                HighlightNucleotideSelection(s_currNucleotides, valid);
+                Highlight.UnhighlightNucleotideSelection(s_currNucleotides, false);
+                bool allValid = true;
+                foreach (Strand strand in s_copied)
+                {
+                    List<GameObject> nucleotides = GetNucleotides(strand, go);
+                    bool valid = IsValid(nucleotides);
+                    s_currNucleotides.AddRange(nucleotides);
+                    newStrandNucls.Add(nucleotides);
+                    Highlight.HighlightNucleotideSelection(nucleotides, valid);
+                    allValid &= valid;
+                }
 
-                if (triggerValue)
+                if (triggerValue && allValid)
                 {
                     triggerReleased = false;
-                    UnhighlightNucleotideSelection(s_currNucleotides, false);
-                    if (!valid) { return; }
-
-                    //Make new xover list
-                    //List<GameObject> xovers = new List<GameObject>();
-                    for (int i = 1; i < s_currNucleotides.Count; i++)
+                    Highlight.UnhighlightNucleotideSelection(s_currNucleotides, false);
+                    for (int i = 0; i < newStrandNucls.Count; i++)
                     {
-                        DNAComponent prevComp = s_currNucleotides[i - 1].GetComponent<DNAComponent>();
-                        DNAComponent nextComp = s_currNucleotides[i].GetComponent<DNAComponent>();
-                        if (!prevComp.IsBackbone
-                                && !nextComp.IsBackbone)
-                        {
-                            // TODO: FIND BETTER ALTNERATIVE TO -1 FOR PREV ID
-                            DrawPoint.MakeXover(s_currNucleotides[i - 1], s_currNucleotides[i], s_numStrands, -1);
-                        }
-                    }
-                    DrawNucleotideDynamic.DoCreateStrand(s_currNucleotides, s_numStrands);
 
-                    //DrawNucleotideDynamic.DoCreateStrand(s_currNucleotides, xovers, s_numStrands);
+                        //Make new xover list
+                        List<GameObject> nucls = newStrandNucls[i];
+                        int strandId = s_numStrands;
+                        Strand strand = Utils.CreateStrand(nucls, strandId);
+                        for (int j = 1; j < nucls.Count; j++)
+                        {
+                            DNAComponent prevComp = s_currNucleotides[j - 1].GetComponent<DNAComponent>();
+                            DNAComponent nextComp = s_currNucleotides[j].GetComponent<DNAComponent>();
+                            if (!prevComp.IsBackbone
+                                    && !nextComp.IsBackbone)
+                            {
+                                DrawCrossover.CreateXoverHelper(nucls[j - 1], nucls[j]);
+                            }
+                        }
+                        strand.Sequence = s_copied[i].Sequence; 
+                    }
                     Reset();
                 }
             }
@@ -154,9 +163,9 @@ public class CopyPaste : MonoBehaviour
 
     public void Reset()
     {
-        s_currNucleotides = null;
+        s_currNucleotides.Clear();
         pasting = false;
-        s_copied = null;
+        s_copied.Clear();
     }
 
     public static List<GameObject> GetNucleotides(Strand strand, GameObject newGO)
@@ -167,7 +176,6 @@ public class CopyPaste : MonoBehaviour
         }
 
         List<GameObject> nucleotides = new List<GameObject>();
-        List<(int, int)> xyDistances = new List<(int, int)>();
         List<(GameObject, GameObject)> endpoints = new List<(GameObject, GameObject)>();
         GameObject head = strand.Head;
         Helix helix = s_helixDict[head.GetComponent<NucleotideComponent>().HelixId];
@@ -179,29 +187,20 @@ public class CopyPaste : MonoBehaviour
         if (strand.Xovers.Count > 0)
         {
             endpoints.Add((head, strand.Xovers[0].GetComponent<XoverComponent>().PrevGO));
+            for (int i = 0; i < strand.Xovers.Count - 1; i++)
+            {
+                endpoints.Add((strand.Xovers[i].GetComponent<XoverComponent>().NextGO, strand.Xovers[i + 1].GetComponent<XoverComponent>().PrevGO));
+            }
+            endpoints.Add((strand.Xovers.Last().GetComponent<XoverComponent>().NextGO, strand.Tail));
         }
         else
         {
             endpoints.Add((head, strand.Tail));
         }
-        for (int i = 0; i < strand.Xovers.Count - 1; i++)
-        {
-            endpoints.Add((strand.Xovers[i].GetComponent<XoverComponent>().NextGO, strand.Xovers[i+1].GetComponent<XoverComponent>().PrevGO));
-        }
-        if (strand.Xovers.Count > 0)
-        {
-            endpoints.Add((strand.Xovers.Last().GetComponent<XoverComponent>().NextGO, strand.Tail));
-        }
+
 
         // Calculates distances between each strand segment's gridPoint and the start segment's.
-        xyDistances.Add((0, 0));
-        for (int i = 0; i < strand.Xovers.Count; i++) {
-            GameObject go = strand.Xovers[i].GetComponent<XoverComponent>().NextGO;
-            helix = s_helixDict[go.GetComponent<NucleotideComponent>().HelixId];
-            gp = helix._gridComponent.GridPoint;
-            (int, int) distance = (gp.X - x, gp.Y - y);
-            xyDistances.Add(distance);
-        }
+        List<(int, int)> xyDistances = CalculateXYDistances(strand, x, y);
 
         Helix newHelix = s_helixDict[newGO.GetComponent<NucleotideComponent>().HelixId];
         GridPoint newGP = newHelix._gridComponent.GridPoint;
@@ -217,7 +216,7 @@ public class CopyPaste : MonoBehaviour
             int indexX = grid.GridXToIndex(tempX);
             int indexY = grid.GridYToIndex(tempY);
             GridComponent gc = grid.Grid2D[indexX, indexY];
-            if (!gc.Selected)
+            if (gc == null || !gc.Selected)
             {
                 return null;
             }
@@ -268,4 +267,22 @@ public class CopyPaste : MonoBehaviour
         }
         return true;
     }
+
+    private static List<(int, int)> CalculateXYDistances(Strand strand, int x, int y)
+    {
+        List<(int, int)> xyDistances = new List<(int, int)>
+        {
+            (0, 0) // NOTE: Fix this since it won't be (0, 0) for strands besides the original strand
+        };
+        for (int i = 0; i < strand.Xovers.Count; i++)
+        {
+            GameObject go = strand.Xovers[i].GetComponent<XoverComponent>().NextGO;
+            Helix helix = s_helixDict[go.GetComponent<NucleotideComponent>().HelixId];
+            GridPoint gp = helix._gridComponent.GridPoint;
+            (int, int) distance = (gp.X - x, gp.Y - y);
+            xyDistances.Add(distance);
+        }
+        return xyDistances;
+    }
+
 }

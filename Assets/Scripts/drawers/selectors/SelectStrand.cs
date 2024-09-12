@@ -17,8 +17,8 @@ public class SelectStrand : MonoBehaviour
     private bool triggerReleased = true;
     private bool axisReleased = true;
     private static RaycastHit s_hit;
-    private static Strand s_strand;
-    public static Strand Strand { get { return s_strand; } }
+    private static List<Strand> s_strands = new List<Strand>();
+    public static List<Strand> Strands { get { return s_strands; } }
     //private static List<Strand> s_highlightedStrands = new List<Strand>();
 
     private void GetDevice()
@@ -56,12 +56,16 @@ public class SelectStrand : MonoBehaviour
             triggerReleased = false;
 
             // Check that hit Gameobject is part of strand
-            if (s_hit.collider.GetComponent<DNAComponent>() != null || s_hit.collider.GetComponent<XoverComponent>() != null)
+            DNAComponent dnaComp = s_hit.collider.GetComponent<DNAComponent>();
+
+            if (dnaComp != null && dnaComp.Selected)
             {
-                if (s_strand != null)
+                /*if (s_strand != null)
                 {
                     UnhighlightStrand(s_strand, false);
-                }
+                }*/ // Note: Chagned this DY 9/11
+                s_strandDict.TryGetValue(dnaComp.StrandId, out Strand strand);
+                s_strands.Add(strand);
                 HighlightStrand(s_hit.collider.gameObject);
             }
         }
@@ -70,29 +74,27 @@ public class SelectStrand : MonoBehaviour
         if (axisClick && axisReleased)
         {
             axisReleased = false;
-            UnhighlightStrand(s_strand, true);
-            DoDeleteStrand(s_strand);
-            /*if (s_highlightedStrands.Count > 0)
+            //UnhighlightStrand(s_strand, true);
+            //DoDeleteStrand(s_strand);
+
+            foreach (Strand strand in s_strands)
             {
-                foreach (Strand strand in s_highlightedStrands)
-                {
-                    DeleteStrand(strand.GetHead());
-                }
-            }*/
+                UnhighlightStrand(strand, true);
+                DeleteStrand(strand.Head);
+            }
+            
         }
 
         // Resets selected strand.
         if (triggerValue && !rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
-            UnhighlightStrand(s_strand, false);
-            /*if (s_highlightedStrands.Count > 0)
+            //UnhighlightStrand(s_strand, false);
+            foreach (Strand strand in s_strands)
             {
-                foreach (Strand strand in s_highlightedStrands)
-                {
-                    UnhighlightStrand(strand);
-                }
-            }*/
+                UnhighlightStrand(strand, true);
+                //DeleteStrand(strand.Head);
+            }
             Reset();
         }
 
@@ -114,7 +116,7 @@ public class SelectStrand : MonoBehaviour
     /// </summary>
     public static void Reset()
     {
-        s_strand = null;
+        s_strands.Clear();
     }
 
     public static void HighlightStrand(GameObject go)
@@ -138,7 +140,6 @@ public class SelectStrand : MonoBehaviour
     {
         s_strandDict.TryGetValue(strandId, out Strand strand);
         Highlight.HighlightStrand(strand);
-        s_strand = strand;
     }
 
     public static void UnhighlightStrand(Strand strand, bool isDelete)
