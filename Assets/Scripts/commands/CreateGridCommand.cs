@@ -11,6 +11,7 @@ public class CreateGridCommand : ICommand
     private string _plane;
     private Vector3 _startPos;
     private string _gridType;
+
     public CreateGridCommand(string id, string plane, Vector3 startPos, string gridType)
     {
         _id = id;

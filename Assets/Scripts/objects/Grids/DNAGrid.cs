@@ -151,7 +151,7 @@ public abstract class DNAGrid
                 int x = IndexToGridX(i);
                 int y = IndexToGridY(j);
                 GridPoint gridPoint = new GridPoint(x, y);
-                CreateGridCircle(gridPoint, i, j, i, j);
+                CreateGridCircle(gridPoint, i - 2, j - 2, i, j); // Note: Changed XY offset 8/27 DY
                 _size++;
             }
         }
@@ -519,6 +519,22 @@ public abstract class DNAGrid
                 {
                     Grid2D[i, j].Helix.ResetParent();
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Shows or hides grid circles depending on parameter showCircles.
+    /// </summary>
+    /// <param name="showCircles">Whether or not to show grid circles</param>
+    public void ToggleGridCircles(bool showCircles)
+    {
+        for (int i = 0; i < _length; i++)
+        {
+            for (int j = 0; j < _width; j++)
+            {
+                GridComponent gc = _grid2D[i, j];
+                gc.gameObject.SetActive(showCircles);
             }
         }
     }

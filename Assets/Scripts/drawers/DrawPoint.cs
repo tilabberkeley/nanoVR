@@ -63,7 +63,7 @@ public static class DrawPoint
         ntc.IsOxview = isOxview;
         ntc.IsBackbone = false;
         //seqComp.HasComplement = true;
-        sphere.transform.SetParent(null);
+        //sphere.transform.SetParent(null);
         SaveGameObject(sphere);
         sphere.isStatic = true;
         //sphere.SetActive(!hideNucleotide);
@@ -332,7 +332,7 @@ public static class DrawPoint
 
         // Rotation
         cylinder.transform.up = end - start;
-        cylinder.transform.SetParent(null);
+        //cylinder.transform.SetParent(null);
         SaveGameObject(cylinder);
         cylinder.isStatic = true;
         cylinder.SetActive(!hideBackbone);

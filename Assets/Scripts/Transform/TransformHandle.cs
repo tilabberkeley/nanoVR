@@ -14,7 +14,7 @@ public class TransformHandle : MonoBehaviour
 {
     [SerializeField] private XRNode _leftXRNode;
     [SerializeField] private XRNode _rightXRNode;
-    [SerializeField] private GameObject gizmos;
+    public GameObject gizmos;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _leftDevice;
     private InputDevice _rightDevice;
@@ -24,6 +24,13 @@ public class TransformHandle : MonoBehaviour
     private bool rightGripReleased = true;
     private static GameObject s_GO = null;
     private static RaycastHit s_hit;
+
+    public static TransformHandle Instance;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void GetDevice()
     {
@@ -75,14 +82,14 @@ public class TransformHandle : MonoBehaviour
             {
                 //Debug.Log("Hitting GridComponent");
                 s_GO = s_hit.collider.gameObject;
-                AttachChildren();
+                AttachChildren(s_GO.GetComponent<GridComponent>().Grid);
                 ShowTransform();
             }
         }
 
         if ((leftTriggerValue || rightTriggerValue) && gizmos.activeSelf)
         {
-            DetachChildren();
+            DetachChildren(s_GO.GetComponent<GridComponent>().Grid);
             HideTransform();
         }
 
@@ -114,43 +121,32 @@ public class TransformHandle : MonoBehaviour
     }
 
 
-    private void AttachChildren()
+    public void AttachChildren(DNAGrid grid)
     {
         // Position gizmos correctly
-        GridComponent gc = s_GO.GetComponent<GridComponent>();
-        GameObject bottomLeftCorner = gc.Grid.Grid2D[0, 0].gameObject;
-        gizmos.transform.SetPositionAndRotation(bottomLeftCorner.transform.position - 0.2f * bottomLeftCorner.transform.forward, bottomLeftCorner.transform.rotation);
-
-        DNAGrid grid = gc.Grid;
-        Rigidbody rb = gizmos.GetComponent<Rigidbody>();
+        int minXIndex = grid.GridXToIndex(grid.MinimumBound.X);
+        int minYIndex = grid.GridYToIndex(grid.MinimumBound.Y);
+        Transform transform = grid.Grid2D[minXIndex, minYIndex].transform;
+        gizmos.transform.SetPositionAndRotation(transform.position - 0.2f * transform.forward, transform.rotation);
 
         for (int i = 0; i < grid.Length; i++)
         {
             for (int j = 0; j < grid.Width; j++)
             {
-                /*FixedJoint fj = grid.Grid2D[i, j].gameObject.GetComponent<FixedJoint>();
-                fj.connectedBody = rb;*/
                 grid.Grid2D[i, j].gameObject.transform.SetParent(gizmos.transform);
-                if (grid.Grid2D[i, j].Helix != null)
-                {
-                    grid.Grid2D[i, j].Helix.SetParent(gizmos);
-                }
+                grid.Grid2D[i, j].Helix?.SetParent(gizmos);
             }
         }
     }
 
-    private void DetachChildren()
+    public void DetachChildren(DNAGrid grid)
     {
-        DNAGrid grid = s_GO.GetComponent<GridComponent>().Grid;
         for (int i = 0; i < grid.Length; i++)
         {
             for (int j = 0; j < grid.Width; j++)
             {
                 grid.Grid2D[i, j].gameObject.transform.parent = null;
-                if (grid.Grid2D[i, j].Helix != null)
-                {
-                    grid.Grid2D[i, j].Helix.ResetParent();
-                }
+                grid.Grid2D[i, j].Helix?.ResetParent();
             }
         }
     }

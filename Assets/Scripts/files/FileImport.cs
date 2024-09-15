@@ -30,7 +30,6 @@ public class FileImport : MonoBehaviour
     private Canvas fileBrowser;
     private static XRRayInteractor rayInteractor;
     public static FileImport Instance;
-    private int originalCullingMask;
 
     private const string PLANE = "XY";
     private const int MAX_NUCLEOTIDES = 20000;
@@ -149,6 +148,7 @@ public class FileImport : MonoBehaviour
     /// <returns>List of grids created</returns>
     public async Task<List<DNAGrid>> ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
     {
+        st.Start();
         List<DNAGrid> grids = new List<DNAGrid>();
         JObject origami = JObject.Parse(fileContents);
         JArray helices = JArray.Parse(origami["helices"].ToString());
@@ -220,14 +220,38 @@ public class FileImport : MonoBehaviour
         else
         {
             string gridType = CleanSlash(origami["grid"].ToString());
-            DrawGrid.CreateGrid(s_numGrids.ToString(), PLANE, rayInteractor.transform.position, gridType);
+            DNAGrid grid = DrawGrid.CreateGrid(s_numGrids.ToString(), PLANE, rayInteractor.transform.position, gridType);
+            grids.Add(grid);
         }
         
+        // Parse helices.
         int lastHelixId = s_numHelices;
         await ParseHelices(helices, isMultiGrid);
 
         // Parse strands.
         CoRunner.Instance.Run(ParseStrands(strands, lastHelixId));
+
+        // Abstracts to Strand View if there are more than MAX_NUCLEOTIDES in scene.
+        // This helps with performance.
+        if (GlobalVariables.allGameObjects.Count > MAX_NUCLEOTIDES)
+        {
+            ViewingPerspective.ViewStrand();
+        }
+        else
+        {
+            ViewingPerspective.ViewNucleotide();
+        }
+
+        loadingMenu.enabled = false;
+        st.Stop();
+        //Debug.Log(string.Format("Overall sc import took {0} ms to complete", st.ElapsedMilliseconds));
+
+        // Hide grid circles (unselect grids)
+        foreach (DNAGrid grid in grids)
+        {
+            SelectGrid.HideGridCircles(grid);
+        }
+
         return grids;
     }
 
@@ -239,7 +263,7 @@ public class FileImport : MonoBehaviour
         for (int i = 0; i < helices.Count; i++)
         { 
             JArray coord = JArray.Parse(helices[i]["grid_position"].ToString());
-            int length = (int)helices[i]["max_offset"];
+            int length = (int) helices[i]["max_offset"];
             string gridName;
             if (helices[i]["group"] != null)
             {
@@ -257,8 +281,8 @@ public class FileImport : MonoBehaviour
             }
 
             DNAGrid grid = s_gridDict[gridName];
-            int xGrid = (int)coord[0];
-            int yGrid = (int)coord[1] * -1;
+            int xGrid = (int) coord[0];
+            int yGrid = (int) coord[1] * -1;
 
             /**
              * Expands grid if necessary so that helix coordinates exist.
@@ -392,21 +416,6 @@ public class FileImport : MonoBehaviour
             CheckMismatch(strand);
             yield return null;
         }
-
-        // Abstracts to Strand View if there are more than MAX_NUCLEOTIDES in scene.
-        // This helps with performance.
-        if (GlobalVariables.allGameObjects.Count > MAX_NUCLEOTIDES)
-        {
-            ViewingPerspective.ViewStrand();
-        }
-        else
-        {
-            ViewingPerspective.ViewNucleotide();
-        }
-
-        loadingMenu.enabled = false;
-
-        Debug.Log(string.Format("Overall import took {0} ms to complete", st.ElapsedMilliseconds));
     }
 
     private async Task OxviewImport(string fileContents)
