@@ -4,6 +4,7 @@ using System.Collections;
 using System.IO;
 using UnityEngine;
 using WebSocketSharp;
+using static GlobalVariables;
 
 public class oxViewConnect : MonoBehaviour
 {
@@ -22,7 +23,7 @@ public class oxViewConnect : MonoBehaviour
         _ws.OnOpen += SendOrigami;
         _ws.OnMessage += (sender, e) =>
         {
-            Debug.Log(e.Data);
+            Debug.Log(e.Data.Substring(0, 20));
         };
         _ws.OnError += (sender, e) =>
         {
@@ -43,11 +44,8 @@ public class oxViewConnect : MonoBehaviour
 
     private void SendOrigami(object sender, EventArgs e)
     {
-        StreamReader reader = new StreamReader("./SampleFiles/6_helix_origami_rectangle.oxdna");
-        string datFile = reader.ReadToEnd();
-
-        reader = new StreamReader("./SampleFiles/6_helix_origami_rectangle.top");
-        string topFile = reader.ReadToEnd();
+        string datFile = oxView.DatFile;
+        string topFile = oxView.TopFile;
 
         // Hard code settings for now.
         JObject initialMessage = new JObject(
@@ -84,8 +82,6 @@ public class oxViewConnect : MonoBehaviour
                 new JProperty("max_backbone_force_far", "10")
             ))
         );
-
-        Debug.Log(initialMessage.ToString());
 
         _ws.Send(initialMessage.ToString());
     }

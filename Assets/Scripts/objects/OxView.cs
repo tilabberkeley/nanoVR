@@ -1,26 +1,179 @@
+using Newtonsoft.Json.Linq;
+using Oculus.Platform;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static GlobalVariables;
+using static UnityEngine.EventSystems.EventTrigger;
 using static Utils;
 
-public class OxView : MonoBehaviour
+public class OxDNAMapping
+{
+    public GameObject Nucleotide { get; set; }
+    public int Id { get; set; }
+    public Vector3 Position { get; set; }
+    public Vector3 A1 { get; set; }
+}
+
+public class OxViewStrand
+{
+    public int Id { get; set; }
+    public List<OxViewMonomer> Monomers { get; set; } = new List<OxViewMonomer>();
+    public int End3 { get; set; }
+    public int End5 { get; set; }
+    public string Class { get; set; } = "";
+}
+
+public class OxViewMonomer
+{
+    public int Id { get; set; }
+    public string Type { get; set; } = "";
+    public string Class { get; set; } = "";
+    public List<float> P { get; set; } = new List<float>();
+    public List<float> A1 { get; set; } = new List<float>();
+    public List<float> A3 { get; set; } = new List<float>();
+    public int? N3 { get; set; }
+    public int? N5 { get; set; }
+    public int Cluster { get; set; }
+    public int Color { get; set; }
+}
+
+public class OxView
 {
     List<GameObject> nucleotides;
     List<GameObject> backbones;
+    private Dictionary<int, OxDNAMapping> lineIndexToOxDNAMapping;
     int nucleotideIndex;
     int backboneIndex;
+
+    private StringBuilder topFile;
+    public string TopFile { get => topFile.ToString(); }
+
+    private StringBuilder datFile;
+    public string DatFile { get => datFile.ToString(); }
 
     public OxView()
     {
         nucleotides = new List<GameObject>();
         backbones = new List<GameObject>();
+        lineIndexToOxDNAMapping = new Dictionary<int, OxDNAMapping>();
         nucleotideIndex = 0;
         backboneIndex = 0;
     }
 
-    public async Task BuildStructure(int length)
+    public async Task BuildStrands(List<OxViewStrand> strands, List<double> box)
+    {
+        int numStrands = strands.Count;
+        int numNucleotides = 0;
+
+        foreach (OxViewStrand strand in strands)
+        {
+            numNucleotides += strand.Monomers.Count;
+        }
+
+        // Write top file metadata
+        topFile.Append($"{numNucleotides} {numStrands}\n");
+
+        // Write dat file metadata
+        datFile.Append("t = 0\n");
+        datFile.Append("b = " + string.Join(" ", box) + "\n");
+        datFile.Append("E = 0 0 0\n");
+
+        // Line number will increase as the strands are parsed.
+        int lineIndex = 0;
+
+        int strandCounter = 1;
+        foreach (OxViewStrand strand in strands)
+        {
+            List<OxViewMonomer> monomers = strand.Monomers;
+            StringBuilder sequence = new StringBuilder();
+            List<Vector3> positions = new List<Vector3>();
+            List<Vector3> a1s = new List<Vector3>();
+            List<int> ids = new List<int>();
+            Color color = Color.white;
+
+            int prime5 = -1;
+            int prime3 = 1;
+
+            // Iterate backwards as per observed in an oxDNA export sample
+            for (int i = strand.Monomers.Count - 1; i >= 0; i--)
+            {
+                OxViewMonomer monomer = strand.Monomers[i];
+
+                // Write file contents
+                topFile.Append($"{strandCounter} {monomer.Type} {prime5++} {(i != 0 ? prime3++ : -1)}" + "\n");
+                datFile.Append($"{string.Join(" ", monomer.P)} {string.Join(" ", monomer.A1)} {string.Join(" ", monomer.A3)}" + " 0 0 0 0 0 0" + "\n");
+
+                string type = monomer.Type;
+                sequence.Append(type);
+                Vector3 position = new Vector3(monomer.P[0], monomer.P[1], monomer.P[2]);
+                positions.Add(position);
+
+                Vector3 a1Vec = new Vector3(monomer.A1[0], monomer.A1[1], monomer.P[2]);
+                a1s.Add(a1Vec);
+
+                OxDNAMapping mapping = new OxDNAMapping()
+                {
+                    Id = monomer.Id,
+                    Position = position,
+                    A1 = a1Vec,
+                };
+                lineIndexToOxDNAMapping.Add(lineIndex, mapping);
+                ids.Add(lineIndex);
+
+                // Convert base 10 color to hex.
+                string hexColor = monomer.Color.ToString("X6");
+
+                // Set strand color once
+                if (color.Equals(Color.white))
+                {
+                    ColorUtility.TryParseHtmlString("#" + hexColor, out color);
+                }
+            }
+
+            SetNucleotides(monomers.Count, positions, a1s, ids);
+            // List<GameObject> nucleotides = oxView.GetSubstructure(monomers.Count);
+            // Strand strand = CreateStrand(nucleotides, s_numStrands, color, true);
+            // strand.SetSequence(sequence.ToString());
+            await Task.Yield();
+        }
+
+        BuildOrigami();
+    }
+
+    private void SetNucleotidePosition(OxDNAMapping mapping)
+    {
+        Vector3 position = (mapping.Position - 0.4f * mapping.A1) / SCALE;
+        DrawPoint.SetNucleotide(mapping.Nucleotide, position, mapping.Id, -1, -1, false, true);
+    }
+
+    private void BuildOrigami()
+    {
+        // Generate Nucleotides
+        int numNucleotides = lineIndexToOxDNAMapping.Count;
+
+        List<GameObject> newNucleotides = new List<GameObject>();
+
+        if (ObjectPoolManager.Instance.CanGetNucleotides(numNucleotides))
+        {
+            newNucleotides.AddRange(ObjectPoolManager.Instance.GetNucleotides(numNucleotides));
+        }
+
+        int i = 0;
+        foreach (KeyValuePair<int, OxDNAMapping> entry in lineIndexToOxDNAMapping)
+        {
+            entry.Value.Nucleotide = newNucleotides[i++];
+
+            // Assign positions
+            SetNucleotidePosition(entry.Value);
+        }
+    }
+
+    public async Task BuildStrand(int length)
     {
         // Draw strand.
         // First check if ObjectPool has enough GameObjects to use.
@@ -38,6 +191,7 @@ public class OxView : MonoBehaviour
             await GenerateGameObjects(length, true);
         }
     }
+
     private async Task GenerateGameObjects(int length, bool hideGameObjects)
     {
         //int num64nt = length / 64;
@@ -145,7 +299,6 @@ public class OxView : MonoBehaviour
         await Task.Yield();
     }
    
-
     public List<GameObject> GetSubstructure(int length)
     {
         List<GameObject> temp = new List<GameObject>();
@@ -172,6 +325,36 @@ public class OxView : MonoBehaviour
             {
                 DrawPoint.SetBackbone(backbones[i + backboneIndex - 1], -1, -1, -1, nucleotides[i + nucleotideIndex - 1].transform.position, nucleotides[i + nucleotideIndex].transform.position, false, true);
             }
+        }
+    }
+
+    public void SimulationUpdate(string datFile)
+    {
+        StringReader datFileReader = new StringReader(datFile);
+
+        // Read metadata - not needed
+        datFileReader.ReadLine();
+        datFileReader.ReadLine();
+        datFileReader.ReadLine();
+
+        int lineIndex = 0;
+
+        string nextLine = datFileReader.ReadLine();
+        while (nextLine != null)
+        {
+            lineIndexToOxDNAMapping.TryGetValue(lineIndex++, out OxDNAMapping mapping);
+
+            // Extract updated positioning
+            string[] updatedInfo = nextLine.Split(' ');
+            Vector3 position = new Vector3(float.Parse(updatedInfo[0]), float.Parse(updatedInfo[1]), float.Parse(updatedInfo[2]));
+            Vector3 a1 = new Vector3(float.Parse(updatedInfo[3]), float.Parse(updatedInfo[4]), float.Parse(updatedInfo[5]));
+
+            mapping.Position = position;
+            mapping.A1 = a1;
+
+            SetNucleotidePosition(mapping);
+
+            nextLine = datFileReader.ReadLine();
         }
     }
 }
