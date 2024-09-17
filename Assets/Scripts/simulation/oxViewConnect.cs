@@ -21,25 +21,21 @@ public class oxViewConnect : MonoBehaviour
             Debug.Log("Connected");
         };
         _ws.OnOpen += SendOrigami;
-        _ws.OnMessage += (sender, e) =>
-        {
-            Debug.Log(e.Data.Substring(0, 20));
-        };
         _ws.OnError += (sender, e) =>
         {
-            Debug.Log(e.Message);
+            Debug.Log("Error " + e.Message);
         };
-        Debug.Log("Connecting");
-        _ws.Connect();
-    }
-
-    IEnumerator SendMessageEverySecond()
-    {
-        while (true)
+        _ws.OnClose += (sender, e) =>
         {
-            _ws.Send(BitConverter.GetBytes(messageCount++));
-            yield return new WaitForSeconds(1);
-        }
+            Debug.Log("Reason " + e.Reason);
+            Debug.Log("Error code " + e.Code);
+        };
+        _ws.OnMessage += SimulationUpdate;
+
+        _ws.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+        _ws.SslConfiguration.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+
+        _ws.Connect();
     }
 
     private void SendOrigami(object sender, EventArgs e)
@@ -83,6 +79,21 @@ public class oxViewConnect : MonoBehaviour
             ))
         );
 
-        _ws.Send(initialMessage.ToString());
+        string message = initialMessage.ToString();
+
+        _ws.Send(message);
+
+        Debug.Log(message);
+    }
+
+    private void SimulationUpdate(object sender, MessageEventArgs e)
+    {
+        Debug.Log("Recieved " + e.Data.Substring(0, 20));
+
+        JObject message = JObject.Parse(e.Data);
+
+        string datFile = message["dat_file"].ToString();
+
+        oxView.SimulationUpdate(datFile);
     }
 }

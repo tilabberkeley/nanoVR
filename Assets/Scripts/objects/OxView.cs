@@ -1,5 +1,6 @@
 using Newtonsoft.Json.Linq;
 using Oculus.Platform;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -50,11 +51,13 @@ public class OxView
     int nucleotideIndex;
     int backboneIndex;
 
-    private StringBuilder topFile;
-    public string TopFile { get => topFile.ToString(); }
+    private StringBuilder _topFileStringBuilder;
+    private string _topFile;
+    public string TopFile { get => _topFile; }
 
-    private StringBuilder datFile;
-    public string DatFile { get => datFile.ToString(); }
+    private StringBuilder _datFileStringBuilder;
+    private string _datFile;
+    public string DatFile { get => _datFile; }
 
     public OxView()
     {
@@ -63,9 +66,11 @@ public class OxView
         lineIndexToOxDNAMapping = new Dictionary<int, OxDNAMapping>();
         nucleotideIndex = 0;
         backboneIndex = 0;
+        _topFileStringBuilder = new StringBuilder();
+        _datFileStringBuilder = new StringBuilder();
     }
 
-    public async Task BuildStrands(List<OxViewStrand> strands, List<double> box)
+    public void BuildStrands(List<OxViewStrand> strands, List<double> box)
     {
         int numStrands = strands.Count;
         int numNucleotides = 0;
@@ -76,12 +81,12 @@ public class OxView
         }
 
         // Write top file metadata
-        topFile.Append($"{numNucleotides} {numStrands}\n");
+        _topFileStringBuilder.Append($"{numNucleotides} {numStrands}" + Environment.NewLine);
 
         // Write dat file metadata
-        datFile.Append("t = 0\n");
-        datFile.Append("b = " + string.Join(" ", box) + "\n");
-        datFile.Append("E = 0 0 0\n");
+        _datFileStringBuilder.Append("t = 0" + Environment.NewLine);
+        _datFileStringBuilder.Append("b = " + string.Join(" ", box) + Environment.NewLine);
+        _datFileStringBuilder.Append("E = 0 0 0" + Environment.NewLine);
 
         // Line number will increase as the strands are parsed.
         int lineIndex = 0;
@@ -91,9 +96,6 @@ public class OxView
         {
             List<OxViewMonomer> monomers = strand.Monomers;
             StringBuilder sequence = new StringBuilder();
-            List<Vector3> positions = new List<Vector3>();
-            List<Vector3> a1s = new List<Vector3>();
-            List<int> ids = new List<int>();
             Color color = Color.white;
 
             int prime5 = -1;
@@ -105,16 +107,14 @@ public class OxView
                 OxViewMonomer monomer = strand.Monomers[i];
 
                 // Write file contents
-                topFile.Append($"{strandCounter} {monomer.Type} {prime5++} {(i != 0 ? prime3++ : -1)}" + "\n");
-                datFile.Append($"{string.Join(" ", monomer.P)} {string.Join(" ", monomer.A1)} {string.Join(" ", monomer.A3)}" + " 0 0 0 0 0 0" + "\n");
+                _topFileStringBuilder.Append($"{strandCounter} {monomer.Type} {prime5++} {(i != 0 ? prime3++ : -1)}" + Environment.NewLine);
+                _datFileStringBuilder.Append($"{string.Join(" ", monomer.P)} {string.Join(" ", monomer.A1)} {string.Join(" ", monomer.A3)}" + " 0 0 0 0 0 0" + Environment.NewLine);
 
                 string type = monomer.Type;
                 sequence.Append(type);
-                Vector3 position = new Vector3(monomer.P[0], monomer.P[1], monomer.P[2]);
-                positions.Add(position);
 
-                Vector3 a1Vec = new Vector3(monomer.A1[0], monomer.A1[1], monomer.P[2]);
-                a1s.Add(a1Vec);
+                Vector3 position = new Vector3(monomer.P[0], monomer.P[1], monomer.P[2]);
+                Vector3 a1Vec = new Vector3(monomer.A1[0], monomer.A1[1], monomer.A1[2]);
 
                 OxDNAMapping mapping = new OxDNAMapping()
                 {
@@ -123,7 +123,6 @@ public class OxView
                     A1 = a1Vec,
                 };
                 lineIndexToOxDNAMapping.Add(lineIndex, mapping);
-                ids.Add(lineIndex);
 
                 // Convert base 10 color to hex.
                 string hexColor = monomer.Color.ToString("X6");
@@ -133,14 +132,18 @@ public class OxView
                 {
                     ColorUtility.TryParseHtmlString("#" + hexColor, out color);
                 }
+
+                lineIndex++;
             }
 
-            SetNucleotides(monomers.Count, positions, a1s, ids);
+            // SetNucleotides(monomers.Count, positions, a1s, ids);
             // List<GameObject> nucleotides = oxView.GetSubstructure(monomers.Count);
             // Strand strand = CreateStrand(nucleotides, s_numStrands, color, true);
             // strand.SetSequence(sequence.ToString());
-            await Task.Yield();
         }
+
+        _topFile = _topFileStringBuilder.ToString();
+        _datFile = _datFileStringBuilder.ToString();
 
         BuildOrigami();
     }

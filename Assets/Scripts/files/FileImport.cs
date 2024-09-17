@@ -119,6 +119,7 @@ public class FileImport : MonoBehaviour
                 // Parse cadnano JSON
                 loadingMenu.enabled = true;
                 OxViewImport(fileContent);
+                OxViewImport(fileContent);
             }
             else
             {
@@ -418,7 +419,7 @@ public class FileImport : MonoBehaviour
         }
     }
 
-    private async Task OxViewImport(string fileContents)
+    private void OxViewImport(string fileContents)
     {
         Stopwatch sw = new Stopwatch();
         sw.Start();
@@ -428,7 +429,7 @@ public class FileImport : MonoBehaviour
         for (int i = 0; i < systems.Count; i++)
         {
             List<OxViewStrand> strands = JsonConvert.DeserializeObject<List<OxViewStrand>>(systems[i]["strands"].ToString());
-            await oxView.BuildStrands(strands, box);
+            oxView.BuildStrands(strands, box);
         }
         sw.Stop();
         loadingMenu.enabled = false;
