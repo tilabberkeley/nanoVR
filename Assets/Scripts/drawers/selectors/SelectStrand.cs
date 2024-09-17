@@ -64,9 +64,8 @@ public class SelectStrand : MonoBehaviour
                 {
                     UnhighlightStrand(s_strand, false);
                 }*/ // Note: Chagned this DY 9/11
-                s_strandDict.TryGetValue(dnaComp.StrandId, out Strand strand);
-                s_strands.Add(strand);
-                HighlightStrand(s_hit.collider.gameObject);
+                AddStrand(dnaComp.StrandId);
+                HighlightStrand(dnaComp.StrandId);
             }
         }
 
@@ -92,7 +91,7 @@ public class SelectStrand : MonoBehaviour
             //UnhighlightStrand(s_strand, false);
             foreach (Strand strand in s_strands)
             {
-                UnhighlightStrand(strand, true);
+                UnhighlightStrand(strand, false);
                 //DeleteStrand(strand.Head);
             }
             Reset();
@@ -119,7 +118,7 @@ public class SelectStrand : MonoBehaviour
         s_strands.Clear();
     }
 
-    public static void HighlightStrand(GameObject go)
+    /*public static void HighlightStrand(GameObject go)
     {
         int strandId = -1;
         if (go.GetComponent<DNAComponent>())
@@ -133,6 +132,12 @@ public class SelectStrand : MonoBehaviour
         
         if (strandId == -1) { return; }
         HighlightStrand(strandId);
+    }*/
+
+    public static void AddStrand(int strandId)
+    {
+        s_strandDict.TryGetValue(strandId, out Strand strand);
+        s_strands.Add(strand);
     }
 
     // TEST

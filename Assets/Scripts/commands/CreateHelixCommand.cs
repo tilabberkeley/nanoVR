@@ -32,16 +32,16 @@ public class CreateHelixCommand : ICommand
         _grid = grid;
     }
 
-    public void Do()
+    public async void Do()
     {
         Helix helix = _grid.AddHelix(_id, _startPoint, _length, _orientation, _gridComp);
-        helix.ExtendAsync(_length);
+        await helix.ExtendAsync(_length);
     }
 
-    public void Redo()
+    public async void Redo()
     {
         Helix helix = _grid.AddHelix(_id, _startPoint, _length, _orientation, _gridComp);
-        helix.ExtendAsync(_length);
+        await helix.ExtendAsync(_length);
     }
 
     public void Undo()

@@ -529,27 +529,33 @@ public abstract class DNAGrid
     public void DeleteGrid()
     {
         // Delete Grid object
-        /*if (!IsEmpty())
+        if (!IsEmpty())
         {
             Debug.Log("Cannot delete grid while strands remain");
             return;
         }
 
-        for (int i = 0; i < Length; i++)
+        for (int i = 0; i < _length; i++)
         {
-            for (int j = 0; j < Width; j++)
+            for (int j = 0; j < _width; j++)
             {
-                GridComponent gc = Grid2D[i, j];
-                if (gc.Helix != null)
-                {
-                    gc.Helix.DeleteHelix();
-                }
+                GridComponent gc = _grid2D[i, j];
+                gc.Helix?.DeleteHelix();
+#if UNITY_EDITOR
+                GameObject.DestroyImmediate(gc.gameObject);
+#else
                 GameObject.Destroy(gc.gameObject);
+#endif
+
             }
         }
 
         s_gridDict.Remove(_id);
-        s_gridCopies[_id] -= 1;*/
+        s_gridCopies[_id] -= 1;
+        if (s_gridCopies[_id] < 0)
+        {
+            s_gridCopies.Remove(_id);
+        }
     }
 
     /// <summary>
@@ -557,18 +563,18 @@ public abstract class DNAGrid
     /// </summary>
     public bool IsEmpty()
     {
-        return false;
-        /*for (int i = 0; i < Length; i++)
+        //return false;
+        for (int i = 0; i < _length; i++)
         {
-            for (int j = 0; j < Width; j++)
+            for (int j = 0; j < _width; j++)
             {
-                GridComponent gc = Grid2D[i, j];
-                if (gc.Helix != null)
+                GridComponent gc = _grid2D[i, j];
+                if (gc.Helix != null && !gc.Helix.IsEmpty())
                 {
                     return false;
                 }
             }
         }
-        return true;*/
+        return true;
     }
 }

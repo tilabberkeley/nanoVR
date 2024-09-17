@@ -67,7 +67,7 @@ public class DrawGrid : MonoBehaviour
         else
         {
             s_gridDict.Add(gridId, grid); 
-            s_gridCopies.Add(s_numGrids.ToString(), 0);
+            s_gridCopies.Add(gridId, 0);
             ObjectListManager.CreateGridButton(gridId);
             s_numGrids += 1;
         }

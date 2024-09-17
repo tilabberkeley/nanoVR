@@ -646,6 +646,7 @@ public static class DrawPoint
         loopoutComponent.PrevStrandId = prevStrandId;
         loopoutComponent.Color = prevNucleotideComponent.Color;
         loopoutComponent.SavedColor = nextNucleotideComponent.Color;
+        loopoutComponent.IsXover = false;
 
         // Assign to meshGO that has the loopout component.
         prevNucleotideComponent.Xover = meshGO;

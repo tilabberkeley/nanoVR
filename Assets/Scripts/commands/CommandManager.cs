@@ -31,7 +31,7 @@ public static class CommandManager
         if (s_undoStack.Count > 0)
         {
             ICommand command = s_undoStack.Pop();
-            if (command != null) { command.Undo(); }
+            command?.Undo();
             s_redoStack.Push(command);
             //CommandUpdate();
         }
@@ -45,7 +45,7 @@ public static class CommandManager
         if (s_redoStack.Count > 0)
         {
             ICommand command = s_redoStack.Pop();
-            if (command != null) { command.Redo(); }
+            command?.Redo();
             s_undoStack.Push(command);
             //CommandUpdate();
         }
@@ -54,8 +54,9 @@ public static class CommandManager
     /// <summary>
     /// Whenever a command is done, undone, or redone, CommandUpdate will be called.
     /// </summary>
-    private static void CommandUpdate()
+    private static void CommandUpdate(List<Strand> updatedStrands)
     {
+        if (updatedStrands.Count == 0) { return; }
         DrawCrossoverSuggestion.ClearCrossoverSuggestions();
         DrawCrossoverSuggestion.CheckForCrossoverSuggestions();
     }
