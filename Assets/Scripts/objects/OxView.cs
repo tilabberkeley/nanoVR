@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -101,7 +102,7 @@ public class OxView
             int prime5 = -1;
             int prime3 = 1;
 
-            // Iterate backwards as per observed in an oxDNA export sample
+            // Iterate backwards as seen in an oxDNA export sample
             for (int i = strand.Monomers.Count - 1; i >= 0; i--)
             {
                 OxViewMonomer monomer = strand.Monomers[i];

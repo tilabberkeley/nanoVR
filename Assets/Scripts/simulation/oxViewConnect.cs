@@ -2,6 +2,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.IO;
+using System.Threading;
 using UnityEngine;
 using WebSocketSharp;
 using static GlobalVariables;
@@ -12,6 +13,14 @@ public class oxViewConnect : MonoBehaviour
     private string _connectionURL = "wss://nanobase.org:8989/";
     private WebSocket _ws;
     private int messageCount;
+
+    private SynchronizationContext _unityContext;
+
+    private void Awake()
+    {
+        // Store the main thread's synchronization context for use later
+        _unityContext = SynchronizationContext.Current;
+    }
 
     public void Connect()
     {
@@ -94,6 +103,11 @@ public class oxViewConnect : MonoBehaviour
 
         string datFile = message["dat_file"].ToString();
 
-        oxView.SimulationUpdate(datFile);
+        // Use the synchronization context to ensure the SimulationUpdate runs on the main Unity thread
+        // This is to ensure that unity API calls are not done outside of unity's sync context.
+        _unityContext.Post(_ =>
+        {
+            oxView.SimulationUpdate(datFile);
+        }, null);
     }
 }
