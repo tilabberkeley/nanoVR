@@ -10,10 +10,9 @@ using static GlobalVariables;
 public class oxViewConnect : MonoBehaviour
 {
     [SerializeField]
-    private string _connectionURL = "wss://nanobase.org:8989/";
+    private const string _connectionURL = "wss://nanobase.org:8989/";
     private WebSocket _ws;
-    private int messageCount;
-
+    private JObject _settings;
     private SynchronizationContext _unityContext;
 
     private void Awake()
@@ -22,18 +21,34 @@ public class oxViewConnect : MonoBehaviour
         _unityContext = SynchronizationContext.Current;
     }
 
-    public void Connect()
+    public void Connect(JObject settings)
     {
+        _settings = settings;
+
         _ws = new WebSocket(_connectionURL);
         _ws.OnOpen += SendOrigami;
+        _ws.OnOpen += (sender, e) =>
+        {
+            _unityContext.Post(_ =>
+            {
+                Debug.Log("Connected");
+            }, null);
+        };
         _ws.OnError += (sender, e) =>
         {
-            Debug.Log("Connection Error " + e.Message);
+            _unityContext.Post(_ =>
+            {
+                Debug.Log("Connection Error " + e.Message);
+            }, null);
+            
         };
         _ws.OnClose += (sender, e) =>
         {
-            Debug.Log("Reason " + e.Reason);
-            Debug.Log("Error code " + e.Code);
+            _unityContext.Post(_ =>
+            {
+                Debug.Log("Reason " + e.Reason);
+                Debug.Log("Error code " + e.Code);
+            }, null);
         };
         _ws.OnMessage += SimulationUpdate;
 
@@ -45,6 +60,11 @@ public class oxViewConnect : MonoBehaviour
 
     private void SendOrigami(object sender, EventArgs e)
     {
+        if (_settings == null)
+        {
+            throw new ArgumentException("Missing simulation settings");
+        }
+
         string datFile = oxView.DatFile;
         string topFile = oxView.TopFile;
 
@@ -52,36 +72,7 @@ public class oxViewConnect : MonoBehaviour
         JObject initialMessage = new JObject(
             new JProperty("top_file", topFile),
             new JProperty("dat_file", datFile),
-            new JProperty("settings", new JObject(
-                new JProperty("T", "20C"),
-                new JProperty("steps", "1000000"),
-                new JProperty("salt_concentration", "1"),
-                new JProperty("interaction_type", "DNA2"),
-                new JProperty("print_conf_interval", "10000"),
-                new JProperty("print_energy_every", "10000"),
-                new JProperty("thermostat", "brownian"),
-                new JProperty("dt", "0.003"),
-                new JProperty("diff_coeff", "2.5"),
-                new JProperty("max_density_multiplier", "10"),
-                new JProperty("sim_type", "MD"),
-                new JProperty("T_units", "C"),
-                new JProperty("backend", "CUDA"),
-                new JProperty("backend_precision", "mixed"),
-                new JProperty("time_scale", "linear"),
-                new JProperty("verlet_skin", 0.5),
-                new JProperty("use_average_seq", 0),
-                new JProperty("refresh_vel", 1),
-                new JProperty("CUDA_list", "verlet"),
-                new JProperty("restart_step_counter", 1),
-                new JProperty("newtonian_steps", 103),
-                new JProperty("CUDA_sort_every", 0),
-                new JProperty("use_edge", 1),
-                new JProperty("edge_n_forces", 1),
-                new JProperty("cells_auto_optimisation", "true"),
-                new JProperty("reset_com_momentum", "true"),
-                new JProperty("max_backbone_force", "5"),
-                new JProperty("max_backbone_force_far", "10")
-            ))
+            new JProperty("settings", _settings)
         );
 
         string message = initialMessage.ToString();
@@ -91,7 +82,10 @@ public class oxViewConnect : MonoBehaviour
 
     private void SimulationUpdate(object sender, MessageEventArgs e)
     {
-        Debug.Log(e.Data.Substring(0, 50));
+        _unityContext.Post(_ =>
+        {
+            Debug.Log(e.Data.Substring(0, 50));
+        }, null);
 
         JObject message = JObject.Parse(e.Data);
 
