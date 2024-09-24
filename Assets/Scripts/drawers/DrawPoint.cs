@@ -312,16 +312,9 @@ public static class DrawPoint
         return children;
     }
 
-    public static void SetBackbone(GameObject cylinder, int id, int helixId, int direction, Vector3 start, Vector3 end, bool hideBackbone = false, bool isOxview = false)
+    public static void SetBackbone(GameObject cylinder, int id, int helixId, int direction, Vector3 start, Vector3 end, bool hideBackbone = false, bool isOxView = false)
     {
         cylinder.name = "Backbone" + id;
-
-        BackBoneComponent backBoneComponent = cylinder.GetComponent<BackBoneComponent>();
-        backBoneComponent.Id = id;
-        backBoneComponent.HelixId = helixId;
-        backBoneComponent.Direction = direction;
-        backBoneComponent.IsOxview = isOxview;
-        backBoneComponent.IsBackbone = true;
 
         // Scale        
         float dist = Vector3.Distance(end, start);
@@ -332,10 +325,20 @@ public static class DrawPoint
 
         // Rotation
         cylinder.transform.up = end - start;
+
+        cylinder.SetActive(!hideBackbone);
+
+        BackBoneComponent backBoneComponent = cylinder.GetComponent<BackBoneComponent>();
+        backBoneComponent.Id = id;
+        backBoneComponent.HelixId = helixId;
+        backBoneComponent.Direction = direction;
+        backBoneComponent.IsOxview = isOxView;
+        backBoneComponent.IsBackbone = true;
+
+        
         //cylinder.transform.SetParent(null);
         SaveGameObject(cylinder);
         cylinder.isStatic = true;
-        cylinder.SetActive(!hideBackbone);
     }
 
     /// <summary>

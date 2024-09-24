@@ -116,9 +116,8 @@ public class FileImport : MonoBehaviour
             }
             else if (fileType.Equals(".oxview"))
             {
-                // Parse cadnano JSON
+                // Parse oxview JSON
                 loadingMenu.enabled = true;
-                OxViewImport(fileContent);
                 OxViewImport(fileContent);
             }
             else
@@ -433,7 +432,7 @@ public class FileImport : MonoBehaviour
         }
         sw.Stop();
         loadingMenu.enabled = false;
-        Debug.Log(string.Format("OxView import took {0} ms to complete", sw.ElapsedMilliseconds));
+        // Debug.Log(string.Format("OxView import took {0} ms to complete", sw.ElapsedMilliseconds));
     }
 
     /// <summary>

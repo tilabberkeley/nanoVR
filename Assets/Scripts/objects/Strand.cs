@@ -542,6 +542,11 @@ public class Strand
     /// </summary>
     public void SetDomains()
     {
+        if (_isOxview)
+        {
+            // Don't create domains for oxivew
+            return;
+        }
         ResetDomains();
     }
 
@@ -550,6 +555,12 @@ public class Strand
     /// </summary>
     private void ResetDomains()
     {
+        if (_isOxview)
+        {
+            // Don't create domains for oxivew
+            return;
+        }
+
         DeleteDomains();
 
         bool xoverBefore = false;

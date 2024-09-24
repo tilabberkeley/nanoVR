@@ -25,14 +25,10 @@ public class oxViewConnect : MonoBehaviour
     public void Connect()
     {
         _ws = new WebSocket(_connectionURL);
-        _ws.OnOpen += (sender, e) =>
-        {
-            Debug.Log("Connected");
-        };
         _ws.OnOpen += SendOrigami;
         _ws.OnError += (sender, e) =>
         {
-            Debug.Log("Error " + e.Message);
+            Debug.Log("Connection Error " + e.Message);
         };
         _ws.OnClose += (sender, e) =>
         {
@@ -91,13 +87,11 @@ public class oxViewConnect : MonoBehaviour
         string message = initialMessage.ToString();
 
         _ws.Send(message);
-
-        Debug.Log(message);
     }
 
     private void SimulationUpdate(object sender, MessageEventArgs e)
     {
-        Debug.Log("Recieved " + e.Data.Substring(0, 20));
+        Debug.Log(e.Data.Substring(0, 50));
 
         JObject message = JObject.Parse(e.Data);
 
