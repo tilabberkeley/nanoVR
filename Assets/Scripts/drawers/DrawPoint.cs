@@ -677,5 +677,29 @@ public static class DrawPoint
 
         return domainComponent;
     }
+
+    public static GameObject MakeHelixCylinder(Vector3 startPos, Vector3 endPos)
+    {
+        GameObject cylinder =
+                   Instantiate(Xover,
+                   Vector3.zero,
+                   Quaternion.identity) as GameObject;
+        cylinder.name = "helixCylinder";
+        Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
+
+        // Position
+        cylinder.transform.position = (startPos + endPos) / 2.0F;
+
+        // Rotation
+        Vector3 dirV = Vector3.Normalize(endPos - startPos);
+        Vector3 rotAxisV = dirV + cylDefaultOrientation;
+        rotAxisV = Vector3.Normalize(rotAxisV);
+        cylinder.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
+
+        // Scale        
+        float dist = Vector3.Distance(endPos, startPos);
+        cylinder.transform.localScale = new Vector3(Utils.RADIUS, dist / 2, Utils.RADIUS);
+        return cylinder;
+    }
 }
 

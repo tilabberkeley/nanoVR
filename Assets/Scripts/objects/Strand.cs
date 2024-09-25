@@ -863,7 +863,25 @@ public class Strand
 
         foreach (GameObject xover in _xovers)
         {
+            xover.SetActive(true);
             xover.GetComponent<XoverComponent>().NucleotideView();
+        }
+    }
+
+    /// <summary>
+    /// Converts strand to Helix view by hiding all beziers and xovers.
+    /// Hiding nucleotides/backbones are handled by individual Helices.
+    /// </summary>
+    public void ToHelixView()
+    {
+        foreach (DomainComponent domain in _domains)
+        {
+            domain.HideBezier();
+        }
+        foreach (GameObject xover in _xovers)
+        {
+            xover.GetComponent<XoverComponent>().NucleotideView();
+            xover.SetActive(false);
         }
     }
 

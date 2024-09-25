@@ -107,7 +107,7 @@ public class DomainComponent : MonoBehaviour
         }
     }
 
-    private void HideBezier()
+    public void HideBezier()
     {
         foreach (GameObject bezier in _beziers)
         {

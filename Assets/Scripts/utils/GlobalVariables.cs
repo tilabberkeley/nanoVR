@@ -86,9 +86,9 @@ public static class GlobalVariables
     public static string DNA8634 { get { return _DNA8634.text; } }
 
     // Premade scadnano shapes
-    private static TextAsset _square = Resources.Load("ShapeFiles/square.sc") as TextAsset;
-    private static TextAsset _triangle = Resources.Load("ShapeFiles/triangle.sc") as TextAsset;
-    private static TextAsset _6hb = Resources.Load("ShapeFiles/6hb.sc") as TextAsset;
+    private static TextAsset _square = Resources.Load("ShapeFiles/square") as TextAsset;
+    private static TextAsset _triangle = Resources.Load("ShapeFiles/triangle") as TextAsset;
+    private static TextAsset _6hb = Resources.Load("ShapeFiles/6hb") as TextAsset;
     public static string SQUARE_SC { get { return _square.text; } }
     public static string TRIANGLE_SC { get { return _triangle.text; } }
     public static string SIXHB_SC { get { return _6hb.text; } }

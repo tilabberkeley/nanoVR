@@ -17,15 +17,15 @@ public class ImportShapes : MonoBehaviour
         Instance = this;
     }
 
-    public async Task ImportSquare()
+    public async void ImportSquare()
     {
         await ImportShape(GlobalVariables.SQUARE_SC);
     }
-    public async Task ImportTriangle()
+    public async void ImportTriangle()
     {
         await ImportShape(GlobalVariables.TRIANGLE_SC);
     }
-    public async Task Import6HB()
+    public async void Import6HB()
     {
         await ImportShape(GlobalVariables.SIXHB_SC);
     }

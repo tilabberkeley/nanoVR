@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using UnityEngine;
 using static GlobalVariables;
@@ -75,7 +76,8 @@ public class Helix
     private Vector3 _lastPositionA;
     private Vector3 _lastPositionB;
 
-    Stopwatch sw = new Stopwatch();
+    private GameObject _helixViewCylinder;
+    public GameObject HelixViewCylinder { get { return _helixViewCylinder; } }
 
     // Helix constructor.
     public Helix(int id, string orientation, int length, GridComponent gridComponent)
@@ -482,6 +484,45 @@ public class Helix
     }
 
     /// <summary>
+    /// Creates cylinder representing Helix in Helix view.
+    /// Calculates cylinder lenght by getting position of smallest indexed nucleotide in a Strand
+    /// and position of largest indexed nucleotide in a Strand.
+    /// </summary>
+    public void CreateCylinder()
+    {
+        int startIdx = 0, endIdx = 0;
+
+        for (int i = 0; i < _nucleotidesA.Count; i++)
+        {
+            NucleotideComponent nuclA = _nucleotidesA[i].GetComponent<NucleotideComponent>();
+            NucleotideComponent nuclB = _nucleotidesB[i].GetComponent<NucleotideComponent>();
+
+            if (nuclA.Selected)
+            {
+                startIdx = Math.Min(startIdx, nuclA.Id);
+                endIdx = Math.Max(endIdx, nuclA.Id);
+            }
+            if (nuclB.Selected)
+            {
+                startIdx = Math.Min(startIdx, nuclB.Id);
+                endIdx = Math.Max(endIdx, nuclB.Id);
+            }
+        }
+
+        Vector3 startPos = _nucleotidesA[startIdx].transform.position;
+        Vector3 endPos = _nucleotidesA[endIdx].transform.position;
+        _helixViewCylinder = DrawPoint.MakeHelixCylinder(startPos, endPos);
+    }
+
+    public void DestroyCylinder()
+    {
+        if (_helixViewCylinder != null)
+        {
+            GameObject.Destroy(_helixViewCylinder);
+        }
+    }
+
+    /// <summary>
     /// Returns the helices that neighbor this helix.
     /// </summary>
     /// <returns>List of neighboring helices.</returns>
@@ -656,37 +697,31 @@ public class Helix
         }
     }
 
-    public void ReflectVerticalLocal(Vector3 midPoint, Vector3 axis)
+    public void ReflectVerticalLocal(Vector3 displacement)
     {
-        ReflectLocal(_nucleotidesA, midPoint, axis);
-        ReflectLocal(_nucleotidesB, midPoint, axis);
-        ReflectLocal(_backbonesA, midPoint, axis);
-        ReflectLocal(_backbonesB, midPoint, axis);
+        ReflectLocal(_nucleotidesA, displacement);
+        ReflectLocal(_nucleotidesB, displacement);
+        ReflectLocal(_backbonesA, displacement);
+        ReflectLocal(_backbonesB, displacement);
     }
 
-    public void ReflectHorizontalLocal(Vector3 midPoint, Vector3 axis)
+    public void ReflectHorizontalLocal(Vector3 displacement)
     {
-        ReflectLocal(_nucleotidesA, midPoint, axis);
-        ReflectLocal(_nucleotidesB, midPoint, axis);
-        ReflectLocal(_backbonesA, midPoint, axis);
-        ReflectLocal(_backbonesB, midPoint, axis);
+        ReflectLocal(_nucleotidesA, displacement);
+        ReflectLocal(_nucleotidesB, displacement);
+        ReflectLocal(_backbonesA, displacement);
+        ReflectLocal(_backbonesB, displacement);
     }
 
-    private void ReflectLocal(List<GameObject> gos, Vector3 midPoint, Vector3 axis)
+    private void ReflectLocal(List<GameObject> gos, Vector3 displacement)
     {
         foreach (GameObject go in gos)
         {
             Transform transform = go.transform;
             Vector3 objectPosition = transform.position;
 
-            // Calculate the vector from the reflection point to the object
-            Vector3 relativePosition = objectPosition - midPoint;
-
-            // Reflect the position vector around the grid's local Y-axis
-            Vector3 reflectedPosition = Vector3.Reflect(relativePosition, axis);
-
             // Calculate the new world position by adding the reflected vector to the reflection point
-            transform.position = midPoint + reflectedPosition;
+            transform.position = objectPosition + displacement;
         }
     }
 }

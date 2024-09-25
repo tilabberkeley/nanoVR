@@ -107,14 +107,15 @@ public class CopyPaste : MonoBehaviour
                 bool allValid = true;
                 foreach (Strand strand in s_copied)
                 {
-                    List<GameObject> nucleotides = GetNucleotides(strand, go);
+                    List<GameObject> nucleotides = GetNucleotides(strand, go, s_copied[0].Head);
                     bool valid = IsValid(nucleotides);
                     allValid &= valid;
 
-                    // Can't add null to list
-                    if (valid) {
-                        s_currNucleotides.AddRange(nucleotides);
+                    if (!valid) {
+                        Reset();
+                        break;
                     }
+                    s_currNucleotides.AddRange(nucleotides);
                     newStrandNucls.Add(nucleotides);
                     Highlight.HighlightNucleotideSelection(nucleotides, valid);
                 }
@@ -122,7 +123,6 @@ public class CopyPaste : MonoBehaviour
                 if (triggerValue && allValid)
                 {
                     triggerReleased = false;
-                    Highlight.UnhighlightNucleotideSelection(s_currNucleotides, false);
                     for (int i = 0; i < newStrandNucls.Count; i++)
                     {
 
@@ -200,12 +200,14 @@ public class CopyPaste : MonoBehaviour
 
     public void Reset()
     {
+        UnhighlightNucleotideSelection(s_currNucleotides, false);
         s_currNucleotides.Clear();
+        newStrandNucls.Clear();
         pasting = false;
         //s_copied.Clear();
     }
 
-    public static List<GameObject> GetNucleotides(Strand strand, GameObject newGO)
+    public static List<GameObject> GetNucleotides(Strand strand, GameObject newGO, GameObject firstStrandHead)
     {
         /*if (strand.Head.GetComponent<NucleotideComponent>().Direction != newGO.GetComponent<NucleotideComponent>().Direction)
         {
@@ -272,9 +274,12 @@ public class CopyPaste : MonoBehaviour
         Helix newHelix = s_helixDict[newGO.GetComponent<NucleotideComponent>().HelixId];
         GridPoint newGP = newHelix._gridComponent.GridPoint;
         DNAGrid grid = newHelix._gridComponent.Grid;
+        int firstStrandHeadIdx = firstStrandHead.GetComponent<NucleotideComponent>().Id;
         int newX = newGP.X;
         int newY = newGP.Y;
-        int offset = newGO.GetComponent<NucleotideComponent>().Id - head.GetComponent<NucleotideComponent>().Id;
+        int newGOOffset = newGO.GetComponent<NucleotideComponent>().Id - head.GetComponent<NucleotideComponent>().Id;
+        int firstStrandHeadOffset = firstStrandHeadIdx - head.GetComponent<NucleotideComponent>().Id;
+        int offset = newGOOffset - firstStrandHeadOffset;
 
         for (int i = 0; i < xyDistances.Count; i++)
         {

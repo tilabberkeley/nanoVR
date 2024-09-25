@@ -1,10 +1,8 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
-
 using System.Collections.Generic;
-using UnityEngine;
 public static class CommandManager
 {
     private static Stack<ICommand> s_undoStack = new Stack<ICommand>();

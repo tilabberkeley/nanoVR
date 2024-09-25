@@ -19,6 +19,8 @@ using Debug = UnityEngine.Debug;
 using System.Threading.Tasks;
 using System.Text;
 using Newtonsoft.Json;
+using UnityEngine.UIElements;
+using static Facebook.WitAi.Data.AudioEncoding;
 
 /// <summary>
 /// Handles all file importing into nanoVR.
@@ -111,7 +113,6 @@ public class FileImport : MonoBehaviour
             if (fileType.Equals(".sc") || fileType.Equals(".sc.txt"))
             {
                 //StartCoroutine(ParseSC(@fileContent, false));
-                loadingMenu.enabled = true;
                 DoFileImport(fileContent);
             }
             else if (fileType.Equals(".oxview"))
@@ -148,7 +149,7 @@ public class FileImport : MonoBehaviour
     /// <returns>List of grids created</returns>
     public async Task<List<DNAGrid>> ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
     {
-        st.Start();
+        loadingMenu.enabled = true;
         List<DNAGrid> grids = new List<DNAGrid>();
         JObject origami = JObject.Parse(fileContents);
         JArray helices = JArray.Parse(origami["helices"].ToString());
@@ -231,20 +232,7 @@ public class FileImport : MonoBehaviour
         // Parse strands.
         CoRunner.Instance.Run(ParseStrands(strands, lastHelixId));
 
-        // Abstracts to Strand View if there are more than MAX_NUCLEOTIDES in scene.
-        // This helps with performance.
-        if (GlobalVariables.allGameObjects.Count > MAX_NUCLEOTIDES)
-        {
-            ViewingPerspective.ViewStrand();
-        }
-        else
-        {
-            ViewingPerspective.ViewNucleotide();
-        }
-
-        loadingMenu.enabled = false;
-        st.Stop();
-        //Debug.Log(string.Format("Overall sc import took {0} ms to complete", st.ElapsedMilliseconds));
+        
 
         // Hide grid circles (unselect grids)
         foreach (DNAGrid grid in grids)
@@ -260,10 +248,20 @@ public class FileImport : MonoBehaviour
     /// </summary>
     private async Task ParseHelices(JArray helices, bool isMultiGrid)
     {
+        int startHelixId = s_numHelices;
+
         for (int i = 0; i < helices.Count; i++)
         { 
             JArray coord = JArray.Parse(helices[i]["grid_position"].ToString());
             int length = (int) helices[i]["max_offset"];
+            int helixId = s_numHelices;
+
+            // Read helixId from file if available
+            if (helices[i]["idx"] != null)
+            {
+                helixId = (int) helices[i]["idx"] + startHelixId;
+            }
+
             string gridName;
             if (helices[i]["group"] != null)
             {
@@ -309,14 +307,17 @@ public class FileImport : MonoBehaviour
             int xInd = grid.GridXToIndex(xGrid);
             int yInd = grid.GridYToIndex(yGrid);
             GridComponent gc = grid.Grid2D[xInd, yInd];
-            Helix helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
+            Helix helix = grid.AddHelix(helixId, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
             bool hideNucleotides = true;
             await helix.ExtendAsync(length, hideNucleotides);
         }
     }
 
     /// <summary>
-    /// Coroutine to parse and draw Strands from scadnano file
+    /// Coroutine to parse and draw Strands from scadnano file.
+    /// Also handles converting to Strand view if necessary. We do this 
+    /// here since Coroutines are async and we must wait for all Strands
+    /// to be parsed before going to next steps.
     /// </summary>
     private IEnumerator ParseStrands(JArray strands, int lastHelixId)
     {
@@ -324,7 +325,11 @@ public class FileImport : MonoBehaviour
         for (int i = 0; i < strands.Count; i++)
         {
             JArray domains = JArray.Parse(strands[i]["domains"].ToString());
-            string sequence = CleanSlash(strands[i]["sequence"].ToString());
+            string sequence = "";
+            if (strands[i]["sequence"] != null)
+            {
+                sequence = CleanSlash(strands[i]["sequence"].ToString());
+            }
             string hexColor = CleanSlash(strands[i]["color"].ToString());
             ColorUtility.TryParseHtmlString(hexColor, out Color color);
             int strandId = s_numStrands;
@@ -354,68 +359,147 @@ public class FileImport : MonoBehaviour
                     Helix helix = s_helixDict[helixId];
 
                     // Store deletions and insertions.
-                    for (int k = 0; k < deletions.Count; k++)
+                    try
                     {
-                        GameObject nt = helix.GetNucleotide((int) deletions[k], Convert.ToInt32(forward));
-                        sDeletions.Add(nt);
+                        for (int k = 0; k < deletions.Count; k++)
+                        {
+                            GameObject nt = helix.GetNucleotide((int)deletions[k], Convert.ToInt32(forward));
+                            sDeletions.Add(nt);
+                        }
+                        for (int k = 0; k < insertions.Count; k++)
+                        {
+                            GameObject nt = helix.GetNucleotide((int)insertions[k][0], Convert.ToInt32(forward));
+                            sInsertions.Add((nt, (int)insertions[k][1]));
+                        }
                     }
-                    for (int k = 0; k < insertions.Count; k++)
+                    catch (Exception e)
                     {
-                        GameObject nt = helix.GetNucleotide((int) insertions[k][0], Convert.ToInt32(forward));
-                        sInsertions.Add((nt, (int) insertions[k][1]));
+                        Debug.Log("Exception when parsing deletions and insertions");
+                        Debug.Log(e.Message);
                     }
 
                     // Store domains of strand.
-                    List<GameObject> domain = helix.GetHelixSub(startId, endId, Convert.ToInt32(forward));
-                    nucleotides.InsertRange(0, domain);
+                    try
+                    {
+                        List<GameObject> domain = helix.GetHelixSub(startId, endId, Convert.ToInt32(forward));
+                        nucleotides.InsertRange(0, domain);
 
-                    // Store xover endpoints.
-                    if (j == 0)
-                    {
-                        xoverEndpoints.Insert(0, domain[0]);
+                        // Store xover endpoints.
+                        if (j == 0
+                            // In case there are 5' extensions, second domain in domains list is first helix-bound domain
+                            || (j == 1 && domains[0]["extension_num_bases"] != null))
+                        {
+                            xoverEndpoints.Insert(0, domain[0]);
+                        }
+                        else if (j == domains.Count - 1
+                                 // In case there are 3' extensions, second to last domain in domains list is last helix-bound domain
+                                 || (j == domains.Count - 2 && domains[domains.Count - 1]["extension_num_bases"] != null)) 
+                        {
+                            xoverEndpoints.Insert(0, domain.Last());
+                        }
+                        else
+                        {
+                            xoverEndpoints.Insert(0, domain.Last());
+                            xoverEndpoints.Insert(0, domain[0]);
+                        }
+
                     }
-                    else if (j == domains.Count - 1)
+                    catch (Exception e)
                     {
-                        xoverEndpoints.Insert(0, domain.Last());
-                    }
-                    else
-                    {
-                        xoverEndpoints.Insert(0, domain.Last());
-                        xoverEndpoints.Insert(0, domain[0]);
+                        Debug.Log("Exception when getting domain nucleotides / storing xover endpoints");
+                        Debug.Log(e.Message);
                     }
                 }
-                else // Parse loopout
+                else if (domains[j]["loopout"] != null)
                 {
                     int loopoutLength = (int) domains[j]["loopout"];
                     GameObject nextEndpoint = xoverEndpoints[0];
                     loopouts[nextEndpoint] = loopoutLength;
                 }
+                else
+                {
+                    // Handle extensions
+                    /*int extensionLength = (int) domains[j]["extension_num_bases"];
+                    NucleotideComponent currHead = xoverEndpoints[0].GetComponent<NucleotideComponent>();
+                    int currHeadDirection = currHead.Direction;
+                    int currHeadIndex = currHead.Id;
+                    DNAGrid grid = s_gridDict[currHead.GridId];
+                    GridComponent currHeadGC = s_helixDict[currHead.HelixId].GridComponent;
+                    GridComponent extensionGC = FindAvailableGridPoint(currHeadGC);
+                    Helix helix = grid.AddHelix(s_numHelices, new Vector3(extensionGC.GridPoint.X, extensionGC.GridPoint.Y, 0), 64, PLANE, extensionGC);
+                    await helix.ExtendAsync(length, true);
+                    List<GameObject> domain = helix.GetHelixSub(startId, endId, Convert.ToInt32(forward));
+                    nucleotides.InsertRange(0, domain);*/
+                }
             }
 
             Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
 
-            // Add xovers and loopouts to Strand object.
-            for (int j = 1; j < xoverEndpoints.Count; j += 2)
+            try
             {
-                GameObject nextGO = xoverEndpoints[j];
-                if (loopouts.ContainsKey(nextGO))
+                // Add xovers and loopouts to Strand object.
+                for (int j = 1; j < xoverEndpoints.Count; j += 2)
                 {
-                    // TODO: Check this works
-                    strand.Xovers.Add(DrawLoopout.CreateLoopoutHelper(xoverEndpoints[j - 1], nextGO, loopouts[nextGO]));
-                }
-                else
-                {
-                    strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], nextGO));
+                    GameObject nextGO = xoverEndpoints[j];
+                    Debug.Log("prevGO: " + xoverEndpoints[j - 1].GetComponent<NucleotideComponent>().Id + "; Direction: " + xoverEndpoints[j - 1].GetComponent<NucleotideComponent>().Direction);
+
+                    Debug.Log("nextGO: " + nextGO.GetComponent<NucleotideComponent>().Id + "; Direction: " + nextGO.GetComponent<NucleotideComponent>().Direction);
+
+                    if (loopouts.ContainsKey(nextGO))
+                    {
+                        // TODO: Check this works
+                        strand.Xovers.Add(DrawLoopout.CreateLoopoutHelper(xoverEndpoints[j - 1], nextGO, loopouts[nextGO]));
+                    }
+                    else
+                    {
+                        strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], nextGO));
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                Debug.Log("Exception when adding xovers/loopouts to strand");
+                Debug.Log(e.Message);
+            }
 
-            strand.SetDomains();
+            try
+            {
+                strand.SetDomains();
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Exception when setting strand domains");
+                Debug.Log(e.Message);
+            }
 
-            // Set sequence and check for mismatches with complement strands.
-            strand.Sequence = sequence;
-            CheckMismatch(strand);
+            try
+            {
+                // Set sequence and check for mismatches with complement strands.
+                strand.Sequence = sequence;
+                CheckMismatch(strand);
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Exception when setting strand sequence and checking mismatch");
+                Debug.Log(e.Message);
+            }
+
             yield return null;
         }
+
+        // Abstracts to Strand View if there are more than MAX_NUCLEOTIDES in scene.
+        // This helps with performance.
+        if (GlobalVariables.allGameObjects.Count > MAX_NUCLEOTIDES)
+        {
+            CoRunner.Instance.Run(ViewingPerspective.ViewStrand());
+        }
+        else
+        {
+            CoRunner.Instance.Run(ViewingPerspective.ViewNucleotide());
+        }
+
+        loadingMenu.enabled = false;
+        //Debug.Log(string.Format("Overall sc import took {0} ms to complete", st.ElapsedMilliseconds));
     }
 
     private async Task OxviewImport(string fileContents)
