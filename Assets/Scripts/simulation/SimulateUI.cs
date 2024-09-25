@@ -14,97 +14,114 @@ public class SimulateUI : MonoBehaviour
     /* Simulation UI */
     [SerializeField] private Canvas _simulatePanel;
 
-    [SerializeField] private Button _OKButton;
+    [SerializeField] private Button _simulateButton;
     [SerializeField] private Button _cancelButton;
 
     // Input fields for simulation
     private const string T_DEFAULT = "20";
     [SerializeField] private TMP_InputField _TInput;
-    private string _t;
 
     private const string STEPS_DEFAULT = "1000000";
     [SerializeField] private TMP_InputField _stepsInput;
-    private string _steps;
 
     private const string SALT_DEFAULT = "1";
     [SerializeField] private TMP_InputField _saltInput;
-    private string _salt;
 
-    [SerializeField] private Dropdown _interactionTypeDropdown;
-    private string _interactionType;
+    [SerializeField] private TMP_Dropdown _interactionTypeDropdown;
 
-    private const string PRINT_CONF_INTERVAL = "10000";
+    private const string PRINT_CONF_INTERVAL_DEFAULT = "10000";
     [SerializeField] private TMP_InputField _printConfIntervalInput;
-    private string _printConfInterval;
 
-    private const string PRINT_ENERGY_INTERVAL = "10000";
+    private const string PRINT_ENERGY_INTERVAL_DEFAULT = "10000";
     [SerializeField] private TMP_InputField _printEnergyIntervalInput;
-    private string _printEnergy;
 
-    [SerializeField] private Dropdown _thermostatDropdown;
-    private string _thermostat;
+    [SerializeField] private TMP_Dropdown _thermostatDropdown;
 
     private const string DT_DEFAULT = "0.003";
     [SerializeField] private TMP_InputField _dtInput;
-    private string _dt;
 
     private const string DIFF_COEFF_DEFAULT = "2.5";
     [SerializeField] private TMP_InputField _diffCoeffInput;
-    private string _diffCoeff;
 
     private const string MAX_DENSITY_MULTIPLIER_DEFAULT = "10.0";
     [SerializeField] private TMP_InputField _maxDensityMultiplierInput;
-    private string _maxDensityMultiplier;
 
+    // TODO: Add compatability to toggle relax settings. Need to remove backbone force fields from the JSON.
     [SerializeField] private Toggle _relaxSettingsInput;
-    private string _relaxSettings;
 
     private const string BACKBONE_FORCE_DEFAULT = "5.0";
     [SerializeField] private TMP_InputField _backboneForceInput;
-    private string _backboneForce;
 
     private const string BACKBONE_FORCE_FAR_DEFAULT = "10.0";
     [SerializeField] private TMP_InputField _backboneForceFarInput;
-    private string _backboneForceFar;
 
     /* Connect manager */
     [SerializeField] private GameObject _oxserveConnectionManager;
     private oxViewConnect _oxViewConnect;
 
-    // Start is called before the first frame update
     void Start()
     {
         _simulatePanel.enabled = false;
         _oxViewConnect = _oxserveConnectionManager.GetComponent<oxViewConnect>();
 
         // Add button listeners
-
+        _menuSimulateButton.onClick.AddListener(() => ShowSimulationUI());
+        _simulateButton.onClick.AddListener(() => Simulate());
+        _cancelButton.onClick.AddListener(() => Cancel());
 
         // Fill default values for input fields
-
+        _TInput.text = T_DEFAULT;
+        _stepsInput.text = STEPS_DEFAULT;
+        _saltInput.text = SALT_DEFAULT;
+        _printConfIntervalInput.text = PRINT_CONF_INTERVAL_DEFAULT;
+        _printEnergyIntervalInput.text = PRINT_ENERGY_INTERVAL_DEFAULT;
+        _dtInput.text = DT_DEFAULT;
+        _diffCoeffInput.text = DIFF_COEFF_DEFAULT;
+        _maxDensityMultiplierInput.text = MAX_DENSITY_MULTIPLIER_DEFAULT;
+        _backboneForceInput.text = BACKBONE_FORCE_DEFAULT;
+        _backboneForceFarInput.text = BACKBONE_FORCE_DEFAULT;
 
         // Add input field listeners
+        _TInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
+        _stepsInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
+        _saltInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
+        _printConfIntervalInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
+        _printEnergyIntervalInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
+        _dtInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
+        _diffCoeffInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
+        _maxDensityMultiplierInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
+        _backboneForceInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
+        _backboneForceFarInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
     }
 
-    private void ShowSimulationUI(bool on)
+    private void ShowSimulationUI()
     {
-        _simulatePanel.enabled = on;
-        _menu.enabled = !on;
+        _simulatePanel.enabled = true;
+        _menu.enabled = false;
+    }
+
+    private void Cancel()
+    {
+        _simulatePanel.enabled = true;
+        _menu.enabled = false;
+
+        // TODO: break oxserve connection.
     }
 
     private JObject ParseSettings()
     {
+        // UI copied form oxview, so other settings are hardcoded as they are in oxview.
         return new JObject(
-            new JProperty("T", "20C"),
-            new JProperty("steps", "1000000"),
-            new JProperty("salt_concentration", "1"),
-            new JProperty("interaction_type", "DNA2"),
-            new JProperty("print_conf_interval", "10000"),
-            new JProperty("print_energy_every", "10000"),
-            new JProperty("thermostat", "brownian"),
-            new JProperty("dt", "0.003"),
-            new JProperty("diff_coeff", "2.5"),
-            new JProperty("max_density_multiplier", "10"),
+            new JProperty("T", _TInput.text + "C"),
+            new JProperty("steps", _stepsInput.text),
+            new JProperty("salt_concentration", _saltInput.text),
+            new JProperty("interaction_type", GetInteractionType()),
+            new JProperty("print_conf_interval", _printConfIntervalInput.text),
+            new JProperty("print_energy_every", _printEnergyIntervalInput.text),
+            new JProperty("thermostat", GetThermostatSetting()),
+            new JProperty("dt", _dtInput.text),
+            new JProperty("diff_coeff", _diffCoeffInput.text),
+            new JProperty("max_density_multiplier", _maxDensityMultiplierInput.text),
             new JProperty("sim_type", "MD"),
             new JProperty("T_units", "C"),
             new JProperty("backend", "CUDA"),
@@ -121,13 +138,47 @@ public class SimulateUI : MonoBehaviour
             new JProperty("edge_n_forces", 1),
             new JProperty("cells_auto_optimisation", "true"),
             new JProperty("reset_com_momentum", "true"),
-            new JProperty("max_backbone_force", "5"),
-            new JProperty("max_backbone_force_far", "10")
+            new JProperty("max_backbone_force", _backboneForceInput.text),
+            new JProperty("max_backbone_force_far", _backboneForceFarInput.text)
         );
     }
 
     public void Simulate()
     {
         _oxViewConnect.Connect(ParseSettings());
+    }
+
+    private string GetThermostatSetting()
+    {
+        switch (_thermostatDropdown.options[_thermostatDropdown.value].text)
+        {
+            case "Brownian":
+                return "brownian";
+            case "Bussi-Donadio-Parrinello":
+                return "bussi";
+            case "Langevin":
+                return "langevin";
+            case "No":
+                return "no";
+            default:
+                return "brownian";
+        }
+    }
+
+    private string GetInteractionType()
+    {
+        switch (_interactionTypeDropdown.options[_interactionTypeDropdown.value].text)
+        {
+            case "DNA":
+                return "DNA2";
+            case "RNA":
+                return "RNA2";
+            case "DNA ANM":
+                return "DNANM";
+            case "RNA ANM":
+                return "RNANM";
+            default:
+                return "DNA2";
+        }
     }
 }
