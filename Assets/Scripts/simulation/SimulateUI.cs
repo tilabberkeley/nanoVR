@@ -12,7 +12,7 @@ public class SimulateUI : MonoBehaviour
     [SerializeField] private Button _menuSimulateButton;
 
     /* Simulation UI */
-    [SerializeField] private Canvas _simulatePanel;
+    [SerializeField] private Canvas _simulateCanvas;
 
     [SerializeField] private Button _simulateButton;
     [SerializeField] private Button _cancelButton;
@@ -61,7 +61,7 @@ public class SimulateUI : MonoBehaviour
 
     void Start()
     {
-        _simulatePanel.enabled = false;
+        _simulateCanvas.enabled = false;
         _oxViewConnect = _oxserveConnectionManager.GetComponent<oxViewConnect>();
 
         // Add button listeners
@@ -96,13 +96,13 @@ public class SimulateUI : MonoBehaviour
 
     private void ShowSimulationUI()
     {
-        _simulatePanel.enabled = true;
+        _simulateCanvas.enabled = true;
         _menu.enabled = false;
     }
 
     private void Cancel()
     {
-        _simulatePanel.enabled = true;
+        _simulateCanvas.enabled = true;
         _menu.enabled = false;
 
         // TODO: break oxserve connection.
