@@ -9,6 +9,7 @@ using UnityEngine;
 using System.Text;
 using static GlobalVariables;
 using static UnityEngine.EventSystems.EventTrigger;
+using static DrawPoint;
 
 /// <summary>
 /// Strand object keeps track of an individual strand of nucleotides.
@@ -837,17 +838,24 @@ public class Strand
     /// <summary>
     /// Draws the simplified bezier curve representation of this strand (strand view).
     /// </summary>
-    public void ToStrandView()
+    public List<Bezier> ToStrandView()
     {
+        List<Bezier> beziers = new List<Bezier>();
+
         foreach (DomainComponent domain in _domains)
         {
             domain.StrandView();
+            beziers.AddRange(domain.Beziers);
         }
 
         foreach (GameObject xover in _xovers)
         {
-            xover.GetComponent<XoverComponent>().StrandView(_color);
+            XoverComponent xoverComponent = xover.GetComponent<XoverComponent>();
+            xoverComponent.StrandView(_color);
+            beziers.Add(xoverComponent.Bezier);
         }
+
+        return beziers;
     }
 
     /// <summary>

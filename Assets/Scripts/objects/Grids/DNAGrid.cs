@@ -83,6 +83,8 @@ public abstract class DNAGrid
     protected int _numSouthExpansions;
     protected int _numWestExpansions;
 
+    private static GameObject s_staticBatchRoot = new GameObject();
+
     /// <summary>
     /// Grid constructor. 
     /// </summary>
@@ -569,5 +571,14 @@ public abstract class DNAGrid
             }
         }
         return true;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    protected void StaticBatchGridGO(GameObject gridGO)
+    {
+        GameObject[] gridGOArray = { gridGO };
+        StaticBatchingUtility.Combine(gridGOArray, s_staticBatchRoot);
     }
 }

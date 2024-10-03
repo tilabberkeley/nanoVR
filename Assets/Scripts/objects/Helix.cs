@@ -717,7 +717,7 @@ public class Helix
     public void SetParent(GameObject go)
     {
         Transform goTransform = go.transform;
-        HashSet<GameObject> addedBeziers = new HashSet<GameObject>();
+        HashSet<Bezier>addedBeziers = new HashSet<Bezier>();
 
         foreach (GameObject nucleotide in _nucleotidesA)
         {
@@ -755,9 +755,9 @@ public class Helix
             }
         }
 
-        foreach (GameObject bezier in addedBeziers)
+        foreach (Bezier bezier in addedBeziers)
         {
-            bezier.transform.SetParent(goTransform, true);
+            bezier.Tube.transform.SetParent(goTransform, true);
         }
     }
 

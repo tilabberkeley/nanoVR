@@ -9,6 +9,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 using static UnityEngine.Object;
 using static GlobalVariables;
 using SplineMesh;
+using static OVRPlugin;
 
 /// <summary>
 /// Creates needed gameobjects like nucleotides, backbones, cones, Xovers, spheres, and grids.
@@ -441,13 +442,20 @@ public static class DrawPoint
     /// <summary>
     /// Creates a simpler bezier representation gameobject of a domain. 
     /// </summary>
-    public static GameObject MakeDomainBezier(List<DNAComponent> dnaComponents, Color32 color, out Vector3 bezierStartPoint, out Vector3 bezierEndPoint)
+    public static Bezier MakeDomainBezier(List<DNAComponent> dnaComponents, Color32 color, out Vector3 bezierStartPoint, out Vector3 bezierEndPoint)
     {
-        GameObject tube = new GameObject("tube");
-        MeshRenderer meshRend = tube.AddComponent<MeshRenderer>();
-        TubeRenderer tubeRend = tube.AddComponent<TubeRenderer>();
+        GameObject domainBezier = Instantiate(DomainBezier,
+                   Vector3.zero,
+                   Quaternion.identity);
+
+        Renderer renderer = domainBezier.GetComponent<Renderer>();
+        TubeRenderer tubeRend = domainBezier.AddComponent<TubeRenderer>();
         tubeRend.radius = TUBE_SIZE;
-        meshRend.material.SetColor("_Color", color);
+
+        // Set color with material property block. This doesn't change the underlying material, just the color. Enables static batching.
+        MaterialPropertyBlock materialPropertyBlock = new MaterialPropertyBlock();
+        materialPropertyBlock.SetColor("_Color", color);
+        renderer.SetPropertyBlock(materialPropertyBlock);
         
         Vector3[] anchorPoints = SplineInterpolation.GenerateBezierSpline(dnaComponents, SPLINE_RESOLUTION);
 
@@ -456,24 +464,36 @@ public static class DrawPoint
         bezierStartPoint = anchorPoints[0];
         bezierEndPoint = anchorPoints[anchorPoints.Length - 1];
 
-        GameObject endpoint = MakeBezierEndpoint(bezierStartPoint, color);
-        endpoint.transform.SetParent(tube.transform);
-        endpoint = MakeBezierEndpoint(bezierEndPoint, color);
-        endpoint.transform.SetParent(tube.transform);
+        GameObject endpoint0 = MakeBezierEndpoint(bezierStartPoint, color);
+        endpoint0.transform.SetParent(domainBezier.transform);
+        GameObject endpoint1 = MakeBezierEndpoint(bezierEndPoint, color);
+        endpoint1.transform.SetParent(domainBezier.transform);
 
-        return tube;
+        // Enable static batching
+        domainBezier.isStatic = true;
+
+        Bezier bezier = new Bezier(domainBezier, endpoint0, endpoint1);
+
+        return bezier;
     }
 
     /// <summary>
     /// Creates a simpler bezier represetation gameobject of a xover.
     /// </summary>
-    public static GameObject MakeXoverBezier(XoverComponent xoverComponent, Color32 color)
+    public static Bezier MakeXoverBezier(XoverComponent xoverComponent, Color32 color)
     {
-        GameObject tube = new GameObject("tube");
-        MeshRenderer meshRend = tube.AddComponent<MeshRenderer>();
-        TubeRenderer tubeRend = tube.AddComponent<TubeRenderer>();
+        GameObject xoverBezier = Instantiate(DomainBezier,
+                   Vector3.zero,
+                   Quaternion.identity);
+
+        Renderer renderer = xoverBezier.GetComponent<Renderer>();
+        TubeRenderer tubeRend = xoverBezier.AddComponent<TubeRenderer>();
         tubeRend.radius = TUBE_SIZE;
-        meshRend.material.SetColor("_Color", color);
+
+        // Set color with material property block. This doesn't change the underlying material, just the color. Enables static batching.
+        MaterialPropertyBlock materialPropertyBlock = new MaterialPropertyBlock();
+        materialPropertyBlock.SetColor("_Color", color);
+        renderer.SetPropertyBlock(materialPropertyBlock);
 
         Vector3[] anchorPoints = new Vector3[2];
 
@@ -484,12 +504,17 @@ public static class DrawPoint
         tubeRend.points = anchorPoints;
 
         // Set endpoints to parent, so they are destroyed when tube is destroyed
-        GameObject endpoint = MakeBezierEndpoint(anchorPoints[0], color);
-        endpoint.transform.SetParent(tube.transform);
-        endpoint = MakeBezierEndpoint(anchorPoints[1], color);
-        endpoint.transform.SetParent(tube.transform);
+        GameObject endpoint0 = MakeBezierEndpoint(anchorPoints[0], color);
+        endpoint0.transform.SetParent(xoverBezier.transform);
+        GameObject endpoint1 = MakeBezierEndpoint(anchorPoints[1], color);
+        endpoint1.transform.SetParent(xoverBezier.transform);
 
-        return tube;
+        // Enable static batching
+        xoverBezier.isStatic = true;
+
+        Bezier bezier = new Bezier(xoverBezier, endpoint0, endpoint1);
+
+        return bezier;
     }
 
     /// <summary>
@@ -503,9 +528,18 @@ public static class DrawPoint
             Quaternion.identity);
 
         bezierEndpoint.name = "Bezier Endpoint";
-        bezierEndpoint.GetComponent<MeshRenderer>().material.SetColor("_Color", color);
+
+        // Set color with material property block. This doesn't change the underlying material, just the color. Enables static batching.
+        Renderer renderer = bezierEndpoint.GetComponent<Renderer>();
+        MaterialPropertyBlock materialPropertyBlock = new MaterialPropertyBlock();
+        materialPropertyBlock.SetColor("_Color", color);
+        renderer.SetPropertyBlock(materialPropertyBlock);
+
         // Set sphere's radius
         bezierEndpoint.transform.localScale = new Vector3(TUBE_SIZE * 2, TUBE_SIZE * 2, TUBE_SIZE * 2);
+
+        // Enable static batching
+        bezierEndpoint.isStatic = true;
 
         return bezierEndpoint;
     }
@@ -668,7 +702,7 @@ public static class DrawPoint
             throw new ArgumentException("dnaList must be non empty.");
         }
 
-        GameObject domain = Instantiate(Domain,
+        GameObject domain = Instantiate(DomainInteractable,
                    Vector3.zero,
                    Quaternion.identity);
 

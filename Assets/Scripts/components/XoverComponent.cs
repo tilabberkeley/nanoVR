@@ -3,6 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu>
  */
 using UnityEngine;
+using static DrawPoint;
 using static GlobalVariables;
 
 /// <summary>
@@ -100,7 +101,8 @@ public class XoverComponent : MonoBehaviour
         _outline.enabled = false;
     }
 
-    private GameObject _bezier = null;
+    private Bezier? _bezier;
+    public Bezier Bezier { get => _bezier; }
 
     /// <summary>
     /// Returns xover back from simplified strand view (nucleotide view).
@@ -112,7 +114,7 @@ public class XoverComponent : MonoBehaviour
             return;
         }
 
-        Destroy(_bezier); 
+        _bezier.Destory();
         _bezier = null;
         gameObject.SetActive(true);
     }

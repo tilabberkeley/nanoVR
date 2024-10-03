@@ -11,8 +11,8 @@ using static GlobalVariables;
 public class DomainComponent : MonoBehaviour
 {
     // Number of nucleotides included in one "Bezier" of the Strand View.
-    // It is crucial that this is some multiple of 3 so 3n + 4 and odd. See SplineInterpolation.SetSplinePoints for the reason why.
-    private const int BEZIER_COUNT = 67;  
+    // It is crucial that this is some multiple of 3 + 4 so 3n + 4 and odd. See SplineInterpolation.SetSplinePoints for the reason why.
+    private const int BEZIER_COUNT = 19;  
 
     private CapsuleCollider _capsuleCollider;
     private Helix _helix;
@@ -21,8 +21,8 @@ public class DomainComponent : MonoBehaviour
     private List<DNAComponent> _dnaComponents = new List<DNAComponent>();
     public List<DNAComponent> DNAComponents { get => _dnaComponents; set => _dnaComponents = value; }
 
-    private List<GameObject> _beziers = new List<GameObject>();
-    public List<GameObject> Beziers { get => _beziers; }
+    private List<Bezier> _beziers = new List<Bezier>();
+    public List<Bezier> Beziers { get => _beziers; }
 
     private Strand _strand;
     public Strand Strand { get => _strand; set => _strand = value; }
@@ -65,7 +65,7 @@ public class DomainComponent : MonoBehaviour
                 nuclSubList.Add(_dnaComponents[i]);
                 if (nuclSubList.Count % BEZIER_COUNT == 0 || i == _dnaComponents.Count - 1)
                 {
-                    GameObject bezier = DrawPoint.MakeDomainBezier(nuclSubList, _strand.Color, out Vector3 bezierStartPoint, out Vector3 bezierEndPoint);
+                    Bezier bezier = DrawPoint.MakeDomainBezier(nuclSubList, _strand.Color, out Vector3 bezierStartPoint, out Vector3 bezierEndPoint);
 
                     if (_beziers.Count == 0)
                     {
@@ -90,9 +90,9 @@ public class DomainComponent : MonoBehaviour
     {
         if (_beziers.Count > 0)
         {
-            foreach (GameObject bezier in _beziers)
+            foreach (Bezier bezier in _beziers)
             {
-                Destroy(bezier);
+                bezier.Destory();
             }
             _beziers.Clear();
         }
@@ -100,7 +100,7 @@ public class DomainComponent : MonoBehaviour
 
     private void ShowBezier()
     {
-        foreach (GameObject bezier in _beziers)
+        foreach (Bezier bezier in _beziers)
         {
             bezier.SetActive(true);
         }
@@ -108,7 +108,7 @@ public class DomainComponent : MonoBehaviour
 
     public void HideBezier()
     {
-        foreach (GameObject bezier in _beziers)
+        foreach (Bezier bezier in _beziers)
         {
             bezier.SetActive(false);
         }

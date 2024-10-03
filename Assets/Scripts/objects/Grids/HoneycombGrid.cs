@@ -50,6 +50,9 @@ public class HoneycombGrid : DNAGrid
         gridComponent.Grid = this;
         gridComponent.GridPoint = gridPoint;
         _grid2D[i, j] = gridComponent;
+
+        StaticBatchGridGO(gridGO);
+
         return gridGO;
     }
 

@@ -45,6 +45,9 @@ public class HexGrid : DNAGrid
         gridComponent.Grid = this;
         gridComponent.GridPoint = gridPoint;
         _grid2D[i, j] = gridComponent;
+
+        StaticBatchGridGO(gridGO);
+
         return gridGO;
     }
 
