@@ -102,8 +102,7 @@ public class SimulateUI : MonoBehaviour
 
     private void Cancel()
     {
-        _simulateCanvas.enabled = true;
-        _menu.enabled = false;
+        _simulateCanvas.enabled = false;
 
         // TODO: break oxserve connection.
     }
@@ -143,8 +142,10 @@ public class SimulateUI : MonoBehaviour
         );
     }
 
-    public void Simulate()
+    private void Simulate()
     {
+        _simulateCanvas.enabled = false;
+
         _oxViewConnect.Connect(ParseSettings());
     }
 

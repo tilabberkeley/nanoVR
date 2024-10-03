@@ -98,22 +98,35 @@ public class OxView
         int lineIndex = 0;
 
         int strandCounter = 1;
+        int globalNucleotideIndex = -1;
         foreach (OxViewStrand strand in strands)
         {
             List<OxViewMonomer> monomers = strand.Monomers;
             Color color = Color.white;
 
-            int prime5 = -1;
-            int prime3 = 1;
-
             // Iterate backwards as seen in an oxDNA export sample
             for (int i = strand.Monomers.Count - 1; i >= 0; i--)
             {
+                int prime5 = globalNucleotideIndex;
+                int prime3 = globalNucleotideIndex + 2;
+
+                // Beginning and end of strand edge cases
+                if (i == strand.Monomers.Count - 1)
+                {
+                    prime5 = -1;
+                }
+                else if (i == 0)
+                {
+                    prime3 = -1;
+                }
+
                 OxViewMonomer monomer = strand.Monomers[i];
 
                 // Write file contents
-                _topFileStringBuilder.Append($"{strandCounter} {monomer.Type} {prime5++} {(i != 0 ? prime3++ : -1)}" + Environment.NewLine);
+                _topFileStringBuilder.Append($"{strandCounter} {monomer.Type} {prime5} {prime3}" + Environment.NewLine);
                 _datFileStringBuilder.Append($"{string.Join(" ", monomer.P)} {string.Join(" ", monomer.A1)} {string.Join(" ", monomer.A3)}" + " 0 0 0 0 0 0" + Environment.NewLine);
+
+                globalNucleotideIndex++;
 
                 Vector3 position = new Vector3(monomer.P[0], monomer.P[1], monomer.P[2]);
                 Vector3 a1Vec = new Vector3(monomer.A1[0], monomer.A1[1], monomer.A1[2]);
