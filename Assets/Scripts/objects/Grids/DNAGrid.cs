@@ -3,6 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using static GlobalVariables;
 
@@ -444,7 +445,7 @@ public abstract class DNAGrid
         Helix helix = new Helix(id, orientation, length, gridComponent);
         gridComponent.Helix = helix;
         gridComponent.Selected = true;
-
+        Debug.Log("created helix");
         if (s_visualMode)
         {
             s_visHelixDict.Add(id, helix);
@@ -475,11 +476,12 @@ public abstract class DNAGrid
     {
         // Attach parent transforms
         GameObject gridStart = Grid2D[0, 0].gameObject; // TODO: check, might need to change this
+        Transform gridStartTransform = gridStart.transform;
         for (int i = 0; i < Length; i++)
         {
             for (int j = 0; j < Width; j++)
             {
-                Grid2D[i, j].gameObject.transform.parent = gridStart.transform;
+                Grid2D[i, j].gameObject.transform.parent = gridStartTransform;
                 if (Grid2D[i, j].Helix != null)
                 {
                     Grid2D[i, j].Helix.SetParent(gridStart);
@@ -488,19 +490,13 @@ public abstract class DNAGrid
         }
 
         // Rotate grid
-        gridStart.transform.rotation = Quaternion.Euler(pitch, yaw, roll);
+        gridStartTransform.rotation = Quaternion.Euler(pitch, yaw, roll);
 
         // Detach parent transforms
-        for (int i = 0; i < Length; i++)
+        for (int i = 0; i < gridStartTransform.childCount; i++)
         {
-            for (int j = 0; j < Width; j++)
-            {
-                Grid2D[i, j].gameObject.transform.parent = null;
-                if (Grid2D[i, j].Helix != null)
-                {
-                    Grid2D[i, j].Helix.ResetParent();
-                }
-            }
+            Transform child = gridStartTransform.GetChild(i);
+            child.SetParent(null);
         }
     }
 

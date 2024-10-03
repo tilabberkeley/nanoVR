@@ -81,20 +81,4 @@ public static class ViewingPerspective
             yield return null;
         }
     }
-
-    /// <summary>
-    /// Helper Coroutine for converting all Strands into abstracted Strand View.
-    /// </summary>
-    private static IEnumerator ViewStrandHelper()
-    {
-        if (!s_strandView) { yield return null; }
-        foreach (Strand strand in s_strandDict.Values)
-        {
-            strand.ShowHideCone(false);
-            // strand.ShowHideXovers(false);
-            strand.ToStrandView();
-            // strand.SetDomainActivity(true);
-            yield return null;
-        }
-    }
 }

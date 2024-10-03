@@ -231,23 +231,36 @@ public class FileExport : MonoBehaviour
                 else if ((i == 0) || (ntc.HasXover && isStartGO))
                 {
                     isStartGO = false;
-                    JObject domain = new JObject
+                    JObject domain;
+
+                    if (!ntc.IsExtension)
                     {
-                        ["helix"] = ntc.HelixId,
-                        ["forward"] = Convert.ToBoolean(ntc.Direction),
-                        ["start"] = Math.Min(ntc.Id, endId),
-                        ["end"] = Math.Max(ntc.Id, endId) + 1, // + 1 accounts for .sc endId being exclusive
-                    };
-                    if (insertions.Count > 0)
-                    {
-                        insertions.Sort();
-                        domain["insertions"] = JArray.FromObject(insertions);
+                        domain = new JObject
+                        {
+                            ["helix"] = ntc.HelixId,
+                            ["forward"] = Convert.ToBoolean(ntc.Direction),
+                            ["start"] = Math.Min(ntc.Id, endId),
+                            ["end"] = Math.Max(ntc.Id, endId) + 1, // + 1 accounts for .sc endId being exclusive
+                        };
+                        if (insertions.Count > 0)
+                        {
+                            insertions.Sort();
+                            domain["insertions"] = JArray.FromObject(insertions);
+                        }
+                        if (deletions.Count > 0)
+                        {
+                            deletions.Sort();
+                            domain["deletions"] = JArray.FromObject(deletions);
+                        }
                     }
-                    if (deletions.Count > 0)
+                    else
                     {
-                        deletions.Sort();
-                        domain["deletions"] = JArray.FromObject(deletions);
+                        domain = new JObject
+                        {
+                            ["extension_num_bases"] = Math.Abs(ntc.Id - endId) + 1,
+                        };
                     }
+                    
                     domains.Add(domain);
                     insertions.Clear();
                     deletions.Clear();

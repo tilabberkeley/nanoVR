@@ -6,9 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem.LowLevel;
 using static GlobalVariables;
-using static OVRPlugin;
 
 public class DomainComponent : MonoBehaviour
 {
@@ -24,6 +22,7 @@ public class DomainComponent : MonoBehaviour
     public List<DNAComponent> DNAComponents { get => _dnaComponents; set => _dnaComponents = value; }
 
     private List<GameObject> _beziers = new List<GameObject>();
+    public List<GameObject> Beziers { get => _beziers; }
 
     private Strand _strand;
     public Strand Strand { get => _strand; set => _strand = value; }
@@ -201,17 +200,23 @@ public class DomainComponent : MonoBehaviour
 
     public void UpdateCapsuleCollider()
     {
-        DNAComponent firstNucleotide = _dnaComponents[0].GetComponent<DNAComponent>();
-        Helix helix;
-        s_helixDict.TryGetValue(firstNucleotide.HelixId, out helix);
+        DNAComponent firstNucleotide = _dnaComponents[0];
+
+        s_helixDict.TryGetValue(firstNucleotide.HelixId, out Helix helix);
         Helix = helix;
 
-        Vector3 domainCenter = Vector3.Lerp(_dnaComponents[0].transform.position, _dnaComponents.Last().transform.position, 0.5f);
-        // Center of the gridcircle will be the center the domain component (dependent on axis), default is the z position being constant,
+        Vector3 domainCenter = Vector3.Lerp(firstNucleotide.transform.position, _dnaComponents.Last().transform.position, 0.5f);
+
+        // If domain is not extension,
+        // center of the gridcircle will be the center the domain component (dependent on axis), default is the z position being constant,
         // TODO: configure domain component to be centered correctly around any orientation.
-        Vector3 gridCircleCenter = Helix.GridComponent.transform.position;
-        domainCenter.x = gridCircleCenter.x;
-        domainCenter.y = gridCircleCenter.y;
+        if (!firstNucleotide.IsExtension)
+        {
+            Vector3 gridCircleCenter = Helix.GridComponent.transform.position;
+            domainCenter.x = gridCircleCenter.x;
+            domainCenter.y = gridCircleCenter.y;
+        }
+       
         transform.position = domainCenter;
 
         // TODO: Update rotation as of the collider to by dependent on the rotation of the helix/grid.

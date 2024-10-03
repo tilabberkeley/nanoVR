@@ -186,6 +186,7 @@ public class Togglers : MonoBehaviour
         }
         else
         {
+            Debug.Log("Switching to helix view");
             CoRunner.Instance.Run(ViewingPerspective.ViewHelix());
         }
     }

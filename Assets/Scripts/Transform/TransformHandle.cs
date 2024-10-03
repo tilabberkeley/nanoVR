@@ -89,7 +89,7 @@ public class TransformHandle : MonoBehaviour
 
         if ((leftTriggerValue || rightTriggerValue) && gizmos.activeSelf)
         {
-            DetachChildren(s_GO.GetComponent<GridComponent>().Grid);
+            DetachChildren();
             HideTransform();
         }
 
@@ -139,15 +139,13 @@ public class TransformHandle : MonoBehaviour
         }
     }
 
-    public void DetachChildren(DNAGrid grid)
+    public void DetachChildren()
     {
-        for (int i = 0; i < grid.Length; i++)
+        Transform gizmosTransform = gizmos.transform;
+        for (int i = 0; i < gizmosTransform.childCount; i++)
         {
-            for (int j = 0; j < grid.Width; j++)
-            {
-                grid.Grid2D[i, j].gameObject.transform.parent = null;
-                grid.Grid2D[i, j].Helix?.ResetParent();
-            }
+            Transform child = gizmosTransform.GetChild(i);
+            child.SetParent(null);
         }
     }
 }

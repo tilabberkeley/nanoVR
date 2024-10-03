@@ -2,25 +2,22 @@
  * nanoVR, a VR application for building DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+using Newtonsoft.Json.Linq;
+using SimpleFileBrowser;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
-using Newtonsoft.Json.Linq;
-using SimpleFileBrowser;
-using System.Collections;
 using static GlobalVariables;
 using static Utils;
-using System.Diagnostics;
 using Debug = UnityEngine.Debug;
-using System.Threading.Tasks;
-using System.Text;
-using Newtonsoft.Json;
-using UnityEngine.UIElements;
-using static Facebook.WitAi.Data.AudioEncoding;
 
 /// <summary>
 /// Handles all file importing into nanoVR.
@@ -156,6 +153,8 @@ public class FileImport : MonoBehaviour
         JArray strands = JArray.Parse(origami["strands"].ToString());
         bool isMultiGrid = false;
 
+        Debug.Log("Begin parsing grids");
+
         /**
          * Parse grids
          */
@@ -164,6 +163,8 @@ public class FileImport : MonoBehaviour
             JObject groupObject = JObject.Parse(origami["groups"].ToString());
             Dictionary<string, JObject> groups = groupObject.ToObject<Dictionary<string, JObject>>();
             isMultiGrid = groups.Count > 1;
+            Debug.Log("Begin parsing groups");
+
             foreach (var item in groups)
             {
                 string origName = CleanSlash(item.Key);
@@ -173,16 +174,21 @@ public class FileImport : MonoBehaviour
                     gridName = GetGridName(origName);
                     UpdateGridCopies(origName);
                 }
+                Debug.Log("Gridname: " + gridName);
                 JObject info = item.Value;
                 float x = 0;
                 float y = 0;
                 float z = 0;
                 if (info["position"] != null)
                 {
+                    Debug.Log("Get grid position");
+
                     x = (float)info["position"]["x"] / SCALE;
                     y = (float)info["position"]["y"] / SCALE;
                     z = (float)info["position"]["z"] / SCALE;
                 }
+                Debug.Log("Get grid type");
+
                 string gridType = CleanSlash(info["grid"].ToString());
                 Vector3 startPos;
                 if (isCopyPaste)
@@ -193,7 +199,11 @@ public class FileImport : MonoBehaviour
                 {
                     startPos = new Vector3(x, y, z);
                 }
+                Debug.Log("set start position");
+
                 DNAGrid grid = DrawGrid.CreateGrid(gridName, PLANE, startPos, gridType);
+                Debug.Log("Drew grid");
+
                 grids.Add(grid);
 
                 // Handle rotation
@@ -216,6 +226,8 @@ public class FileImport : MonoBehaviour
                 {
                     grid.Rotate(pitch, roll, yaw);
                 }
+                Debug.Log("Fnish rotations");
+
             }
         }
         else
@@ -249,6 +261,7 @@ public class FileImport : MonoBehaviour
     private async Task ParseHelices(JArray helices, bool isMultiGrid)
     {
         int startHelixId = s_numHelices;
+        Debug.Log("Start parsing helices");
 
         for (int i = 0; i < helices.Count; i++)
         { 
@@ -266,12 +279,12 @@ public class FileImport : MonoBehaviour
             if (helices[i]["group"] != null)
             {
                 string origName = CleanSlash(helices[i]["group"].ToString());
-                gridName = GetGridName(origName);
+                gridName = GetGridName(origName, true);
             }
             else if (isMultiGrid)
             {
                 string origName = DEFAULT_GRID_NAME;
-                gridName = GetGridName(origName);
+                gridName = GetGridName(origName, true);
             }
             else
             {
@@ -419,7 +432,71 @@ public class FileImport : MonoBehaviour
                 else
                 {
                     // Handle extensions
+                    // 1. Get extension length n
+                    // 2. Generate n # of nucleotides/backbones
+                    // 3. Calculate the vector they will lie on
+                    // 4. Add these to the strand sequence
+                    // 5. Mark these nucleotides/backbones with isExtension = true flag, so domain is also marked as isExtension = true
+                    // 6. Update FileExport code to handle extensions (when isExtension = true)
+                    /*int extensionLength = (int)domains[j]["extension_num_bases"];
+                    List<GameObject> domain = new List<GameObject>();
+                    NucleotideComponent currHead = xoverEndpoints[0].GetComponent<NucleotideComponent>();
+                    int currHeadDirection = currHead.Direction;
+                    GridComponent gc = s_helixDict[currHead.HelixId].GridComponent;
+                    Vector3 direction;
+                    if (currHeadDirection == 0)
+                    {
+                        direction = gc.transform.right;
+                    }
+                    else
+                    {
+                        direction = -gc.transform.right;
+                    }
+
+
+                    if (ObjectPoolManager.Instance.CanGetNucleotides(extensionLength) && ObjectPoolManager.Instance.CanGetBackbones(extensionLength - 1))
+                    {
+                        List<GameObject> nucls = ObjectPoolManager.Instance.GetNucleotides(extensionLength);
+                        List<GameObject> backs = ObjectPoolManager.Instance.GetBackbones(extensionLength - 1);
+
+                        for (int k = 0; k < nucls.Count; k++) 
+                        {
+                            DrawPoint.SetNucleotide(nucls[k], (k + 1) * Utils.RISE * 2 * direction + currHead.transform.position, -1, -1, -1, false, false, true);
+
+                            *//*if (k == 0)
+                            {
+                                DrawPoint.SetBackbone(backs[k], -1, -1, -1, nucls[k].transform.position, currHead.transform.position);
+                            }*//*
+                            if (k > 0)
+                            {
+                                DrawPoint.SetBackbone(backs[k - 1], -1, -1, -1, nucls[k].transform.position, nucls[k - 1].transform.position, false, false, true);
+                            }
+                        }
+
+                        for (int k = 0; k < backs.Count; k++)
+                        {
+                            domain.Add(nucls[k]);
+                            domain.Add(backs[k]);
+                        }
+                        domain.Add(nucls.Last());
+                    }
+
+                    if (j == 0)
+                    {
+                        xoverEndpoints.Add(domain[0]);
+                    }
+
+                    // If extension is on 3' end (front of nanoVR strand), we reverse the domain to ensure correct ordering.
+                    if (j == domains.Count - 1)
+                    {
+                        domain.Reverse();
+                        xoverEndpoints.Insert(0, domain.Last());
+                    }
+                    nucleotides.InsertRange(0, domain);*/
+
+
                     /*int extensionLength = (int) domains[j]["extension_num_bases"];
+                  
                     NucleotideComponent currHead = xoverEndpoints[0].GetComponent<NucleotideComponent>();
                     int currHeadDirection = currHead.Direction;
                     int currHeadIndex = currHead.Id;
@@ -441,10 +518,7 @@ public class FileImport : MonoBehaviour
                 for (int j = 1; j < xoverEndpoints.Count; j += 2)
                 {
                     GameObject nextGO = xoverEndpoints[j];
-                    Debug.Log("prevGO: " + xoverEndpoints[j - 1].GetComponent<NucleotideComponent>().Id + "; Direction: " + xoverEndpoints[j - 1].GetComponent<NucleotideComponent>().Direction);
-
-                    Debug.Log("nextGO: " + nextGO.GetComponent<NucleotideComponent>().Id + "; Direction: " + nextGO.GetComponent<NucleotideComponent>().Direction);
-
+                    
                     if (loopouts.ContainsKey(nextGO))
                     {
                         // TODO: Check this works
@@ -566,25 +640,44 @@ public class FileImport : MonoBehaviour
         return str.Replace("\"", "");
     }
 
-    private static string GetGridName(string origName)
+    private static string GetGridName(string origName, bool parsingHelices = false)
     {
-        int numCopies = s_gridCopies.ContainsKey(origName) ? s_gridCopies[origName] : 0;
-        if (numCopies == 0)
+        if (!parsingHelices)
         {
-            return origName;
+            int numCopies = s_gridCopies.ContainsKey(origName) ? s_gridCopies[origName] : -1;
+            if (numCopies == -1)
+            {
+                return origName;
+            }
+            else
+            {
+                return origName + " (" + (numCopies) + ")";
+            }
         }
         else
         {
-            return origName + " (" + numCopies + 1 + ")";
+            int numCopies = s_gridCopies[origName];
+            if (numCopies == 1)
+            {
+                return origName;
+            }
+            else
+            {
+                return origName + " (" + (numCopies - 1) + ")";
+            }
         }
     }
 
     private static void UpdateGridCopies(string origName)
     {
-        int numCopies = s_gridCopies.ContainsKey(origName) ? s_gridCopies[origName] : 0;
+        /*int numCopies = s_gridCopies.ContainsKey(origName) ? s_gridCopies[origName] : 0;
         if (numCopies > 0)
         {
             s_gridCopies[origName] = numCopies + 1;
+        }*/
+        if (s_gridCopies.ContainsKey(origName))
+        {
+            s_gridCopies[origName] += 1;
         }
     }
 

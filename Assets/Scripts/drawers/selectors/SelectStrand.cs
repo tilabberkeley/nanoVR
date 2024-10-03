@@ -89,11 +89,7 @@ public class SelectStrand : MonoBehaviour
         {
             triggerReleased = false;
             //UnhighlightStrand(s_strand, false);
-            foreach (Strand strand in s_strands)
-            {
-                UnhighlightStrand(strand, false);
-                //DeleteStrand(strand.Head);
-            }
+            
             Reset();
         }
 
@@ -115,6 +111,10 @@ public class SelectStrand : MonoBehaviour
     /// </summary>
     public static void Reset()
     {
+        foreach (Strand strand in s_strands)
+        {
+            UnhighlightStrand(strand, false);
+        }
         s_strands.Clear();
     }
 

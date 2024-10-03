@@ -66,9 +66,9 @@ public class ReflectGrid : MonoBehaviour
         }
 
         Vector3 midPoint = CalculateMidPoint(grid);
-        Vector3 localYAxis = grid.Grid2D[0, 0].transform.up;
-        Vector3 distance = midPoint - grid.Grid2D[0, 0].transform.position;
-        Vector3 gridLocalYAxis = Vector3.Normalize(localYAxis + distance - midPoint);
+        //Vector3 minPoint = grid.Grid2D[grid., 0].transform.up;
+        //Vector3 distance = midPoint - grid.Grid2D[0, 0].transform.position;
+        Vector3 gridLocalYAxis = CalculateMidAxis(grid, true);
         Debug.Log("Local y axis: " + gridLocalYAxis);
 
         for (int i = 0; i < grid.Length; i++)
@@ -110,9 +110,9 @@ public class ReflectGrid : MonoBehaviour
         }
 
         Vector3 midPoint = CalculateMidPoint(grid);
-        Vector3 localXAxis = grid.Grid2D[0, 0].transform.right;
-        Vector3 distance = midPoint - grid.Grid2D[0, 0].transform.position;
-        Vector3 gridLocalXAxis = Vector3.Normalize(localXAxis + distance - midPoint);
+        //Vector3 localXAxis = grid.Grid2D[0, 0].transform.right;
+        //Vector3 distance = midPoint - grid.Grid2D[0, 0].transform.position;
+        Vector3 gridLocalXAxis = CalculateMidAxis(grid, false);
         Debug.Log("Local x axis: " + gridLocalXAxis);
 
         for (int i = 0; i < grid.Length; i++)
@@ -154,5 +154,22 @@ public class ReflectGrid : MonoBehaviour
         Vector3 minPosition = grid.Grid2D[minXIndex, minYIndex].transform.position;
         
         return Vector3.Lerp(minPosition, maxPosition, 0.5f);
+    }
+
+    private Vector3 CalculateMidAxis(DNAGrid grid, bool verticalAxis)
+    {
+        int maxXIndex = grid.GridXToIndex(grid.MaximumBound.X);
+        int maxYIndex = grid.GridYToIndex(grid.MaximumBound.Y);
+        GridComponent maxGC = grid.Grid2D[maxXIndex, maxYIndex];
+
+        int minXIndex = grid.GridXToIndex(grid.MinimumBound.X);
+        int minYIndex = grid.GridYToIndex(grid.MinimumBound.Y);
+        GridComponent minGC = grid.Grid2D[minXIndex, minYIndex];
+
+        if (verticalAxis)
+        {
+            return Vector3.Lerp(maxGC.transform.up, minGC.transform.up, 0.5f);
+        }
+        return Vector3.Lerp(maxGC.transform.right, minGC.transform.right, 0.5f);
     }
 }

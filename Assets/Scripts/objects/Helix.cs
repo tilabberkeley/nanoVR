@@ -4,8 +4,6 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using UnityEngine;
 using static GlobalVariables;
@@ -43,7 +41,7 @@ public class Helix
     public GridComponent GridComponent { get { return _gridComponent; } } 
 
     // Mesh Combiner component of GridComponent.
-    private MeshCombiner _meshCombiner;
+    //private MeshCombiner _meshCombiner;
 
     // List containing all nucleotides in spiral going in direction 1.
     private List<GameObject> _nucleotidesA;
@@ -76,8 +74,8 @@ public class Helix
     private Vector3 _lastPositionA;
     private Vector3 _lastPositionB;
 
-    private GameObject _helixViewCylinder;
-    public GameObject HelixViewCylinder { get { return _helixViewCylinder; } }
+    private List<GameObject> _helixViewCylinders;
+    private CapsuleCollider _collider;
 
     // Helix constructor.
     public Helix(int id, string orientation, int length, GridComponent gridComponent)
@@ -93,6 +91,7 @@ public class Helix
         _strandIds = new List<int>();
         _helixA = new List<GameObject>();
         _helixB = new List<GameObject>();
+        _helixViewCylinders = new List<GameObject>();
     }
 
     /// <summary>
@@ -107,6 +106,8 @@ public class Helix
         // First check if ObjectPool has enough GameObjects to use (length is doubled to account for double Helix).
         // If not, generate them async.
         int count64 = length / 64;
+
+#if !UNITY_EDITOR && UNITY_ANDROID
         if (ObjectPoolManager.Instance.CanGetNucleotides(2 * length) && ObjectPoolManager.Instance.CanGetBackbones(2 * (length - 1)))
         {
             _nucleotidesA.AddRange(ObjectPoolManager.Instance.GetNucleotides(length));
@@ -211,7 +212,55 @@ public class Helix
             }
 
         }
+#endif
 
+#if UNITY_EDITOR
+        for (int i = prevLength; i < _length; i++)
+        {
+            //sw.Start();
+            float angleA = (float)(i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
+            float angleB = (float)((i + 4.5f) * (2 * Math.PI / NUM_BASE_PAIRS)); //TODO: check this new offset
+            float axisOneChangeA = (float)(RADIUS * Mathf.Cos(angleA));
+            float axisTwoChangeA = (float)(RADIUS * Mathf.Sin(angleA));
+            float axisOneChangeB = (float)(RADIUS * Mathf.Cos(angleB));
+            float axisTwoChangeB = (float)(RADIUS * Mathf.Sin(angleB));
+            _lastPositionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
+            _lastPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
+
+            GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, i, _id, 1, hideNucleotides);
+            GameObject sphereB = DrawPoint.MakeNucleotide(_lastPositionB, i, _id, 0, hideNucleotides);
+            _nucleotidesA.Add(sphereA);
+            _nucleotidesB.Add(sphereB);
+
+            _helixA.Add(sphereA);
+            _helixB.Add(sphereB);
+
+            sphereA.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
+            sphereA.transform.RotateAround(StartPoint, Vector3.right, _gridComponent.transform.eulerAngles.x);
+            sphereA.transform.RotateAround(StartPoint, Vector3.up, _gridComponent.transform.eulerAngles.y);
+            sphereB.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
+            sphereB.transform.RotateAround(StartPoint, Vector3.right, _gridComponent.transform.eulerAngles.x);
+            sphereB.transform.RotateAround(StartPoint, Vector3.up, _gridComponent.transform.eulerAngles.y);
+
+
+            // Draw backbones
+            if (i > 0)
+            {
+                GameObject cylinderA = DrawPoint.MakeBackbone(i - 1, _id, 1, _nucleotidesA[i].transform.position, _nucleotidesA[i - 1].transform.position, hideNucleotides);
+                _helixA.Add(cylinderA);
+                _backbonesA.Add(cylinderA);
+
+                GameObject cylinderB = DrawPoint.MakeBackbone(i - 1, _id, 0, _nucleotidesB[i].transform.position, _nucleotidesB[i - 1].transform.position, hideNucleotides);
+                _helixB.Add(cylinderB);
+                _backbonesB.Add(cylinderB);
+            }
+
+            if (i % 6 == 0)
+            {
+                await Task.Yield();
+            }
+        }
+#endif
         /* Batches static (non-moving) gameobjects so that they are drawn together.
          * This reduces number of Draw calls and increases FPS. 
          */
@@ -484,41 +533,100 @@ public class Helix
     }
 
     /// <summary>
-    /// Creates cylinder representing Helix in Helix view.
-    /// Calculates cylinder lenght by getting position of smallest indexed nucleotide in a Strand
+    /// Creates cylinders representing Helix in Helix view.
+    /// Calculates cylinder length by getting position of smallest indexed nucleotide in a Strand
     /// and position of largest indexed nucleotide in a Strand.
     /// </summary>
     public void CreateCylinder()
     {
-        int startIdx = 0, endIdx = 0;
+        int startIdx = -1;
+
+        // type stores what type of strand we are currently iterating over
+        // -1 indicates an empty section
+        // 0 indicates single strand section
+        // 1 indicates double strand section
+        int type = -1;
+        bool singleStrandRegion = false;
 
         for (int i = 0; i < _nucleotidesA.Count; i++)
         {
             NucleotideComponent nuclA = _nucleotidesA[i].GetComponent<NucleotideComponent>();
             NucleotideComponent nuclB = _nucleotidesB[i].GetComponent<NucleotideComponent>();
 
-            if (nuclA.Selected)
+            if ((nuclA.Selected && !nuclB.Selected) || (!nuclA.Selected && nuclB.Selected))
             {
-                startIdx = Math.Min(startIdx, nuclA.Id);
-                endIdx = Math.Max(endIdx, nuclA.Id);
+                if (type == 1)
+                {
+                    CreateCylinder(startIdx, i, singleStrandRegion);
+                    startIdx = -1;
+                }
+                if (startIdx == -1)
+                {
+                    startIdx = i;
+                    type = 0;
+                    singleStrandRegion = true;
+                }
             }
-            if (nuclB.Selected)
+            if (nuclA.Selected && nuclB.Selected)
             {
-                startIdx = Math.Min(startIdx, nuclB.Id);
-                endIdx = Math.Max(endIdx, nuclB.Id);
+                if (type == 0)
+                {
+                    CreateCylinder(startIdx, i, singleStrandRegion);
+                    startIdx = -1;
+                }
+                if (startIdx == -1)
+                {
+                    startIdx = i;
+                    type = 1;
+                    singleStrandRegion = false;
+                }
+            }
+            if (!nuclA.Selected && !nuclB.Selected)
+            {
+                if (type == 0 || type == 1)
+                {
+                    CreateCylinder(startIdx, i, singleStrandRegion);
+                    startIdx = -1;
+                }
+                type = -1;
             }
         }
-
-        Vector3 startPos = _nucleotidesA[startIdx].transform.position;
-        Vector3 endPos = _nucleotidesA[endIdx].transform.position;
-        _helixViewCylinder = DrawPoint.MakeHelixCylinder(startPos, endPos);
     }
 
+    /// <summary>
+    /// Private helper function to figure out what color to make the Helix cylinder
+    /// </summary>
+    private void CreateCylinder(int startIdx, int endIdx, bool singleStrandRegion) {
+        if (startIdx == -1)
+        {
+            return;
+        }
+        Vector3 startPos = Vector3.Lerp(_nucleotidesA[startIdx].transform.position, _nucleotidesB[startIdx].transform.position, 0.5f);
+        Vector3 endPos = Vector3.Lerp(_nucleotidesA[endIdx].transform.position, _nucleotidesB[endIdx].transform.position, 0.5f);
+        Color color;
+        if (singleStrandRegion)
+        {
+            color = Color.red;
+        }
+        else
+        {
+            color = Color.blue;
+        }
+        _helixViewCylinders.Add(DrawPoint.MakeHelixCylinder(startPos, endPos, color));
+    }
+
+    /// <summary>
+    /// Destroys cylinders representing Helix in Helix view.
+    /// </summary>
     public void DestroyCylinder()
     {
-        if (_helixViewCylinder != null)
+        if (_helixViewCylinders.Count == 0)
         {
-            GameObject.Destroy(_helixViewCylinder);
+            return;
+        }
+        foreach (GameObject cylinder in _helixViewCylinders)
+        {
+            GameObject.Destroy(cylinder);
         }
     }
 
@@ -608,44 +716,48 @@ public class Helix
     /// <param name="go">GameObject representing the transform gizmo.</param>
     public void SetParent(GameObject go)
     {
-        foreach (GameObject nucleotide in _nucleotidesA)
-        {
-            nucleotide.transform.SetParent(go.transform, true);
-        }
-        foreach (GameObject nucleotide in _nucleotidesB)
-        {
-            nucleotide.transform.SetParent(go.transform, true);
-        }
-        foreach (GameObject nucleotide in _backbonesA)
-        {
-            nucleotide.transform.SetParent(go.transform, true);
-        }
-        foreach (GameObject nucleotide in _backbonesB)
-        {
-            nucleotide.transform.SetParent(go.transform, true);
-        }
-    }
+        Transform goTransform = go.transform;
+        HashSet<GameObject> addedBeziers = new HashSet<GameObject>();
 
-    /// <summary>
-    /// Resets parents of all Helix gameobjects to null. This is used in TranslateHandle.cs
-    /// </summary>
-    public void ResetParent()
-    {
         foreach (GameObject nucleotide in _nucleotidesA)
         {
-            nucleotide.transform.SetParent(null);
+            nucleotide.transform.SetParent(goTransform, true);
+            // If we're in strand view, we need to translate the beziers as well.
+            if (s_strandView)
+            {
+                addedBeziers.UnionWith(nucleotide.GetComponent<NucleotideComponent>().Domain.Beziers);
+            }
         }
         foreach (GameObject nucleotide in _nucleotidesB)
         {
-            nucleotide.transform.SetParent(null);
+            nucleotide.transform.SetParent(goTransform, true);
+            // If we're in strand view, we need to translate the beziers as well.
+            if (s_strandView)
+            {
+                addedBeziers.UnionWith(nucleotide.GetComponent<NucleotideComponent>().Domain.Beziers);
+            }
         }
         foreach (GameObject nucleotide in _backbonesA)
         {
-            nucleotide.transform.SetParent(null);
+            nucleotide.transform.SetParent(goTransform, true);
         }
         foreach (GameObject nucleotide in _backbonesB)
         {
-            nucleotide.transform.SetParent(null);
+            nucleotide.transform.SetParent(goTransform, true);
+        }
+
+        // If we're in helix view, we need to translate the cylinders as well.
+        if (s_helixView)
+        {
+            foreach (GameObject cylinder in _helixViewCylinders)
+            {
+                cylinder.transform.SetParent(goTransform, true);
+            }
+        }
+
+        foreach (GameObject bezier in addedBeziers)
+        {
+            bezier.transform.SetParent(goTransform, true);
         }
     }
 
@@ -659,7 +771,6 @@ public class Helix
         ReflectVectical(_backbonesA, distY);
         ReflectVectical(_backbonesB, distY);
     }
-
 
     /// <summary>
     /// Helper function to reflect a list of gameobjects across y-coordinate

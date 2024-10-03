@@ -25,6 +25,7 @@ public class CopyPaste : MonoBehaviour
     private bool pasting = false;
     private static List<Strand> s_copied = new List<Strand>();
     private static RaycastHit s_hit;
+    private static GameObject s_go;
     private static List<GameObject> s_currNucleotides = new List<GameObject>();
     private static List<List<GameObject>> newStrandNucls = new List<List<GameObject>>();
     private static List<List<(int, int)>> insertions = new List<List<(int, int)>>();
@@ -99,19 +100,26 @@ public class CopyPaste : MonoBehaviour
         if (pasting && rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             GameObject go = s_hit.collider.gameObject;
+            if (go == s_go)
+            {
+                return;
+            }
+            Reset();
+            s_go = go;
             NucleotideComponent ntc = go.GetComponent<NucleotideComponent>();
             if (ntc != null)
             {
-                DrawNucleotideDynamic.ExtendIfLastNucleotide(ntc);
-                Highlight.UnhighlightNucleotideSelection(s_currNucleotides, false);
                 bool allValid = true;
+                DrawNucleotideDynamic.ExtendIfLastNucleotide(ntc);
+                //Highlight.UnhighlightNucleotideSelection(s_currNucleotides, false);
                 foreach (Strand strand in s_copied)
                 {
                     List<GameObject> nucleotides = GetNucleotides(strand, go, s_copied[0].Head);
                     bool valid = IsValid(nucleotides);
                     allValid &= valid;
 
-                    if (!valid) {
+                    if (!valid)
+                    {
                         Reset();
                         break;
                     }
@@ -119,7 +127,7 @@ public class CopyPaste : MonoBehaviour
                     newStrandNucls.Add(nucleotides);
                     Highlight.HighlightNucleotideSelection(nucleotides, valid);
                 }
-
+                
                 if (triggerValue && allValid)
                 {
                     triggerReleased = false;

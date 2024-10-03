@@ -50,7 +50,7 @@ public static class DrawPoint
         return sphere;
     }
 
-    public static void SetNucleotide(GameObject sphere, Vector3 position, int id, int helixId, int direction, bool hideNucleotide = false, bool isOxview = false)
+    public static void SetNucleotide(GameObject sphere, Vector3 position, int id, int helixId, int direction, bool hideNucleotide = false, bool isOxview = false, bool isExtension = false)
     {
         sphere.transform.position = position;
         sphere.name = "nucleotide" + id;
@@ -62,6 +62,7 @@ public static class DrawPoint
         ntc.Direction = direction;
         ntc.IsOxview = isOxview;
         ntc.IsBackbone = false;
+        ntc.IsExtension = isExtension;
         //seqComp.HasComplement = true;
         //sphere.transform.SetParent(null);
         SaveGameObject(sphere);
@@ -312,7 +313,7 @@ public static class DrawPoint
         return children;
     }
 
-    public static void SetBackbone(GameObject cylinder, int id, int helixId, int direction, Vector3 start, Vector3 end, bool hideBackbone = false, bool isOxview = false)
+    public static void SetBackbone(GameObject cylinder, int id, int helixId, int direction, Vector3 start, Vector3 end, bool hideBackbone = false, bool isOxview = false, bool isExtension = false)
     {
         cylinder.name = "Backbone" + id;
 
@@ -322,6 +323,7 @@ public static class DrawPoint
         backBoneComponent.Direction = direction;
         backBoneComponent.IsOxview = isOxview;
         backBoneComponent.IsBackbone = true;
+        backBoneComponent.IsExtension = isExtension;
 
         // Scale        
         float dist = Vector3.Distance(end, start);
@@ -429,8 +431,8 @@ public static class DrawPoint
         }
 
         gridCircle.name = "gridPoint";
-        GridComponent gridComponent = gridCircle.GetComponent<GridComponent>();
-        gridComponent.Position = position;
+        //GridComponent gridComponent = gridCircle.GetComponent<GridComponent>();
+        //gridComponent.Position = position;
         SaveGameObject(gridCircle);
         gridCircle.isStatic = true;
         return gridCircle;
@@ -678,7 +680,7 @@ public static class DrawPoint
         return domainComponent;
     }
 
-    public static GameObject MakeHelixCylinder(Vector3 startPos, Vector3 endPos)
+    public static GameObject MakeHelixCylinder(Vector3 startPos, Vector3 endPos, Color color)
     {
         GameObject cylinder =
                    Instantiate(Xover,
@@ -698,7 +700,8 @@ public static class DrawPoint
 
         // Scale        
         float dist = Vector3.Distance(endPos, startPos);
-        cylinder.transform.localScale = new Vector3(Utils.RADIUS, dist / 2, Utils.RADIUS);
+        cylinder.transform.localScale = new Vector3(Utils.RADIUS * 2, dist / 2, Utils.RADIUS * 2);
+        cylinder.GetComponent<Renderer>().material.SetColor("_Color", color);
         return cylinder;
     }
 }

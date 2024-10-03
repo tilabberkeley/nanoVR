@@ -72,6 +72,9 @@ public abstract class DNAComponent : MonoBehaviour
     private bool _isOxview;
     public bool IsOxview { get => _isOxview; set => _isOxview = value; }
 
+    private bool _isExtension;
+    public bool IsExtension { get => _isExtension; set => _isExtension = value; }
+
     public GameObject Complement
     {
         get
