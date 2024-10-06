@@ -23,7 +23,7 @@ public class SelectHelix : MonoBehaviour
     private bool axisReleased = true;
     private bool selectMultiple = false;
     private static RaycastHit s_hit;
-    private static List<GridComponent> selectedHelices = new List<GridComponent>();
+    public static List<GridComponent> selectedHelices = new List<GridComponent>();
 
     private void GetDevice()
     {
@@ -64,11 +64,11 @@ public class SelectHelix : MonoBehaviour
         _rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool rightTriggerValue);
         _rightDevice.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out bool axisClick);
 
-        if (leftTriggerValue)
+        /*if (leftTriggerValue)
         {
             leftTriggerReleased = false;
             selectMultiple = true;
-        }
+        }*/
 
         if (rightTriggerValue && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
@@ -81,28 +81,24 @@ public class SelectHelix : MonoBehaviour
         {
             rightTriggerReleased = false;
             GridComponent gc = s_hit.collider.gameObject.GetComponent<GridComponent>();
-            Debug.Log("Right trigger clicked");
             if (gc != null && gc.Selected)
             {
-                Debug.Log("helix hit");
-                if (!selectMultiple)
+/*                if (!selectMultiple)
                 {
                     ResetHelices();
-                    Debug.Log("Helices reset");
-                }
+                }*/
                 HighlightHelix(gc.gameObject);
                 selectedHelices.Add(gc);
-                Debug.Log("helix highlighted");
             }
         }
 
         if (axisClick && axisReleased)
         {
             axisReleased = false;
-            if (selectedHelices.Count > 0)
+            // Note: Make undo/redo command? DY 9/11
+            foreach (GridComponent gc in selectedHelices)
             {
-                // DELETE HELIX
-                DoDeleteHelix(selectedHelices[0].Helix.Id); //TODO: HANDLE MULTIPLE HELIX DELETION WITH LIST - DY 8/18/24
+                DeleteHelix(gc.Helix.Id);
             }
         }
 
@@ -117,11 +113,11 @@ public class SelectHelix : MonoBehaviour
             rightTriggerReleased = true;
         }
 
-        if (!leftTriggerValue)
+/*        if (!leftTriggerValue)
         {
             leftTriggerReleased = true;
             selectMultiple = false;
-        }
+        }*/
 
     }
 
@@ -137,7 +133,7 @@ public class SelectHelix : MonoBehaviour
     public static void HighlightHelix(GameObject go)
     {
         GridComponent gc = go.GetComponent<GridComponent>();
-        Highlight.HighlightHelix(gc.Helix);
+        Highlight.HighlightGridCircle(gc);
     }
 
     public static void UnhighlightHelices()
@@ -152,11 +148,8 @@ public class SelectHelix : MonoBehaviour
     public static void UnhighlightHelix(GameObject go)
     {
         if (go == null) { return; }
-        var gc = go.GetComponent<GridComponent>();
-        if (gc.Helix != null)
-        {
-            Highlight.UnhighlightHelix(gc.Helix);
-        }
+        GridComponent gc = go.GetComponent<GridComponent>();
+        Highlight.UnhighlightGridCircle(gc);
     }
 
     public static void DoDeleteHelix(int id)
@@ -180,7 +173,7 @@ public class SelectHelix : MonoBehaviour
     /// Creates new Grid object which contains a collection of selected Helices made by user.
     /// Called by CreateGridCollection button in scene.
     /// </summary>
-    public void CreateGridCollection()
+    public static void CreateGridCollection()
     {
         /*
          * 1. Find Helix that is closest to SubGrid center (google this).
@@ -265,7 +258,7 @@ public class SelectHelix : MonoBehaviour
         }
     }
 
-    private bool CheckHelicesFromSameGrid(List<GridComponent> selectedHelices)
+    private static bool CheckHelicesFromSameGrid(List<GridComponent> selectedHelices)
     {
         string gridId = selectedHelices[0].GridId;
         foreach(GridComponent gc in selectedHelices)

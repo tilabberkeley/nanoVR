@@ -35,7 +35,7 @@ public class SquareGrid : DNAGrid
         float xPosition = xOffset * HELIX_GAP;
         float yPosition = yOffset * HELIX_GAP;
 
-        GameObject gridGO = DrawPoint.MakeGridCircleGO(StartPos, StartGridCircle, xPosition, yPosition, _plane);
+        GameObject gridGO = DrawPoint.MakeGridCircleGO(Position, StartGridCircle, xPosition, yPosition, _plane);
         GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
         gridComponent.Grid = this;
         gridComponent.GridPoint = gridPoint;

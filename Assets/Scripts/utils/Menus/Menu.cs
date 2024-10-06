@@ -1,6 +1,6 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
 using UnityEngine;
@@ -51,6 +51,7 @@ public class Menu : MonoBehaviour
     private void Start()
     {
         _menu = _menu.GetComponent<Canvas>();
+
         // Initialize the menu by setting up the button click events
         for (int i = 0; i < tabButtons.Length; i++)
         {
@@ -80,29 +81,20 @@ public class Menu : MonoBehaviour
 
     void Update()
     {
-        /*
-        if (!GlobalVariables.s_gridTogOn)
-        {
-            return;
-        } */
-
         if (!_leftDevice.isValid || !_rightDevice.isValid)
         {
             GetDevice();
         }
 
-
-        bool primaryValue;
-        if (_leftDevice.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out primaryValue)
-            && primaryValue && primaryReleased)
+        _leftDevice.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out bool primaryValue);
+        if (primaryValue && primaryReleased)
         {
             primaryReleased = false;
             ToggleMenu();
         }
 
         // Reset primary button
-        if (_leftDevice.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out primaryValue)
-            && !primaryValue)
+        if (!primaryValue)
         {
             primaryReleased = true;
         }
@@ -114,13 +106,13 @@ public class Menu : MonoBehaviour
         _menu.enabled = !_menu.enabled;
         if (_menu.enabled)
         {
-            leftRayInteractor.maxRaycastDistance = 1.5f;
-            rightRayInteractor.maxRaycastDistance = 1.5f;
+            leftRayInteractor.maxRaycastDistance = 1f;
+            rightRayInteractor.maxRaycastDistance = 1f;
         }
         else
         {
-            leftRayInteractor.maxRaycastDistance = 0.4f;
-            rightRayInteractor.maxRaycastDistance = 0.4f;
+            leftRayInteractor.maxRaycastDistance = 0.5f;
+            rightRayInteractor.maxRaycastDistance = 0.5f;
         }
     }
 }

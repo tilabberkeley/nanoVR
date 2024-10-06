@@ -57,6 +57,7 @@ public class ObjectListManager : MonoBehaviour
     public static void SelStrand(int strandId)
     {
         SelectStrand.HighlightStrand(strandId);
+        SelectStrand.AddStrand(strandId);
     }
 
     public static void SelGrid(string gridId)

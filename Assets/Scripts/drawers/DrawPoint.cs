@@ -50,7 +50,7 @@ public static class DrawPoint
         return sphere;
     }
 
-    public static void SetNucleotide(GameObject sphere, Vector3 position, int id, int helixId, int direction, bool hideNucleotide = false, bool isOxview = false)
+    public static void SetNucleotide(GameObject sphere, Vector3 position, int id, int helixId, int direction, bool hideNucleotide = false, bool isOxview = false, bool isExtension = false)
     {
         sphere.transform.position = position;
         sphere.name = "nucleotide" + id;
@@ -62,6 +62,7 @@ public static class DrawPoint
         ntc.Direction = direction;
         ntc.IsOxview = isOxview;
         ntc.IsBackbone = false;
+        ntc.IsExtension = isExtension;
         //seqComp.HasComplement = true;
         //sphere.transform.SetParent(null);
         SaveGameObject(sphere);
@@ -432,8 +433,8 @@ public static class DrawPoint
         }
 
         gridCircle.name = "gridPoint";
-        GridComponent gridComponent = gridCircle.GetComponent<GridComponent>();
-        gridComponent.Position = position;
+        //GridComponent gridComponent = gridCircle.GetComponent<GridComponent>();
+        //gridComponent.Position = position;
         SaveGameObject(gridCircle);
         gridCircle.isStatic = true;
         return gridCircle;
@@ -649,6 +650,7 @@ public static class DrawPoint
         loopoutComponent.PrevStrandId = prevStrandId;
         loopoutComponent.Color = prevNucleotideComponent.Color;
         loopoutComponent.SavedColor = nextNucleotideComponent.Color;
+        loopoutComponent.IsXover = false;
 
         // Assign to meshGO that has the loopout component.
         prevNucleotideComponent.Xover = meshGO;
@@ -678,6 +680,31 @@ public static class DrawPoint
         domainComponent.Configure(dnaList);
 
         return domainComponent;
+    }
+
+    public static GameObject MakeHelixCylinder(Vector3 startPos, Vector3 endPos, Color color)
+    {
+        GameObject cylinder =
+                   Instantiate(Xover,
+                   Vector3.zero,
+                   Quaternion.identity) as GameObject;
+        cylinder.name = "helixCylinder";
+        Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
+
+        // Position
+        cylinder.transform.position = (startPos + endPos) / 2.0F;
+
+        // Rotation
+        Vector3 dirV = Vector3.Normalize(endPos - startPos);
+        Vector3 rotAxisV = dirV + cylDefaultOrientation;
+        rotAxisV = Vector3.Normalize(rotAxisV);
+        cylinder.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
+
+        // Scale        
+        float dist = Vector3.Distance(endPos, startPos);
+        cylinder.transform.localScale = new Vector3(Utils.RADIUS * 2, dist / 2, Utils.RADIUS * 2);
+        cylinder.GetComponent<Renderer>().material.SetColor("_Color", color);
+        return cylinder;
     }
 }
 

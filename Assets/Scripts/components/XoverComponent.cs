@@ -2,7 +2,6 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu>
  */
-using System;
 using UnityEngine;
 using static GlobalVariables;
 
@@ -58,6 +57,12 @@ public class XoverComponent : MonoBehaviour
 
     private Color _savedColor;
     public Color SavedColor { get { return _savedColor; } set { _savedColor = value; } }
+
+    /// <summary>
+    /// Whether XoverComponet is xover or loopout.
+    /// </summary>
+    private bool _isXover = true;
+    public bool IsXover { get => _isXover; set => _isXover = value; }
 
     protected virtual void Update()
     {

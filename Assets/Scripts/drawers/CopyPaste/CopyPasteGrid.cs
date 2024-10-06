@@ -51,7 +51,11 @@ public class CopyPasteGrid : MonoBehaviour
             primaryReleased = false;
             s_copied = SelectGrid.Grid;
 
-            if (s_copied != null)
+            /* We only want to copy paste the selected grid if no strands are selected.
+             * This is because both Grids and Strands use the same two buttons to copy paste,
+             * so we don't want to copy paste a Grid when the user was trying to copy paste a Strand.
+             */
+            if (s_copied != null && SelectStrand.Strands.Count == 0)
             {
                 s_json = CopyGrid(s_copied);
                 Debug.Log("Copied grid!");
@@ -106,7 +110,9 @@ public class CopyPasteGrid : MonoBehaviour
     private string CopyGrid(DNAGrid grid)
     {
         List<string> gridIds = new List<string> { grid.Id };
-        return FileExport.GetSCJSON(gridIds, true);
+        string json = FileExport.GetSCJSON(gridIds, true);
+        Debug.Log(json);
+        return json;
     }
 
     private void PasteGrid(string json)

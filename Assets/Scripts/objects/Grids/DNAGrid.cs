@@ -3,6 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using static GlobalVariables;
 
@@ -25,35 +26,20 @@ public abstract class DNAGrid
     protected string _plane;
     public string Plane { get { return _plane; } }
 
-    protected Vector3 _startPos;
-    public Vector3 StartPos 
-    { 
-        get 
-        {
-            int i = GridXToIndex(-2);
-            int j = GridYToIndex(-2);
-            if (_grid2D[i, j] == null)
-            {
-                return _startPos;
-            }
-            return _grid2D[i, j].transform.position; 
-        } 
-        set 
-        {
-            //Debug.Log("Setting grid start pos to " + value.ToString());
-            _startPos = value; 
-        } 
-    }
-
     /// <summary>
     /// Grid's position based on (0, 0) coordinate. This is used by .sc files.
     /// </summary>
+    private Vector3 _position;
     public Vector3 Position
     {
         get
         {
             int i = GridXToIndex(0);
             int j = GridYToIndex(0);
+            if (_grid2D[i, j] == null)
+            {
+                return _position;
+            }
             return _grid2D[i, j].transform.position;
         }
     }
@@ -107,9 +93,8 @@ public abstract class DNAGrid
     {
         _id = id;
         _plane = plane;
-        _startPos = startPos;
-
         _size = 0;
+        _position = startPos;
         SetBounds();
         // 2D array with _length rows and _width columns
         _grid2D = new GridComponent[_length, _width];
@@ -214,7 +199,7 @@ public abstract class DNAGrid
             int x = IndexToGridX(i);
             int y = IndexToGridY(newJ);
             GridPoint gridPoint = new GridPoint(x, y);
-            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, i, newJ);
+            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset - 2, yCreationOffset - 2, i, newJ);
             gridCircles.Add(gridCircle);
             _size++;
         }
@@ -238,7 +223,7 @@ public abstract class DNAGrid
             int x = IndexToGridX(newI);
             int y = IndexToGridY(j);
             GridPoint gridPoint = new GridPoint(x, y);
-            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, newI, j);
+            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset - 2, yCreationOffset - 2, newI, j);
             gridCircles.Add(gridCircle);
             _size++;
         }
@@ -263,7 +248,7 @@ public abstract class DNAGrid
             int x = IndexToGridX(i);
             int y = IndexToGridY(newJ);
             GridPoint gridPoint = new GridPoint(x, y);
-            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, i, newJ);
+            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset - 2, yCreationOffset - 2, i, newJ);
             gridCircles.Add(gridCircle);
             _size++;
         }
@@ -289,7 +274,7 @@ public abstract class DNAGrid
             int x = IndexToGridX(newI);
             int y = IndexToGridY(j);
             GridPoint gridPoint = new GridPoint(x, y);
-            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset, yCreationOffset, newI, j);
+            GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset - 2 , yCreationOffset - 2, newI, j);
             gridCircles.Add(gridCircle);
             _size++;
         }
@@ -460,7 +445,7 @@ public abstract class DNAGrid
         Helix helix = new Helix(id, orientation, length, gridComponent);
         gridComponent.Helix = helix;
         gridComponent.Selected = true;
-
+        Debug.Log("created helix");
         if (s_visualMode)
         {
             s_visHelixDict.Add(id, helix);
@@ -482,10 +467,7 @@ public abstract class DNAGrid
             {
                 GameObject go = _grid2D[i, j].gameObject;
                 go.SetActive(s_hideStencils);
-                if (_grid2D[i, j].Helix != null)
-                {
-                    _grid2D[i, j].Helix.ChangeStencilView();
-                }
+                _grid2D[i, j].Helix?.ChangeStencilView();
             }
         }
     }
@@ -494,11 +476,12 @@ public abstract class DNAGrid
     {
         // Attach parent transforms
         GameObject gridStart = Grid2D[0, 0].gameObject; // TODO: check, might need to change this
+        Transform gridStartTransform = gridStart.transform;
         for (int i = 0; i < Length; i++)
         {
             for (int j = 0; j < Width; j++)
             {
-                Grid2D[i, j].gameObject.transform.parent = gridStart.transform;
+                Grid2D[i, j].gameObject.transform.parent = gridStartTransform;
                 if (Grid2D[i, j].Helix != null)
                 {
                     Grid2D[i, j].Helix.SetParent(gridStart);
@@ -507,19 +490,13 @@ public abstract class DNAGrid
         }
 
         // Rotate grid
-        gridStart.transform.rotation = Quaternion.Euler(pitch, yaw, roll);
+        gridStartTransform.rotation = Quaternion.Euler(pitch, yaw, roll);
 
         // Detach parent transforms
-        for (int i = 0; i < Length; i++)
+        for (int i = 0; i < gridStartTransform.childCount; i++)
         {
-            for (int j = 0; j < Width; j++)
-            {
-                Grid2D[i, j].gameObject.transform.parent = null;
-                if (Grid2D[i, j].Helix != null)
-                {
-                    Grid2D[i, j].Helix.ResetParent();
-                }
-            }
+            Transform child = gridStartTransform.GetChild(i);
+            child.SetParent(null);
         }
     }
 
@@ -545,27 +522,33 @@ public abstract class DNAGrid
     public void DeleteGrid()
     {
         // Delete Grid object
-        /*if (!IsEmpty())
+        if (!IsEmpty())
         {
             Debug.Log("Cannot delete grid while strands remain");
             return;
         }
 
-        for (int i = 0; i < Length; i++)
+        for (int i = 0; i < _length; i++)
         {
-            for (int j = 0; j < Width; j++)
+            for (int j = 0; j < _width; j++)
             {
-                GridComponent gc = Grid2D[i, j];
-                if (gc.Helix != null)
-                {
-                    gc.Helix.DeleteHelix();
-                }
+                GridComponent gc = _grid2D[i, j];
+                gc.Helix?.DeleteHelix();
+#if UNITY_EDITOR
+                GameObject.DestroyImmediate(gc.gameObject);
+#else
                 GameObject.Destroy(gc.gameObject);
+#endif
+
             }
         }
 
         s_gridDict.Remove(_id);
-        s_gridCopies[_id] -= 1;*/
+        s_gridCopies[_id] -= 1;
+        if (s_gridCopies[_id] < 0)
+        {
+            s_gridCopies.Remove(_id);
+        }
     }
 
     /// <summary>
@@ -573,18 +556,18 @@ public abstract class DNAGrid
     /// </summary>
     public bool IsEmpty()
     {
-        return false;
-        /*for (int i = 0; i < Length; i++)
+        //return false;
+        for (int i = 0; i < _length; i++)
         {
-            for (int j = 0; j < Width; j++)
+            for (int j = 0; j < _width; j++)
             {
-                GridComponent gc = Grid2D[i, j];
-                if (gc.Helix != null)
+                GridComponent gc = _grid2D[i, j];
+                if (gc.Helix != null && !gc.Helix.IsEmpty())
                 {
                     return false;
                 }
             }
         }
-        return true;*/
+        return true;
     }
 }

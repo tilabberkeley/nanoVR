@@ -2,11 +2,8 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.XR;
-using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
 
 /// <summary>
@@ -14,81 +11,30 @@ using static GlobalVariables;
 /// </summary>
 public class DrawGrid : MonoBehaviour
 {
-    /*[SerializeField] private XRNode _xrNode;
-    private List<InputDevice> _devices = new List<InputDevice>();
-    private InputDevice _device;
-    [SerializeField] private XRRayInteractor rightRayInteractor;
-    bool triggerReleased = true;
-    private static RaycastHit s_hit;*/
     [SerializeField] private Dropdown directionDropdown;
     [SerializeField] private Dropdown gridTypeDropdown;
-    //[SerializeField] private Button newGridButton;
     private string plane;
-    private const int LENGTH = 64;
-
-    /*private void Start()
-    {
-        newGridButton.onClick.AddListener(() => CreateGrid());
-    }*/
-
-    /*void GetDevice()
-    {
-        InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
-        if (_devices.Count > 0)
-        {
-            _device = _devices[0];
-        }
-    }
-
-    void OnEnable()
-    {
-        if (!_device.isValid)
-        {
-            GetDevice();
-        }
-    }
-
-    void Update()
-    {
-        if (s_hideStencils)
-        {
-            return;
-        }
-
-        if (!_device.isValid)
-        {
-            GetDevice();
-        }
-
-        // Adds a helix to a grid.
-        _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
-        if (triggerReleased && triggerValue
-            && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
-        {
-            triggerReleased = false;
-
-            // clicking grid sphere
-            if (s_hit.collider.GetComponent<GridComponent>())
-            {
-                GridComponent gc = s_hit.collider.GetComponent<GridComponent>();
-                Vector3 startPos = s_hit.collider.bounds.center;
-                int id = s_numHelices;
-                CreateHelix(id, startPos, LENGTH, gc.Grid.Plane, gc);
-            }
-        }
-        
-        if (!triggerValue)
-        {
-            triggerReleased = true;
-        }
-    }*/
-
-    // ADD A STATIC HELPER METHOD TO THIS
 
     /// <summary>
-    /// Creates a grid when new grid button is clicked. 
+    /// Creates either an empty Grid or Grid with selected helices.
+    /// Called by New Grid button in Scene.
     /// </summary>
     public void CreateGrid()
+    {
+        if (SelectHelix.selectedHelices.Count == 0)
+        {
+            CreateGridHelper();
+        }
+        else
+        {
+            SelectHelix.CreateGridCollection();
+        }
+    }
+
+    /// <summary>
+    /// Creates a new blank grid. 
+    /// </summary>
+    public void CreateGridHelper()
     {
         plane = directionDropdown.options[directionDropdown.value].text;
         Vector3 direction = Camera.main.transform.rotation * Vector3.forward;
@@ -121,7 +67,7 @@ public class DrawGrid : MonoBehaviour
         else
         {
             s_gridDict.Add(gridId, grid); 
-            s_gridCopies.Add(s_numGrids.ToString(), 0);
+            s_gridCopies.Add(gridId, 0);
             ObjectListManager.CreateGridButton(gridId);
             s_numGrids += 1;
         }

@@ -16,8 +16,8 @@ public class GridComponent : MonoBehaviour
     // Helix on grid component.
     public Helix Helix { get; set; }
     // 3D position of grid component.
-    private Vector3 _position;
-    public Vector3 Position { get { return gameObject.transform.position; } set { _position = value; } }
+    //private Vector3 _position;
+    public Vector3 Position { get { return gameObject.transform.position; }}
     // 2D point of grid component on grid.
     public GridPoint GridPoint { get; set; }
     // Grid that this grid component is apart of.

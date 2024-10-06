@@ -178,15 +178,16 @@ public class Togglers : MonoBehaviour
         // Magic strings unfortunately :(
         if (activeToggle.name == "NucleotideViewTog")
         {
-            ViewingPerspective.ViewNucleotide();
+            CoRunner.Instance.Run(ViewingPerspective.ViewNucleotide());
         }
         else if (activeToggle.name == "StrandViewTog")
         {
-            ViewingPerspective.ViewStrand();
+            CoRunner.Instance.Run(ViewingPerspective.ViewStrand());
         }
         else
         {
-            // TODO: Helix view
+            Debug.Log("Switching to helix view");
+            CoRunner.Instance.Run(ViewingPerspective.ViewHelix());
         }
     }
 }

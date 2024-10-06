@@ -57,7 +57,6 @@ public static class GlobalVariables
     public static int s_numStrands = 1;
     public static int s_numHelices = 0;
     public static int s_numGrids = 1;
-    public static int s_numSubGrids = 1;
     public static List<GameObject> allGameObjects = new List<GameObject>();
 
     // OxView to keep track of all .oxview file imports
@@ -85,6 +84,16 @@ public static class GlobalVariables
     public static string DNA7560 { get { return _DNA7560.text; } }
     public static string DNA8064 { get { return _DNA8064.text; } }
     public static string DNA8634 { get { return _DNA8634.text; } }
+
+    // Premade scadnano shapes
+    private static TextAsset _square = Resources.Load("ShapeFiles/square") as TextAsset;
+    private static TextAsset _triangle = Resources.Load("ShapeFiles/triangle") as TextAsset;
+    private static TextAsset _6hb = Resources.Load("ShapeFiles/6hb") as TextAsset;
+    public static string SQUARE_SC { get { return _square.text; } }
+    public static string TRIANGLE_SC { get { return _triangle.text; } }
+    public static string SIXHB_SC { get { return _6hb.text; } }
+
+
 
     /* GameObjects to build structures */
 

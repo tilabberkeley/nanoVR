@@ -83,6 +83,38 @@ public class Strand
     private List<DomainComponent> _domains;
     public List<DomainComponent> Domains { get { return _domains; } }
 
+    public List<(int, int)> Insertions
+    {
+        get
+        {
+            List<(int, int)> insertions = new List<(int, int)>();
+            for (int i = 0; i < _nucleotides.Count; i++)
+            {
+                NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+                if (ntc != null && ntc.IsInsertion)
+                {
+                    insertions.Add((i, ntc.Insertion));
+                }
+            }
+            return insertions;
+        }
+    }
+
+    public List<int> Deletions { get
+        {
+            List<int> deletions = new List<int>();
+            for (int i = 0; i < _nucleotides.Count; i++)
+            {
+                NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+                if (ntc != null && ntc.IsDeletion)
+                {
+                    deletions.Add(i);
+                }
+            }
+            return deletions;
+        } 
+    }
+
     /// <summary>
     /// Whether or not _sequence has potentially changed since last Sequence call.
     /// </summary>
@@ -723,7 +755,7 @@ public class Strand
             toDirection = neighbor.transform.position - _head.transform.position;
         }
         _cone.transform.SetPositionAndRotation(_head.transform.position, Quaternion.FromToRotation(Vector3.up, toDirection));
-        _cone.transform.SetParent(_head.transform, false);
+        _cone.transform.SetParent(_head.transform, true);
     }
 
     // Resets all GameObject components in the nucleotides list.
@@ -842,7 +874,25 @@ public class Strand
 
         foreach (GameObject xover in _xovers)
         {
+            xover.SetActive(true);
             xover.GetComponent<XoverComponent>().NucleotideView();
+        }
+    }
+
+    /// <summary>
+    /// Converts strand to Helix view by hiding all beziers and xovers.
+    /// Hiding nucleotides/backbones are handled by individual Helices.
+    /// </summary>
+    public void ToHelixView()
+    {
+        foreach (DomainComponent domain in _domains)
+        {
+            domain.HideBezier();
+        }
+        foreach (GameObject xover in _xovers)
+        {
+            xover.GetComponent<XoverComponent>().NucleotideView();
+            xover.SetActive(false);
         }
     }
 
