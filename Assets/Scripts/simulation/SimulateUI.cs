@@ -16,6 +16,7 @@ public class SimulateUI : MonoBehaviour
 
     [SerializeField] private Button _simulateButton;
     [SerializeField] private Button _cancelButton;
+    [SerializeField] private Button _backToEditButton;
 
     // Input fields for simulation
     private const string T_DEFAULT = "20";
@@ -68,6 +69,7 @@ public class SimulateUI : MonoBehaviour
         _menuSimulateButton.onClick.AddListener(() => ShowSimulationUI());
         _simulateButton.onClick.AddListener(() => Simulate());
         _cancelButton.onClick.AddListener(() => Cancel());
+        _backToEditButton.onClick.AddListener(() => GoBackToEdit());
 
         // Fill default values for input fields
         _TInput.text = T_DEFAULT;
@@ -105,6 +107,11 @@ public class SimulateUI : MonoBehaviour
         _simulateCanvas.enabled = false;
 
         // TODO: break oxserve connection.
+    }
+
+    private void GoBackToEdit()
+    {
+        // Return back to the main edit scene
     }
 
     private JObject ParseSettings()
