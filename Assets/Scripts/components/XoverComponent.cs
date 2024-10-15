@@ -87,6 +87,13 @@ public class XoverComponent : MonoBehaviour
             // Rotation
             transform.up = end - start;
             Color = Utils.GetStrand(_prevGO).Color;
+
+            if (_bezier != null)
+            {
+                _bezier.Destroy();
+
+                _bezier = DrawPoint.MakeXoverBezier(this, _savedColor);
+            }
         }
     }
 
@@ -114,7 +121,7 @@ public class XoverComponent : MonoBehaviour
             return;
         }
 
-        _bezier.Destory();
+        _bezier.Destroy();
         _bezier = null;
         gameObject.SetActive(true);
     }

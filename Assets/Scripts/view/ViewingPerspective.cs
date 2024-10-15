@@ -45,12 +45,15 @@ public static class ViewingPerspective
     /// </summary>
     public static IEnumerator ViewStrand()
     {
-        //if (!s_strandView) { return; }
-
-        // CoRunner.Instance.Run(ViewStrandHelper());
         s_strandView = true;
         s_helixView = false;
         s_nucleotideView = false;
+
+        foreach (Helix helix in s_helixDict.Values)
+        {
+            helix.DestroyCylinder();
+            helix.ChangeRendering();
+        }
 
         List<GameObject> staticBatchingTubes = new List<GameObject>();
         List<GameObject> staticBatchingEndpoints = new List<GameObject>();
@@ -74,18 +77,16 @@ public static class ViewingPerspective
             yield return null;
         }
 
-        foreach (Helix helix in s_helixDict.Values)
-        {
-            helix.DestroyCylinder();
-            helix.ChangeRendering();
-        }
-
         StaticBatchingUtility.Combine(staticBatchingTubes.ToArray(), s_staticBatchTubesRoot);
         StaticBatchingUtility.Combine(staticBatchingEndpoints.ToArray(), s_staticBatchEndpointsRoot);
     }
 
     public static IEnumerator ViewHelix()
     {
+        s_strandView = false;
+        s_helixView = true;
+        s_nucleotideView = false;
+
         foreach (Strand strand in s_strandDict.Values)
         {
             strand.ToHelixView();

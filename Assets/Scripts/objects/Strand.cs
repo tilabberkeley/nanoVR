@@ -882,9 +882,10 @@ public class Strand
     /// </summary>
     public void ToHelixView()
     {
+        // Set domain component inactive with domain.SetActive(false);
         foreach (DomainComponent domain in _domains)
         {
-            domain.HideBezier();
+            domain.HelixView();
         }
         foreach (GameObject xover in _xovers)
         {

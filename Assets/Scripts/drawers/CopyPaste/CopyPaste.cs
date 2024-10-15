@@ -100,36 +100,48 @@ public class CopyPaste : MonoBehaviour
         if (pasting && rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             GameObject go = s_hit.collider.gameObject;
-            if (go == s_go)
+           /* if (go == s_go)
             {
+
                 return;
-            }
-            Reset();
-            s_go = go;
+            }*/
+            //s_go = go;
             NucleotideComponent ntc = go.GetComponent<NucleotideComponent>();
             if (ntc != null)
             {
                 bool allValid = true;
-                DrawNucleotideDynamic.ExtendIfLastNucleotide(ntc);
-                //Highlight.UnhighlightNucleotideSelection(s_currNucleotides, false);
-                foreach (Strand strand in s_copied)
-                {
-                    List<GameObject> nucleotides = GetNucleotides(strand, go, s_copied[0].Head);
-                    bool valid = IsValid(nucleotides);
-                    allValid &= valid;
 
-                    if (!valid)
+                if (s_go != go)
+                {
+                    Reset();
+                    s_go = go;
+                    DrawNucleotideDynamic.ExtendIfLastNucleotide(ntc);
+                    //Highlight.UnhighlightNucleotideSelection(s_currNucleotides, false);
+                    Debug.Log("Start checking highlighted strands");
+                    foreach (Strand strand in s_copied)
                     {
-                        Reset();
-                        break;
+                        List<GameObject> nucleotides = GetNucleotides(strand, go, s_copied[0].Head);
+                        bool valid = IsValid(nucleotides);
+                        allValid &= valid;
+
+                        if (!valid)
+                        {
+                            Debug.Log("Not valid resetting");
+
+                            Reset();
+                            break;
+                        }
+                        s_currNucleotides.AddRange(nucleotides);
+                        newStrandNucls.Add(nucleotides);
+                        Highlight.HighlightNucleotideSelection(nucleotides, valid);
                     }
-                    s_currNucleotides.AddRange(nucleotides);
-                    newStrandNucls.Add(nucleotides);
-                    Highlight.HighlightNucleotideSelection(nucleotides, valid);
-                }
-                
+                    Debug.Log("Finished looping through copied strands");
+                } 
+
                 if (triggerValue && allValid)
                 {
+                    Debug.Log("Trigger pulled and pasting");
+
                     triggerReleased = false;
                     for (int i = 0; i < newStrandNucls.Count; i++)
                     {
@@ -185,6 +197,7 @@ public class CopyPaste : MonoBehaviour
         {
             triggerReleased = false;
             Reset();
+            pasting = false;
         }
 
         // Resets trigger button.                                            
@@ -211,16 +224,16 @@ public class CopyPaste : MonoBehaviour
         UnhighlightNucleotideSelection(s_currNucleotides, false);
         s_currNucleotides.Clear();
         newStrandNucls.Clear();
-        pasting = false;
+        //pasting = false;
         //s_copied.Clear();
     }
 
     public static List<GameObject> GetNucleotides(Strand strand, GameObject newGO, GameObject firstStrandHead)
     {
-        /*if (strand.Head.GetComponent<NucleotideComponent>().Direction != newGO.GetComponent<NucleotideComponent>().Direction)
+        if (s_copied[0].Head.GetComponent<NucleotideComponent>().Direction != newGO.GetComponent<NucleotideComponent>().Direction)
         {
             return null;
-        }*/
+        }
 
         List<GameObject> nucleotides = new List<GameObject>();
         List<(GameObject, GameObject)> endpoints = new List<(GameObject, GameObject)>();
@@ -232,7 +245,7 @@ public class CopyPaste : MonoBehaviour
         int y = gp.Y;
         List<(bool, int)> isXover = new List<(bool, int)>();
 
-        // Adds start and end point of each substrand to endpoints list.
+        /* Adds start and end point of each substrand to endpoints list. */
 
         // NOTE: Change this to domains!!! DY 9/12
         if (strand.Xovers.Count > 0)
@@ -241,6 +254,7 @@ public class CopyPaste : MonoBehaviour
             if (strand.Xovers[0].GetComponent<XoverComponent>().IsXover)
             {
                 isXover.Add((true, 0));
+                Debug.Log("First domain Is xover copy/paste");
             }
             else
             {
@@ -248,7 +262,7 @@ public class CopyPaste : MonoBehaviour
             }
             for (int i = 0; i < strand.Xovers.Count - 1; i++)
             {
-                // Determine if we're copying xover or loopout
+                /* Determine if we're copying xover or loopout */
                 if (strand.Xovers[i].GetComponent<XoverComponent>().IsXover)
                 {
                     isXover.Add((true, 0));
@@ -260,35 +274,49 @@ public class CopyPaste : MonoBehaviour
                 endpoints.Add((strand.Xovers[i].GetComponent<XoverComponent>().NextGO, strand.Xovers[i + 1].GetComponent<XoverComponent>().PrevGO));
             }
             endpoints.Add((strand.Xovers.Last().GetComponent<XoverComponent>().NextGO, strand.Tail));
-            if (strand.Xovers.Last().GetComponent<XoverComponent>().IsXover)
+            Debug.Log("Domain start: " + strand.Xovers.Last().GetComponent<NucleotideComponent>().Id + ", end: " + strand.Tail.GetComponent<NucleotideComponent>().Id);
+
+            /*if (strand.Xovers.Last().GetComponent<XoverComponent>().IsXover)
             {
                 isXover.Add((true, 0));
+                Debug.Log("Add last domain is xover");
             }
             else
             {
                 isXover.Add((false, strand.Xovers.Last().GetComponent<LoopoutComponent>().SequenceLength));
-            }
+            }*/
         }
         else
         {
             endpoints.Add((head, strand.Tail));
         }
-
         isXovers.Add(isXover);
 
-        // Calculates distances between each strand segment's gridPoint and the start segment's.
+        Debug.Log("Finished getting xovers, xover count: " + isXover.Count);
+
+        /* Calculate distances between each strand segment's gridPoint and the start segment's. */
         List<(int, int)> xyDistances = CalculateXYDistances(strand, x, y);
 
+        Debug.Log("Finished calculating xyDistances, count: " + xyDistances.Count);
+
+        /* Get pasted position's GridPoint */
         Helix newHelix = s_helixDict[newGO.GetComponent<NucleotideComponent>().HelixId];
         GridPoint newGP = newHelix._gridComponent.GridPoint;
         DNAGrid grid = newHelix._gridComponent.Grid;
-        int firstStrandHeadIdx = firstStrandHead.GetComponent<NucleotideComponent>().Id;
         int newX = newGP.X;
         int newY = newGP.Y;
+
+        Debug.Log("Finished getting new position's gridPoint");
+
+        /* Calculate offset between each strand's starting index and new pasting idx */
+        int firstStrandHeadIdx = firstStrandHead.GetComponent<NucleotideComponent>().Id;
         int newGOOffset = newGO.GetComponent<NucleotideComponent>().Id - head.GetComponent<NucleotideComponent>().Id;
         int firstStrandHeadOffset = firstStrandHeadIdx - head.GetComponent<NucleotideComponent>().Id;
         int offset = newGOOffset - firstStrandHeadOffset;
 
+        Debug.Log("Finished calculating offset: " + offset);
+
+        /* Getting nucleotide list of new potentially pasted strand */
         for (int i = 0; i < xyDistances.Count; i++)
         {
             int tempX = newX + xyDistances[i].Item1;
@@ -296,30 +324,38 @@ public class CopyPaste : MonoBehaviour
             int indexX = grid.GridXToIndex(tempX);
             int indexY = grid.GridYToIndex(tempY);
             GridComponent gc = grid.Grid2D[indexX, indexY];
+
+            Debug.Log("Get gc");
             if (gc == null || !gc.Selected)
             {
+                Debug.Log("GC null or doesn't have helix");
+
                 return null;
             }
 
-            List<GameObject> subNucleotides = GetSubList(endpoints[i].Item1, endpoints[i].Item2, gc, offset, newDirection);
+            List<GameObject> subNucleotides = GetSubList(endpoints[i].Item1, endpoints[i].Item2, gc, offset);//, newDirection);
             if (subNucleotides == null)
             {
+                Debug.Log("subnucl list null");
                 return null;
             }
             nucleotides.AddRange(subNucleotides);
+            Debug.Log("Adding subnucl list");
         }
+        Debug.Log("Finished GetNucleotides()");
         return nucleotides;
     }
 
-    public static List<GameObject> GetSubList(GameObject start, GameObject end, GridComponent gc, int offset, int newDirection)
+    public static List<GameObject> GetSubList(GameObject start, GameObject end, GridComponent gc, int offset)//, int newDirection)
     {
+        int direction = start.GetComponent<NucleotideComponent>().Direction;
         int startId = GetNewIndex(start.GetComponent<NucleotideComponent>().Id, offset);
         int endId = GetNewIndex(end.GetComponent<NucleotideComponent>().Id, offset);
         if (startId < endId)
         {
-            return gc.Helix.GetHelixSub(startId, endId, newDirection);
+            return gc.Helix.GetHelixSub(startId, endId, direction);
         }
-        return gc.Helix.GetHelixSub(endId, startId, newDirection);
+        return gc.Helix.GetHelixSub(endId, startId, direction);
     }
 
     public static int GetNewIndex(int origIndex, int offset)
@@ -329,7 +365,7 @@ public class CopyPaste : MonoBehaviour
 
     public static bool IsValid(List<GameObject> nucleotides)
     {
-        if (nucleotides == null) { return false; }
+        if (nucleotides == null) { Debug.Log("Is valid nucls are null"); return false; }
 
         foreach (GameObject nucleotide in nucleotides)
         {

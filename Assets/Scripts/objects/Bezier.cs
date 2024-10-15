@@ -16,7 +16,7 @@ public class Bezier
         Endpoint1 = endpoint1;
     }
 
-    public void Destory()
+    public void Destroy()
     {
         GameObject.Destroy(Tube);
         GameObject.Destroy(Endpoint0);

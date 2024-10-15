@@ -484,10 +484,7 @@ public abstract class DNAGrid
             for (int j = 0; j < Width; j++)
             {
                 Grid2D[i, j].gameObject.transform.parent = gridStartTransform;
-                if (Grid2D[i, j].Helix != null)
-                {
-                    Grid2D[i, j].Helix.SetParent(gridStart);
-                }
+                Grid2D[i, j].Helix?.SetParent(gridStartTransform);
             }
         }
 

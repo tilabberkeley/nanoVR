@@ -208,7 +208,7 @@ public class DrawCrossover : MonoBehaviour
     /// <summary>
     /// Helper method to create a crossover between given nuleotides.
     /// </summary>
-    public static GameObject CreateXoverHelper(GameObject startGO, GameObject endGO)
+    public static GameObject CreateXoverHelper(GameObject startGO, GameObject endGO, bool showXover = true)
     {
         int strandId = startGO.GetComponent<NucleotideComponent>().StrandId;
         int prevStrandId = endGO.GetComponent<NucleotideComponent>().StrandId;
@@ -227,7 +227,7 @@ public class DrawCrossover : MonoBehaviour
             prevGO = endGO;
         }
         GameObject xover = DrawPoint.MakeXover(prevGO, nextGO, strandId, prevStrandId);
-
+        xover.SetActive(showXover);
         return xover;
     }
 

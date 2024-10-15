@@ -66,6 +66,9 @@ public class DomainComponent : MonoBehaviour
                 if (nuclSubList.Count % BEZIER_COUNT == 0 || i == _dnaComponents.Count - 1)
                 {
                     Bezier bezier = DrawPoint.MakeDomainBezier(nuclSubList, _strand.Color, out Vector3 bezierStartPoint, out Vector3 bezierEndPoint);
+                    bezier.Tube.transform.SetParent(transform, true);
+                    //bezier.Endpoint0.transform.SetParent(transform, true);
+                    //bezier.Endpoint1.transform.SetParent(transform, true);
 
                     if (_beziers.Count == 0)
                     {
@@ -92,13 +95,13 @@ public class DomainComponent : MonoBehaviour
         {
             foreach (Bezier bezier in _beziers)
             {
-                bezier.Destory();
+                bezier.Destroy();
             }
             _beziers.Clear();
         }
     }
 
-    private void ShowBezier()
+    public void ShowBezier()
     {
         foreach (Bezier bezier in _beziers)
         {
@@ -171,6 +174,13 @@ public class DomainComponent : MonoBehaviour
         ShowBezier();
         // Should activate itself if nucleotides aren't visable
         gameObject.SetActive(true);
+    }
+
+    public void HelixView()
+    {
+        HideBezier();
+        // Should activate itself if nucleotides aren't visable
+        gameObject.SetActive(false);
     }
 
     /// <summary>

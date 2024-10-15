@@ -136,7 +136,7 @@ public static class GlobalVariables
     private static GameObject _xover = Resources.Load("Xover") as GameObject;
     private static GameObject _xoverSuggestion = Resources.Load("XoverSuggestion") as GameObject;
     private static GameObject _gridCircle = Resources.Load("GridCircle") as GameObject;
-    private static GameObject _gizmos = Resources.Load("Gizmos") as GameObject;
+    private static GameObject _gizmos = Resources.Load("Gizmo") as GameObject;
     private static GameObject _loopout = Resources.Load("Loopout") as GameObject;
 
     private static GameObject _domainInteractable = Resources.Load("Domains/DomainInteractable") as GameObject;

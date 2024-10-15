@@ -714,12 +714,12 @@ public static class DrawPoint
         return domainComponent;
     }
 
-    public static GameObject MakeHelixCylinder(Vector3 startPos, Vector3 endPos, Color color)
+    public static GameObject MakeHelixCylinder(Helix helix, Vector3 startPos, Vector3 endPos, Color color)
     {
-        GameObject cylinder =
-                   Instantiate(Xover,
-                   Vector3.zero,
-                   Quaternion.identity) as GameObject;
+        GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        cylinder.AddComponent<XRSimpleInteractable>();
+        var helixComponent = cylinder.AddComponent<HelixComponent>();
+        helixComponent.Helix = helix;
         cylinder.name = "helixCylinder";
         Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
 

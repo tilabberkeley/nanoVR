@@ -828,7 +828,6 @@ GameObject:
   - component: {fileID: 1403397816488564661}
   - component: {fileID: 1403397816483406773}
   - component: {fileID: 1403397816487597429}
-  - component: {fileID: 1403397816495357525}
   m_Layer: 0
   m_Name: Z
   m_TagString: Untagged
@@ -915,29 +914,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &1403397816495357525
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1403397816489855925}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7530eed2869669b4785275542b5410c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Gizmo: {fileID: 0}
-  Control: 2
-  Type: 0
-  PositionCap: {fileID: 1403397816489855917}
-  RotationCap: {fileID: 1403397816489855911}
-  ScaleCap: {fileID: 1403397816489855915}
-  ActiveMaterial: {fileID: 2100000, guid: 8ed47b4e95aca4c45956e852f2922673, type: 2}
-  Axis: 3
-  MoveSensitivity: 10
-  RotationSensitivity: 90
-  ScaleSensitivity: 10
 --- !u!1 &1403397816489855927
 GameObject:
   m_ObjectHideFlags: 0
@@ -950,7 +926,6 @@ GameObject:
   - component: {fileID: 1403397816488564663}
   - component: {fileID: 1403397816483406775}
   - component: {fileID: 1403397816487597431}
-  - component: {fileID: 1403397816495357527}
   m_Layer: 0
   m_Name: X
   m_TagString: Untagged
@@ -1037,29 +1012,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &1403397816495357527
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1403397816489855927}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7530eed2869669b4785275542b5410c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Gizmo: {fileID: 0}
-  Control: 2
-  Type: 0
-  PositionCap: {fileID: 1403397816489855909}
-  RotationCap: {fileID: 1403397816489855921}
-  ScaleCap: {fileID: 1403397816489855933}
-  ActiveMaterial: {fileID: 2100000, guid: 8ed47b4e95aca4c45956e852f2922673, type: 2}
-  Axis: 1
-  MoveSensitivity: 10
-  RotationSensitivity: 90
-  ScaleSensitivity: 10
 --- !u!1 &1403397816489855929
 GameObject:
   m_ObjectHideFlags: 0
@@ -1072,7 +1024,6 @@ GameObject:
   - component: {fileID: 1403397816488564665}
   - component: {fileID: 1403397816483406769}
   - component: {fileID: 1403397816487597433}
-  - component: {fileID: 1403397816495357521}
   m_Layer: 0
   m_Name: Y
   m_TagString: Untagged
@@ -1159,29 +1110,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &1403397816495357521
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1403397816489855929}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7530eed2869669b4785275542b5410c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Gizmo: {fileID: 0}
-  Control: 1
-  Type: 0
-  PositionCap: {fileID: 1403397816489855907}
-  RotationCap: {fileID: 1403397816489855935}
-  ScaleCap: {fileID: 1403397816489855923}
-  ActiveMaterial: {fileID: 2100000, guid: 8ed47b4e95aca4c45956e852f2922673, type: 2}
-  Axis: 2
-  MoveSensitivity: 10
-  RotationSensitivity: 90
-  ScaleSensitivity: 10
 --- !u!1 &1403397816489855931
 GameObject:
   m_ObjectHideFlags: 0

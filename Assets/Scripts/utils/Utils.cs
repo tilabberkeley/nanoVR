@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using static GlobalVariables;
 
 /// <summary>
@@ -176,11 +177,4 @@ public static class Utils
             }
         }
     }
-
-    /*public static Strand GetComplementStrand(Strand strand)
-    {
-        var ntc = strand.Head.GetComponent<NucleotideComponent>();
-        GameObject complement = ntc.Complement;
-        return GetStrand(complement);
-    }*/
 }

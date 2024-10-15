@@ -4,8 +4,11 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
+using static Facebook.WitAi.Data.AudioEncoding;
 using static GlobalVariables;
 using static Utils;
 using Debug = UnityEngine.Debug;
@@ -75,7 +78,7 @@ public class Helix
     private Vector3 _lastPositionB;
 
     private List<GameObject> _helixViewCylinders;
-    private CapsuleCollider _collider;
+    //private GameObject _collider;
 
     // Helix constructor.
     public Helix(int id, string orientation, int length, GridComponent gridComponent)
@@ -532,6 +535,72 @@ public class Helix
         _nucleotidesB[_nucleotidesB.Count - 1].SetActive(s_nucleotideView);
     }
 
+    public void ToHelixView()
+    {
+        HashSet<DomainComponent> domains = new HashSet<DomainComponent>();
+
+        foreach (GameObject nucleotide in _nucleotidesA)
+        {
+            domains.Add(nucleotide.GetComponent<NucleotideComponent>().Domain);
+        }
+        Debug.Log("Added nucls a");
+
+        foreach (GameObject nucleotide in _nucleotidesB)
+        {
+            domains.Add(nucleotide.GetComponent<NucleotideComponent>().Domain);
+        }
+        Debug.Log("Added nucls b");
+
+        foreach (DomainComponent domain in domains)
+        {
+            if (domain == null)
+            {
+                Debug.Log("Domain is null");
+                break;
+            }
+            domain.HelixView();
+        }
+    }
+
+    public void ToStrandView()
+    {
+        DestroyCylinder();
+
+        Debug.Log("Finished destroying cylinders");
+
+        HashSet<DomainComponent> domains = new HashSet<DomainComponent>();
+
+        foreach (GameObject nucleotide in _nucleotidesA)
+        {
+            var ntc = nucleotide.GetComponent<NucleotideComponent>();
+            if (ntc.Selected)
+            {
+                domains.Add(ntc.Domain);
+            }
+        }
+        foreach (GameObject nucleotide in _nucleotidesB)
+        {
+            var ntc = nucleotide.GetComponent<NucleotideComponent>();
+            if (ntc.Selected)
+            {
+                domains.Add(ntc.Domain);
+            }
+        }
+
+        Debug.Log("Fnished adding domains");
+        Debug.Log("Domains count: " + domains.Count);
+        foreach (DomainComponent domain in domains)
+        {
+            if (domain == null)
+            {
+                Debug.Log("Helix ToStrandView has null domains");
+            }
+            domain.StrandView();
+        }
+
+        Debug.Log("Finished showing beziers");
+    }
+
     /// <summary>
     /// Creates cylinders representing Helix in Helix view.
     /// Calculates cylinder length by getting position of smallest indexed nucleotide in a Strand
@@ -591,6 +660,8 @@ public class Helix
                 type = -1;
             }
         }
+
+        //CreateCollider();
     }
 
     /// <summary>
@@ -601,18 +672,19 @@ public class Helix
         {
             return;
         }
-        Vector3 startPos = Vector3.Lerp(_nucleotidesA[startIdx].transform.position, _nucleotidesB[startIdx].transform.position, 0.5f);
-        Vector3 endPos = Vector3.Lerp(_nucleotidesA[endIdx].transform.position, _nucleotidesB[endIdx].transform.position, 0.5f);
+        Vector3 startPos = _gridComponent.transform.position + (RISE * startIdx * -_gridComponent.transform.forward);
+        Vector3 endPos = _gridComponent.transform.position + (endIdx * RISE * -_gridComponent.transform.forward);
+       
         Color color;
         if (singleStrandRegion)
         {
-            color = Color.red;
+            ColorUtility.TryParseHtmlString("#C75B7A", out color);
         }
         else
         {
-            color = Color.blue;
+            ColorUtility.TryParseHtmlString("#7FA1C3", out color);
         }
-        _helixViewCylinders.Add(DrawPoint.MakeHelixCylinder(startPos, endPos, color));
+        _helixViewCylinders.Add(DrawPoint.MakeHelixCylinder(this, startPos, endPos, color));
     }
 
     /// <summary>
@@ -627,6 +699,34 @@ public class Helix
         foreach (GameObject cylinder in _helixViewCylinders)
         {
             GameObject.Destroy(cylinder);
+        }
+
+        _helixViewCylinders.Clear();
+    }
+
+    /// <summary>
+    /// Deletes helix object and destroys all GameObjects.
+    /// </summary>
+    public void DeleteHelix()
+    {
+        _gridComponent.Helix = null;
+        _gridComponent.Selected = false;
+        s_helixDict.Remove(_id);
+        foreach (GameObject nucleotide in NucleotidesA)
+        {
+            GameObject.Destroy(nucleotide);
+        }
+        foreach (GameObject nucleotide in NucleotidesB)
+        {
+            GameObject.Destroy(nucleotide);
+        }
+        foreach (GameObject nucleotide in BackbonesA)
+        {
+            GameObject.Destroy(nucleotide);
+        }
+        foreach (GameObject nucleotide in BackbonesB)
+        {
+            GameObject.Destroy(nucleotide);
         }
     }
 
@@ -684,66 +784,84 @@ public class Helix
     }
 
     /// <summary>
-    /// Deletes helix object and destroys all GameObjects.
-    /// </summary>
-    public void DeleteHelix()
-    {
-        _gridComponent.Helix = null;
-        _gridComponent.Selected = false;
-        s_helixDict.Remove(_id);
-        foreach (GameObject nucleotide in NucleotidesA)
-        {
-            GameObject.Destroy(nucleotide);
-        }
-        foreach (GameObject nucleotide in NucleotidesB)
-        {
-            GameObject.Destroy(nucleotide);
-        }
-        foreach (GameObject nucleotide in BackbonesA)
-        {
-            GameObject.Destroy(nucleotide);
-        }
-        foreach (GameObject nucleotide in BackbonesB)
-        {
-            GameObject.Destroy(nucleotide);
-        }
-    }
-
-    /// <summary>
     /// Sets parent transforms of all helix GameObjects to go (the transform gizmo).
     /// This helps with Grid translations and rotations.
     /// </summary>
     /// <param name="go">GameObject representing the transform gizmo.</param>
-    public void SetParent(GameObject go)
+    public void SetParent(Transform goTransform)
     {
-        Transform goTransform = go.transform;
-        HashSet<Bezier>addedBeziers = new HashSet<Bezier>();
+        HashSet<DomainComponent> addedDomains = new HashSet<DomainComponent>();
 
         foreach (GameObject nucleotide in _nucleotidesA)
         {
-            nucleotide.transform.SetParent(goTransform, true);
-            // If we're in strand view, we need to translate the beziers as well.
-            if (s_strandView)
+            //nucleotide.transform.SetParent(goTransform, true);
+            nucleotide.transform.parent = goTransform;
+            var ntc = nucleotide.GetComponent<NucleotideComponent>();
+            if (ntc.Domain != null)
             {
-                addedBeziers.UnionWith(nucleotide.GetComponent<NucleotideComponent>().Domain.Beziers);
+                addedDomains.Add(ntc.Domain);
+
             }
+            // we need to translate the beziers as well.
+            /*var ntc = nucleotide.GetComponent<NucleotideComponent>();
+            if (ntc.Xover != null)
+            {
+                Bezier bezier = ntc.Xover.GetComponent<XoverComponent>().Bezier;
+                bezier.Tube.transform.SetParent(goTransform, true);
+                //bezier.Endpoint0.transform.SetParent(goTransform, true);
+                //bezier.Endpoint1.transform.SetParent(goTransform, true);
+            }
+            if (ntc.Domain != null) {
+                addedDomains.Add(ntc.Domain);
+
+            }*/
+
+            /*if (ntc.Selected)
+            {
+                addedBeziers.UnionWith(ntc.Domain.Beziers);
+            }*/
         }
         foreach (GameObject nucleotide in _nucleotidesB)
         {
-            nucleotide.transform.SetParent(goTransform, true);
-            // If we're in strand view, we need to translate the beziers as well.
-            if (s_strandView)
+            //nucleotide.transform.SetParent(goTransform, true);
+            nucleotide.transform.parent = goTransform;
+
+            var ntc = nucleotide.GetComponent<NucleotideComponent>();
+            if (ntc.Domain != null)
             {
-                addedBeziers.UnionWith(nucleotide.GetComponent<NucleotideComponent>().Domain.Beziers);
+                addedDomains.Add(ntc.Domain);
+
             }
+            // we need to translate the beziers as well.
+            /*var ntc = nucleotide.GetComponent<NucleotideComponent>();
+            if (ntc.Xover != null)
+            {
+                Bezier bezier = ntc.Xover.GetComponent<XoverComponent>().Bezier;
+                bezier.Tube.transform.SetParent(goTransform, true);
+                //bezier.Endpoint0.transform.SetParent(goTransform, true);
+                //bezier.Endpoint1.transform.SetParent(goTransform, true);
+            }
+            if (ntc.Domain != null)
+            {
+                addedDomains.Add(ntc.Domain);
+
+            }*/
+            /*if (ntc.Selected)
+            {
+                addedBeziers.UnionWith(ntc.Domain.Beziers);
+            }*/
         }
         foreach (GameObject nucleotide in _backbonesA)
         {
-            nucleotide.transform.SetParent(goTransform, true);
+            //nucleotide.transform.SetParent(goTransform, true);
+            nucleotide.transform.parent = goTransform;
+
         }
         foreach (GameObject nucleotide in _backbonesB)
         {
-            nucleotide.transform.SetParent(goTransform, true);
+            //nucleotide.transform.SetParent(goTransform, true);
+            nucleotide.transform.parent = goTransform;
+
         }
 
         // If we're in helix view, we need to translate the cylinders as well.
@@ -751,14 +869,42 @@ public class Helix
         {
             foreach (GameObject cylinder in _helixViewCylinders)
             {
-                cylinder.transform.SetParent(goTransform, true);
+                //cylinder.transform.SetParent(goTransform, true);
+                cylinder.transform.parent = goTransform;
             }
         }
 
-        foreach (Bezier bezier in addedBeziers)
+        foreach (DomainComponent domain in addedDomains)
         {
-            bezier.Tube.transform.SetParent(goTransform, true);
+            if (domain == null)
+            {
+                Debug.Log("domain null");
+                continue;
+            }
+            Debug.Log("Adding domain to transform handle");
+            //domain.transform.SetParent(goTransform, true);
+            domain.transform.parent = goTransform;
         }
+
+        /*foreach (DomainComponent domain in addedDomains)
+        {
+            if (domain == null)
+            {
+                Debug.Log("domain null");
+                continue;
+            }
+            Debug.Log("Adding domain to transform handle");
+            domain.transform.SetParent(goTransform, true);
+            foreach (Bezier bezier in domain.Beziers)
+            {
+                bezier.Tube.transform.SetParent(goTransform, true);
+                //bezier.Endpoint0.transform.SetParent(goTransform, true);
+                //bezier.Endpoint1.transform.SetParent(goTransform, true);
+            }
+          
+            //bezier.Endpoint0.transform.SetParent(goTransform, true);
+            //bezier.Endpoint1.transform.SetParent(goTransform, true);
+        }*/
     }
 
     /// <summary>

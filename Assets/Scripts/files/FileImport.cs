@@ -31,8 +31,8 @@ public class FileImport : MonoBehaviour
     public static FileImport Instance;
 
     private const string PLANE = "XY";
-    private const int MAX_NUCLEOTIDES = 20000;
-    Stopwatch st = new Stopwatch();
+    private const int MAX_STRAND_NUCLEOTIDES = 20000;
+    private const int MAX_HELIX_NUCLEOTIDES = 30000;
 
     private const string DEFAULT_GRID_NAME = "default_group";
 
@@ -153,8 +153,6 @@ public class FileImport : MonoBehaviour
         JArray strands = JArray.Parse(origami["strands"].ToString());
         bool isMultiGrid = false;
 
-        Debug.Log("Begin parsing grids");
-
         /**
          * Parse grids
          */
@@ -162,71 +160,72 @@ public class FileImport : MonoBehaviour
         {
             JObject groupObject = JObject.Parse(origami["groups"].ToString());
             Dictionary<string, JObject> groups = groupObject.ToObject<Dictionary<string, JObject>>();
-            isMultiGrid = groups.Count > 1;
-            Debug.Log("Begin parsing groups");
+            isMultiGrid = groups.Count > 1; 
 
             foreach (var item in groups)
             {
-                string origName = CleanSlash(item.Key);
-                string gridName = origName;
-                if (!visualMode)
+                try
                 {
-                    gridName = GetGridName(origName);
-                    UpdateGridCopies(origName);
-                }
-                Debug.Log("Gridname: " + gridName);
-                JObject info = item.Value;
-                float x = 0;
-                float y = 0;
-                float z = 0;
-                if (info["position"] != null)
-                {
-                    Debug.Log("Get grid position");
+                    string origName = CleanSlash(item.Key);
+                    string gridName = origName;
+                    if (!visualMode)
+                    {
+                        gridName = GetGridName(origName);
+                        UpdateGridCopies(origName);
+                    }
+                    Debug.Log("gridname" + gridName);
+                    JObject info = item.Value;
+                    float x = 0;
+                    float y = 0;
+                    float z = 0;
+                    if (info["position"] != null)
+                    {
+                        x = (float)info["position"]["x"] / SCALE;
+                        y = (float)info["position"]["y"] / SCALE;
+                        z = (float)info["position"]["z"] / SCALE;
+                    }
+                    
+                    string gridType = CleanSlash(info["grid"].ToString());
+                    Vector3 startPos;
+                    if (isCopyPaste)
+                    {
+                        startPos = rayInteractor.transform.position;
+                    }
+                    else
+                    {
+                        startPos = new Vector3(x, y, z);
+                    }
 
-                    x = (float)info["position"]["x"] / SCALE;
-                    y = (float)info["position"]["y"] / SCALE;
-                    z = (float)info["position"]["z"] / SCALE;
-                }
-                Debug.Log("Get grid type");
+                    DNAGrid grid = DrawGrid.CreateGrid(gridName, PLANE, startPos, gridType);
+                    Debug.Log("Created grid");
+                    grids.Add(grid);
 
-                string gridType = CleanSlash(info["grid"].ToString());
-                Vector3 startPos;
-                if (isCopyPaste)
-                {
-                    startPos = rayInteractor.transform.position;
+                    // Handle rotation
+                    float pitch = 0f;
+                    float roll = 0f;
+                    float yaw = 0f;
+                    if (info["pitch"] != null)
+                    {
+                        yaw = (float)info["pitch"];
+                    }
+                    if (info["roll"] != null)
+                    {
+                        roll = (float)info["roll"];
+                    }
+                    if (info["yaw"] != null)
+                    {
+                        pitch = (float)info["yaw"];
+                    }
+                    if (pitch > 0 || roll > 0 || yaw > 0)
+                    {
+                        grid.Rotate(pitch, roll, yaw);
+                    }
+                    Debug.Log("Fnish rotations");
                 }
-                else
+                catch (Exception e)
                 {
-                    startPos = new Vector3(x, y, z);
+                    Debug.Log(e.Message);
                 }
-                Debug.Log("set start position");
-
-                DNAGrid grid = DrawGrid.CreateGrid(gridName, PLANE, startPos, gridType);
-                Debug.Log("Drew grid");
-
-                grids.Add(grid);
-
-                // Handle rotation
-                float pitch = 0f;
-                float roll = 0f;
-                float yaw = 0f;
-                if (info["pitch"] != null)
-                {
-                    yaw = (float)info["pitch"];
-                }
-                if (info["roll"] != null)
-                {
-                    roll = (float)info["roll"];
-                }
-                if (info["yaw"] != null)
-                {
-                    pitch = (float)info["yaw"];
-                }
-                if (pitch > 0 || roll > 0 || yaw > 0)
-                {
-                    grid.Rotate(pitch, roll, yaw);
-                }
-                Debug.Log("Fnish rotations");
 
             }
         }
@@ -244,8 +243,6 @@ public class FileImport : MonoBehaviour
         // Parse strands.
         CoRunner.Instance.Run(ParseStrands(strands, lastHelixId));
 
-        
-
         // Hide grid circles (unselect grids)
         foreach (DNAGrid grid in grids)
         {
@@ -261,7 +258,7 @@ public class FileImport : MonoBehaviour
     private async Task ParseHelices(JArray helices, bool isMultiGrid)
     {
         int startHelixId = s_numHelices;
-        Debug.Log("Start parsing helices");
+        //Debug.Log("Start parsing helices");
 
         for (int i = 0; i < helices.Count; i++)
         { 
@@ -290,7 +287,7 @@ public class FileImport : MonoBehaviour
             {
                 gridName = (s_numGrids - 1).ToString();
             }
-
+            Debug.Log("Helix grid name: " + gridName);
             DNAGrid grid = s_gridDict[gridName];
             int xGrid = (int) coord[0];
             int yGrid = (int) coord[1] * -1;
@@ -317,12 +314,21 @@ public class FileImport : MonoBehaviour
                 grid.ExpandNorth();
             }
 
-            int xInd = grid.GridXToIndex(xGrid);
-            int yInd = grid.GridYToIndex(yGrid);
-            GridComponent gc = grid.Grid2D[xInd, yInd];
-            Helix helix = grid.AddHelix(helixId, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
-            bool hideNucleotides = true;
-            await helix.ExtendAsync(length, hideNucleotides);
+            try
+            {
+                int xInd = grid.GridXToIndex(xGrid);
+                int yInd = grid.GridYToIndex(yGrid);
+                GridComponent gc = grid.Grid2D[xInd, yInd];
+                Helix helix = grid.AddHelix(helixId, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
+                bool hideNucleotides = true;
+                await helix.ExtendAsync(length, hideNucleotides);
+                //Debug.Log("Finished extending helix");
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.Message);
+            }
+          
         }
     }
 
@@ -350,6 +356,11 @@ public class FileImport : MonoBehaviour
             if (strands[i]["is_scaffold"] != null)
             {
                 isScaffold = (bool) strands[i]["is_scaffold"];
+            }
+            bool isCircular = false;
+            if (strands[i]["circular"] != null)
+            {
+                isCircular = (bool) strands[i]["circular"];
             }
             List<GameObject> nucleotides = new List<GameObject>();
             List<GameObject> xoverEndpoints = new List<GameObject>();
@@ -511,6 +522,11 @@ public class FileImport : MonoBehaviour
             }
 
             Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
+            if (isCircular)
+            {
+                strand.IsCircular = true;
+                strand.ShowHideCone(false);
+            }
 
             try
             {
@@ -526,7 +542,7 @@ public class FileImport : MonoBehaviour
                     }
                     else
                     {
-                        strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], nextGO));
+                        strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], nextGO, showXover: false));
                     }
                 }
             }
@@ -538,7 +554,7 @@ public class FileImport : MonoBehaviour
 
             try
             {
-                strand.SetDomains();
+                //strand.SetDomains();
             }
             catch (Exception e)
             {
@@ -561,10 +577,16 @@ public class FileImport : MonoBehaviour
             yield return null;
         }
 
-        // Abstracts to Strand View if there are more than MAX_NUCLEOTIDES in scene.
+        // Abstracts to Helix or Strand Views if there are more than MAX_NUCLEOTIDES in scene.
         // This helps with performance.
-        if (GlobalVariables.allGameObjects.Count > MAX_NUCLEOTIDES)
+        if (GlobalVariables.allGameObjects.Count > MAX_HELIX_NUCLEOTIDES || s_helixView)
         {
+            //Togglers.Instance.CheckHelixToggle();
+            CoRunner.Instance.Run(ViewingPerspective.ViewHelix());
+        }
+        else if (GlobalVariables.allGameObjects.Count > MAX_STRAND_NUCLEOTIDES || s_strandView)
+        {
+            //Togglers.Instance.CheckStrandToggle();
             CoRunner.Instance.Run(ViewingPerspective.ViewStrand());
         }
         else
@@ -651,13 +673,13 @@ public class FileImport : MonoBehaviour
             }
             else
             {
-                return origName + " (" + (numCopies) + ")";
+                return origName + " (" + numCopies + ")";
             }
         }
         else
         {
             int numCopies = s_gridCopies[origName];
-            if (numCopies == 1)
+            if (numCopies == 0)
             {
                 return origName;
             }

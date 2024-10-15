@@ -58,7 +58,7 @@ public class CopyPasteGrid : MonoBehaviour
             if (s_copied != null && SelectStrand.Strands.Count == 0)
             {
                 s_json = CopyGrid(s_copied);
-                Debug.Log("Copied grid!");
+                //Debug.Log("Copied grid!");
             }
         }
 
@@ -70,7 +70,7 @@ public class CopyPasteGrid : MonoBehaviour
             {
                 pasting = true;
                 PasteGrid(s_json);
-                Debug.Log("Pasted grid!");
+                //Debug.Log("Pasted grid!");
             }
         }
 
@@ -111,7 +111,7 @@ public class CopyPasteGrid : MonoBehaviour
     {
         List<string> gridIds = new List<string> { grid.Id };
         string json = FileExport.GetSCJSON(gridIds, true);
-        Debug.Log(json);
+        //Debug.Log(json);
         return json;
     }
 
