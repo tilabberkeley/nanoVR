@@ -1,17 +1,13 @@
 using Newtonsoft.Json.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using static GlobalVariables;
 
 public class SimulateUI : MonoBehaviour
 {
-    /* Main menu UI */
-    [SerializeField] private Canvas _menu;
-
-    [SerializeField] private Button _menuSimulateButton;
-
     /* Simulation UI */
+    // Turning on the canvas is handled by menu.cs
     [SerializeField] private Canvas _simulateCanvas;
 
     [SerializeField] private Button _simulateButton;
@@ -66,7 +62,6 @@ public class SimulateUI : MonoBehaviour
         _oxViewConnect = _oxserveConnectionManager.GetComponent<oxViewConnect>();
 
         // Add button listeners
-        _menuSimulateButton.onClick.AddListener(() => ShowSimulationUI());
         _simulateButton.onClick.AddListener(() => Simulate());
         _cancelButton.onClick.AddListener(() => Cancel());
         _backToEditButton.onClick.AddListener(() => GoBackToEdit());
@@ -96,12 +91,6 @@ public class SimulateUI : MonoBehaviour
         _backboneForceFarInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
     }
 
-    private void ShowSimulationUI()
-    {
-        _simulateCanvas.enabled = true;
-        _menu.enabled = false;
-    }
-
     private void Cancel()
     {
         _simulateCanvas.enabled = false;
@@ -112,6 +101,7 @@ public class SimulateUI : MonoBehaviour
     private void GoBackToEdit()
     {
         // Return back to the main edit scene
+        SceneManager.LoadScene("Edit");
     }
 
     private JObject ParseSettings()

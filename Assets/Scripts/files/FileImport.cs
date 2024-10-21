@@ -2,6 +2,7 @@
  * nanoVR, a VR application for building DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SimpleFileBrowser;
 using System;
