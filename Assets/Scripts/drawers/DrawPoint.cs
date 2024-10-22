@@ -45,7 +45,7 @@ public static class DrawPoint
         ntc.IsBackbone = false;
         //seqComp.HasComplement = true;
         SaveGameObject(sphere);
-        sphere.isStatic = true;
+        //sphere.isStatic = true;
         sphere.SetActive(!hideNucleotide);
         return sphere;
     }
@@ -66,7 +66,7 @@ public static class DrawPoint
         //seqComp.HasComplement = true;
         //sphere.transform.SetParent(null);
         SaveGameObject(sphere);
-        sphere.isStatic = true;
+        //sphere.isStatic = true;
         //sphere.SetActive(!hideNucleotide);
         sphere.SetActive(!hideNucleotide);
     }
@@ -218,8 +218,8 @@ public static class DrawPoint
         cylinder.transform.up = end - start;
 
         SaveGameObject(cylinder);
-        cylinder.isStatic = true;
-        cylinder.SetActive(false);
+        // cylinder.isStatic = true;
+        cylinder.SetActive(!hideBackbone);
         return cylinder;
     }
 
@@ -339,7 +339,7 @@ public static class DrawPoint
         
         //cylinder.transform.SetParent(null);
         SaveGameObject(cylinder);
-        cylinder.isStatic = true;
+        //cylinder.isStatic = true;
     }
 
     /// <summary>
@@ -436,7 +436,7 @@ public static class DrawPoint
         //GridComponent gridComponent = gridCircle.GetComponent<GridComponent>();
         //gridComponent.Position = position;
         SaveGameObject(gridCircle);
-        gridCircle.isStatic = true;
+        //gridCircle.isStatic = true;
         return gridCircle;
     }
 

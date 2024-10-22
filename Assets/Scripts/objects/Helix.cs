@@ -265,8 +265,8 @@ public class Helix
          * This reduces number of Draw calls and increases FPS. 
          */
 
-        StaticBatchingUtility.Combine(_helixA.ToArray(), _helixA[0]);
-        StaticBatchingUtility.Combine(_helixB.ToArray(), _helixB[0]);
+        //StaticBatchingUtility.Combine(_helixA.ToArray(), _helixA[0]);
+        //StaticBatchingUtility.Combine(_helixB.ToArray(), _helixB[0]);
         _helixA.Clear();
         _helixB.Clear();
 

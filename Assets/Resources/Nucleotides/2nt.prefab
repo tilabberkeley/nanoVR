@@ -14,7 +14,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &7478959018216252568
 Transform:
@@ -95,6 +95,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &2081762578442163682 stripped
@@ -164,6 +168,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (0)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}

@@ -14,7 +14,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &6605667548942148593
 Transform:
@@ -97,6 +97,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &3831178489475331546 stripped
@@ -166,6 +170,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (0)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
@@ -237,6 +245,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &6387015589453002341 stripped
@@ -306,6 +318,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}

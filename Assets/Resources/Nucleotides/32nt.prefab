@@ -14,7 +14,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &3294297421417512282
 Transform:
@@ -125,6 +125,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (16)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &4592185582615492401 stripped
@@ -194,6 +198,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (26)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
@@ -265,6 +273,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (17)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &4038705348603982585 stripped
@@ -334,6 +346,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (19)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
@@ -405,6 +421,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (23)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &3175597769627498247 stripped
@@ -474,6 +494,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
@@ -545,6 +569,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &3087136740237417577 stripped
@@ -614,6 +642,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (9)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
@@ -685,6 +717,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &1453245894578940817 stripped
@@ -754,6 +790,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (13)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
@@ -825,6 +865,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (8)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &1158613625949550969 stripped
@@ -894,6 +938,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (24)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
@@ -965,6 +1013,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (18)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &1073771447948082363 stripped
@@ -1034,6 +1086,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (25)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
@@ -1105,6 +1161,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (10)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &9014118992978069444 stripped
@@ -1174,6 +1234,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (15)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
@@ -1245,6 +1309,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (28)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &8640325506565101923 stripped
@@ -1314,6 +1382,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (27)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
@@ -1385,6 +1457,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &8216765590079399065 stripped
@@ -1454,6 +1530,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (7)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
@@ -1525,6 +1605,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (6)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &7561558725671735917 stripped
@@ -1594,6 +1678,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (29)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
@@ -1665,6 +1753,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (20)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &6934025252265369978 stripped
@@ -1734,6 +1826,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (21)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
@@ -1805,6 +1901,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (0)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &6685073151602700568 stripped
@@ -1874,6 +1974,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (31)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
@@ -1945,6 +2049,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (22)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &6808206165837031027 stripped
@@ -2014,6 +2122,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (11)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
@@ -2085,6 +2197,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (30)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &6142704492146875245 stripped
@@ -2154,6 +2270,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (14)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
@@ -2225,6 +2345,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icosphere (12)
       objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
 --- !u!4 &5914493212814953732 stripped
@@ -2294,6 +2418,10 @@ PrefabInstance:
     - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
       propertyPath: m_Name
       value: Icosphere (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603299748186831101, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 559b03f7b6ff94449be80d4cde6b547e, type: 3}
