@@ -111,7 +111,7 @@ public class CopyPasteGrid : MonoBehaviour
     {
         List<string> gridIds = new List<string> { grid.Id };
         string json = FileExport.GetSCJSON(gridIds, true);
-        //Debug.Log(json);
+        Debug.Log(json);
         return json;
     }
 

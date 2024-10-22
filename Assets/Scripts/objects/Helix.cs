@@ -7,8 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit;
-using static Facebook.WitAi.Data.AudioEncoding;
 using static GlobalVariables;
 using static Utils;
 using Debug = UnityEngine.Debug;
@@ -110,7 +108,7 @@ public class Helix
         // If not, generate them async.
         int count64 = length / 64;
 
-#if !UNITY_EDITOR && UNITY_ANDROID
+//#if !UNITY_EDITOR && UNITY_ANDROID
         if (ObjectPoolManager.Instance.CanGetNucleotides(2 * length) && ObjectPoolManager.Instance.CanGetBackbones(2 * (length - 1)))
         {
             _nucleotidesA.AddRange(ObjectPoolManager.Instance.GetNucleotides(length));
@@ -215,9 +213,9 @@ public class Helix
             }
 
         }
-#endif
+//#endif
 
-#if UNITY_EDITOR
+/*#if UNITY_EDITOR
         for (int i = prevLength; i < _length; i++)
         {
             //sw.Start();
@@ -263,7 +261,7 @@ public class Helix
                 await Task.Yield();
             }
         }
-#endif
+#endif*/
         /* Batches static (non-moving) gameobjects so that they are drawn together.
          * This reduces number of Draw calls and increases FPS. 
          */
@@ -790,18 +788,23 @@ public class Helix
     /// <param name="go">GameObject representing the transform gizmo.</param>
     public void SetParent(Transform goTransform)
     {
-        HashSet<DomainComponent> addedDomains = new HashSet<DomainComponent>();
+        //HashSet<DomainComponent> addedDomains = new HashSet<DomainComponent>();
 
         foreach (GameObject nucleotide in _nucleotidesA)
         {
-            //nucleotide.transform.SetParent(goTransform, true);
-            nucleotide.transform.parent = goTransform;
+            nucleotide.transform.SetParent(goTransform, true);
+            Strand strand = Utils.GetStrand(nucleotide);
+            strand?.Cone.transform.SetParent(goTransform, false);
+
+            //nucleotide.transform.parent = goTransform;
             var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            if (ntc.Domain != null)
+            ntc.Domain?.transform.SetParent(goTransform, true);
+
+            /*if (ntc.Domain != null && !addedDomains.Contains(ntc.Domain))
             {
                 addedDomains.Add(ntc.Domain);
 
-            }
+            }*/
             // we need to translate the beziers as well.
             /*var ntc = nucleotide.GetComponent<NucleotideComponent>();
             if (ntc.Xover != null)
@@ -823,15 +826,18 @@ public class Helix
         }
         foreach (GameObject nucleotide in _nucleotidesB)
         {
-            //nucleotide.transform.SetParent(goTransform, true);
-            nucleotide.transform.parent = goTransform;
-
+            nucleotide.transform.SetParent(goTransform, true);
+            //nucleotide.transform.parent = goTransform;
+            Strand strand = Utils.GetStrand(nucleotide);
+            strand?.Cone.transform.SetParent(goTransform, false);
             var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            if (ntc.Domain != null)
+            ntc.Domain?.transform.SetParent(goTransform, true);
+
+            /*if (ntc.Domain != null && !addedDomains.Contains(ntc.Domain))
             {
                 addedDomains.Add(ntc.Domain);
 
-            }
+            }*/
             // we need to translate the beziers as well.
             /*var ntc = nucleotide.GetComponent<NucleotideComponent>();
             if (ntc.Xover != null)
@@ -853,14 +859,14 @@ public class Helix
         }
         foreach (GameObject nucleotide in _backbonesA)
         {
-            //nucleotide.transform.SetParent(goTransform, true);
-            nucleotide.transform.parent = goTransform;
+            nucleotide.transform.SetParent(goTransform, true);
+            //nucleotide.transform.parent = goTransform;
 
         }
         foreach (GameObject nucleotide in _backbonesB)
         {
-            //nucleotide.transform.SetParent(goTransform, true);
-            nucleotide.transform.parent = goTransform;
+            nucleotide.transform.SetParent(goTransform, true);
+            //nucleotide.transform.parent = goTransform;
 
         }
 
@@ -869,11 +875,12 @@ public class Helix
         {
             foreach (GameObject cylinder in _helixViewCylinders)
             {
-                //cylinder.transform.SetParent(goTransform, true);
-                cylinder.transform.parent = goTransform;
+                cylinder.transform.SetParent(goTransform, true);
+                //cylinder.transform.parent = goTransform;
             }
         }
 
+        /*Debug.Log("Added domains: " + addedDomains.Count);
         foreach (DomainComponent domain in addedDomains)
         {
             if (domain == null)
@@ -881,10 +888,15 @@ public class Helix
                 Debug.Log("domain null");
                 continue;
             }
-            Debug.Log("Adding domain to transform handle");
-            //domain.transform.SetParent(goTransform, true);
-            domain.transform.parent = goTransform;
-        }
+            //Debug.Log("Adding domain to transform handle");
+            domain.transform.SetParent(goTransform, true);
+            //domain.transform.parent = goTransform;
+            Debug.Log("domain children: " + domain.transform.childCount);
+            foreach(Transform child in domain.transform)
+            {
+                Debug.Log("Child: " + child.gameObject);
+            }
+        }*/
 
         /*foreach (DomainComponent domain in addedDomains)
         {

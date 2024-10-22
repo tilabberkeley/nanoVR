@@ -67,8 +67,8 @@ public class DomainComponent : MonoBehaviour
                 {
                     Bezier bezier = DrawPoint.MakeDomainBezier(nuclSubList, _strand.Color, out Vector3 bezierStartPoint, out Vector3 bezierEndPoint);
                     bezier.Tube.transform.SetParent(transform, true);
-                    //bezier.Endpoint0.transform.SetParent(transform, true);
-                    //bezier.Endpoint1.transform.SetParent(transform, true);
+                    bezier.Endpoint0.transform.SetParent(transform, true);
+                    bezier.Endpoint1.transform.SetParent(transform, true);
 
                     if (_beziers.Count == 0)
                     {

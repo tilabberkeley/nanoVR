@@ -745,7 +745,7 @@ public class Strand
             toDirection = neighbor.transform.position - _head.transform.position;
         }
         _cone.transform.SetPositionAndRotation(_head.transform.position, Quaternion.FromToRotation(Vector3.up, toDirection));
-        _cone.transform.SetParent(_head.transform, true);
+        //_cone.transform.SetParent(_head.transform, true);
     }
 
     // Resets all GameObject components in the nucleotides list.

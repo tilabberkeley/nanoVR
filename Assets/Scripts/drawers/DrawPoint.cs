@@ -68,7 +68,6 @@ public static class DrawPoint
         //sphere.transform.SetParent(null);
         SaveGameObject(sphere);
         sphere.isStatic = true;
-        //sphere.SetActive(!hideNucleotide);
         sphere.SetActive(!hideNucleotide);
     }
 
@@ -220,7 +219,7 @@ public static class DrawPoint
 
         SaveGameObject(cylinder);
         cylinder.isStatic = true;
-        cylinder.SetActive(false);
+        cylinder.SetActive(!hideBackbone);
         return cylinder;
     }
 
@@ -392,6 +391,7 @@ public static class DrawPoint
         if (startGridCircle != null)
         {
             position = startPosition + xOffset * startGridCircle.transform.right + yOffset * startGridCircle.transform.up;
+            Debug.Log($"startGridCircle position: {position}");
         }
         else
         {
@@ -402,10 +402,13 @@ public static class DrawPoint
             else if (plane.Equals("YZ"))
             {
                 position = new Vector3(startPosition.x, startPosition.y + xOffset, startPosition.z + yOffset);
+                Debug.Log($"YZ position: {position}");
             }
             else
             {
                 position = new Vector3(startPosition.x + xOffset, startPosition.y, startPosition.z + yOffset);
+                Debug.Log($"XZ position: {position}");
+
             }
         }
 
@@ -418,16 +421,22 @@ public static class DrawPoint
         if (startGridCircle != null)
         {
             gridCircle.transform.rotation = startGridCircle.transform.rotation;
+            Debug.Log($"startGridCircle rotation: {gridCircle.transform.rotation}");
+
         }
         else
         {
             if (plane.Equals("XZ"))
             {
-                gridCircle.transform.Rotate(0f, 0f, 90f, 0);
+                gridCircle.transform.Rotate(90f, 0f, 0f, 0);
+                Debug.Log($"XZ rotation: {gridCircle.transform.rotation}");
+
             }
             else if (plane.Equals("YZ"))
             {
                 gridCircle.transform.Rotate(0f, 90f, 0f, 0);
+                Debug.Log($"YZ rotation: {gridCircle.transform.rotation}");
+
             }
         }
 
@@ -465,9 +474,9 @@ public static class DrawPoint
         bezierEndPoint = anchorPoints[anchorPoints.Length - 1];
 
         GameObject endpoint0 = MakeBezierEndpoint(bezierStartPoint, color);
-        endpoint0.transform.SetParent(domainBezier.transform);
+        //endpoint0.transform.SetParent(domainBezier.transform);
         GameObject endpoint1 = MakeBezierEndpoint(bezierEndPoint, color);
-        endpoint1.transform.SetParent(domainBezier.transform);
+        //endpoint1.transform.SetParent(domainBezier.transform);
 
         // Enable static batching
         domainBezier.isStatic = true;

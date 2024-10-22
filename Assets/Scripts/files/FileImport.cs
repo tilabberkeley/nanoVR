@@ -27,7 +27,7 @@ public class FileImport : MonoBehaviour
     [SerializeField] private Canvas Menu;
     [SerializeField] private Canvas loadingMenu;
     private Canvas fileBrowser;
-    private static XRRayInteractor rayInteractor;
+    [SerializeField] private XRRayInteractor rayInteractor;
     public static FileImport Instance;
 
     private const string PLANE = "XY";
@@ -75,7 +75,7 @@ public class FileImport : MonoBehaviour
     {
         fileBrowser = FileBrowser.Instance.GetComponent<Canvas>();
         fileBrowser.gameObject.SetActive(false);
-        rayInteractor = GameObject.Find("RightHand Controller").GetComponent<XRRayInteractor>();
+        //rayInteractor = GameObject.Find("RightHand Controller").GetComponent<XRRayInteractor>();
     }
 
     public void OpenFile()
@@ -189,13 +189,14 @@ public class FileImport : MonoBehaviour
                     Vector3 startPos;
                     if (isCopyPaste)
                     {
+                        Debug.Log("Is Copypaste");
                         startPos = rayInteractor.transform.position;
                     }
                     else
                     {
                         startPos = new Vector3(x, y, z);
                     }
-
+                    Debug.Log("startPos: " + startPos);
                     DNAGrid grid = DrawGrid.CreateGrid(gridName, PLANE, startPos, gridType);
                     Debug.Log("Created grid");
                     grids.Add(grid);

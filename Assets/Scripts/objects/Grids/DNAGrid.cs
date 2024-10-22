@@ -477,7 +477,16 @@ public abstract class DNAGrid
     public void Rotate(float pitch, float roll, float yaw)
     {
         // Attach parent transforms
-        GameObject gridStart = Grid2D[0, 0].gameObject; // TODO: check, might need to change this
+        TransformHandle.AttachChildren(this);
+        TransformHandle.Gizmos.transform.rotation = Quaternion.Euler(-pitch, roll, yaw);
+        TransformHandle.DetachChildren();
+
+        // haven't tested yet?
+        //gridStartTransform.rotation = Quaternion.Euler(roll, yaw, pitch);
+        //gridStartTransform.rotation = Quaternion.Euler(yaw, roll, pitch);
+        //gridStartTransform.rotation = Quaternion.Euler(yaw, pitch, roll);
+
+        /*GameObject gridStart = Grid2D[0, 0].gameObject; // TODO: check, might need to change this
         Transform gridStartTransform = gridStart.transform;
         for (int i = 0; i < Length; i++)
         {
@@ -489,14 +498,20 @@ public abstract class DNAGrid
         }
 
         // Rotate grid
-        gridStartTransform.rotation = Quaternion.Euler(pitch, yaw, roll);
+        //gridStartTransform.rotation = Utils.ToQuaternion(roll, pitch, yaw);
+        //gridStartTransform.rotation = Quaternion.Euler(pitch, yaw, roll);
+        gridStartTransform.rotation = Quaternion.Euler(roll, pitch, yaw);
+
+
+
+
 
         // Detach parent transforms
         for (int i = 0; i < gridStartTransform.childCount; i++)
         {
             Transform child = gridStartTransform.GetChild(i);
             child.SetParent(null);
-        }
+        }*/
     }
 
     /// <summary>

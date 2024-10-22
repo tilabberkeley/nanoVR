@@ -65,10 +65,10 @@ public class CopyPaste : MonoBehaviour
         if (_device.TryGetFeatureValue(CommonUsages.primaryButton, out bool primaryValue) && primaryValue && primaryReleased && !pasting)
         {
             primaryReleased = false;
-            Debug.Log("cop7ing selected strands");
+            //Debug.Log("cop7ing selected strands");
 
             s_copied = SelectStrand.Strands;
-            Debug.Log("copied");
+            //Debug.Log("copied");
 
             // Keep track of insertions/deletions
             foreach (Strand strand in s_copied)
@@ -76,7 +76,7 @@ public class CopyPaste : MonoBehaviour
                 insertions.Add(strand.Insertions);
                 deletions.Add(strand.Deletions);
             }
-            Debug.Log("finished insertion/deletion tracking");
+            //Debug.Log("finished insertion/deletion tracking");
         }
 
         if (_device.TryGetFeatureValue(CommonUsages.secondaryButton, out bool secondaryValue)
@@ -262,6 +262,7 @@ public class CopyPaste : MonoBehaviour
             }
             for (int i = 0; i < strand.Xovers.Count - 1; i++)
             {
+                Debug.Log("entered for loop");
                 /* Determine if we're copying xover or loopout */
                 if (strand.Xovers[i].GetComponent<XoverComponent>().IsXover)
                 {
@@ -273,8 +274,12 @@ public class CopyPaste : MonoBehaviour
                 }
                 endpoints.Add((strand.Xovers[i].GetComponent<XoverComponent>().NextGO, strand.Xovers[i + 1].GetComponent<XoverComponent>().PrevGO));
             }
+            Debug.Log("About to add last domain");
+            Debug.Log("strand last xover: " + strand.Xovers.Last());
+            Debug.Log("strand last xover component: " + strand.Xovers.Last().GetComponent<XoverComponent>());
+            Debug.Log("strand last xover component next go: " + strand.Xovers.Last().GetComponent<XoverComponent>().NextGO);
             endpoints.Add((strand.Xovers.Last().GetComponent<XoverComponent>().NextGO, strand.Tail));
-            Debug.Log("Domain start: " + strand.Xovers.Last().GetComponent<NucleotideComponent>().Id + ", end: " + strand.Tail.GetComponent<NucleotideComponent>().Id);
+            Debug.Log("Domain start: " + strand.Xovers.Last().GetComponent<XoverComponent>().NextGO.GetComponent<NucleotideComponent>().Id + ", end: " + strand.Tail.GetComponent<NucleotideComponent>().Id);
 
             /*if (strand.Xovers.Last().GetComponent<XoverComponent>().IsXover)
             {
