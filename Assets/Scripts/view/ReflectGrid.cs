@@ -2,143 +2,154 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ReflectGrid : MonoBehaviour
 {
     public void ReflectVerticalGlobal()
     {
-        DNAGrid grid = SelectGrid.Grid;
-        if (grid == null)
+        List<DNAGrid> grids = SelectGrid.Grids;
+        if (grids.Count == 0)
         {
             Debug.Log("Please select a grid first.");
             return;
         }
 
-        float midY = CalculateMidPoint(grid).y;
-
-        for (int i = 0; i < grid.Length; i++)
+        foreach (DNAGrid grid in grids)
         {
-            for (int j = 0; j < grid.Width; j++)
+            float midY = CalculateMidPoint(grid).y;
+
+            for (int i = 0; i < grid.Length; i++)
             {
-                Transform transform = grid.Grid2D[i, j].transform;
-                float distY = (transform.position.y - midY) * 2; // Multiply by 2 to get total distance needed to reflect
-                transform.position = new Vector3(transform.position.x, transform.position.y - distY, transform.position.z);
-                transform.localEulerAngles = new Vector3(-transform.localEulerAngles.x, transform.localEulerAngles.y, transform.localEulerAngles.z);
-                //transform.Rotate(new Vector3(-transform.rotation.x * 2, 0, 0));
-                grid.Grid2D[i, j].Helix?.ReflectVectical(distY);
+                for (int j = 0; j < grid.Width; j++)
+                {
+                    Transform transform = grid.Grid2D[i, j].transform;
+                    float distY = (transform.position.y - midY) * 2; // Multiply by 2 to get total distance needed to reflect
+                    transform.position = new Vector3(transform.position.x, transform.position.y - distY, transform.position.z);
+                    transform.localEulerAngles = new Vector3(-transform.localEulerAngles.x, transform.localEulerAngles.y, transform.localEulerAngles.z);
+                    //transform.Rotate(new Vector3(-transform.rotation.x * 2, 0, 0));
+                    grid.Grid2D[i, j].Helix?.ReflectVectical(distY);
+                }
             }
         }
     }
 
     public void ReflectHorizontalGlobal()
     {
-        DNAGrid grid = SelectGrid.Grid;
-        if (grid == null)
+        List<DNAGrid> grids = SelectGrid.Grids;
+        if (grids.Count == 0)
         {
-            Debug.Log("Please select a grid firt.");
+            Debug.Log("Please select a grid first.");
             return;
         }
-
-        float midX = CalculateMidPoint(grid).x;
-
-        for (int i = 0; i < grid.Length; i++)
+        foreach (DNAGrid grid in grids)
         {
-            for (int j = 0; j < grid.Width; j++)
+            float midX = CalculateMidPoint(grid).x;
+
+            for (int i = 0; i < grid.Length; i++)
             {
-                Transform transform = grid.Grid2D[i, j].transform;
-                float distX = (transform.position.x - midX) * 2; // Multiply by 2 to get total distance needed to reflect
-                transform.position = new Vector3(transform.position.x - distX, transform.position.y, transform.position.z);
-                //transform.Rotate(new Vector3(0, -transform.localEulerAngles.y * 2, 0));
-                transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, -transform.localEulerAngles.y, transform.localEulerAngles.z);
-                grid.Grid2D[i, j].Helix?.ReflectHorizontal(distX);
+                for (int j = 0; j < grid.Width; j++)
+                {
+                    Transform transform = grid.Grid2D[i, j].transform;
+                    float distX = (transform.position.x - midX) * 2; // Multiply by 2 to get total distance needed to reflect
+                    transform.position = new Vector3(transform.position.x - distX, transform.position.y, transform.position.z);
+                    //transform.Rotate(new Vector3(0, -transform.localEulerAngles.y * 2, 0));
+                    transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, -transform.localEulerAngles.y, transform.localEulerAngles.z);
+                    grid.Grid2D[i, j].Helix?.ReflectHorizontal(distX);
+                }
             }
         }
     }
 
     public void ReflectVerticalLocal()
     {
-        DNAGrid grid = SelectGrid.Grid;
-        if (grid == null)
+        List<DNAGrid> grids = SelectGrid.Grids;
+        if (grids.Count == 0)
         {
             Debug.Log("Please select a grid first.");
             return;
         }
-
-        Vector3 midPoint = CalculateMidPoint(grid);
-        //Vector3 minPoint = grid.Grid2D[grid., 0].transform.up;
-        //Vector3 distance = midPoint - grid.Grid2D[0, 0].transform.position;
-        Vector3 gridLocalYAxis = CalculateMidAxis(grid, true);
-        Debug.Log("Local y axis: " + gridLocalYAxis);
-
-        for (int i = 0; i < grid.Length; i++)
+        foreach (DNAGrid grid in grids)
         {
-            for (int j = 0; j < grid.Width; j++)
+            Vector3 midPoint = CalculateMidPoint(grid);
+            //Vector3 minPoint = grid.Grid2D[grid., 0].transform.up;
+            //Vector3 distance = midPoint - grid.Grid2D[0, 0].transform.position;
+            Vector3 gridLocalYAxis = CalculateMidAxis(grid, true);
+            Debug.Log("Local y axis: " + gridLocalYAxis);
+
+            for (int i = 0; i < grid.Length; i++)
             {
-                Transform transform = grid.Grid2D[i, j].transform;
+                for (int j = 0; j < grid.Width; j++)
+                {
+                    Transform transform = grid.Grid2D[i, j].transform;
 
-                // Get the object's current position relative to the reflection point
-                Vector3 objectPosition = transform.position;
+                    // Get the object's current position relative to the reflection point
+                    Vector3 objectPosition = transform.position;
 
-                // Calculate the vector from the reflection point to the object
-                Vector3 relativePosition = objectPosition - midPoint;
+                    // Calculate the vector from the reflection point to the object
+                    Vector3 relativePosition = objectPosition - midPoint;
 
-                // Reflect the position vector around the grid's local Y-axis
-                Vector3 reflectedPosition = Vector3.Reflect(relativePosition, gridLocalYAxis);
+                    // Reflect the position vector around the grid's local Y-axis
+                    Vector3 reflectedPosition = Vector3.Reflect(relativePosition, gridLocalYAxis);
 
-                Vector3 displacement = reflectedPosition - objectPosition;
+                    Vector3 displacement = reflectedPosition - objectPosition;
 
-                // Calculate the new world position by adding the reflected vector to the reflection point
-                transform.position = reflectedPosition; // + midPoint;
+                    // Calculate the new world position by adding the reflected vector to the reflection point
+                    transform.position = reflectedPosition; // + midPoint;
 
-                /*float distY = (transform.position.y - midY) * 2; // Multiply by 2 to get total distance needed to reflect
-                transform.position = new Vector3(transform.position.x, transform.position.y - distY, transform.position.z);
-                transform.localEulerAngles = new Vector3(-transform.localEulerAngles.x, transform.localEulerAngles.y, transform.localEulerAngles.z);*/
-                //transform.Rotate(new Vector3(-transform.rotation.x * 2, 0, 0));
-                grid.Grid2D[i, j].Helix?.ReflectVerticalLocal(displacement);
+                    /*float distY = (transform.position.y - midY) * 2; // Multiply by 2 to get total distance needed to reflect
+                    transform.position = new Vector3(transform.position.x, transform.position.y - distY, transform.position.z);
+                    transform.localEulerAngles = new Vector3(-transform.localEulerAngles.x, transform.localEulerAngles.y, transform.localEulerAngles.z);*/
+                    //transform.Rotate(new Vector3(-transform.rotation.x * 2, 0, 0));
+                    grid.Grid2D[i, j].Helix?.ReflectVerticalLocal(displacement);
+                }
             }
         }
     }
 
     public void ReflectHorizontalLocal()
     {
-        DNAGrid grid = SelectGrid.Grid;
-        if (grid == null)
+        List<DNAGrid> grids = SelectGrid.Grids;
+        if (grids.Count == 0)
         {
             Debug.Log("Please select a grid first.");
             return;
         }
 
-        Vector3 midPoint = CalculateMidPoint(grid);
-        //Vector3 localXAxis = grid.Grid2D[0, 0].transform.right;
-        //Vector3 distance = midPoint - grid.Grid2D[0, 0].transform.position;
-        Vector3 gridLocalXAxis = CalculateMidAxis(grid, false);
-        Debug.Log("Local x axis: " + gridLocalXAxis);
-
-        for (int i = 0; i < grid.Length; i++)
+        foreach (DNAGrid grid in grids)
         {
-            for (int j = 0; j < grid.Width; j++)
+            Vector3 midPoint = CalculateMidPoint(grid);
+            //Vector3 localXAxis = grid.Grid2D[0, 0].transform.right;
+            //Vector3 distance = midPoint - grid.Grid2D[0, 0].transform.position;
+            Vector3 gridLocalXAxis = CalculateMidAxis(grid, false);
+            Debug.Log("Local x axis: " + gridLocalXAxis);
+
+            for (int i = 0; i < grid.Length; i++)
             {
-                Transform transform = grid.Grid2D[i, j].transform;
+                for (int j = 0; j < grid.Width; j++)
+                {
+                    Transform transform = grid.Grid2D[i, j].transform;
 
-                // Get the object's current position relative to the reflection point
-                Vector3 objectPosition = transform.position;
+                    // Get the object's current position relative to the reflection point
+                    Vector3 objectPosition = transform.position;
 
-                // Calculate the vector from the reflection point to the object
-                Vector3 relativePosition = objectPosition - midPoint;
+                    // Calculate the vector from the reflection point to the object
+                    Vector3 relativePosition = objectPosition - midPoint;
 
-                // Reflect the position vector around the grid's local Y-axis
-                Vector3 reflectedPosition = Vector3.Reflect(relativePosition, gridLocalXAxis);
-                Vector3 displacement = reflectedPosition - objectPosition;
+                    // Reflect the position vector around the grid's local Y-axis
+                    Vector3 reflectedPosition = Vector3.Reflect(relativePosition, gridLocalXAxis);
+                    Vector3 displacement = reflectedPosition - objectPosition;
 
-                // Calculate the new world position by adding the reflected vector to the reflection point
-                transform.position = reflectedPosition;
+                    // Calculate the new world position by adding the reflected vector to the reflection point
+                    transform.position = reflectedPosition;
 
-                /*float distY = (transform.position.y - midY) * 2; // Multiply by 2 to get total distance needed to reflect
-                transform.position = new Vector3(transform.position.x, transform.position.y - distY, transform.position.z);
-                transform.localEulerAngles = new Vector3(-transform.localEulerAngles.x, transform.localEulerAngles.y, transform.localEulerAngles.z);*/
-                //transform.Rotate(new Vector3(-transform.rotation.x * 2, 0, 0));
-                grid.Grid2D[i, j].Helix?.ReflectHorizontalLocal(displacement);
+                    /*float distY = (transform.position.y - midY) * 2; // Multiply by 2 to get total distance needed to reflect
+                    transform.position = new Vector3(transform.position.x, transform.position.y - distY, transform.position.z);
+                    transform.localEulerAngles = new Vector3(-transform.localEulerAngles.x, transform.localEulerAngles.y, transform.localEulerAngles.z);*/
+                    //transform.Rotate(new Vector3(-transform.rotation.x * 2, 0, 0));
+                    grid.Grid2D[i, j].Helix?.ReflectHorizontalLocal(displacement);
+                }
             }
         }
     }

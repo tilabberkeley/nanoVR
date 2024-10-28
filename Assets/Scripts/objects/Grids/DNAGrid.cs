@@ -83,6 +83,8 @@ public abstract class DNAGrid
     protected int _numSouthExpansions;
     protected int _numWestExpansions;
 
+    private static GameObject s_staticBatchRoot = new GameObject();
+
     /// <summary>
     /// Grid constructor. 
     /// </summary>
@@ -475,29 +477,41 @@ public abstract class DNAGrid
     public void Rotate(float pitch, float roll, float yaw)
     {
         // Attach parent transforms
-        GameObject gridStart = Grid2D[0, 0].gameObject; // TODO: check, might need to change this
+        TransformHandle.ShowTransform(this);
+        TransformHandle.AttachChildren(this);
+        TransformHandle.Gizmos.transform.rotation = Quaternion.Euler(yaw, pitch, roll);
+        TransformHandle.DetachChildren();
+
+        // haven't tested yet?
+        //gridStartTransform.rotation = Quaternion.Euler(roll, yaw, pitch);
+        //gridStartTransform.rotation = Quaternion.Euler(yaw, roll, pitch);
+
+        /*GameObject gridStart = Grid2D[0, 0].gameObject; // TODO: check, might need to change this
         Transform gridStartTransform = gridStart.transform;
         for (int i = 0; i < Length; i++)
         {
             for (int j = 0; j < Width; j++)
             {
                 Grid2D[i, j].gameObject.transform.parent = gridStartTransform;
-                if (Grid2D[i, j].Helix != null)
-                {
-                    Grid2D[i, j].Helix.SetParent(gridStart);
-                }
+                Grid2D[i, j].Helix?.SetParent(gridStartTransform);
             }
         }
 
         // Rotate grid
-        gridStartTransform.rotation = Quaternion.Euler(pitch, yaw, roll);
+        //gridStartTransform.rotation = Utils.ToQuaternion(roll, pitch, yaw);
+        //gridStartTransform.rotation = Quaternion.Euler(pitch, yaw, roll);
+        gridStartTransform.rotation = Quaternion.Euler(roll, pitch, yaw);
+
+
+
+
 
         // Detach parent transforms
         for (int i = 0; i < gridStartTransform.childCount; i++)
         {
             Transform child = gridStartTransform.GetChild(i);
             child.SetParent(null);
-        }
+        }*/
     }
 
     /// <summary>
@@ -569,5 +583,14 @@ public abstract class DNAGrid
             }
         }
         return true;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    protected void StaticBatchGridGO(GameObject gridGO)
+    {
+        GameObject[] gridGOArray = { gridGO };
+        StaticBatchingUtility.Combine(gridGOArray, s_staticBatchRoot);
     }
 }

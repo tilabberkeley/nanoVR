@@ -38,7 +38,7 @@ public class DrawGrid : MonoBehaviour
     {
         plane = directionDropdown.options[directionDropdown.value].text;
         Vector3 direction = Camera.main.transform.rotation * Vector3.forward;
-        Vector3 currPoint = Camera.main.transform.position + direction * 0.2f;
+        Vector3 currPoint = Camera.main.transform.position + direction * 0.5f;
         ICommand command = new CreateGridCommand(s_numGrids.ToString(), plane, currPoint, gridTypeDropdown.options[gridTypeDropdown.value].text);
         CommandManager.AddCommand(command);
         //command.Do();
@@ -69,9 +69,12 @@ public class DrawGrid : MonoBehaviour
             s_gridDict.Add(gridId, grid); 
             s_gridCopies.Add(gridId, 0);
             ObjectListManager.CreateGridButton(gridId);
+
+            // Add newly created grid to selected grids
+            SelectGrid.ToggleGridCircles(grid.Id);
             s_numGrids += 1;
         }
-        
+
         return grid;
     }
 

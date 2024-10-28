@@ -10,9 +10,9 @@ using static GlobalVariables;
 
 public class SelectGrid : MonoBehaviour
 {
-    private static DNAGrid s_grid = null;
+    private static List<DNAGrid> s_grids = new List<DNAGrid>();
 
-    public static DNAGrid Grid { get { return s_grid; } }
+    public static List<DNAGrid> Grids { get { return s_grids; } }
 
     [SerializeField] private XRNode _XRNode;
     private List<InputDevice> _devices = new List<InputDevice>();
@@ -65,10 +65,10 @@ public class SelectGrid : MonoBehaviour
     /// <summary>
     /// Resets the grid.
     /// </summary>
-    private static void Reset()
+    /*private static void Reset()
     {
         s_grid = null;
-    }
+    }*/
 
     /*public static void HighlightGrid(string gridId)
     {
@@ -108,14 +108,22 @@ public class SelectGrid : MonoBehaviour
     /// Shows grid circles of DNAGrid
     /// </summary>
     /// <param name="gridId">id of DNAGrid</param>
-    public static void ShowGridCircles(string gridId)
+    public static void ToggleGridCircles(string gridId)
     {
         // First hide current selected grid's circles
-        HideGridCircles(s_grid);
+        //HideGridCircles(s_grid);
 
         s_gridDict.TryGetValue(gridId, out DNAGrid grid);
-        s_grid = grid;
-        grid.ToggleGridCircles(true);
+        if (!s_grids.Contains(grid))
+        {
+            s_grids.Add(grid);
+            grid.ToggleGridCircles(true);
+        }
+        else
+        {
+            s_grids.Remove(grid);
+            grid.ToggleGridCircles(false);
+        }
     }
 
     /// <summary>

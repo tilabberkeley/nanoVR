@@ -130,9 +130,18 @@ public class FileExport : MonoBehaviour
              * @source: https://discussions.unity.com/t/finding-pitch-roll-yaw-from-quaternions/65684/3
              */
             Quaternion q = grid.StartGridCircle.transform.rotation;
-            float pitch = q.eulerAngles.x * -1;
-            float yaw = q.eulerAngles.y * -1;
-            float roll = q.eulerAngles.z;
+            float pitch = Utils.ToPitch(q);
+            float yaw = Utils.ToYaw(q);
+            float roll = Utils.ToRoll(q);
+
+            Quaternion localQ = grid.StartGridCircle.transform.localRotation;
+            float pitch_local = Utils.ToPitch(localQ);
+            float yaw_local = Utils.ToYaw(localQ);
+            float roll_local = Utils.ToRoll(localQ);
+            Debug.Log($"pitch: {pitch}, yaw: {yaw}, roll: {roll}");
+
+            Vector3 eulerAngles = localQ.eulerAngles;
+            Debug.Log($"euler pitch: {eulerAngles.x}, euler yaw: {eulerAngles.y}, euler roll: {eulerAngles.z}");
             /*float pitch = Mathf.Rad2Deg * Mathf.Atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z);
             float yaw = Mathf.Rad2Deg * Mathf.Atan2(2 * q.y * q.w - 2 * q.x * q.z, 1 - 2 * q.y * q.y - 2 * q.z * q.z);
             float roll = Mathf.Rad2Deg * Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w);*/
@@ -148,9 +157,9 @@ public class FileExport : MonoBehaviour
             JObject group = new JObject
             {
                 ["position"] = position,
-                ["pitch"] = pitch,
-                ["roll"] = roll,
-                ["yaw"] = yaw,
+                ["pitch"] = pitch_local,
+                ["roll"] = roll_local,
+                ["yaw"] = yaw_local,
                 ["grid"] = grid.Type,
             };
             groups[gridId] = group;

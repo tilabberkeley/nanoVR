@@ -14,6 +14,9 @@ public class Togglers : MonoBehaviour
     /// scripts to access instance methods in this class.
     /// </summary>
     public static Togglers Instance;
+    public Toggle nuclTog;
+    public Toggle strandTog;
+    public Toggle helixTog;
 
     private void Awake()
     {
@@ -159,6 +162,40 @@ public class Togglers : MonoBehaviour
         s_helixView = true;
         s_nucleotideView = false;
         UpdateView();
+    }
+
+    /// <summary>
+    /// Helper function to visually check-mark the strand toggle in scene.
+    /// Needed when we automatically switch to Strand View from FileImport.sc (since toggle is not clicked by user)
+    /// </summary>
+    public void CheckStrandToggle()
+    {
+        s_strandView = true;
+        s_helixView = false;
+        s_nucleotideView = false;
+        Debug.Log("view variables set");
+
+        nuclTog.isOn = false;
+        strandTog.isOn = true;
+        helixTog.isOn = false;
+        Debug.Log("checkmarks set");
+    }
+
+    /// <summary>
+    /// Helper function to visually check-mark the helix toggle in scene.
+    /// Needed when we automatically switch to Helix View from FileImport.sc (since toggle is not clicked by user)
+    /// </summary>
+    public void CheckHelixToggle()
+    {
+        s_strandView = false;
+        s_helixView = true;
+        s_nucleotideView = false;
+        Debug.Log("view variables set");
+
+        nuclTog.isOn = false;
+        strandTog.isOn = false;
+        helixTog.isOn = true;
+        Debug.Log("checkmarks set");
     }
 
     /// <summary>

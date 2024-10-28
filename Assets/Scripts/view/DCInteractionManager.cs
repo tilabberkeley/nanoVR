@@ -7,8 +7,6 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR;
 using static GlobalVariables;
-using UnityEngine.EventSystems;
-using System.Security.AccessControl;
 
 public class DCInteractionManager : MonoBehaviour
 {
@@ -172,10 +170,12 @@ public class DCInteractionManager : MonoBehaviour
         // Handle showing nucleotides of domain on click - shouldn't be able to show nucleotides when holding grip.
         else if (rightTriggerValue && _rightTriggerReleased && rightRayInteractorHit)
         {
+            Debug.Log("Show nucls of dc in dc manager");
             _rightTriggerReleased = false;
             DomainComponent domainComponent = s_hit.collider.GetComponent<DomainComponent>();
             if (domainComponent != null)
             {
+                Debug.Log("Showing nucls now");
                 domainComponent.NucleotideView();
             }
         }

@@ -12,7 +12,9 @@ public class ObjectPoolManager : MonoBehaviour
    
 
     public static ObjectPoolManager Instance;
+
     private const int PREFAB_TOTAL = 1024;
+
     private const int NUCLEOTIDE_PREFAB_SIZE = 32;
     private const int BACKBONE_PREFAB_SIZE = 31;
     private const int NUCLEOTIDE_TOTAL = PREFAB_TOTAL * NUCLEOTIDE_PREFAB_SIZE;
