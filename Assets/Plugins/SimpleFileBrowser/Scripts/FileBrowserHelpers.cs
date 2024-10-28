@@ -169,6 +169,7 @@ namespace SimpleFileBrowser
 
 		public static FileSystemEntry[] GetEntriesInDirectory( string path, bool extractOnlyLastSuffixFromExtensions )
 		{
+#if UNITY_ANDROID
 			if ( ShouldUseSAFForPath( path ) )
 			{
 				string resultRaw = AJC.CallStatic<string>( "OpenSAFFolder", Context, path );
@@ -234,9 +235,10 @@ namespace SimpleFileBrowser
 
 				return result;
 			}
+#endif
 
-			try
-			{
+            try
+            {
 				FileSystemInfo[] items = new DirectoryInfo( path ).GetFileSystemInfos();
 				FileSystemEntry[] result = new FileSystemEntry[items.Length];
 				int index = 0;
