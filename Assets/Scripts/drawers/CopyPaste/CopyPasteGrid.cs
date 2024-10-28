@@ -18,7 +18,7 @@ public class CopyPasteGrid : MonoBehaviour
     private bool secondaryReleased = true;
     private bool triggerReleased = true;
     private bool pasting = false;
-    private static DNAGrid s_copied = null;
+    private static List<DNAGrid> s_copied = new List<DNAGrid>();
     private static string s_json = null;
 
     private void GetDevice()
@@ -49,7 +49,7 @@ public class CopyPasteGrid : MonoBehaviour
         if (primaryValue && primaryReleased && !pasting)
         {
             primaryReleased = false;
-            s_copied = SelectGrid.Grid;
+            s_copied = SelectGrid.Grids;
 
             /* We only want to copy paste the selected grid if no strands are selected.
              * This is because both Grids and Strands use the same two buttons to copy paste,
@@ -57,7 +57,7 @@ public class CopyPasteGrid : MonoBehaviour
              */
             if (s_copied != null && SelectStrand.Strands.Count == 0)
             {
-                s_json = CopyGrid(s_copied);
+                s_json = CopyGrids(s_copied);
                 //Debug.Log("Copied grid!");
             }
         }
@@ -107,9 +107,20 @@ public class CopyPasteGrid : MonoBehaviour
         s_json = null;
     }
 
-    private string CopyGrid(DNAGrid grid)
+    private string CopyGrids(List<DNAGrid> grids)
     {
-        List<string> gridIds = new List<string> { grid.Id };
+        if (grids.Count == 0)
+        {
+            Debug.Log("Please select a grid to copy");
+            return "";
+        }
+
+        List<string> gridIds = new List<string>();
+        foreach (DNAGrid grid in grids)
+        {
+            gridIds.Add(grid.Id);
+        }
+
         string json = FileExport.GetSCJSON(gridIds, true);
         Debug.Log(json);
         return json;
@@ -118,6 +129,10 @@ public class CopyPasteGrid : MonoBehaviour
     private void PasteGrid(string json)
     {
         //StartCoroutine(FileImport.ParseSC(json, true));
+        if (json.Length == 0)
+        {
+            return;
+        }
         FileImport.Instance.ParseSC(json, true);
     }
 }

@@ -244,11 +244,13 @@ public class FileImport : MonoBehaviour
         // Parse strands.
         CoRunner.Instance.Run(ParseStrands(strands, lastHelixId));
 
-        // Hide grid circles (unselect grids)
+        /* Unselect imported grids by default.
+         * We choose to do this so that imp
+        *//*
         foreach (DNAGrid grid in grids)
         {
-            SelectGrid.HideGridCircles(grid);
-        }
+            SelectGrid.ToggleGridCircles(grid.Id);
+        }*/
 
         return grids;
     }

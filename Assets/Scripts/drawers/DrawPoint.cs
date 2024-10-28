@@ -434,7 +434,7 @@ public static class DrawPoint
             }
             else if (plane.Equals("YZ"))
             {
-                gridCircle.transform.Rotate(0f, 90f, 0f, 0);
+                gridCircle.transform.Rotate(0f, -90f, 0f, 0);
                 Debug.Log($"YZ rotation: {gridCircle.transform.rotation}");
 
             }
@@ -507,8 +507,10 @@ public static class DrawPoint
         Vector3[] anchorPoints = new Vector3[2];
 
         // Set nucleotides to be start and end point of bezier xover.
-        anchorPoints[0] = xoverComponent.PrevGO.GetComponent<DNAComponent>().Domain.BezierStartPoint;
-        anchorPoints[1] = xoverComponent.NextGO.GetComponent<DNAComponent>().Domain.BezierEndPoint;
+        //anchorPoints[0] = xoverComponent.PrevGO.GetComponent<DNAComponent>().Domain.BezierStartPoint;
+        //anchorPoints[1] = xoverComponent.NextGO.GetComponent<DNAComponent>().Domain.BezierEndPoint;
+        anchorPoints[0] = xoverComponent.PrevGO.transform.position;
+        anchorPoints[1] = xoverComponent.NextGO.transform.position;
 
         tubeRend.points = anchorPoints;
 

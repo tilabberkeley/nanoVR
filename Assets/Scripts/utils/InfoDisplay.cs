@@ -2,6 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
@@ -105,9 +106,9 @@ public class InfoDisplay : MonoBehaviour
         var comp = go.GetComponent<XoverComponent>();
         StringBuilder text = new StringBuilder();
         text.Append("<b>Xover</b>\n");
-        text.Append("Length: " + comp.Length + "\n");
-        text.Append("First Nucl: " + comp.PrevGO.name + "\n");
-        text.Append("Second Nucl: " + comp.NextGO.name + "\n\n");
+        text.Append("Length: " + Math.Round(comp.Length, 2) + "\n");
+        text.Append("1st Nucl: " + comp.PrevGO.name + "\n");
+        text.Append("2nd Nucl: " + comp.NextGO.name + "\n\n");
         DisplayStrandInfo(comp.StrandId, text);
     }
 

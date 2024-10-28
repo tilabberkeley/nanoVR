@@ -69,9 +69,12 @@ public class DrawGrid : MonoBehaviour
             s_gridDict.Add(gridId, grid); 
             s_gridCopies.Add(gridId, 0);
             ObjectListManager.CreateGridButton(gridId);
+
+            // Add newly created grid to selected grids
+            SelectGrid.ToggleGridCircles(grid.Id);
             s_numGrids += 1;
         }
-        
+
         return grid;
     }
 

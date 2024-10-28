@@ -477,14 +477,14 @@ public abstract class DNAGrid
     public void Rotate(float pitch, float roll, float yaw)
     {
         // Attach parent transforms
+        TransformHandle.ShowTransform(this);
         TransformHandle.AttachChildren(this);
-        TransformHandle.Gizmos.transform.rotation = Quaternion.Euler(-pitch, roll, yaw);
+        TransformHandle.Gizmos.transform.rotation = Quaternion.Euler(yaw, pitch, roll);
         TransformHandle.DetachChildren();
 
         // haven't tested yet?
         //gridStartTransform.rotation = Quaternion.Euler(roll, yaw, pitch);
         //gridStartTransform.rotation = Quaternion.Euler(yaw, roll, pitch);
-        //gridStartTransform.rotation = Quaternion.Euler(yaw, pitch, roll);
 
         /*GameObject gridStart = Grid2D[0, 0].gameObject; // TODO: check, might need to change this
         Transform gridStartTransform = gridStart.transform;

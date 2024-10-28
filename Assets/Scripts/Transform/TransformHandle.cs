@@ -82,9 +82,9 @@ public class TransformHandle : MonoBehaviour
             if (gc)
             {
                 //Debug.Log("Hitting GridComponent");
-                //ShowTransform();
-                //translatedGrids.Add(gc.Grid);
-                AttachChildren(gc.Grid);
+                ShowTransform(gc.Grid);
+                translatedGrids = SelectGrid.Grids;
+                AttachChildren(translatedGrids);
             }
         }
         
@@ -123,11 +123,16 @@ public class TransformHandle : MonoBehaviour
     /// <summary>
     /// Shows transform gizmo at the lower left corner of selected grid.
     /// </summary>
-    private static void ShowTransform()
+    public static void ShowTransform(DNAGrid grid)
     {
         if (gizmos == null)
         {
             gizmos = Instantiate(GlobalVariables.Gizmos);
+            Transform gizmosTransform = gizmos.transform;
+            int minXIndex = grid.GridXToIndex(grid.MinimumBound.X);
+            int minYIndex = grid.GridYToIndex(grid.MinimumBound.Y);
+            Transform transform = grid.Grid2D[minXIndex, minYIndex].transform;
+            gizmosTransform.SetPositionAndRotation(transform.position - 0.2f * transform.forward, transform.rotation);
         }
     }
 
@@ -144,21 +149,33 @@ public class TransformHandle : MonoBehaviour
         gizmos = null;
     }
 
+    public static void AttachChildren(List<DNAGrid> grids)
+    {
+        foreach (DNAGrid grid in grids)
+        {
+            AttachChildren(grid);
+        }
+    }
 
     public static void AttachChildren(DNAGrid grid)
     {
-        ShowTransform();
-        translatedGrids.Add(grid);
+        //ShowTransform();
+        //translatedGrids.Add(grid);
+        if (gizmos == null)
+        {
+            return;
+        }
+
         Transform gizmosTransform = gizmos.transform;
 
         // Position gizmos correctly
-        if (translatedGrids.Count == 1)
+        /*if (translatedGrids.Count == 1)
         {
             int minXIndex = grid.GridXToIndex(grid.MinimumBound.X);
             int minYIndex = grid.GridYToIndex(grid.MinimumBound.Y);
             Transform transform = grid.Grid2D[minXIndex, minYIndex].transform;
             gizmosTransform.SetPositionAndRotation(transform.position - 0.2f * transform.forward, transform.rotation);
-        }
+        }*/
         
 
         for (int i = 0; i < grid.Length; i++)
@@ -189,7 +206,7 @@ public class TransformHandle : MonoBehaviour
                 }
             }
         }
-        translatedGrids.Clear();
+        //translatedGrids.Clear();
         HideTransform();
     }
 }

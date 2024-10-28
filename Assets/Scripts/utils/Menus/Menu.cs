@@ -139,7 +139,7 @@ public class Menu : MonoBehaviour
     public void ToggleMenu()
     {
         _menu.enabled = !_menu.enabled;
-        if (_menu.enabled )
+        /*if (_menu.enabled )
         {
             leftRayInteractor.maxRaycastDistance = 1f;
             rightRayInteractor.maxRaycastDistance = 1f;
@@ -148,6 +148,6 @@ public class Menu : MonoBehaviour
         {
             leftRayInteractor.maxRaycastDistance = 0.5f;
             rightRayInteractor.maxRaycastDistance = 0.5f;
-        }
+        }*/
     }
 }

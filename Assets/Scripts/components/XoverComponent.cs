@@ -3,6 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu>
  */
 using UnityEngine;
+using UnityEngine.UIElements;
 using static DrawPoint;
 using static GlobalVariables;
 
@@ -86,13 +87,16 @@ public class XoverComponent : MonoBehaviour
 
             // Rotation
             transform.up = end - start;
+            _length = dist;
             Color = Utils.GetStrand(_prevGO).Color;
+            Debug.Log("xover nucls moved");
 
             if (_bezier != null)
             {
                 _bezier.Destroy();
 
                 _bezier = DrawPoint.MakeXoverBezier(this, _savedColor);
+                Debug.Log("created a new xover bezier");
             }
         }
     }
@@ -134,6 +138,7 @@ public class XoverComponent : MonoBehaviour
     {
         if (_bezier == null)
         {
+            Debug.Log("creating xover bezier");
             _bezier = DrawPoint.MakeXoverBezier(this, color);
             gameObject.SetActive(false);
         }

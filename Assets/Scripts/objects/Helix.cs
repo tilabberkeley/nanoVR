@@ -793,13 +793,20 @@ public class Helix
         foreach (GameObject nucleotide in _nucleotidesA)
         {
             nucleotide.transform.SetParent(goTransform, true);
-            Strand strand = Utils.GetStrand(nucleotide);
-            strand?.Cone.transform.SetParent(goTransform, false);
+            Debug.Log($"nucleotide child: {nucleotide.transform.GetChild(0)}");
+            /*Strand strand = Utils.GetStrand(nucleotide);
+            strand?.Cone.transform.SetParent(goTransform, true);
+            if (strand != null)
+            {
+                Debug.Log("Added strand cone");
+            }*/
 
             //nucleotide.transform.parent = goTransform;
             var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            ntc.Domain?.transform.SetParent(goTransform, true);
-
+            if (ntc.Domain != null)
+            {
+                ntc.Domain.transform.SetParent(goTransform, true);
+            }
             /*if (ntc.Domain != null && !addedDomains.Contains(ntc.Domain))
             {
                 addedDomains.Add(ntc.Domain);
@@ -828,10 +835,20 @@ public class Helix
         {
             nucleotide.transform.SetParent(goTransform, true);
             //nucleotide.transform.parent = goTransform;
-            Strand strand = Utils.GetStrand(nucleotide);
-            strand?.Cone.transform.SetParent(goTransform, false);
+           /* Strand strand = Utils.GetStrand(nucleotide);
+            strand?.Cone.transform.SetParent(goTransform, true);
+            if (strand != null)
+            {
+                Debug.Log("Added strand cone");
+            }*/
+
             var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            ntc.Domain?.transform.SetParent(goTransform, true);
+            Debug.Log($"nucleotide child: {nucleotide.transform.GetChild(0)}");
+
+            if (ntc.Domain != null)
+            {
+                ntc.Domain.transform.SetParent(goTransform, true);
+            }
 
             /*if (ntc.Domain != null && !addedDomains.Contains(ntc.Domain))
             {
