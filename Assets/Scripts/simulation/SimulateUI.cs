@@ -8,12 +8,10 @@ public class SimulateUI : MonoBehaviour
 {
     /* Main menu UI */
     [SerializeField] private Canvas _menu;
-
     [SerializeField] private Button _menuSimulateButton;
 
     /* Simulation UI */
     [SerializeField] private Canvas _simulateCanvas;
-
     [SerializeField] private Button _simulateButton;
     [SerializeField] private Button _cancelButton;
 
