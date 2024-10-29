@@ -4,7 +4,9 @@
  */
 using System.Collections.Generic;
 using System.Text;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using static GlobalVariables;
 
 /// <summary>
@@ -177,10 +179,56 @@ public static class Utils
         }
     }
 
-    /*public static Strand GetComplementStrand(Strand strand)
+    public static Quaternion ToQuaternion(float roll, float pitch, float yaw) // roll (x), pitch (y), yaw (z), angles are in degrees, must convert to radians
     {
-        var ntc = strand.Head.GetComponent<NucleotideComponent>();
-        GameObject complement = ntc.Complement;
-        return GetStrand(complement);
-    }*/
+        // Abbreviations for the various angular functions
+        float roll_r = Mathf.Deg2Rad * roll;
+        float pitch_r = Mathf.Deg2Rad * pitch;
+        float yaw_r = Mathf.Deg2Rad * yaw;
+
+        float cr = Mathf.Cos(roll_r * 0.5f);
+        float sr = Mathf.Sin(roll_r * 0.5f);
+        float cp = Mathf.Cos(pitch_r * 0.5f);
+        float sp = Mathf.Sin(pitch_r * 0.5f);
+        float cy = Mathf.Cos(yaw_r * 0.5f);
+        float sy = Mathf.Sin(yaw_r * 0.5f);
+
+        Quaternion q;
+        q.w = cr * cp * cy + sr * sp * sy;
+        q.x = sr * cp * cy - cr * sp * sy;
+        q.y = cr * sp * cy + sr * cp * sy;
+        q.z = cr * cp * sy - sr * sp * cy;
+
+        return q;
+    }
+
+    public static float ToRoll(Quaternion q)
+    {
+        // roll (x-axis rotation)
+        /*float sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+        float cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+        float roll = Mathf.Rad2Deg * Mathf.Atan2(sinr_cosp, cosr_cosp);*/
+        float roll = Mathf.Rad2Deg * Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w);
+        return roll;
+    }
+
+    public static float ToPitch(Quaternion q)
+    {
+        // pitch (y-axis rotation)
+        /*float sinp = Mathf.Sqrt(1 + 2 * (q.w * q.y - q.x * q.z));
+        float cosp = Mathf.Sqrt(1 - 2 * (q.w * q.y - q.x * q.z));
+        float pitch = Mathf.Rad2Deg * 2 * Mathf.Atan2(sinp, cosp) - Mathf.PI / 2;*/
+        float pitch = Mathf.Rad2Deg * Mathf.Atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z);
+        return pitch;
+    }
+
+    public static float ToYaw(Quaternion q)
+    {
+        // yaw (z-axis rotation)
+        /*float siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+        float cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+        float yaw = Mathf.Rad2Deg * Mathf.Atan2(siny_cosp, cosy_cosp);*/
+        float yaw = Mathf.Rad2Deg * Mathf.Atan2(2 * q.y * q.w - 2 * q.x * q.z, 1 - 2 * q.y * q.y - 2 * q.z * q.z);
+        return yaw;
+    }
 }

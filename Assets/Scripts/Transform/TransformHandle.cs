@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
+using static GlobalVariables;
 
 /// <summary>
 /// Attaches Gizmos to GameObjects for movement and rotation.
@@ -14,7 +15,8 @@ public class TransformHandle : MonoBehaviour
 {
     [SerializeField] private XRNode _leftXRNode;
     [SerializeField] private XRNode _rightXRNode;
-    public GameObject gizmos;
+    private static GameObject gizmos = null;
+    public static GameObject Gizmos { get { return gizmos; } }
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _leftDevice;
     private InputDevice _rightDevice;
@@ -22,15 +24,18 @@ public class TransformHandle : MonoBehaviour
     [SerializeField] private XRRayInteractor rightRayInteractor;
     private bool leftGripReleased = true;
     private bool rightGripReleased = true;
+    private bool leftTriggerReleased = true;
+    private bool rightTriggerReleased = true;
     private static GameObject s_GO = null;
+    private static List<DNAGrid> translatedGrids = new List<DNAGrid>();
     private static RaycastHit s_hit;
 
     public static TransformHandle Instance;
 
-    private void Awake()
+    /*private void Awake()
     {
         Instance = this;
-    }
+    }*/
 
     private void GetDevice()
     {
@@ -55,11 +60,6 @@ public class TransformHandle : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        gizmos.SetActive(false);
-    }
-
     void Update()
     {
         if (!_leftDevice.isValid || !_rightDevice.isValid)
@@ -78,19 +78,25 @@ public class TransformHandle : MonoBehaviour
         {
             leftGripReleased = false;
             rightGripReleased = false;
-            if (s_hit.collider.gameObject.GetComponent<GridComponent>())
+            var gc = s_hit.collider.gameObject.GetComponent<GridComponent>();
+            if (gc)
             {
                 //Debug.Log("Hitting GridComponent");
-                s_GO = s_hit.collider.gameObject;
-                AttachChildren(s_GO.GetComponent<GridComponent>().Grid);
-                ShowTransform();
+                ShowTransform(gc.Grid);
+                translatedGrids = SelectGrid.Grids;
+                AttachChildren(translatedGrids);
             }
         }
-
-        if ((leftTriggerValue || rightTriggerValue) && gizmos.activeSelf)
+        
+        if ((leftTriggerValue || rightTriggerValue) && leftTriggerReleased && rightTriggerReleased && gizmos != null)
         {
+            leftTriggerReleased = false;
+            rightTriggerReleased = false;
+
+            Debug.Log("Detach children");
             DetachChildren();
-            HideTransform();
+
+            Debug.Log("done hiding transform");
         }
 
         if (!leftGripValue)
@@ -102,50 +108,105 @@ public class TransformHandle : MonoBehaviour
         {
             rightGripReleased = true;
         }
+
+        if (!leftTriggerValue)
+        {
+            leftTriggerReleased = true;
+        }
+
+        if (!rightTriggerValue)
+        {
+            rightTriggerReleased = true;
+        }
     }
 
     /// <summary>
     /// Shows transform gizmo at the lower left corner of selected grid.
     /// </summary>
-    private void ShowTransform()
+    public static void ShowTransform(DNAGrid grid)
     {
-        gizmos.SetActive(true);
+        if (gizmos == null)
+        {
+            gizmos = Instantiate(GlobalVariables.Gizmos);
+            Transform gizmosTransform = gizmos.transform;
+            int minXIndex = grid.GridXToIndex(grid.MinimumBound.X);
+            int minYIndex = grid.GridYToIndex(grid.MinimumBound.Y);
+            Transform transform = grid.Grid2D[minXIndex, minYIndex].transform;
+            gizmosTransform.SetPositionAndRotation(transform.position - 0.2f * transform.forward, transform.rotation);
+        }
     }
 
     /// <summary>
     /// Hides transform gizmo.
     /// </summary>
-    private void HideTransform()
+    private static void HideTransform()
     {
-        gizmos.SetActive(false);
+        if (gizmos != null)
+        {
+            gizmos.SetActive(false);
+            GameObject.Destroy(gizmos);
+        }
+        gizmos = null;
     }
 
-
-    public void AttachChildren(DNAGrid grid)
+    public static void AttachChildren(List<DNAGrid> grids)
     {
+        foreach (DNAGrid grid in grids)
+        {
+            AttachChildren(grid);
+        }
+    }
+
+    public static void AttachChildren(DNAGrid grid)
+    {
+        //ShowTransform();
+        //translatedGrids.Add(grid);
+        if (gizmos == null)
+        {
+            return;
+        }
+
+        Transform gizmosTransform = gizmos.transform;
+
         // Position gizmos correctly
-        int minXIndex = grid.GridXToIndex(grid.MinimumBound.X);
-        int minYIndex = grid.GridYToIndex(grid.MinimumBound.Y);
-        Transform transform = grid.Grid2D[minXIndex, minYIndex].transform;
-        gizmos.transform.SetPositionAndRotation(transform.position - 0.2f * transform.forward, transform.rotation);
+        /*if (translatedGrids.Count == 1)
+        {
+            int minXIndex = grid.GridXToIndex(grid.MinimumBound.X);
+            int minYIndex = grid.GridYToIndex(grid.MinimumBound.Y);
+            Transform transform = grid.Grid2D[minXIndex, minYIndex].transform;
+            gizmosTransform.SetPositionAndRotation(transform.position - 0.2f * transform.forward, transform.rotation);
+        }*/
+        
 
         for (int i = 0; i < grid.Length; i++)
         {
             for (int j = 0; j < grid.Width; j++)
             {
-                grid.Grid2D[i, j].gameObject.transform.SetParent(gizmos.transform);
-                grid.Grid2D[i, j].Helix?.SetParent(gizmos);
+                grid.Grid2D[i, j].transform.SetParent(gizmosTransform, true);
+                grid.Grid2D[i, j].Helix?.SetParent(gizmosTransform);
             }
         }
     }
 
-    public void DetachChildren()
+    public static void DetachChildren()
     {
-        Transform gizmosTransform = gizmos.transform;
-        for (int i = 0; i < gizmosTransform.childCount; i++)
+        if (gizmos != null)
         {
-            Transform child = gizmosTransform.GetChild(i);
-            child.SetParent(null);
+            Debug.Log("Num children: " + gizmos.transform.childCount);
+            //int n = gizmos.transform.childCount;
+            foreach (DNAGrid grid in translatedGrids)
+            {
+                for (int i = 0; i < grid.Length; i++)
+                {
+                    for (int j = 0; j < grid.Width; j++)
+                    {
+                        grid.Grid2D[i, j].transform.SetParent(null);
+                        grid.Grid2D[i, j].Helix?.SetParent(null);
+                    }
+                }
+            }
         }
+        //translatedGrids.Clear();
+        HideTransform();
     }
 }

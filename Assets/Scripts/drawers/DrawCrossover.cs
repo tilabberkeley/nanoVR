@@ -21,7 +21,8 @@ public class DrawCrossover : MonoBehaviour
     private bool triggerReleased = true;
     private static GameObject s_startGO = null;
     private static GameObject s_endGO = null;
-    private static RaycastHit s_hit;
+    private static GameObject s_hitGO;
+    private static GameObject tempXover = null;
 
     private void GetDevice()
     {
@@ -40,6 +41,16 @@ public class DrawCrossover : MonoBehaviour
         }
     }
 
+    private void Awake()
+    {
+        tempXover =
+                   Instantiate(Xover,
+                   Vector3.zero,
+                   Quaternion.identity) as GameObject;
+        tempXover.name = "xover";
+        tempXover.SetActive(false);
+    }
+
     private void Update()
     {
         if ((!s_drawTogOn && !s_eraseTogOn) || s_hideStencils)
@@ -55,9 +66,10 @@ public class DrawCrossover : MonoBehaviour
         // SELECT CROSSOVER NUCLEOTIDE
         _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
         if (triggerValue && triggerReleased
-            && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+            && rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit s_hit))
         {
             triggerReleased = false;
+            s_hitGO = s_hit.collider.gameObject;
             if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
             {
                 if (s_startGO == null)
@@ -93,10 +105,24 @@ public class DrawCrossover : MonoBehaviour
             }
         }
 
+        if (!triggerReleased && !triggerValue && rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit hit))
+        {
+            if (hit.collider.gameObject == s_startGO)
+            {
+                tempXover.SetActive(true);
+            }
+        }
+
+        if (s_startGO != null)
+        {
+            UpdateXover(s_hitGO.transform.position, rightRayInteractor.transform.position + rightRayInteractor.transform.forward);
+        }
+
         // Resets triggers do avoid multiple selections.                                              
         if (!triggerValue)
         {
             triggerReleased = true;
+            //s_hitGO = null;
         }
 
         // Resets start and end nucleotide.
@@ -107,6 +133,24 @@ public class DrawCrossover : MonoBehaviour
         }
     }
 
+    private void UpdateXover(Vector3 start, Vector3 end)
+    {
+        Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
+
+        // Position
+        tempXover.transform.position = (start + end) / 2.0F;
+
+        // Rotation
+        Vector3 dirV = Vector3.Normalize(start - end);
+        Vector3 rotAxisV = dirV + cylDefaultOrientation;
+        rotAxisV = Vector3.Normalize(rotAxisV);
+        tempXover.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
+
+        // Scale        
+        float dist = Vector3.Distance(start, end);
+        tempXover.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
+    }
+
     /// <summary>
     /// Resets the start and end nucleotides.
     /// </summary>
@@ -115,6 +159,7 @@ public class DrawCrossover : MonoBehaviour
         //Unhighlight(s_startGO);
         s_startGO = null;
         s_endGO = null;
+        tempXover.SetActive(false);
     }
 
     /// <summary>
@@ -208,7 +253,7 @@ public class DrawCrossover : MonoBehaviour
     /// <summary>
     /// Helper method to create a crossover between given nuleotides.
     /// </summary>
-    public static GameObject CreateXoverHelper(GameObject startGO, GameObject endGO)
+    public static GameObject CreateXoverHelper(GameObject startGO, GameObject endGO, bool showXover = true)
     {
         int strandId = startGO.GetComponent<NucleotideComponent>().StrandId;
         int prevStrandId = endGO.GetComponent<NucleotideComponent>().StrandId;
@@ -227,7 +272,7 @@ public class DrawCrossover : MonoBehaviour
             prevGO = endGO;
         }
         GameObject xover = DrawPoint.MakeXover(prevGO, nextGO, strandId, prevStrandId);
-
+        xover.SetActive(showXover);
         return xover;
     }
 

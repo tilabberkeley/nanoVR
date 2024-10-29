@@ -24,6 +24,8 @@ public class Menu : MonoBehaviour
     public Button[] tabButtons;
     public GameObject[] panels;
     bool primaryReleased = true;
+    bool leftTriggerReleased = true;
+    bool rightTriggerReleased = true;
 
     private void GetDevice()
     {
@@ -55,10 +57,11 @@ public class Menu : MonoBehaviour
         // Initialize the menu by setting up the button click events
         for (int i = 0; i < tabButtons.Length; i++)
         {
-            if (i != 1)
+            /*if (i != 1)
             {
                 panels[i].SetActive(false);
-            }
+            }*/
+            panels[i].SetActive(false);
             int buttonIndex = i; // Store the index in a separate variable to avoid closure issues
             tabButtons[i].onClick.AddListener(() => SelectTab(buttonIndex));
         }
@@ -76,7 +79,6 @@ public class Menu : MonoBehaviour
         }
 
         panels[selectedButtonIndex].SetActive(true);
-
     }
 
     void Update()
@@ -87,10 +89,34 @@ public class Menu : MonoBehaviour
         }
 
         _leftDevice.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out bool primaryValue);
+        _leftDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool leftTriggerValue);
+        _rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool rightTriggerValue);
+        bool rightRayInteractorHit = rightRayInteractor.TryGetCurrentUIRaycastResult(out _);
+        bool leftRayInteractorHit = rightRayInteractor.TryGetCurrentUIRaycastResult(out _);
+
+
         if (primaryValue && primaryReleased)
         {
             primaryReleased = false;
             ToggleMenu();
+        }
+
+        if (leftTriggerValue && leftTriggerReleased && !leftRayInteractorHit)
+        {
+            leftTriggerReleased = false;
+            for (int i = 0; i < panels.Length; i++)
+            {
+                panels[i].SetActive(false);
+            }
+        }
+
+        if (rightTriggerValue && rightTriggerReleased && !rightRayInteractorHit)
+        {
+            rightTriggerReleased = false;
+            for (int i = 0; i < panels.Length; i++)
+            {
+                panels[i].SetActive(false);
+            }
         }
 
         // Reset primary button
@@ -99,12 +125,21 @@ public class Menu : MonoBehaviour
             primaryReleased = true;
         }
 
+        if (!leftTriggerValue)
+        {
+            leftTriggerReleased = true;
+        }
+
+        if (!rightTriggerValue)
+        {
+            rightTriggerReleased = true;
+        }
     }
 
     public void ToggleMenu()
     {
         _menu.enabled = !_menu.enabled;
-        if (_menu.enabled)
+        /*if (_menu.enabled )
         {
             leftRayInteractor.maxRaycastDistance = 1f;
             rightRayInteractor.maxRaycastDistance = 1f;
@@ -113,6 +148,6 @@ public class Menu : MonoBehaviour
         {
             leftRayInteractor.maxRaycastDistance = 0.5f;
             rightRayInteractor.maxRaycastDistance = 0.5f;
-        }
+        }*/
     }
 }

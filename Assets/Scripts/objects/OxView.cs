@@ -8,6 +8,10 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Unity.Collections;
+using Unity.Jobs;
+using Unity.Mathematics;
+using Unity.Burst;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static GlobalVariables;
@@ -166,12 +170,6 @@ public class OxView
         _datFile = _datFileStringBuilder.ToString();
 
         BuildOrigami();
-    }
-
-    private void SetNucleotidePosition(OxDNAMapping mapping)
-    {
-        Vector3 position = (mapping.Position - 0.4f * mapping.A1) / SCALE;
-        DrawPoint.SetNucleotide(mapping.Nucleotide, position, mapping.Id, -1, -1, false, true);
     }
 
     private void BuildOrigami()
@@ -405,5 +403,11 @@ public class OxView
 
             nextLine = datFileReader.ReadLine();
         }
+    }
+
+    private void SetNucleotidePosition(OxDNAMapping mapping)
+    {
+        Vector3 position = (mapping.Position - 0.4f * mapping.A1) / SCALE;
+        DrawPoint.SetNucleotide(mapping.Nucleotide, position, mapping.Id, -1, -1, false, true);
     }
 }

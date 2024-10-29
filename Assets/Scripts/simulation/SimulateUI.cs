@@ -1,18 +1,19 @@
 using Newtonsoft.Json.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static GlobalVariables;
 
 public class SimulateUI : MonoBehaviour
 {
-    /* Simulation UI */
-    // Turning on the canvas is handled by menu.cs
-    [SerializeField] private Canvas _simulateCanvas;
+    /* Main menu UI */
+    [SerializeField] private Canvas _menu;
+    [SerializeField] private Button _menuSimulateButton;
 
+    /* Simulation UI */
+    [SerializeField] private Canvas _simulateCanvas;
     [SerializeField] private Button _simulateButton;
     [SerializeField] private Button _cancelButton;
-    [SerializeField] private Button _backToEditButton;
 
     // Input fields for simulation
     private const string T_DEFAULT = "20";
@@ -62,9 +63,9 @@ public class SimulateUI : MonoBehaviour
         _oxViewConnect = _oxserveConnectionManager.GetComponent<oxViewConnect>();
 
         // Add button listeners
+        _menuSimulateButton.onClick.AddListener(() => ShowSimulationUI());
         _simulateButton.onClick.AddListener(() => Simulate());
         _cancelButton.onClick.AddListener(() => Cancel());
-        _backToEditButton.onClick.AddListener(() => GoBackToEdit());
 
         // Fill default values for input fields
         _TInput.text = T_DEFAULT;
@@ -91,17 +92,17 @@ public class SimulateUI : MonoBehaviour
         _backboneForceFarInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
     }
 
+    private void ShowSimulationUI()
+    {
+        _simulateCanvas.enabled = true;
+        _menu.enabled = false;
+    }
+
     private void Cancel()
     {
         _simulateCanvas.enabled = false;
 
         // TODO: break oxserve connection.
-    }
-
-    private void GoBackToEdit()
-    {
-        // Return back to the main edit scene
-        SceneManager.LoadScene("Edit");
     }
 
     private JObject ParseSettings()

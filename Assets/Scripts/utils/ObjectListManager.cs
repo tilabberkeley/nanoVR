@@ -36,16 +36,6 @@ public class ObjectListManager : MonoBehaviour
         button.transform.SetSiblingIndex(s_numGrids);
     }
 
-    public static void CreateSubGridButton(int subGridId)
-    {
-        GameObject button = Instantiate(Resources.Load("Button")) as GameObject;
-        button.transform.SetParent(GameObject.FindWithTag("SubGridList").transform, false);
-        button.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "SubGrid " + subGridId;
-        button.name = "SubGridButton" + subGridId;
-        button.GetComponent<Button>().onClick.AddListener(() => SelSubGrid(subGridId));
-        button.transform.SetSiblingIndex(subGridId);
-    }
-
     /*public static void SelectAll()
     {
         foreach (int i in s_strandDict.Keys)
@@ -63,11 +53,7 @@ public class ObjectListManager : MonoBehaviour
     public static void SelGrid(string gridId)
     {
         //SelectGrid.HighlightGrid(gridId);
-        SelectGrid.ShowGridCircles(gridId);
-    }
-
-    public static void SelSubGrid(int subGridId)
-    {
+        SelectGrid.ToggleGridCircles(gridId);
     }
 
     public static void DeleteStrandButton(int strandId)

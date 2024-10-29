@@ -3,6 +3,8 @@
  * author: David Yang <davidmyang@berkeley.edu>
  */
 using UnityEngine;
+using UnityEngine.UIElements;
+using static DrawPoint;
 using static GlobalVariables;
 
 /// <summary>
@@ -14,6 +16,7 @@ public class XoverComponent : MonoBehaviour
     // Components
     private Renderer _ntRenderer;
     private Outline _outline;
+    protected MaterialPropertyBlock _mpb;
 
     public static Color s_defaultColor = Color.white;
     private int _strandId = -1;
@@ -39,6 +42,15 @@ public class XoverComponent : MonoBehaviour
         }
         set
         {
+            if (_ntRenderer == null)
+            {
+                _ntRenderer = GetComponent<Renderer>();
+            }
+            if (_mpb == null)
+            {
+                _mpb = new MaterialPropertyBlock();
+            }
+
             if (_length <= 0.05)
             {
                 _color = value;
@@ -51,7 +63,10 @@ public class XoverComponent : MonoBehaviour
             {
                 _color = Color.black;
             }
-            _ntRenderer.material.SetColor("_Color", _color);
+
+            _color = value;
+            _mpb.SetColor("_Color", _color);
+            _ntRenderer.SetPropertyBlock(_mpb);
         }
     }
 
@@ -78,14 +93,24 @@ public class XoverComponent : MonoBehaviour
 
             // Scale        
             float dist = Vector3.Distance(end, start);
-            transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
+            transform.localScale = new Vector3(0.25f, dist, 0.25f);
 
             // Position
             transform.position = (end + start) / 2.0F;
 
             // Rotation
             transform.up = end - start;
+            _length = dist;
             Color = Utils.GetStrand(_prevGO).Color;
+            Debug.Log("xover nucls moved");
+
+            if (_bezier != null)
+            {
+                _bezier.Destroy();
+
+                _bezier = DrawPoint.MakeXoverBezier(this, _savedColor);
+                Debug.Log("created a new xover bezier");
+            }
         }
     }
 
@@ -98,9 +123,11 @@ public class XoverComponent : MonoBehaviour
         _ntRenderer = gameObject.GetComponent<Renderer>();
         _outline = gameObject.GetComponent<Outline>();
         _outline.enabled = false;
+        _mpb = new MaterialPropertyBlock();
     }
 
-    private GameObject _bezier = null;
+    private Bezier? _bezier;
+    public Bezier Bezier { get => _bezier; }
 
     /// <summary>
     /// Returns xover back from simplified strand view (nucleotide view).
@@ -112,7 +139,7 @@ public class XoverComponent : MonoBehaviour
             return;
         }
 
-        Destroy(_bezier); 
+        _bezier.Destroy();
         _bezier = null;
         gameObject.SetActive(true);
     }
@@ -125,6 +152,7 @@ public class XoverComponent : MonoBehaviour
     {
         if (_bezier == null)
         {
+            Debug.Log("creating xover bezier");
             _bezier = DrawPoint.MakeXoverBezier(this, color);
             gameObject.SetActive(false);
         }

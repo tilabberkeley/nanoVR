@@ -9,6 +9,7 @@ using UnityEngine;
 using System.Text;
 using static GlobalVariables;
 using static UnityEngine.EventSystems.EventTrigger;
+using static DrawPoint;
 
 /// <summary>
 /// Strand object keeps track of an individual strand of nucleotides.
@@ -756,6 +757,7 @@ public class Strand
         }
         _cone.transform.SetPositionAndRotation(_head.transform.position, Quaternion.FromToRotation(Vector3.up, toDirection));
         _cone.transform.SetParent(_head.transform, true);
+        Debug.Log($"Set cone, cone parent: {_cone.transform.parent}");
     }
 
     // Resets all GameObject components in the nucleotides list.
@@ -848,17 +850,24 @@ public class Strand
     /// <summary>
     /// Draws the simplified bezier curve representation of this strand (strand view).
     /// </summary>
-    public void ToStrandView()
+    public List<Bezier> ToStrandView()
     {
+        List<Bezier> beziers = new List<Bezier>();
+
         foreach (DomainComponent domain in _domains)
         {
             domain.StrandView();
+            beziers.AddRange(domain.Beziers);
         }
 
         foreach (GameObject xover in _xovers)
         {
-            xover.GetComponent<XoverComponent>().StrandView(_color);
+            XoverComponent xoverComponent = xover.GetComponent<XoverComponent>();
+            xoverComponent.StrandView(_color);
+            beziers.Add(xoverComponent.Bezier);
         }
+
+        return beziers;
     }
 
     /// <summary>
@@ -885,9 +894,10 @@ public class Strand
     /// </summary>
     public void ToHelixView()
     {
+        // Set domain component inactive with domain.SetActive(false);
         foreach (DomainComponent domain in _domains)
         {
-            domain.HideBezier();
+            domain.HelixView();
         }
         foreach (GameObject xover in _xovers)
         {
