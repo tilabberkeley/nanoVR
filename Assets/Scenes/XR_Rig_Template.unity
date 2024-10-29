@@ -26534,7 +26534,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -194.99997, y: NaN}
+  m_AnchoredPosition: {x: -194.99994, y: NaN}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1650224458
@@ -30125,7 +30125,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -194.99997, y: NaN}
+  m_AnchoredPosition: {x: -194.99994, y: NaN}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1877134062
@@ -44354,6 +44354,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5213593808879885343, guid: f606ce8a52e69ee40a0a12142a52d268, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 1456715989}
     - target: {fileID: 5213593808879885348, guid: f606ce8a52e69ee40a0a12142a52d268, type: 3}
       propertyPath: m_Name
       value: SimulationCanvas
