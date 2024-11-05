@@ -29769,6 +29769,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ConnectionManager
       objectReference: {fileID: 0}
+    - target: {fileID: 6965110528940601449, guid: 11d99397d4807314e92826fb390860e0, type: 3}
+      propertyPath: _fileExportObject
+      value: 
+      objectReference: {fileID: 319325367}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 11d99397d4807314e92826fb390860e0, type: 3}
 --- !u!1 &1857715263 stripped

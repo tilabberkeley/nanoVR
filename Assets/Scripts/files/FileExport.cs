@@ -421,9 +421,7 @@ public class FileExport : MonoBehaviour
     private void WriteOxdnaFiles()
     {
         bool result = FileBrowser.ShowSaveDialog((paths) => {
-            string topFile;
-            string oxdnaFile;
-            GenerateOxDNAFiles(out topFile, out oxdnaFile);
+            GenerateOxDNAFiles(out string topFile, out string oxdnaFile, out OxDNAMapper oxDNAMapper);
             CreateOxdnaFiles(paths[0], topFile, oxdnaFile); 
         },
         () => { Debug.Log("Canceled"); },
@@ -434,12 +432,15 @@ public class FileExport : MonoBehaviour
 
     /// <summary>
     /// Generates string contents of top and dat files for orgiami. Puts them in
-    /// respective out variables.
+    /// respective out variables. Additionally, the generation of the oxDNA files will 
+    /// map line indexes to their nucleotide game objects with the given OxDNAMapper.
+    /// This is used for simulation.
     /// </summary>
-    public void GenerateOxDNAFiles(out string topFile, out string datFile)
+    public void GenerateOxDNAFiles(out string topFile, out string datFile, out OxDNAMapper oxDNAMapper)
     {
         StringBuilder topFileStringBuilder = new StringBuilder();
         StringBuilder datFileStringBuilder = new StringBuilder();
+        oxDNAMapper = new OxDNAMapper();
 
         // Write dat file metadata
         datFileStringBuilder.Append("t = 0" + Environment.NewLine);
@@ -449,6 +450,8 @@ public class FileExport : MonoBehaviour
         int numNucleotides = 0;
         int strandCounter = 1;
         int globalNucleotideIndex = -1;
+        // Line number will increase as the nucleotides are parsed.
+        int lineIndex = 0;
 
         // Iterate through all the strands
         foreach (Strand strand in s_strandDict.Values)
@@ -481,8 +484,12 @@ public class FileExport : MonoBehaviour
                                             $"{nucleotideComponent.A3.x:F16} {nucleotideComponent.A3.y:F16} {nucleotideComponent.A3.z:F16} " +
                                             "0 0 0 0 0 0" + Environment.NewLine); // F16's add precision to the file writes.
 
+                // Add mapping from line number to nucleotide
+                oxDNAMapper.Add(lineIndex, nucleotide);
+
                 numNucleotides++;
                 globalNucleotideIndex++;
+                lineIndex++;
             }
 
             strandCounter++;

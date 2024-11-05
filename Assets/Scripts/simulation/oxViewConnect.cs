@@ -1,24 +1,28 @@
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
-using System.IO;
 using System.Threading;
 using UnityEngine;
 using WebSocketSharp;
-using static GlobalVariables;
 
-public class oxViewConnect : MonoBehaviour
+public class OxViewConnect : MonoBehaviour
 {
     [SerializeField]
     private const string _connectionURL = "wss://nanobase.org:8989/";
+
+    [SerializeField]
+    private GameObject _fileExportObject;
+    private FileExport _fileExport;
+
     private WebSocket _ws;
     private JObject _settings;
     private SynchronizationContext _unityContext;
+    private OxDNAMapper _oxDNAMapper;
 
     private void Awake()
     {
         // Store the main thread's synchronization context for use later
         _unityContext = SynchronizationContext.Current;
+        _fileExport = _fileExportObject.GetComponent<FileExport>();
     }
 
     public void Connect(JObject settings)
@@ -65,10 +69,9 @@ public class oxViewConnect : MonoBehaviour
             throw new ArgumentException("Missing simulation settings");
         }
 
-        string datFile = oxView.DatFile;
-        string topFile = oxView.TopFile;
+        // Get file contents and mappings
+        _fileExport.GenerateOxDNAFiles(out string topFile, out string datFile, out _oxDNAMapper);
 
-        // Hard code settings for now.
         JObject initialMessage = new JObject(
             new JProperty("top_file", topFile),
             new JProperty("dat_file", datFile),
@@ -82,11 +85,6 @@ public class oxViewConnect : MonoBehaviour
 
     private void SimulationUpdate(object sender, MessageEventArgs e)
     {
-        _unityContext.Post(_ =>
-        {
-            Debug.Log(e.Data.Substring(0, 50));
-        }, null);
-
         JObject message = JObject.Parse(e.Data);
 
         string datFile = message["dat_file"].ToString();
@@ -95,7 +93,7 @@ public class oxViewConnect : MonoBehaviour
         // This is to ensure that unity API calls are not done outside of unity's sync context.
         _unityContext.Post(_ =>
         {
-            oxView.SimulationUpdate(datFile);
+            _oxDNAMapper.SimulationUpdate(datFile);
         }, null);
     }
 }
