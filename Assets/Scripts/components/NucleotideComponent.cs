@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static GlobalVariables;
+using static Utils;
 
 /// <summary>
 /// Component attached to each nucleotide gameobject. Handles direct Ray interactions and gameobject visuals.
@@ -45,6 +46,14 @@ public class NucleotideComponent : DNAComponent
     // Set of crossover suggestions connected to this nucleotide.
     private HashSet<XoverSuggestionComponent> _xoverSuggestionComponents;
     public HashSet<XoverSuggestionComponent> XoverSuggestionComponents { get { return _xoverSuggestionComponents; } }
+
+    // a1 Vector for oxDNA
+    private Vector3 _a1 = Vector3.zero;
+    public Vector3 A1 { get { return _a1; } set { _a1 = value; } }
+
+    // a3 vector for oxDNA
+    private Vector3 _a3 = Vector3.zero;
+    public Vector3 A3 { get { return _a3; } set { _a3 = value; } }
 
     // Awake is called before the first frame update
     protected override void Awake()
@@ -144,5 +153,13 @@ public class NucleotideComponent : DNAComponent
     {
         Helix helix = s_helixDict[_helixId];
         return helix.NumModsToLeft(_id, _direction);
+    }
+
+    /// <summary>
+    /// Converts the native nanoVR position to the oxDNA position.
+    /// </summary>
+    public Vector3 OxDNAPosition()
+    {
+        return transform.position * SCALE + 0.4f * _a1;
     }
 }
