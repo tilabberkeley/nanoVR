@@ -231,4 +231,24 @@ public static class Utils
         float yaw = Mathf.Rad2Deg * Mathf.Atan2(2 * q.y * q.w - 2 * q.x * q.z, 1 - 2 * q.y * q.y - 2 * q.z * q.z);
         return yaw;
     }
+
+    public static bool IsValidNucleotides(List<GameObject> nucleotides)
+    {
+        if (nucleotides == null) { Debug.Log("Is valid nucls are null"); return false; }
+
+        foreach (GameObject nucleotide in nucleotides)
+        {
+            if (nucleotide == null)
+            {
+                return false;
+            }
+
+            var ntc = nucleotide.GetComponent<DNAComponent>();
+            if (ntc.Selected)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 }

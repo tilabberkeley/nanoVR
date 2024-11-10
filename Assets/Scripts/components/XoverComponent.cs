@@ -89,7 +89,7 @@ public class XoverComponent : MonoBehaviour
             transform.up = end - start;
             _length = dist;
             Color = Utils.GetStrand(_prevGO).Color;
-            Debug.Log("xover nucls moved");
+            //Debug.Log("xover nucls moved");
 
             if (_bezier != null)
             {

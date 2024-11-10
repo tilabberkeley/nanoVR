@@ -391,7 +391,6 @@ public static class DrawPoint
         if (startGridCircle != null)
         {
             position = startPosition + xOffset * startGridCircle.transform.right + yOffset * startGridCircle.transform.up;
-            Debug.Log($"startGridCircle position: {position}");
         }
         else
         {
@@ -407,8 +406,6 @@ public static class DrawPoint
             else
             {
                 position = new Vector3(startPosition.x + xOffset, startPosition.y, startPosition.z + yOffset);
-                Debug.Log($"XZ position: {position}");
-
             }
         }
 
@@ -421,22 +418,17 @@ public static class DrawPoint
         if (startGridCircle != null)
         {
             gridCircle.transform.rotation = startGridCircle.transform.rotation;
-            Debug.Log($"startGridCircle rotation: {gridCircle.transform.rotation}");
-
         }
         else
         {
             if (plane.Equals("XZ"))
             {
                 gridCircle.transform.Rotate(90f, 0f, 0f, 0);
-                Debug.Log($"XZ rotation: {gridCircle.transform.rotation}");
-
             }
             else if (plane.Equals("YZ"))
             {
-                gridCircle.transform.Rotate(0f, -90f, 0f, 0);
+                gridCircle.transform.Rotate(0f, 90f, 90f, 0);
                 Debug.Log($"YZ rotation: {gridCircle.transform.rotation}");
-
             }
         }
 

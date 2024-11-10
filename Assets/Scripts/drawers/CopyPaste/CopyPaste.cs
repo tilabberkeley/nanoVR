@@ -121,7 +121,7 @@ public class CopyPaste : MonoBehaviour
                     foreach (Strand strand in s_copied)
                     {
                         List<GameObject> nucleotides = GetNucleotides(strand, go, s_copied[0].Head);
-                        bool valid = IsValid(nucleotides);
+                        bool valid = Utils.IsValidNucleotides(nucleotides);
                         allValid &= valid;
 
                         if (!valid)
@@ -368,25 +368,7 @@ public class CopyPaste : MonoBehaviour
         return origIndex + offset;
     }
 
-    public static bool IsValid(List<GameObject> nucleotides)
-    {
-        if (nucleotides == null) { Debug.Log("Is valid nucls are null"); return false; }
-
-        foreach (GameObject nucleotide in nucleotides)
-        {
-            if (nucleotide == null)
-            {
-                return false;
-            }
-            
-            var ntc = nucleotide.GetComponent<DNAComponent>();
-            if (ntc.Selected)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
+    
 
     private static List<(int, int)> CalculateXYDistances(Strand strand, int x, int y)
     {

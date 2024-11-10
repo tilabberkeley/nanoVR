@@ -447,7 +447,6 @@ public abstract class DNAGrid
         Helix helix = new Helix(id, orientation, length, gridComponent);
         gridComponent.Helix = helix;
         gridComponent.Selected = true;
-        Debug.Log("created helix");
         if (s_visualMode)
         {
             s_visHelixDict.Add(id, helix);

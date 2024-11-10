@@ -98,7 +98,7 @@ public class Helix
     /// <summary>
     /// Draws the nucleotides of the helix in background thread.
     /// </summary>
-    public async Task ExtendAsync(int length, bool hideNucleotides = false)
+    public async Task ExtendAsync(int length, bool hideNucleotides = false, bool overrideAsync = false)
     {
         int prevLength = _length;
         _length += length;
@@ -109,7 +109,7 @@ public class Helix
         int count64 = length / 64;
 
 //#if !UNITY_EDITOR && UNITY_ANDROID
-        if (ObjectPoolManager.Instance.CanGetNucleotides(2 * length) && ObjectPoolManager.Instance.CanGetBackbones(2 * (length - 1)))
+        if (ObjectPoolManager.Instance.CanGetNucleotides(2 * length) && ObjectPoolManager.Instance.CanGetBackbones(2 * (length - 1)) && !overrideAsync)
         {
             _nucleotidesA.AddRange(ObjectPoolManager.Instance.GetNucleotides(length));
             await Task.Yield();
@@ -206,10 +206,10 @@ public class Helix
                     _backbonesB.Add(cylinderB);
                 }
 
-                if (i % 6 == 0)
+/*                if (i % 6 == 0)
                 {
                     await Task.Yield();
-                }
+                }*/
             }
 
         }
@@ -788,20 +788,18 @@ public class Helix
     /// <param name="go">GameObject representing the transform gizmo.</param>
     public void SetParent(Transform goTransform)
     {
-        //HashSet<DomainComponent> addedDomains = new HashSet<DomainComponent>();
-
         foreach (GameObject nucleotide in _nucleotidesA)
         {
             nucleotide.transform.SetParent(goTransform, true);
-            Debug.Log($"nucleotide child: {nucleotide.transform.GetChild(0)}");
-            /*Strand strand = Utils.GetStrand(nucleotide);
-            strand?.Cone.transform.SetParent(goTransform, true);
-            if (strand != null)
+            if (goTransform != null)
             {
-                Debug.Log("Added strand cone");
-            }*/
+                nucleotide.GetComponent<Collider>().enabled = false;
+            } 
+            else
+            {
+                nucleotide.GetComponent<Collider>().enabled = true;
+            }
 
-            //nucleotide.transform.parent = goTransform;
             var ntc = nucleotide.GetComponent<NucleotideComponent>();
             if (ntc.Domain != null)
             {
@@ -834,17 +832,16 @@ public class Helix
         foreach (GameObject nucleotide in _nucleotidesB)
         {
             nucleotide.transform.SetParent(goTransform, true);
-            //nucleotide.transform.parent = goTransform;
-           /* Strand strand = Utils.GetStrand(nucleotide);
-            strand?.Cone.transform.SetParent(goTransform, true);
-            if (strand != null)
+            if (goTransform != null)
             {
-                Debug.Log("Added strand cone");
-            }*/
+                nucleotide.GetComponent<Collider>().enabled = false;
+            }
+            else
+            {
+                nucleotide.GetComponent<Collider>().enabled = true;
+            }
 
             var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            Debug.Log($"nucleotide child: {nucleotide.transform.GetChild(0)}");
-
             if (ntc.Domain != null)
             {
                 ntc.Domain.transform.SetParent(goTransform, true);
@@ -877,13 +874,27 @@ public class Helix
         foreach (GameObject nucleotide in _backbonesA)
         {
             nucleotide.transform.SetParent(goTransform, true);
-            //nucleotide.transform.parent = goTransform;
+            if (goTransform != null)
+            {
+                nucleotide.GetComponent<Collider>().enabled = false;
+            }
+            else
+            {
+                nucleotide.GetComponent<Collider>().enabled = true;
+            }
 
         }
         foreach (GameObject nucleotide in _backbonesB)
         {
             nucleotide.transform.SetParent(goTransform, true);
-            //nucleotide.transform.parent = goTransform;
+            if (goTransform != null)
+            {
+                nucleotide.GetComponent<Collider>().enabled = false;
+            }
+            else
+            {
+                nucleotide.GetComponent<Collider>().enabled = true;
+            }
 
         }
 
@@ -893,47 +904,8 @@ public class Helix
             foreach (GameObject cylinder in _helixViewCylinders)
             {
                 cylinder.transform.SetParent(goTransform, true);
-                //cylinder.transform.parent = goTransform;
             }
         }
-
-        /*Debug.Log("Added domains: " + addedDomains.Count);
-        foreach (DomainComponent domain in addedDomains)
-        {
-            if (domain == null)
-            {
-                Debug.Log("domain null");
-                continue;
-            }
-            //Debug.Log("Adding domain to transform handle");
-            domain.transform.SetParent(goTransform, true);
-            //domain.transform.parent = goTransform;
-            Debug.Log("domain children: " + domain.transform.childCount);
-            foreach(Transform child in domain.transform)
-            {
-                Debug.Log("Child: " + child.gameObject);
-            }
-        }*/
-
-        /*foreach (DomainComponent domain in addedDomains)
-        {
-            if (domain == null)
-            {
-                Debug.Log("domain null");
-                continue;
-            }
-            Debug.Log("Adding domain to transform handle");
-            domain.transform.SetParent(goTransform, true);
-            foreach (Bezier bezier in domain.Beziers)
-            {
-                bezier.Tube.transform.SetParent(goTransform, true);
-                //bezier.Endpoint0.transform.SetParent(goTransform, true);
-                //bezier.Endpoint1.transform.SetParent(goTransform, true);
-            }
-          
-            //bezier.Endpoint0.transform.SetParent(goTransform, true);
-            //bezier.Endpoint1.transform.SetParent(goTransform, true);
-        }*/
     }
 
     /// <summary>

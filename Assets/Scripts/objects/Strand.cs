@@ -176,7 +176,7 @@ public class Strand
             {
                 _lengthWasChanged = false;
                 int count = 0;
-                for (int i = _nucleotides.Count - 1; i >=0; i--)
+                for (int i = _nucleotides.Count - 1; i >= 0; i--)
                 {
                     NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
                     if (ntc != null)
@@ -605,11 +605,14 @@ public class Strand
             {
                 if (!xoverBefore)
                 {
-                    DomainComponent nextDomianComponent = DrawPoint.MakeDomain(domain, this);
-                    _domains.Add(nextDomianComponent);
+                    if (!ntc.IsExtension)
+                    {
+                        DomainComponent nextDomianComponent = DrawPoint.MakeDomain(domain, this);
+                        _domains.Add(nextDomianComponent);
+                        // Since xover endpoint nucleotides are sequential, this creating more domains than needed.
+                        xoverBefore = true;
+                    }
                     domain.Clear();
-                    // Since xover endpoint nucleotides are sequential, this creating more domains than needed.
-                    xoverBefore = true;
                 }
                 else
                 {
@@ -619,8 +622,11 @@ public class Strand
         }
 
         // Always create a domain component for the last domain
-        DomainComponent lastDomainComponent = DrawPoint.MakeDomain(domain, this);
-        _domains.Add(lastDomainComponent);
+        if (!domain.Last().GetComponent<NucleotideComponent>().IsExtension)
+        {
+            DomainComponent lastDomainComponent = DrawPoint.MakeDomain(domain, this);
+            _domains.Add(lastDomainComponent);
+        }
     }
 
     /// <summary>
@@ -678,7 +684,8 @@ public class Strand
                 sequence += "?";
             }
         }
-
+        Debug.Log($"strand length: {strandLength}");
+        Debug.Log($"Nucleotides Count: {_nucleotides.Count}");
         _sequence = sequence;
 
         int seqCount = 0;
@@ -697,7 +704,9 @@ public class Strand
                 else
                 {
                     ntc.Sequence = sequence.Substring(seqCount, ntc.Insertion + 1); // TODO: Change ntc.Insertion to seqComp.SequenceLength??
+                    //Debug.Log("NTC Seq: " + ntc.Sequence);
                     seqCount += ntc.Insertion + 1;
+                    //Debug.Log($"New seqCount: {seqCount}");
                 }
 
                 if (ntc.HasXover)
@@ -724,16 +733,21 @@ public class Strand
         if (_isOxview) { return; }
 
         _cone.GetComponent<ConeComponent>().Color = _color;
-        int helixId = _head.GetComponent<NucleotideComponent>().HelixId;
-        GameObject neighbor;
-        if (s_visualMode)
+        GameObject neighbor = null;
+        var ntc = _head.GetComponent<NucleotideComponent>();
+        if (!ntc.IsExtension)
         {
-            neighbor = s_visHelixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
+            int helixId = ntc.HelixId;
+            if (s_visualMode)
+            {
+                neighbor = s_visHelixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
+            }
+            else
+            {
+                neighbor = s_helixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
+            }
         }
-        else
-        {
-            neighbor = s_helixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
-        }
+        
         Vector3 toDirection;
 
         // If strand head is index 0 of nucleotide, recalculate direction of cone with next nucleotide.
@@ -746,7 +760,6 @@ public class Strand
         }
         _cone.transform.SetPositionAndRotation(_head.transform.position, Quaternion.FromToRotation(Vector3.up, toDirection));
         _cone.transform.SetParent(_head.transform, true);
-        Debug.Log($"Set cone, cone parent: {_cone.transform.parent}");
     }
 
     // Resets all GameObject components in the nucleotides list.

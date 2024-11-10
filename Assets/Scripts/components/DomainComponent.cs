@@ -111,8 +111,14 @@ public class DomainComponent : MonoBehaviour
 
     public void HideBezier()
     {
+        Debug.Log($"Strand: {_strand.Id}, domain head: {_dnaComponents[0]}, domain tail: {_dnaComponents.Last()}");
+
         foreach (Bezier bezier in _beziers)
         {
+            if (bezier == null)
+            {
+                Debug.Log("Bezier is null");
+            }
             bezier.SetActive(false);
         }
     }
@@ -211,10 +217,6 @@ public class DomainComponent : MonoBehaviour
     public void UpdateCapsuleCollider()
     {
         DNAComponent firstNucleotide = _dnaComponents[0];
-
-        s_helixDict.TryGetValue(firstNucleotide.HelixId, out Helix helix);
-        Helix = helix;
-
         Vector3 domainCenter = Vector3.Lerp(firstNucleotide.transform.position, _dnaComponents.Last().transform.position, 0.5f);
 
         // If domain is not extension,
@@ -222,6 +224,8 @@ public class DomainComponent : MonoBehaviour
         // TODO: configure domain component to be centered correctly around any orientation.
         if (!firstNucleotide.IsExtension)
         {
+            s_helixDict.TryGetValue(firstNucleotide.HelixId, out Helix helix);
+            Helix = helix;
             Vector3 gridCircleCenter = Helix.GridComponent.transform.position;
             domainCenter.x = gridCircleCenter.x;
             domainCenter.y = gridCircleCenter.y;
@@ -233,7 +237,8 @@ public class DomainComponent : MonoBehaviour
         _capsuleCollider.height = Vector3.Distance(_dnaComponents[0].transform.position, _dnaComponents.Last().transform.position);
 
         // Make capsule collider the same size as the grid circle. Dividing by two made it perfect? idk why didn't rly dive into this.
-        _capsuleCollider.radius = Helix.GridComponent.transform.localScale.x / 2;
+        //_capsuleCollider.radius = Helix.GridComponent.transform.localScale.x / 2;
+        _capsuleCollider.radius = 0.13f / 2;
     }
 
     private void Awake()

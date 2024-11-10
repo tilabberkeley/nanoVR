@@ -93,10 +93,10 @@ public class TransformHandle : MonoBehaviour
             leftTriggerReleased = false;
             rightTriggerReleased = false;
 
-            Debug.Log("Detach children");
+            //Debug.Log("Detach children");
             DetachChildren();
 
-            Debug.Log("done hiding transform");
+            //Debug.Log("done hiding transform");
         }
 
         if (!leftGripValue)
@@ -183,6 +183,7 @@ public class TransformHandle : MonoBehaviour
             for (int j = 0; j < grid.Width; j++)
             {
                 grid.Grid2D[i, j].transform.SetParent(gizmosTransform, true);
+                grid.Grid2D[i, j].GetComponent<Collider>().enabled = false;
                 grid.Grid2D[i, j].Helix?.SetParent(gizmosTransform);
             }
         }
@@ -201,6 +202,7 @@ public class TransformHandle : MonoBehaviour
                     for (int j = 0; j < grid.Width; j++)
                     {
                         grid.Grid2D[i, j].transform.SetParent(null);
+                        grid.Grid2D[i, j].GetComponent<Collider>().enabled = true;
                         grid.Grid2D[i, j].Helix?.SetParent(null);
                     }
                 }
