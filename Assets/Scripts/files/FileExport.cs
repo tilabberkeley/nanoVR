@@ -85,7 +85,7 @@ public class FileExport : MonoBehaviour
         }
         else if (exportType.Equals("oxdna"))
         {
-            StartCoroutine(CreateOxdnaFiles());
+            WriteOxdnaFiles();
         }
         else
         {
@@ -406,27 +406,100 @@ public class FileExport : MonoBehaviour
     /// <param name="path">File path to write to.</param>
     /// <param name="topContent">Content of .top file.</param>
     /// <param name="oxdnaContent">Content of .oxdna file.</param>
-    private void CreateOxdnaFiles(string path, byte[] topContent, byte[] oxdnaContent)
+    private void CreateOxdnaFiles(string path, string topContent, string oxdnaContent)
     {
         string topPath = path + ".top";
         string oxdnaPath = path + ".oxdna";
 
-        File.WriteAllBytes(topPath, topContent);
-        File.WriteAllBytes(oxdnaPath, oxdnaContent);
+        File.WriteAllText(topPath, topContent);
+        File.WriteAllText(oxdnaPath, oxdnaContent);
     }
 
     /// <summary>
     /// Writes the .top and .oxdna files to file browser.
     /// </summary>
-    /// <param name="topContent">Content of .top file.</param>
-    /// <param name="oxdnaContent">Content of .oxdna file.</param>
-    private void WriteOxdnaFiles(byte[] topContent, byte[] oxdnaContent)
+    private void WriteOxdnaFiles()
     {
-        bool result = FileBrowser.ShowSaveDialog((paths) => { CreateOxdnaFiles(paths[0], topContent, oxdnaContent); },
-            () => { Debug.Log("Canceled"); },
-            FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
+        bool result = FileBrowser.ShowSaveDialog((paths) => {
+            GenerateOxDNAFiles(out string topFile, out string oxdnaFile, out OxDNAMapper oxDNAMapper);
+            CreateOxdnaFiles(paths[0], topFile, oxdnaFile); 
+        },
+        () => { Debug.Log("Canceled"); },
+        FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
 
         Debug.Log("Download result: " + result);
+    }
+
+    /// <summary>
+    /// Generates string contents of top and dat files for orgiami. Puts them in
+    /// respective out variables. Additionally, the generation of the oxDNA files will 
+    /// map line indexes to their nucleotide game objects with the given OxDNAMapper.
+    /// This is used for simulation.
+    /// </summary>
+    public void GenerateOxDNAFiles(out string topFile, out string datFile, out OxDNAMapper oxDNAMapper)
+    {
+        StringBuilder topFileStringBuilder = new StringBuilder();
+        StringBuilder datFileStringBuilder = new StringBuilder();
+        oxDNAMapper = new OxDNAMapper();
+
+        // Write dat file metadata
+        datFileStringBuilder.Append("t = 0" + Environment.NewLine);
+        datFileStringBuilder.Append("b = 92 92 92" + Environment.NewLine); // TODO: calculate correct box
+        datFileStringBuilder.Append("E = 0 0 0" + Environment.NewLine);
+
+        int numNucleotides = 0;
+        int strandCounter = 1;
+        int globalNucleotideIndex = -1;
+        // Line number will increase as the nucleotides are parsed.
+        int lineIndex = 0;
+
+        // Iterate through all the strands
+        foreach (Strand strand in s_strandDict.Values)
+        {
+            // Iterate through nucleotides of each strand
+            foreach (GameObject nucleotide in strand.Nucleotides)
+            {
+                NucleotideComponent nucleotideComponent = nucleotide.GetComponent<NucleotideComponent>();
+                if (nucleotideComponent == null || nucleotideComponent.IsDeletion)
+                {
+                    continue;
+                }
+
+                int prime5 = globalNucleotideIndex;
+                int prime3 = globalNucleotideIndex + 2;
+
+                // Beginning and end of strand edge cases
+                if (nucleotide == strand.Head)
+                {
+                    prime5 = -1;
+                }
+                else if (nucleotide == strand.Tail)
+                {
+                    prime3 = -1;
+                }
+
+                topFileStringBuilder.Append($"{strandCounter} {nucleotideComponent.Sequence} {prime5} {prime3}" + Environment.NewLine);
+                datFileStringBuilder.Append($"{nucleotideComponent.OxDNAPosition().x:F16} {nucleotideComponent.OxDNAPosition().y:F16} {nucleotideComponent.OxDNAPosition().z:F16} " +
+                                            $"{nucleotideComponent.A1.x:F16} {nucleotideComponent.A1.y:F16} {nucleotideComponent.A1.z:F16} " +
+                                            $"{nucleotideComponent.A3.x:F16} {nucleotideComponent.A3.y:F16} {nucleotideComponent.A3.z:F16} " +
+                                            "0 0 0 0 0 0" + Environment.NewLine); // F16's add precision to the file writes.
+
+                // Add mapping from line number to nucleotide
+                oxDNAMapper.Add(lineIndex, nucleotide);
+
+                numNucleotides++;
+                globalNucleotideIndex++;
+                lineIndex++;
+            }
+
+            strandCounter++;
+        }
+
+        // Add top file metadata
+        topFileStringBuilder.Insert(0, $"{numNucleotides} {strandCounter - 1}" + Environment.NewLine);
+
+        topFile = topFileStringBuilder.ToString();
+        datFile = datFileStringBuilder.ToString();
     }
 
     /// <summary>
@@ -508,6 +581,6 @@ public class FileExport : MonoBehaviour
             Debug.Log(".oxdna file downloaded");
         }
 
-        WriteOxdnaFiles(topContent, oxdnaContent);
+        // WriteOxdnaFiles(topContent, oxdnaContent);
     }
 }

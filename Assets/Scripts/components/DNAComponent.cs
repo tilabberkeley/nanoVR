@@ -39,7 +39,6 @@ public abstract class DNAComponent : MonoBehaviour
             _color = value;
             _mpb.SetColor("_Color", _color);
             _ntRenderer.SetPropertyBlock(_mpb);
-            //_ntRenderer.sharedMaterial.SetColor("_Color", value);
         }
     }
 

@@ -30,28 +30,29 @@ public static class DrawPoint
     /// <param name="helixId">Id of helix nucleotide is in.</param>
     /// <param name="ssDirection">Direction of nucleotide.</param>
     /// <returns>GameObject of Nucleotide.</returns>
-    public static GameObject MakeNucleotide(Vector3 position, int id, int helixId, int direction, bool hideNucleotide = false)
+    public static GameObject MakeNucleotide(Vector3 position, Vector3 a1, Vector3 a3, int id, int helixId, int direction, bool hideNucleotide = false)
     {
         GameObject sphere =
                     Instantiate(GlobalVariables.Nucleotide,
                     position,
                     Quaternion.identity) as GameObject;
-        sphere.name = "nucleotide" + id;
 
-        NucleotideComponent ntc = sphere.GetComponent<NucleotideComponent>();
-        //SequenceComponent seqComp = sphere.GetComponent<SequenceComponent>();
-        ntc.Id = id;
-        ntc.HelixId = helixId;
-        ntc.Direction = direction;
-        ntc.IsBackbone = false;
-        //seqComp.HasComplement = true;
-        SaveGameObject(sphere);
-        sphere.isStatic = true;
-        sphere.SetActive(!hideNucleotide);
+        SetNucleotide(sphere, a1, a3, position, id, helixId, direction, hideNucleotide);
+
+        //NucleotideComponent ntc = sphere.GetComponent<NucleotideComponent>();
+        ////SequenceComponent seqComp = sphere.GetComponent<SequenceComponent>();
+        //ntc.Id = id;
+        //ntc.HelixId = helixId;
+        //ntc.Direction = direction;
+        //ntc.IsBackbone = false;
+        ////seqComp.HasComplement = true;
+        //SaveGameObject(sphere);
+        ////sphere.isStatic = true;
+        //sphere.SetActive(!hideNucleotide);
         return sphere;
     }
 
-    public static void SetNucleotide(GameObject sphere, Vector3 position, int id, int helixId, int direction, bool hideNucleotide = false, bool isOxview = false, bool isExtension = false)
+    public static void SetNucleotide(GameObject sphere, Vector3 position, Vector3 a1, Vector3 a3, int id, int helixId, int direction, bool hideNucleotide = false, bool isOxview = false, bool isExtension = false)
     {
         sphere.transform.position = position;
         sphere.name = "nucleotide" + id;
@@ -64,13 +65,14 @@ public static class DrawPoint
         ntc.IsOxview = isOxview;
         ntc.IsBackbone = false;
         ntc.IsExtension = isExtension;
+        ntc.A1 = a1;
+        ntc.A3 = a3;
         //seqComp.HasComplement = true;
         //sphere.transform.SetParent(null);
         SaveGameObject(sphere);
-        sphere.isStatic = true;
+        //sphere.isStatic = true;
         sphere.SetActive(!hideNucleotide);
     }
-
 
     public static List<GameObject> MakeNucleotides(NucleotideSize size, bool hide)
     {
@@ -218,7 +220,7 @@ public static class DrawPoint
         cylinder.transform.up = end - start;
 
         SaveGameObject(cylinder);
-        cylinder.isStatic = true;
+        // cylinder.isStatic = true;
         cylinder.SetActive(!hideBackbone);
         return cylinder;
     }
@@ -313,17 +315,9 @@ public static class DrawPoint
         return children;
     }
 
-    public static void SetBackbone(GameObject cylinder, int id, int helixId, int direction, Vector3 start, Vector3 end, bool hideBackbone = false, bool isOxview = false, bool isExtension = false)
+    public static void SetBackbone(GameObject cylinder, int id, int helixId, int direction, Vector3 start, Vector3 end, bool hideBackbone = false, bool isOxView = false)
     {
         cylinder.name = "Backbone" + id;
-
-        BackBoneComponent backBoneComponent = cylinder.GetComponent<BackBoneComponent>();
-        backBoneComponent.Id = id;
-        backBoneComponent.HelixId = helixId;
-        backBoneComponent.Direction = direction;
-        backBoneComponent.IsOxview = isOxview;
-        backBoneComponent.IsBackbone = true;
-        backBoneComponent.IsExtension = isExtension;
 
         // Scale        
         float dist = Vector3.Distance(end, start);
@@ -334,10 +328,20 @@ public static class DrawPoint
 
         // Rotation
         cylinder.transform.up = end - start;
+
+        cylinder.SetActive(!hideBackbone);
+
+        BackBoneComponent backBoneComponent = cylinder.GetComponent<BackBoneComponent>();
+        backBoneComponent.Id = id;
+        backBoneComponent.HelixId = helixId;
+        backBoneComponent.Direction = direction;
+        backBoneComponent.IsOxview = isOxView;
+        backBoneComponent.IsBackbone = true;
+
+        
         //cylinder.transform.SetParent(null);
         SaveGameObject(cylinder);
-        cylinder.isStatic = true;
-        cylinder.SetActive(!hideBackbone);
+        //cylinder.isStatic = true;
     }
 
     /// <summary>
@@ -436,7 +440,7 @@ public static class DrawPoint
         //GridComponent gridComponent = gridCircle.GetComponent<GridComponent>();
         //gridComponent.Position = position;
         SaveGameObject(gridCircle);
-        gridCircle.isStatic = true;
+        //gridCircle.isStatic = true;
         return gridCircle;
     }
 

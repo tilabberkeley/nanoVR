@@ -2,6 +2,7 @@
  * nanoVR, a VR application for building DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SimpleFileBrowser;
 using System;
@@ -117,9 +118,9 @@ public class FileImport : MonoBehaviour
             }
             else if (fileType.Equals(".oxview"))
             {
-                // Parse cadnano JSON
+                // Parse oxview JSON
                 loadingMenu.enabled = true;
-                OxviewImport(fileContent);
+                OxViewImport(fileContent);
             }
             else
             {
@@ -891,60 +892,21 @@ public class FileImport : MonoBehaviour
         //Debug.Log(string.Format("Overall sc import took {0} ms to complete", st.ElapsedMilliseconds));
     }
 
-    private async Task OxviewImport(string fileContents)
+    private void OxViewImport(string fileContents)
     {
         Stopwatch sw = new Stopwatch();
         sw.Start();
         JObject origami = JObject.Parse(fileContents);
+        List<double> box = JsonConvert.DeserializeObject<List<double>>(origami["box"].ToString());
         JArray systems = JArray.Parse(origami["systems"].ToString());
         for (int i = 0; i < systems.Count; i++)
         {
-            JArray strands = JArray.Parse(systems[i]["strands"].ToString());
-            for (int j = 0; j < strands.Count; j++)
-            {
-                JArray monomers = JArray.Parse(strands[j]["monomers"].ToString());
-                StringBuilder sequence = new StringBuilder();
-                List<Vector3> positions = new List<Vector3>();
-                List<Vector3> a1s = new List<Vector3>();
-                List<int> ids = new List<int>();
-                Color color = Color.white;
-
-                for (int k = 0; k < monomers.Count; k++)
-                {
-                    string type = monomers[k]["type"].ToString();
-                    sequence.Append(type);
-                    JArray p = JArray.Parse(monomers[k]["p"].ToString());
-                    Vector3 position = new Vector3((float) p[0], (float) p[1], (float) p[2]);
-                    positions.Add(position);
-
-                    JArray a1 = JArray.Parse(monomers[k]["a1"].ToString());
-                    Vector3 a1Vec = new Vector3((float) a1[0], (float) a1[1], (float) a1[2]);
-                    a1s.Add(a1Vec);
-
-                    int id = (int) monomers[k]["id"];
-                    ids.Add(id);
-
-                    // Convert base 10 color to hex.
-                    int decColor = (int) monomers[k]["color"];
-                    string hexColor = decColor.ToString("X6");
-
-                    // Set strand color once
-                    if (color.Equals(Color.white))
-                    {
-                        ColorUtility.TryParseHtmlString("#" + hexColor, out color);
-                    }
-                }
-                await oxView.BuildStructure(monomers.Count);
-                oxView.SetNucleotides(monomers.Count, positions, a1s, ids);
-                List<GameObject> nucleotides = oxView.GetSubstructure(monomers.Count);
-                Strand strand = CreateStrand(nucleotides, s_numStrands, color, true);
-                strand.SetSequence(sequence.ToString());
-                await Task.Yield();
-            }
+            List<OxViewStrand> strands = JsonConvert.DeserializeObject<List<OxViewStrand>>(systems[i]["strands"].ToString());
+            oxView.BuildStrands(strands, box);
         }
         sw.Stop();
         loadingMenu.enabled = false;
-        Debug.Log(string.Format("OxView import took {0} ms to complete", sw.ElapsedMilliseconds));
+        // Debug.Log(string.Format("OxView import took {0} ms to complete", sw.ElapsedMilliseconds));
     }
 
     /// <summary>

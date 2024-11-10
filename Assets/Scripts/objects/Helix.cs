@@ -131,13 +131,19 @@ public class Helix
                 float axisTwoChangeA = (float)(RADIUS * Mathf.Sin(angleA));
                 float axisOneChangeB = (float)(RADIUS * Mathf.Cos(angleB));
                 float axisTwoChangeB = (float)(RADIUS * Mathf.Sin(angleB));
+
                 _lastPositionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
                 _lastPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
 
+                Vector3 sphereAa3 = (_lastPositionA - _lastPositionB).normalized;
+                Vector3 sphereAa1 = new Vector3(-axisOneChangeA, axisOneChangeA, 0).normalized;
+                Vector3 sphereBa3 = (_lastPositionB - _lastPositionA).normalized;
+                Vector3 sphereBa1 = new Vector3(-axisOneChangeB, axisOneChangeB, 0).normalized;
+
                 GameObject sphereA = _nucleotidesA[i];
                 GameObject sphereB = _nucleotidesB[i];
-                DrawPoint.SetNucleotide(sphereA, _lastPositionA, i, _id, 1, hideNucleotides);
-                DrawPoint.SetNucleotide(sphereB, _lastPositionB, i, _id, 0, hideNucleotides);
+                DrawPoint.SetNucleotide(sphereA, _lastPositionA, sphereAa1, sphereAa3, i, _id, 1, hideNucleotides);
+                DrawPoint.SetNucleotide(sphereB, _lastPositionB, sphereBa1, sphereBa3, i, _id, 0, hideNucleotides);
 
                 _helixA.Add(sphereA);
                 _helixB.Add(sphereB);
@@ -178,8 +184,13 @@ public class Helix
                 _lastPositionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
                 _lastPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
 
-                GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, i, _id, 1, hideNucleotides);
-                GameObject sphereB = DrawPoint.MakeNucleotide(_lastPositionB, i, _id, 0, hideNucleotides);
+                Vector3 sphereAa3 = (_lastPositionA - _lastPositionB).normalized;
+                Vector3 sphereAa1 = new Vector3(-axisOneChangeA, axisOneChangeA, 0).normalized;
+                Vector3 sphereBa3 = (_lastPositionB - _lastPositionA).normalized;
+                Vector3 sphereBa1 = new Vector3(-axisOneChangeB, axisOneChangeB, 0).normalized;
+
+                GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, sphereAa1, sphereAa3, i, _id, 1, hideNucleotides);
+                GameObject sphereB = DrawPoint.MakeNucleotide(_lastPositionB, sphereBa1, sphereBa3, i, _id, 0, hideNucleotides);
                 _nucleotidesA.Add(sphereA);
                 _nucleotidesB.Add(sphereB);
 
@@ -266,8 +277,8 @@ public class Helix
          * This reduces number of Draw calls and increases FPS. 
          */
 
-        StaticBatchingUtility.Combine(_helixA.ToArray(), _helixA[0]);
-        StaticBatchingUtility.Combine(_helixB.ToArray(), _helixB[0]);
+        //StaticBatchingUtility.Combine(_helixA.ToArray(), _helixA[0]);
+        //StaticBatchingUtility.Combine(_helixB.ToArray(), _helixB[0]);
         _helixA.Clear();
         _helixB.Clear();
 
