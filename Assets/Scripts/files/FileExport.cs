@@ -479,7 +479,7 @@ public class FileExport : MonoBehaviour
                 }
 
                 topFileStringBuilder.Append($"{strandCounter} {nucleotideComponent.Sequence} {prime5} {prime3}" + Environment.NewLine);
-                datFileStringBuilder.Append($"{nucleotideComponent.OxDNAPosition().x:F16} {nucleotideComponent.OxDNAPosition().y:F16} {nucleotideComponent.OxDNAPosition().z:F16} " +
+                datFileStringBuilder.Append($"{nucleotideComponent.R.x:F16} {nucleotideComponent.R.y:F16} {nucleotideComponent.R.z:F16} " +
                                             $"{nucleotideComponent.A1.x:F16} {nucleotideComponent.A1.y:F16} {nucleotideComponent.A1.z:F16} " +
                                             $"{nucleotideComponent.A3.x:F16} {nucleotideComponent.A3.y:F16} {nucleotideComponent.A3.z:F16} " +
                                             "0 0 0 0 0 0" + Environment.NewLine); // F16's add precision to the file writes.
