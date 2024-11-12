@@ -405,14 +405,14 @@ public class FileExport : MonoBehaviour
     /// </summary>
     /// <param name="path">File path to write to.</param>
     /// <param name="topContent">Content of .top file.</param>
-    /// <param name="oxdnaContent">Content of .oxdna file.</param>
-    private void CreateOxdnaFiles(string path, string topContent, string oxdnaContent)
+    /// <param name="datContent">Content of .dat file.</param>
+    private void CreateOxdnaFiles(string path, string topContent, string datContent)
     {
         string topPath = path + ".top";
-        string oxdnaPath = path + ".oxdna";
+        string datPath = path + ".dat";
 
         File.WriteAllText(topPath, topContent);
-        File.WriteAllText(oxdnaPath, oxdnaContent);
+        File.WriteAllText(datPath, datContent);
     }
 
     /// <summary>
@@ -421,8 +421,8 @@ public class FileExport : MonoBehaviour
     private void WriteOxdnaFiles()
     {
         bool result = FileBrowser.ShowSaveDialog((paths) => {
-            GenerateOxDNAFiles(out string topFile, out string oxdnaFile, out OxDNAMapper oxDNAMapper);
-            CreateOxdnaFiles(paths[0], topFile, oxdnaFile); 
+            GenerateOxDNAFiles(out string topFile, out string datFile, out OxDNAMapper oxDNAMapper);
+            CreateOxdnaFiles(paths[0], topFile, datFile); 
         },
         () => { Debug.Log("Canceled"); },
         FileBrowser.PickMode.Files, false, null, null, "Save", "Save");

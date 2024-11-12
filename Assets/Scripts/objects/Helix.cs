@@ -136,14 +136,14 @@ public class Helix
                 _lastPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
 
                 Vector3 sphereAa3 = (_lastPositionA - _lastPositionB).normalized;
-                Vector3 sphereAa1 = new Vector3(-axisOneChangeA, axisOneChangeA, 0).normalized;
+                // Vector3 sphereAa1 = new Vector3(-axisOneChangeA, axisOneChangeA, 0).normalized;
+                Vector3 sphereAa1 = Vector3.Cross(Vector3.forward, sphereAa3).normalized;
                 Vector3 sphereBa3 = (_lastPositionB - _lastPositionA).normalized;
-                Vector3 sphereBa1 = new Vector3(-axisOneChangeB, axisOneChangeB, 0).normalized;
+                // Vector3 sphereBa1 = new Vector3(-axisOneChangeB, axisOneChangeB, 0).normalized;
+                Vector3 sphereBa1 = Vector3.Cross(Vector3.forward, sphereBa3).normalized;
 
                 GameObject sphereA = _nucleotidesA[i];
                 GameObject sphereB = _nucleotidesB[i];
-                DrawPoint.SetNucleotide(sphereA, _lastPositionA, sphereAa1, sphereAa3, i, _id, 1, hideNucleotides);
-                DrawPoint.SetNucleotide(sphereB, _lastPositionB, sphereBa1, sphereBa3, i, _id, 0, hideNucleotides);
 
                 _helixA.Add(sphereA);
                 _helixB.Add(sphereB);
@@ -155,6 +155,15 @@ public class Helix
                 sphereB.transform.RotateAround(StartPoint, Vector3.right, _gridComponent.transform.eulerAngles.x);
                 sphereB.transform.RotateAround(StartPoint, Vector3.up, _gridComponent.transform.eulerAngles.y);
 
+                // Apply rotation to A1 and A3 vectors
+                //Quaternion rotation = Quaternion.Euler(_gridComponent.transform.eulerAngles);
+                //sphereAa1 = rotation * sphereAa1;
+                //sphereAa3 = rotation * sphereAa3;
+                //sphereBa1 = rotation * sphereBa1;
+                //sphereBa3 = rotation * sphereBa3;
+
+                DrawPoint.SetNucleotide(sphereA, _lastPositionA, sphereAa1, sphereAa3, i, _id, 1, hideNucleotides);
+                DrawPoint.SetNucleotide(sphereB, _lastPositionB, sphereBa1, sphereBa3, i, _id, 0, hideNucleotides);
 
                 // Draw backbones
                 if (i > 0)
@@ -185,9 +194,18 @@ public class Helix
                 _lastPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
 
                 Vector3 sphereAa3 = (_lastPositionA - _lastPositionB).normalized;
-                Vector3 sphereAa1 = new Vector3(-axisOneChangeA, axisOneChangeA, 0).normalized;
+                // Vector3 sphereAa1 = new Vector3(-axisOneChangeA, axisOneChangeA, 0).normalized;
+                Vector3 sphereAa1 = Vector3.Cross(Vector3.forward, sphereAa3).normalized;
                 Vector3 sphereBa3 = (_lastPositionB - _lastPositionA).normalized;
-                Vector3 sphereBa1 = new Vector3(-axisOneChangeB, axisOneChangeB, 0).normalized;
+                // Vector3 sphereBa1 = new Vector3(-axisOneChangeB, axisOneChangeB, 0).normalized;
+                Vector3 sphereBa1 = Vector3.Cross(Vector3.forward, sphereBa3).normalized;
+
+                // Apply rotation to A1 and A3 vectors
+                //Quaternion rotation = Quaternion.Euler(_gridComponent.transform.eulerAngles);
+                //sphereAa1 = rotation * sphereAa1;
+                //sphereAa3 = rotation * sphereAa3;
+                //sphereBa1 = rotation * sphereBa1;
+                //sphereBa3 = rotation * sphereBa3;
 
                 GameObject sphereA = DrawPoint.MakeNucleotide(_lastPositionA, sphereAa1, sphereAa3, i, _id, 1, hideNucleotides);
                 GameObject sphereB = DrawPoint.MakeNucleotide(_lastPositionB, sphereBa1, sphereBa3, i, _id, 0, hideNucleotides);
