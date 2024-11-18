@@ -42,7 +42,7 @@ public class ClearScene : MonoBehaviour
         allGameObjects = new List<GameObject>();
 
         // OxView to keep track of all .oxview file imports
-        oxView = new OxView();
+        s_oxView = new OxView();
 
         // Tracks how many copies of each gridName have been made
         s_gridCopies = new Dictionary<string, int>();

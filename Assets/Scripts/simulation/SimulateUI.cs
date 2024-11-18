@@ -13,6 +13,7 @@ public class SimulateUI : MonoBehaviour
     /* Simulation UI */
     [SerializeField] private Canvas _simulateCanvas;
     [SerializeField] private Button _simulateButton;
+    [SerializeField] private TextMeshProUGUI _simulateButtonText;
     [SerializeField] private Button _cancelButton;
 
     // Input fields for simulation
@@ -64,7 +65,7 @@ public class SimulateUI : MonoBehaviour
 
         // Add button listeners
         _menuSimulateButton.onClick.AddListener(() => ShowSimulationUI());
-        _simulateButton.onClick.AddListener(() => Simulate());
+        _simulateButton.onClick.AddListener(() => ToggleSimulate());
         _cancelButton.onClick.AddListener(() => Cancel());
 
         // Fill default values for input fields
@@ -140,11 +141,35 @@ public class SimulateUI : MonoBehaviour
         );
     }
 
-    private void Simulate()
+    private void ToggleSimulate()
     {
-        _simulateCanvas.enabled = false;
+        s_simulating = !s_simulating;
+        if (s_simulating)
+        {
+            _simulateCanvas.enabled = false;
 
-        _oxViewConnect.Connect(ParseSettings());
+            _oxViewConnect.Connect(ParseSettings());
+        }
+        else
+        {
+            _oxViewConnect.Disconnect();
+        }
+        SetSimulateButton(s_simulating);
+    }
+
+    private void SetSimulateButton(bool simulating)
+    {
+        if (_menuSimulateButton != null && _simulateButtonText != null)
+        {
+            if (simulating)
+            {
+                _simulateButtonText.text = "Stop";
+            }
+            else
+            {
+                _simulateButtonText.text = "Simulate";
+            }
+        }
     }
 
     private string GetThermostatSetting()

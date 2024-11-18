@@ -35,7 +35,7 @@ public class OxViewConnect : MonoBehaviour
         {
             _unityContext.Post(_ =>
             {
-                Debug.Log("Connected");
+                Debug.Log("oxDNA Connected");
             }, null);
         };
         _ws.OnError += (sender, e) =>
@@ -50,6 +50,7 @@ public class OxViewConnect : MonoBehaviour
         {
             _unityContext.Post(_ =>
             {
+                Debug.Log("oxDNA Disconnected");
                 Debug.Log("Reason " + e.Reason);
                 Debug.Log("Error code " + e.Code);
             }, null);
@@ -60,6 +61,18 @@ public class OxViewConnect : MonoBehaviour
         _ws.SslConfiguration.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
         _ws.Connect();
+    }
+
+    public void Disconnect()
+    {
+        _ws.Close();
+
+        // Use the synchronization context to ensure the SimulationUpdate runs on the main Unity thread
+        // This is to ensure that unity API calls are not done outside of unity's sync context.
+        _unityContext.Post(_ =>
+        {
+            _oxDNAMapper.RestoreNucleotidesToEdit();
+        }, null);
     }
 
     private void SendOrigami(object sender, EventArgs e)

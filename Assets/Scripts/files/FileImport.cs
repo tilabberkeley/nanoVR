@@ -612,7 +612,7 @@ public class FileImport : MonoBehaviour
         for (int i = 0; i < systems.Count; i++)
         {
             List<OxViewStrand> strands = JsonConvert.DeserializeObject<List<OxViewStrand>>(systems[i]["strands"].ToString());
-            oxView.BuildStrands(strands, box);
+            s_oxView.BuildStrands(strands, box);
         }
         sw.Stop();
         loadingMenu.enabled = false;

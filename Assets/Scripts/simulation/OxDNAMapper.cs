@@ -60,4 +60,16 @@ public class OxDNAMapper
          */
         nucleotide.transform.position = position;
     }
+
+    /// <summary>
+    /// Restores the nucleotides to their original editing position.
+    /// </summary>
+    public void RestoreNucleotidesToEdit()
+    {
+        foreach (GameObject nucleotide in _lineIndexToNucleotide.Values)
+        {
+            NucleotideComponent nucleotideComponent = nucleotide.GetComponent<NucleotideComponent>();
+            nucleotide.transform.position = nucleotideComponent.Position;
+        }
+    }
 }

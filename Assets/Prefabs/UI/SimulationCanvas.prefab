@@ -5338,6 +5338,8 @@ GameObject:
   - component: {fileID: 5213593808955437845}
   - component: {fileID: 5213593808955437846}
   - component: {fileID: 5213593808955437847}
+  - component: {fileID: 8478667096390132476}
+  - component: {fileID: 8478667096390132477}
   m_Layer: 0
   m_Name: SimulateButton
   m_TagString: Untagged
@@ -5446,7 +5448,58 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5213593808955437846}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 8478667096390132477}
+        m_TargetAssemblyTypeName: Togglers, Assembly-CSharp
+        m_MethodName: StencilsToggled
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 8478667096390132476}
+        m_TargetAssemblyTypeName: ViewChanger, Assembly-CSharp
+        m_MethodName: ChangeStencilsView
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &8478667096390132476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5213593808955437849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 860d9153e79197c40be07c154613633c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8478667096390132477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5213593808955437849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 664a74fb0df36ce43aed0bcc454fe75a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nuclTog: {fileID: 0}
+  strandTog: {fileID: 0}
+  helixTog: {fileID: 0}
 --- !u!1 &5213593808967100122
 GameObject:
   m_ObjectHideFlags: 0

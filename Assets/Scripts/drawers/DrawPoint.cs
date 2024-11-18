@@ -10,6 +10,7 @@ using static UnityEngine.Object;
 using static GlobalVariables;
 using SplineMesh;
 using static OVRPlugin;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// Creates needed gameobjects like nucleotides, backbones, cones, Xovers, spheres, and grids.
@@ -30,14 +31,14 @@ public static class DrawPoint
     /// <param name="helixId">Id of helix nucleotide is in.</param>
     /// <param name="ssDirection">Direction of nucleotide.</param>
     /// <returns>GameObject of Nucleotide.</returns>
-    public static GameObject MakeNucleotide(Vector3 position, Vector3 a1, Vector3 a3, int id, int helixId, int direction, bool hideNucleotide = false)
+    public static GameObject MakeNucleotide(Vector3 position, Vector3 r, Vector3 a1, Vector3 a3, int id, int helixId, int direction, bool hideNucleotide = false)
     {
         GameObject sphere =
                     Instantiate(GlobalVariables.Nucleotide,
                     position,
                     Quaternion.identity) as GameObject;
 
-        SetNucleotide(sphere, a1, a3, position, id, helixId, direction, hideNucleotide);
+        SetNucleotide(sphere, position, r, a1, a3, id, helixId, direction, hideNucleotide);
 
         //NucleotideComponent ntc = sphere.GetComponent<NucleotideComponent>();
         ////SequenceComponent seqComp = sphere.GetComponent<SequenceComponent>();
@@ -52,7 +53,7 @@ public static class DrawPoint
         return sphere;
     }
 
-    public static void SetNucleotide(GameObject sphere, Vector3 position, Vector3 a1, Vector3 a3, int id, int helixId, int direction, bool hideNucleotide = false, bool isOxview = false, bool isExtension = false)
+    public static void SetNucleotide(GameObject sphere, Vector3 position, Vector3 r, Vector3 a1, Vector3 a3, int id, int helixId, int direction, bool hideNucleotide = false, bool isOxview = false, bool isExtension = false)
     {
         sphere.transform.position = position;
         sphere.name = "nucleotide" + id;
@@ -65,6 +66,8 @@ public static class DrawPoint
         ntc.IsOxview = isOxview;
         ntc.IsBackbone = false;
         ntc.IsExtension = isExtension;
+        ntc.Position = position;
+        ntc.R = r;
         ntc.A1 = a1;
         ntc.A3 = a3;
         //seqComp.HasComplement = true;

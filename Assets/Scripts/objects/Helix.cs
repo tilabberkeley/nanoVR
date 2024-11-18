@@ -551,7 +551,7 @@ public class Helix
         {
             if (!go.GetComponent<DNAComponent>().Selected)
             {
-                go.SetActive(s_hideStencils);
+                go.SetActive(!s_hideStencils);
             }
         }
     }

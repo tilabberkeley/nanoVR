@@ -102,14 +102,12 @@ public class XoverComponent : MonoBehaviour
             transform.up = end - start;
             _length = dist;
             Color = Utils.GetStrand(_prevGO).Color;
-            Debug.Log("xover nucls moved");
 
             if (_bezier != null)
             {
                 _bezier.Destroy();
 
                 _bezier = DrawPoint.MakeXoverBezier(this, _savedColor);
-                Debug.Log("created a new xover bezier");
             }
         }
     }

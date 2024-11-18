@@ -360,6 +360,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2612240384749808687, guid: c469a0db45198b34197e641817cf9ec9, type: 3}
   m_PrefabInstance: {fileID: 1295429652526102230}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &9934243 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5213593809606109605, guid: f606ce8a52e69ee40a0a12142a52d268, type: 3}
+  m_PrefabInstance: {fileID: 8478667096390132458}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &10776467
 GameObject:
   m_ObjectHideFlags: 0
@@ -26534,7 +26545,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -194.99994, y: NaN}
+  m_AnchoredPosition: {x: -195, y: NaN}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1650224458
@@ -30129,7 +30140,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -194.99994, y: NaN}
+  m_AnchoredPosition: {x: -195, y: NaN}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1877134062
@@ -43783,6 +43794,10 @@ PrefabInstance:
       propertyPath: _relaxSettingsInput
       value: 
       objectReference: {fileID: 8478667096390132472}
+    - target: {fileID: 4849642699004426345, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: _simulateButtonText
+      value: 
+      objectReference: {fileID: 9934243}
     - target: {fileID: 4849642699004426345, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _thermostatDropdown
       value: 

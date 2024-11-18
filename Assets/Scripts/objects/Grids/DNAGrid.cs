@@ -468,7 +468,7 @@ public abstract class DNAGrid
             for (int j = 0; j < _width; j++)
             {
                 GameObject go = _grid2D[i, j].gameObject;
-                go.SetActive(s_hideStencils);
+                go.SetActive(!s_hideStencils);
                 _grid2D[i, j].Helix?.ChangeStencilView();
             }
         }

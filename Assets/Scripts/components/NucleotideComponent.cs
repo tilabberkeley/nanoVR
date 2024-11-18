@@ -47,11 +47,19 @@ public class NucleotideComponent : DNAComponent
     private HashSet<XoverSuggestionComponent> _xoverSuggestionComponents;
     public HashSet<XoverSuggestionComponent> XoverSuggestionComponents { get { return _xoverSuggestionComponents; } }
 
-    // a1 Vector for oxDNA
+    // Editing location
+    private Vector3 _position = Vector3.zero;
+    public Vector3 Position { get { return _position; } set { _position = value; } }
+
+    // r center of mass vector for oxDNA
+    private Vector3 _r = Vector3.zero;
+    public Vector3 R { get { return _r; } set { _r = value; } }
+
+    // a1 orientation vector for oxDNA
     private Vector3 _a1 = Vector3.zero;
     public Vector3 A1 { get { return _a1; } set { _a1 = value; } }
 
-    // a3 vector for oxDNA
+    // a3 orientation vector for oxDNA
     private Vector3 _a3 = Vector3.zero;
     public Vector3 A3 { get { return _a3; } set { _a3 = value; } }
 
@@ -153,13 +161,5 @@ public class NucleotideComponent : DNAComponent
     {
         Helix helix = s_helixDict[_helixId];
         return helix.NumModsToLeft(_id, _direction);
-    }
-
-    /// <summary>
-    /// Converts the native nanoVR position to the oxDNA position.
-    /// </summary>
-    public Vector3 OxDNAPosition()
-    {
-        return transform.position * SCALE + 0.4f * _a1;
     }
 }
