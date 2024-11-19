@@ -74,18 +74,13 @@ public class InfoDisplay : MonoBehaviour
         text.Append("DNA: " + comp.Sequence + "\n");
         if (comp.IsInsertion) text.Append("Insertion Length: " + comp.Insertion + "\n");
 
-        if (!comp.IsExtension)
-        {
-            text.Append("Nucl Id: " + comp.Id + "\n");
-            text.Append("Helix Id: " + comp.HelixId + "\n");
-            text.Append("Direction: " + (comp.Direction == 1 ? "Forward" : "Reverse") + "\n\n");
-            DisplayStrandInfo(comp.StrandId, text);
-        }
-        else
-        {
-            text.Append("Part of extension");
-            textBox.text = text.ToString();
-        }
+
+        text.Append("Nucl Id: " + comp.Id + "\n");
+        text.Append("Helix Id: " + comp.HelixId + "\n");
+        text.Append("Direction: " + (comp.Direction == 1 ? "Forward" : "Reverse") + "\n");
+        if (comp.IsExtension) text.Append("Is extension \n\n");
+        DisplayStrandInfo(comp.StrandId, text);
+
     }
 
     /*private void DisplayBackboneInfo(GameObject go)

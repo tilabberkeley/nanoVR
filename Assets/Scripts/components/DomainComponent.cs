@@ -111,7 +111,7 @@ public class DomainComponent : MonoBehaviour
 
     public void HideBezier()
     {
-        Debug.Log($"Strand: {_strand.Id}, domain head: {_dnaComponents[0]}, domain tail: {_dnaComponents.Last()}");
+        //Debug.Log($"Strand: {_strand.Id}, domain head: {_dnaComponents[0]}, domain tail: {_dnaComponents.Last()}");
 
         foreach (Bezier bezier in _beziers)
         {

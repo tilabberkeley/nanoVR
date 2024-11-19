@@ -10,6 +10,7 @@ using static UnityEngine.Object;
 using static GlobalVariables;
 using SplineMesh;
 using static OVRPlugin;
+using TMPro;
 
 /// <summary>
 /// Creates needed gameobjects like nucleotides, backbones, cones, Xovers, spheres, and grids.
@@ -388,7 +389,7 @@ public static class DrawPoint
     /// <param name="yOffset">2D y direction offset of grid circle in grid object.</param>
     /// <param name="plane">Plane direction of grid object.</param>
     /// <returns></returns>
-    public static GameObject MakeGridCircleGO(Vector3 startPosition, GameObject startGridCircle, float xOffset, float yOffset, string plane)
+    public static GameObject MakeGridCircleGO(Vector3 startPosition, GameObject startGridCircle, float xOffset, float yOffset, string plane, GridPoint gridPoint)
     {
         // Calculate position.
         Vector3 position;
@@ -439,6 +440,8 @@ public static class DrawPoint
         gridCircle.name = "gridPoint";
         //GridComponent gridComponent = gridCircle.GetComponent<GridComponent>();
         //gridComponent.Position = position;
+        TextMeshPro tmp = gridCircle.GetComponentInChildren<TextMeshPro>();
+        tmp.text = $"[{gridPoint.X}, {gridPoint.Y}]";
         SaveGameObject(gridCircle);
         //gridCircle.isStatic = true;
         return gridCircle;

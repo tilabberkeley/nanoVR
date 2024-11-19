@@ -62,6 +62,9 @@ public static class GlobalVariables
     // OxView to keep track of all .oxview file imports
     public static OxView oxView = new OxView();
 
+    // Tracks all protein (PDB) imports
+    public static List<GameObject> proteins = new List<GameObject>();
+
     // Tracks how many copies of each gridName have been made
     public static Dictionary<string, int> s_gridCopies = new Dictionary<string, int>();
 

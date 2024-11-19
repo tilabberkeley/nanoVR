@@ -695,8 +695,8 @@ public class Strand
                 sequence += "?";
             }
         }
-        Debug.Log($"strand length: {strandLength}");
-        Debug.Log($"Nucleotides Count: {_nucleotides.Count}");
+        //Debug.Log($"strand length: {strandLength}");
+        //Debug.Log($"Nucleotides Count: {_nucleotides.Count}");
         _sequence = sequence;
 
         int seqCount = 0;
