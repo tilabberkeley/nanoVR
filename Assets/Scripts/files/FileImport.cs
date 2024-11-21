@@ -291,7 +291,6 @@ public class FileImport : MonoBehaviour
             {
                 gridName = (s_numGrids - 1).ToString();
             }
-            Debug.Log("Helix grid name: " + gridName);
             DNAGrid grid = s_gridDict[gridName];
             int xGrid = (int) coord[0];
             int yGrid = (int) coord[1] * -1;

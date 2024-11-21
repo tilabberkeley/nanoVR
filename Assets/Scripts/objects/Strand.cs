@@ -84,32 +84,34 @@ public class Strand
     private List<DomainComponent> _domains;
     public List<DomainComponent> Domains { get { return _domains; } }
 
-    public List<(int, int)> Insertions
+    public List<(int, int, NucleotideComponent)> Insertions
     {
         get
         {
-            List<(int, int)> insertions = new List<(int, int)>();
+            List<(int, int, NucleotideComponent)> insertions = new List<(int, int, NucleotideComponent)>();
             for (int i = 0; i < _nucleotides.Count; i++)
             {
                 NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
                 if (ntc != null && ntc.IsInsertion)
                 {
-                    insertions.Add((i, ntc.Insertion));
+                    insertions.Add((i, ntc.Insertion, ntc));
                 }
             }
             return insertions;
         }
     }
 
-    public List<int> Deletions { get
+    public List<(int, NucleotideComponent)> Deletions 
+    { 
+        get
         {
-            List<int> deletions = new List<int>();
+            List<(int, NucleotideComponent)> deletions = new List<(int, NucleotideComponent)>();
             for (int i = 0; i < _nucleotides.Count; i++)
             {
                 NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
                 if (ntc != null && ntc.IsDeletion)
                 {
-                    deletions.Add(i);
+                    deletions.Add((i, ntc));
                 }
             }
             return deletions;

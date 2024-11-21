@@ -28,8 +28,8 @@ public class CopyPaste : MonoBehaviour
     private static GameObject s_go;
     private static List<GameObject> s_currNucleotides = new List<GameObject>();
     private static List<List<GameObject>> newStrandNucls = new List<List<GameObject>>();
-    private static List<List<(int, int)>> insertions = new List<List<(int, int)>>();
-    private static List<List<int>> deletions = new List<List<int>>();
+    private static List<List<(int, int, NucleotideComponent)>> insertions = new List<List<(int, int, NucleotideComponent)>>();
+    private static List<List<(int, NucleotideComponent)>> deletions = new List<List<(int, NucleotideComponent)>>();
     private static List<List<(bool, int)>> isXovers = new List<List<(bool, int)>>();
 
     private void GetDevice()
@@ -147,10 +147,10 @@ public class CopyPaste : MonoBehaviour
                     {
 
                         List<GameObject> nucls = newStrandNucls[i];
-                        List<(int, int)> insertion = insertions[i];
+                        List<(int, int, NucleotideComponent)> insertion = insertions[i];
                         List<(GameObject, int)> newInsertions = new List<(GameObject, int)>();
                         List<GameObject> newDeletions = new List<GameObject>();
-                        List<int> deletion = deletions[i];
+                        List<(int, NucleotideComponent)> deletion = deletions[i];
                         int strandId = s_numStrands;
                         for (int j = 0; j < insertion.Count; j++)
                         {
@@ -160,7 +160,7 @@ public class CopyPaste : MonoBehaviour
                         }
                         for (int j = 0; j < deletion.Count; j++)
                         {
-                            int index = deletion[j];
+                            int index = deletion[j].Item1;
                             GameObject deletionGO = nucls[index];
                             newDeletions.Add(deletionGO);
                         }

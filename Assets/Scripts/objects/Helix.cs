@@ -125,49 +125,15 @@ public class Helix
             for (int i = prevLength; i < _length; i++)
             {
                 //sw.Start();
-                float angleA = (float)(i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
-                float angleB = (float)((i + 4.5f) * (2 * Math.PI / NUM_BASE_PAIRS)); //TODO: check this new offset
-                float axisOneChangeA = (float)(RADIUS * Mathf.Cos(angleA));
-                float axisTwoChangeA = (float)(RADIUS * Mathf.Sin(angleA));
-                float axisOneChangeB = (float)(RADIUS * Mathf.Cos(angleB));
-                float axisTwoChangeB = (float)(RADIUS * Mathf.Sin(angleB));
-
-                // Backbone repulsion sites for each nucleotide, unrotated.
-                _lastPositionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
-                _lastPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
-
-                // Calculate initial a1 and a3 vectors before rotation
-                Vector3 a1A = (_lastPositionB - _lastPositionA).normalized; // Vector perpendicular to helix axis for sphereA
-                Vector3 a3A = new Vector3(0, 0, 1); // Helix axis along z for sphereA
-
-                Vector3 a1B = (_lastPositionA - _lastPositionB).normalized; // Vector perpendicular to helix axis for sphereB
-                Vector3 a3B = new Vector3(0, 0, 1); // Helix axis along z for sphereB
-
-                // Create a quaternion from the Euler angles of the grid component's transform
-                Quaternion rotation = Quaternion.Euler(_gridComponent.transform.eulerAngles);
-
-                // Apply the rotation to _lastPositionA and _lastPositionB relative to the start point. 
-                Vector3 rotatedPositionA = rotation * (_lastPositionA - StartPoint) + StartPoint;
-                Vector3 rotatedPositionB = rotation * (_lastPositionB - StartPoint) + StartPoint;
-
-                // Apply the rotation to a1 and a3 vectors relative to the start point.
-                Vector3 rotatedA1A = rotation * a1A;
-                Vector3 rotatedA3A = rotation * a3A;
-
-                Vector3 rotatedA1B = rotation * a1B;
-                Vector3 rotatedA3B = rotation * a3B;
-
-                // Calculate the r, center of mass, value from the backbone repulsion sites for each nucleotide.
-                Vector3 rA = rotatedPositionA * SCALE + 0.4f * a1A;
-                Vector3 rB = rotatedPositionB * SCALE + 0.4f * a1B;
+                CalculateNextNucleotidePositions(i, out NucleotideOrientationInfo infoA, out NucleotideOrientationInfo infoB);
 
                 // Get nucleotide gameobjects and set them.
                 GameObject sphereA = _nucleotidesA[i];
                 GameObject sphereB = _nucleotidesB[i];
                 _helixA.Add(sphereA);
                 _helixB.Add(sphereB);
-                DrawPoint.SetNucleotide(sphereA, rotatedPositionA, rA, rotatedA1A, rotatedA3A, i, _id, 1, hideNucleotides);
-                DrawPoint.SetNucleotide(sphereB, rotatedPositionB, rB, rotatedA1B, rotatedA3B, i, _id, 0, hideNucleotides);
+                DrawPoint.SetNucleotide(sphereA, infoA.NativePosition, infoA.R, infoA.A1, infoA.A3, i, _id, 1, hideNucleotides);
+                DrawPoint.SetNucleotide(sphereB, infoB.NativePosition, infoB.R, infoB.A1, infoB.A3, i, _id, 0, hideNucleotides);
 
                 // Draw backbones
                 if (i > 0)
@@ -188,47 +154,11 @@ public class Helix
             for (int i = prevLength; i < _length; i++)
             {
                 //sw.Start();
-                float angleA = (float)(i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
-                float angleB = (float)((i + 4.5f) * (2 * Math.PI / NUM_BASE_PAIRS)); //TODO: check this new offset
-                float axisOneChangeA = (float)(RADIUS * Mathf.Cos(angleA));
-                float axisTwoChangeA = (float)(RADIUS * Mathf.Sin(angleA));
-                float axisOneChangeB = (float)(RADIUS * Mathf.Cos(angleB));
-                float axisTwoChangeB = (float)(RADIUS * Mathf.Sin(angleB));
-                _lastPositionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
-                _lastPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
-
-                // Backbone repulsion sites for each nucleotide, unrotated.
-                _lastPositionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
-                _lastPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
-
-                // Calculate initial a1 and a3 vectors before rotation
-                Vector3 a1A = (_lastPositionB - _lastPositionA).normalized; // Vector perpendicular to helix axis for sphereA
-                Vector3 a3A = new Vector3(0, 0, 1); // Helix axis along z for sphereA
-
-                Vector3 a1B = (_lastPositionA - _lastPositionB).normalized; // Vector perpendicular to helix axis for sphereB
-                Vector3 a3B = new Vector3(0, 0, 1); // Helix axis along z for sphereB
-
-                // Create a quaternion from the Euler angles of the grid component's transform
-                Quaternion rotation = Quaternion.Euler(_gridComponent.transform.eulerAngles);
-
-                // Apply the rotation to _lastPositionA and _lastPositionB relative to the start point. 
-                Vector3 rotatedPositionA = rotation * (_lastPositionA - StartPoint) + StartPoint;
-                Vector3 rotatedPositionB = rotation * (_lastPositionB - StartPoint) + StartPoint;
-
-                // Apply the rotation to a1 and a3 vectors relative to the start point.
-                Vector3 rotatedA1A = rotation * a1A;
-                Vector3 rotatedA3A = rotation * a3A;
-
-                Vector3 rotatedA1B = rotation * a1B;
-                Vector3 rotatedA3B = rotation * a3B;
-
-                // Calculate the r, center of mass, value from the backbone repulsion sites for each nucleotide.
-                Vector3 rA = rotatedPositionA * SCALE + 0.4f * a1A;
-                Vector3 rB = rotatedPositionB * SCALE + 0.4f * a1B;
+                CalculateNextNucleotidePositions(i, out NucleotideOrientationInfo infoA, out NucleotideOrientationInfo infoB);
 
                 // Generate and set the nucleotides.
-                GameObject sphereA = DrawPoint.MakeNucleotide(rotatedPositionA, rA, rotatedA1A, rotatedA3A, i, _id, 1, hideNucleotides);
-                GameObject sphereB = DrawPoint.MakeNucleotide(rotatedPositionB, rB, rotatedA1B, rotatedA3B, i, _id, 0, hideNucleotides);
+                GameObject sphereA = DrawPoint.MakeNucleotide(infoA.NativePosition, infoA.R, infoA.A1, infoA.A3, i, _id, 1, hideNucleotides);
+                GameObject sphereB = DrawPoint.MakeNucleotide(infoB.NativePosition, infoB.R, infoB.A1, infoB.A3, i, _id, 0, hideNucleotides);
                 _nucleotidesA.Add(sphereA);
                 _nucleotidesB.Add(sphereB);
                 _helixA.Add(sphereA);
@@ -314,10 +244,27 @@ public class Helix
         await Task.Yield();
     }
 
+    public struct NucleotideOrientationInfo
+    {
+        public Vector3 NativePosition { get; }
+        public Vector3 R { get; }
+        public Vector3 A1 { get; }
+        public Vector3 A3 { get; }
+
+        public NucleotideOrientationInfo(Vector3 nativePosition, Vector3 r, Vector3 a1, Vector3 a3)
+        {
+            NativePosition = nativePosition;
+            R = r;
+            A1 = a1;
+            A3 = a3;
+        }
+    }
+
+
     /// <summary>
-    /// Calculates the position of the nucleotides at the given index i.
+    /// Calculates the nucleotide orientation information of the nucleotides at the given index i.
     /// </summary>
-    public void CalculateNextNucleotidePositions(int i, out Vector3 nextPositionA, out Vector3 nextPositionB)
+    public void CalculateNextNucleotidePositions(int i, out NucleotideOrientationInfo infoA, out NucleotideOrientationInfo infoB)
     {
         float angleA = (float)(i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
         float angleB = (float)((i + 4.5f) * (2 * Math.PI / NUM_BASE_PAIRS)); //TODO: check this new offset
@@ -325,8 +272,38 @@ public class Helix
         float axisTwoChangeA = (float)(RADIUS * Mathf.Sin(angleA));
         float axisOneChangeB = (float)(RADIUS * Mathf.Cos(angleB));
         float axisTwoChangeB = (float)(RADIUS * Mathf.Sin(angleB));
-        nextPositionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
-        nextPositionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
+
+        // Backbone repulsion sites for each nucleotide, unrotated.
+        Vector3 positionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
+        Vector3 positionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
+
+        // Calculate initial a1 and a3 vectors before rotation
+        Vector3 a1A = (positionB - positionA).normalized; // Vector perpendicular to helix axis for sphereA
+        Vector3 a3A = new Vector3(0, 0, 1); // Helix axis along z for sphereA
+
+        Vector3 a1B = (positionA - positionB).normalized; // Vector perpendicular to helix axis for sphereB
+        Vector3 a3B = new Vector3(0, 0, 1); // Helix axis along z for sphereB
+
+        // Create a quaternion from the Euler angles of the grid component's transform
+        Quaternion rotation = Quaternion.Euler(_gridComponent.transform.eulerAngles);
+
+        // Apply the rotation to positionA and positionB relative to the start point. 
+        Vector3 rotatedPositionA = rotation * (positionA - StartPoint) + StartPoint;
+        Vector3 rotatedPositionB = rotation * (positionB - StartPoint) + StartPoint;
+
+        // Apply the rotation to a1 and a3 vectors relative to the start point.
+        Vector3 rotatedA1A = rotation * a1A;
+        Vector3 rotatedA3A = rotation * a3A;
+
+        Vector3 rotatedA1B = rotation * a1B;
+        Vector3 rotatedA3B = rotation * a3B;
+
+        // Calculate the r, center of mass, value from the backbone repulsion sites for each nucleotide.
+        Vector3 rA = rotatedPositionA * SCALE + 0.4f * a1A;
+        Vector3 rB = rotatedPositionB * SCALE + 0.4f * a1B;
+
+        infoA = new NucleotideOrientationInfo(rotatedPositionA, rA, rotatedA1A, rotatedA3A);
+        infoB = new NucleotideOrientationInfo(rotatedPositionB, rB, rotatedA1B, rotatedA3B);
     }
 
     /// <summary>

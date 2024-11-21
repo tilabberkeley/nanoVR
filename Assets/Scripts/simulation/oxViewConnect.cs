@@ -9,10 +9,6 @@ public class OxViewConnect : MonoBehaviour
     [SerializeField]
     private const string _connectionURL = "wss://nanobase.org:8989/";
 
-    [SerializeField]
-    private GameObject _fileExportObject;
-    private FileExport _fileExport;
-
     private WebSocket _ws;
     private JObject _settings;
     private SynchronizationContext _unityContext;
@@ -22,7 +18,6 @@ public class OxViewConnect : MonoBehaviour
     {
         // Store the main thread's synchronization context for use later
         _unityContext = SynchronizationContext.Current;
-        _fileExport = _fileExportObject.GetComponent<FileExport>();
     }
 
     public void Connect(JObject settings)
@@ -83,11 +78,13 @@ public class OxViewConnect : MonoBehaviour
         }
 
         // Get file contents and mappings
-        _fileExport.GenerateOxDNAFiles(out string topFile, out string datFile, out _oxDNAMapper);
+        OxDNASystem oxDNAsystem = new OxDNASystem();
+        var fileResults = oxDNAsystem.OxDNAFiles();
+        _oxDNAMapper = fileResults.oxDNAMapper;
 
         JObject initialMessage = new JObject(
-            new JProperty("top_file", topFile),
-            new JProperty("dat_file", datFile),
+            new JProperty("top_file", fileResults.topFile),
+            new JProperty("dat_file", fileResults.datFile),
             new JProperty("settings", _settings)
         );
 
