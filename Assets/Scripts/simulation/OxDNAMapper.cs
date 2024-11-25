@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using static Utils;
+using static Geometry;
 
 /// <summary>
 /// Manages mappings between native nucleotides and their line numbers in oxDNA files.
@@ -9,18 +10,24 @@ using static Utils;
 /// </summary>
 public class OxDNAMapper
 {
-    private Dictionary<int, GameObject> _lineIndexToNucleotide;
+    private Dictionary<int, NucleotideComponent> _lineIndexToNucleotide;
 
     public OxDNAMapper()
     {
-        _lineIndexToNucleotide = new Dictionary<int, GameObject>();
+        _lineIndexToNucleotide = new Dictionary<int, NucleotideComponent>();
     }
 
-    public void Add(int lineIndex, GameObject nucleotide)
+    /// <summary>
+    /// Adds a mapping from a line index of a dat file to a nucleotide.
+    /// </summary>
+    public void Add(int lineIndex, NucleotideComponent nucleotide)
     {
         _lineIndexToNucleotide.Add(lineIndex, nucleotide);
     }
-    
+
+    /// <summary>
+    /// Updates the simulation to the positions given in the dat file.
+    /// </summary>
     public void SimulationUpdate(string datFile)
     {
         StringReader datFileReader = new StringReader(datFile);
@@ -47,18 +54,22 @@ public class OxDNAMapper
         }
     }
 
+    /// <summary>
+    /// Updates the associated nucleotide at the givne line index.
+    /// </summary>
     private void UpdateNucleotidePosition(int lineIndex, Vector3 datFilePosition, Vector3 datFileA1)
     {
-        _lineIndexToNucleotide.TryGetValue(lineIndex, out GameObject nucleotide);
+        _lineIndexToNucleotide.TryGetValue(lineIndex, out NucleotideComponent nucleotide);
 
         // Convert oxDNA position to native position.
-        Vector3 position = (datFilePosition - 0.4f * datFileA1) / SCALE;
+        Vector3 position = (datFilePosition - 0.4f * datFileA1) / SCALE_FROM_NANOVR_TO_NM / (float)NM_TO_OX_UNITS;
 
         /* Instead of calling DrawPoint.SetNucleotide to update the nucleotides position, it will be directly done here.
          * This avoids calling GetComponent on the nucleotide - only the gameobject is needed to update the position.
-         * If the a1 value needs to be updated in the future, then GetComponent will need to be called.
+         * 
+         * Additionally, we are adding the saved position of the nucleotide because the simulation is centered at the origin.
          */
-        nucleotide.transform.position = position;
+        nucleotide.transform.position = position; //+ nucleotide.Position;
     }
 
     /// <summary>
@@ -66,10 +77,9 @@ public class OxDNAMapper
     /// </summary>
     public void RestoreNucleotidesToEdit()
     {
-        foreach (GameObject nucleotide in _lineIndexToNucleotide.Values)
+        foreach (NucleotideComponent nucleotideComponent in _lineIndexToNucleotide.Values)
         {
-            NucleotideComponent nucleotideComponent = nucleotide.GetComponent<NucleotideComponent>();
-            nucleotide.transform.position = nucleotideComponent.Position;
+            nucleotideComponent.transform.position = nucleotideComponent.Position;
         }
     }
 }

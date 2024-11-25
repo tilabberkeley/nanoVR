@@ -121,9 +121,9 @@ public class FileExport : MonoBehaviour
             }
             else
             {
-                position["x"] = grid.Position.x * SCALE * -1; // TODO: Check this is right
-                position["y"] = grid.Position.y * SCALE;
-                position["z"] = grid.Position.z * SCALE;
+                position["x"] = grid.Position.x * SCALE_FROM_NANOVR_TO_NM * -1; // TODO: Check this is right
+                position["y"] = grid.Position.y * SCALE_FROM_NANOVR_TO_NM;
+                position["z"] = grid.Position.z * SCALE_FROM_NANOVR_TO_NM;
             }
 
             /* Converts Unity quaternion into pitch, yaw, roll for scadnano json. 

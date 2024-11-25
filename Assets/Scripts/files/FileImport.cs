@@ -181,9 +181,9 @@ public class FileImport : MonoBehaviour
                     float z = 0;
                     if (info["position"] != null)
                     {
-                        x = (float)info["position"]["x"] / SCALE;
-                        y = (float)info["position"]["y"] / SCALE;
-                        z = (float)info["position"]["z"] / SCALE;
+                        x = (float)info["position"]["x"] / SCALE_FROM_NANOVR_TO_NM;
+                        y = (float)info["position"]["y"] / SCALE_FROM_NANOVR_TO_NM;
+                        z = (float)info["position"]["z"] / SCALE_FROM_NANOVR_TO_NM;
                     }
                     
                     string gridType = CleanSlash(info["grid"].ToString());

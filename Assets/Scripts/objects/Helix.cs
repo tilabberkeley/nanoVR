@@ -299,8 +299,8 @@ public class Helix
         Vector3 rotatedA3B = rotation * a3B;
 
         // Calculate the r, center of mass, value from the backbone repulsion sites for each nucleotide.
-        Vector3 rA = rotatedPositionA * SCALE + 0.4f * a1A;
-        Vector3 rB = rotatedPositionB * SCALE + 0.4f * a1B;
+        Vector3 rA = rotatedPositionA * SCALE_FROM_NANOVR_TO_NM + 0.4f * a1A;
+        Vector3 rB = rotatedPositionB * SCALE_FROM_NANOVR_TO_NM + 0.4f * a1B;
 
         infoA = new NucleotideOrientationInfo(rotatedPositionA, rA, rotatedA1A, rotatedA3A);
         infoB = new NucleotideOrientationInfo(rotatedPositionB, rB, rotatedA1B, rotatedA3B);

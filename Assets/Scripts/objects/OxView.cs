@@ -408,7 +408,7 @@ public class OxView
     private void SetNucleotidePosition(OxDNAMapping mapping)
     {
         // r center of mass to backbone repulsion site.
-        Vector3 position = (mapping.Position - 0.4f * mapping.A1) / SCALE;
+        Vector3 position = (mapping.Position - 0.4f * mapping.A1) / SCALE_FROM_NANOVR_TO_NM;
         DrawPoint.SetNucleotide(mapping.Nucleotide, Vector3.zero, Vector3.zero, Vector3.zero, position, mapping.Id, -1, -1, false, true);
     }
 }

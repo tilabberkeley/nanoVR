@@ -15,12 +15,12 @@ using static GlobalVariables;
 public static class Utils
 {
     // CONSTANTS
-    public const float SCALE = 19f;
-    public const float RADIUS = 1f / SCALE;
-    public const float HELIX_GAP = 3f / SCALE;
-    public const float RISE = .34f / SCALE;
+    public const float SCALE_FROM_NANOVR_TO_NM = 19f; // Multiply nanovr coordinate to get to nm scale.
+    public const float RADIUS = 1f / SCALE_FROM_NANOVR_TO_NM;
+    public const float HELIX_GAP = 3f / SCALE_FROM_NANOVR_TO_NM;
+    public const float RISE = .34f / SCALE_FROM_NANOVR_TO_NM;
     public const float NUM_BASE_PAIRS = 10.5f;
-    public const float CROSSOVER_LENGTH = 7 * .34f / SCALE; // Ideal xover length of 7 base pairs??
+    public const float CROSSOVER_LENGTH = 7 * .34f / SCALE_FROM_NANOVR_TO_NM; // Ideal xover length of 7 base pairs??
 
     /// <summary>
     /// Returns nucleotide Gameobject given id, helixId, and direction.

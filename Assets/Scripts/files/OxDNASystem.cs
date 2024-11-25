@@ -70,10 +70,10 @@ public class OxDNASystem
                 
                 // TODO: handle insertion behavior.
 
-                var cen = origin + forward * (nucleotideComponent.Id + mod) * RISE_PER_BASE_PAIR * NM_TO_OX_UNITS; // origin already in oxDNA coordinates.
+                var cen = origin + forward * (nucleotideComponent.Id + mod) * RISE_PER_BASE_PAIR * NM_TO_OX_UNITS;
                 var norm = normal.Rotate(STEP_ROTATION * (nucleotideComponent.Id + mod), forward);
                 var forw = isNucleotideForward ? -forward : forward;
-                var oxdnaNucleotide = new OxdnaNucleotide(cen, norm, forw, nucleotide, nucleotideComponent.Sequence);
+                var oxdnaNucleotide = new OxdnaNucleotide(cen, norm, forw, nucleotideComponent, nucleotideComponent.Sequence);
                 oxdnaStrand.Nucleotides.Add(oxdnaNucleotide);
             }
 
@@ -159,15 +159,15 @@ public class OxDNASystem
 
         yawAxis = yawAxis.Rotate(-roll, rollAxis);
 
-        // By convention, forward is the same as the roll axis
+        // By convention, forward is the same as the roll axis, but negating to account for nanovr helix extension direction.
         // Normal is the negated yaw axis
-        var forward = rollAxis;
+        var forward = -rollAxis;
         var normal = -yawAxis;
         
         var helixNativePosition = helix._gridComponent.transform.position;
 
-        // Convert position to oxDNA units. Need to double check scale.
-        var origin = new OxdnaVector(helixNativePosition.x, helixNativePosition.y, helixNativePosition.z) * SCALE * NM_TO_OX_UNITS;
+        // Convert position to oxDNA units.
+        var origin = new OxdnaVector(helixNativePosition.x, helixNativePosition.y, helixNativePosition.z) * SCALE_FROM_NANOVR_TO_NM * NM_TO_OX_UNITS;
 
         return (origin, forward, normal);
     }
@@ -251,7 +251,7 @@ public class OxDNASystem
                 if (nucleotideIndex == oxdnaStrand.Nucleotides.Count - 1) n3 = -1;
                 nucleotideIndex++;
 
-                topFileStringBuilder.Append($"{strandCount} {oxdnaNucleotide.Base} {n5} {n3}" + Environment.NewLine);
+                topFileStringBuilder.Append($"{strandCount} {oxdnaNucleotide.Base} {n3} {n5}" + Environment.NewLine);
                 datFileStringBuilder.Append($"{oxdnaNucleotide.R.X:F16} {oxdnaNucleotide.R.Y:F16} {oxdnaNucleotide.R.Z:F16} " +
                                             $"{oxdnaNucleotide.B.X:F16} {oxdnaNucleotide.B.Y:F16} {oxdnaNucleotide.B.Z:F16} " +
                                             $"{oxdnaNucleotide.N.X:F16} {oxdnaNucleotide.N.Y:F16} {oxdnaNucleotide.N.Z:F16} " +
@@ -372,13 +372,13 @@ class OxdnaNucleotide
     public OxdnaVector Normal { get; }
     public OxdnaVector Forward { get; }
     public string Base { get; }
-    public GameObject Nucleotide { get; }
+    public NucleotideComponent Nucleotide { get; }
 
     // Velocity and angular velocity for oxDNA conf file
     public OxdnaVector V { get; }
     public OxdnaVector L { get; }
 
-    public OxdnaNucleotide(OxdnaVector center, OxdnaVector normal, OxdnaVector forward, GameObject nucleotide, string @base)
+    public OxdnaNucleotide(OxdnaVector center, OxdnaVector normal, OxdnaVector forward, NucleotideComponent nucleotide, string @base)
     {
         Center = center;
         Normal = normal;
