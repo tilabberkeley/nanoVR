@@ -134,6 +134,7 @@ public class XoverComponent : MonoBehaviour
     /// </summary>
     public void NucleotideView()
     {
+        _ntRenderer.enabled = true;
         if (_bezier == null)
         {
             return;
@@ -141,7 +142,6 @@ public class XoverComponent : MonoBehaviour
 
         _bezier.Destroy();
         _bezier = null;
-        gameObject.SetActive(true);
     }
 
     /// <summary>
@@ -154,7 +154,7 @@ public class XoverComponent : MonoBehaviour
         {
             Debug.Log("creating xover bezier");
             _bezier = DrawPoint.MakeXoverBezier(this, color);
-            gameObject.SetActive(false);
+            _ntRenderer.enabled = false;
         }
     }
 }

@@ -9,7 +9,6 @@ using UnityEngine.XR.Interaction.Toolkit;
 using static UnityEngine.Object;
 using static GlobalVariables;
 using SplineMesh;
-using static OVRPlugin;
 using TMPro;
 
 /// <summary>

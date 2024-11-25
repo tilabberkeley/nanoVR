@@ -4,13 +4,11 @@
  */
 using System.Collections.Generic;
 using System.Text;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using static GlobalVariables;
 
 /// <summary>
-/// Useful methods for multiple files.
+/// Useful methods and constants for multiple files.
 /// </summary>
 public static class Utils
 {
@@ -22,9 +20,7 @@ public static class Utils
     public const float NUM_BASE_PAIRS = 10.5f;
     public const float CROSSOVER_LENGTH = 7 * .34f / SCALE; // Ideal xover length of 7 base pairs??
 
-    public const float ATOM_RADIUS = 1.5f; // Radius for individual atoms
-    public const float GRID_RES = 0.5f; // Resolution for the grid (higher for finer surface
-    public const float ISO_LVL = 1.0f; // Threshold for surface generation
+    public const float ATOM_SCALE = 10f;
 
     /// <summary>
     /// Returns nucleotide Gameobject given id, helixId, and direction.

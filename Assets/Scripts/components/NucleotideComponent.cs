@@ -98,7 +98,7 @@ public class NucleotideComponent : DNAComponent
         s_helixDict.TryGetValue(_helixId, out Helix thisHelix);
         List<NucleotideComponent> nucleotideComponents = new List<NucleotideComponent>();
         int oppositeDirection = (_direction + 1) % 2;
-        foreach (Helix helix in thisHelix.getNeighborHelices())
+        foreach (Helix helix in thisHelix.GetNeighborHelices())
         {
             if (oppositeDirection == 1)
             {

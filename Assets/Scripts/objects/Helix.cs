@@ -262,25 +262,13 @@ public class Helix
 
         if (ObjectPoolManager.Instance.CanGetNucleotides(2 * length) && ObjectPoolManager.Instance.CanGetBackbones(2 * numBacks))
         {
-            Debug.Log("Synchronous extension using objPool");
             _nucleotidesA.AddRange(ObjectPoolManager.Instance.GetNucleotides(length));
-            Debug.Log("Added nuclsA");
-
             _nucleotidesB.AddRange(ObjectPoolManager.Instance.GetNucleotides(length));
-            Debug.Log("Added nuclsB");
-
             _backbonesA.AddRange(ObjectPoolManager.Instance.GetBackbones(numBacks));
-            Debug.Log("Added backsA");
-
             _backbonesB.AddRange(ObjectPoolManager.Instance.GetBackbones(numBacks));
 
-            Debug.Log("Added backsB");
-
-
-            //await GenerateGameObjects(length, hideNucleotides);
             for (int i = prevLength; i < _length; i++)
             {
-                //sw.Start();
                 float angleA = (float)(i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
                 float angleB = (float)((i + 4.5f) * (2 * Math.PI / NUM_BASE_PAIRS)); //TODO: check this new offset
                 float axisOneChangeA = (float)(RADIUS * Mathf.Cos(angleA));
@@ -329,7 +317,6 @@ public class Helix
         {
             for (int i = prevLength; i < _length; i++)
             {
-                //sw.Start();
                 float angleA = (float)(i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
                 float angleB = (float)((i + 4.5f) * (2 * Math.PI / NUM_BASE_PAIRS)); //TODO: check this new offset
                 float axisOneChangeA = (float)(RADIUS * Mathf.Cos(angleA));
@@ -358,7 +345,6 @@ public class Helix
                 sphereB.transform.RotateAround(StartPoint, Vector3.forward, _gridComponent.transform.eulerAngles.z);
                 sphereB.transform.RotateAround(StartPoint, Vector3.right, _gridComponent.transform.eulerAngles.x);
                 sphereB.transform.RotateAround(StartPoint, Vector3.up, _gridComponent.transform.eulerAngles.y);
-
 
                 // Draw backbones
                 if (i > 0)
@@ -833,7 +819,7 @@ public class Helix
     /// Returns the helices that neighbor this helix.
     /// </summary>
     /// <returns>List of neighboring helices.</returns>
-    public List<Helix> getNeighborHelices()
+    public List<Helix> GetNeighborHelices()
     {
         List<Helix> helices = new List<Helix>();
         foreach (GridComponent gridComponent in _gridComponent.getNeighborGridComponents())
@@ -904,31 +890,11 @@ public class Helix
             var ntc = nucleotide.GetComponent<NucleotideComponent>();
             if (ntc.Domain != null)
             {
+                Debug.Log("Trying to set parent of ntc domain");
+                Debug.Log($"ntc domain child count: {ntc.Domain.transform.childCount}");
                 ntc.Domain.transform.SetParent(goTransform, true);
+                Debug.Log($"ntc domain parent: {ntc.Domain.transform.parent}");
             }
-            /*if (ntc.Domain != null && !addedDomains.Contains(ntc.Domain))
-            {
-                addedDomains.Add(ntc.Domain);
-
-            }*/
-            // we need to translate the beziers as well.
-            /*var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            if (ntc.Xover != null)
-            {
-                Bezier bezier = ntc.Xover.GetComponent<XoverComponent>().Bezier;
-                bezier.Tube.transform.SetParent(goTransform, true);
-                //bezier.Endpoint0.transform.SetParent(goTransform, true);
-                //bezier.Endpoint1.transform.SetParent(goTransform, true);
-            }
-            if (ntc.Domain != null) {
-                addedDomains.Add(ntc.Domain);
-
-            }*/
-
-            /*if (ntc.Selected)
-            {
-                addedBeziers.UnionWith(ntc.Domain.Beziers);
-            }*/
         }
         foreach (GameObject nucleotide in _nucleotidesB)
         {
@@ -947,30 +913,6 @@ public class Helix
             {
                 ntc.Domain.transform.SetParent(goTransform, true);
             }
-
-            /*if (ntc.Domain != null && !addedDomains.Contains(ntc.Domain))
-            {
-                addedDomains.Add(ntc.Domain);
-
-            }*/
-            // we need to translate the beziers as well.
-            /*var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            if (ntc.Xover != null)
-            {
-                Bezier bezier = ntc.Xover.GetComponent<XoverComponent>().Bezier;
-                bezier.Tube.transform.SetParent(goTransform, true);
-                //bezier.Endpoint0.transform.SetParent(goTransform, true);
-                //bezier.Endpoint1.transform.SetParent(goTransform, true);
-            }
-            if (ntc.Domain != null)
-            {
-                addedDomains.Add(ntc.Domain);
-
-            }*/
-            /*if (ntc.Selected)
-            {
-                addedBeziers.UnionWith(ntc.Domain.Beziers);
-            }*/
         }
         foreach (GameObject nucleotide in _backbonesA)
         {

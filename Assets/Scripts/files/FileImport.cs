@@ -37,25 +37,20 @@ public class FileImport : MonoBehaviour
     private const int MAX_HELIX_NUCLEOTIDES = 30000;
 
     private const string DEFAULT_GRID_NAME = "default_group";
-    private List<Vector3> atomPositions = new List<Vector3>();
-    private Texture3D densityTexture;
-    public int textureResolution = 128;
-    public float atomRadius = 1.5f;
-    public float densityScale = 1.0f;
 
 
-    private static int[,] directNeighbors = {
+    private static readonly int[,] directNeighbors = {
             { -1, 0 }, // Left
             { 1, 0 },  // Right
-            { 0, 1 }, // Up
-            { 0, -1 }   // Down
+            { 0, 1 },  // Up
+            { 0, -1 }, // Down
         };
 
-    private static int[,] diagonalNeighbors = {
-            { -1, 1 }, // Upper Left
-            { 1, 1 },  // Upper Right
-            { -1, -1 },  // Lower Left
-            { 1, -1 }    // Lower Right
+    private static readonly int[,] diagonalNeighbors = {
+            { -1, 1 },  // Upper Left
+            { 1, 1 },   // Upper Right
+            { -1, -1 }, // Lower Left
+            { 1, -1 },  // Lower Right
         };
 
     void Awake()
@@ -143,7 +138,8 @@ public class FileImport : MonoBehaviour
             else if (fileType.Equals(".pdb"))
             {
                 loadingMenu.enabled = true;
-                PDBImport(selectedFilePath);
+                PDBImport.ParseAndVisualizePDB(selectedFilePath);
+                loadingMenu.enabled = false;
             }
             else
             {
@@ -200,7 +196,7 @@ public class FileImport : MonoBehaviour
                         gridName = GetGridName(origName);
                         UpdateGridCopies(origName);
                     }
-                    Debug.Log("gridname" + gridName);
+                    //Debug.Log("gridname" + gridName);
                     JObject info = item.Value;
                     float x = 0;
                     float y = 0;
@@ -216,16 +212,16 @@ public class FileImport : MonoBehaviour
                     Vector3 startPos;
                     if (isCopyPaste)
                     {
-                        Debug.Log("Is Copypaste");
+                        //Debug.Log("Is Copypaste");
                         startPos = rayInteractor.transform.position;
                     }
                     else
                     {
                         startPos = new Vector3(x, y, z);
                     }
-                    Debug.Log("startPos: " + startPos);
+                    //Debug.Log("startPos: " + startPos);
                     DNAGrid grid = DrawGrid.CreateGrid(gridName, PLANE, startPos, gridType);
-                    Debug.Log("Created grid");
+                    //Debug.Log("Created grid");
                     grids.Add(grid);
 
                     // Handle rotation
@@ -248,7 +244,7 @@ public class FileImport : MonoBehaviour
                     {
                         grid.Rotate(pitch, roll, yaw);
                     }
-                    Debug.Log("Fnish rotations");
+                    //Debug.Log("Fnish rotations");
                 }
                 catch (Exception e)
                 {
@@ -873,59 +869,6 @@ public class FileImport : MonoBehaviour
         sw.Stop();
         loadingMenu.enabled = false;
         // Debug.Log(string.Format("OxView import took {0} ms to complete", sw.ElapsedMilliseconds));
-    }
-
-    private void PDBImport(string path)
-    {
-        List<Vector3> vertices = new List<Vector3>();
-        List<int> triangles = new List<int>();
-        ReadPDBFile(path, vertices, triangles);
-
-        // Create the mesh
-        Mesh mesh = new Mesh
-        {
-            vertices = vertices.ToArray(),
-            triangles = triangles.ToArray()
-        };
-        mesh.RecalculateNormals();
-        mesh.RecalculateBounds();
-
-        // Attach the mesh to a GameObject
-        GameObject proteinObject = new GameObject("Protein");
-        MeshFilter meshFilter = proteinObject.AddComponent<MeshFilter>();
-        meshFilter.mesh = mesh;
-
-        MeshRenderer meshRenderer = proteinObject.AddComponent<MeshRenderer>();
-        meshRenderer.material = new Material(Shader.Find("Standard"));
-
-        GlobalVariables.proteins.Add(proteinObject);
-    }
-
-    private void ReadPDBFile(string filePath, List<Vector3> vertices, List<int> triangles)
-    {
-        using (StreamReader reader = new StreamReader(filePath))
-        {
-            string line;
-            while ((line = reader.ReadLine()) != null)
-            {
-                if (line.StartsWith("ATOM") || line.StartsWith("HETATM"))
-                {
-                    // Parse the atom coordinates from the PDB file
-                    float x = float.Parse(line.Substring(30, 8));
-                    float y = float.Parse(line.Substring(38, 8));
-                    float z = float.Parse(line.Substring(46, 8));
-                    vertices.Add(new Vector3(x, y, z));
-                }
-            }
-        }
-
-        // Generate the triangle indices
-        for (int i = 0; i < vertices.Count - 2; i += 3)
-        {
-            triangles.Add(i);
-            triangles.Add(i + 1);
-            triangles.Add(i + 2);
-        }
     }
 
     /// <summary>

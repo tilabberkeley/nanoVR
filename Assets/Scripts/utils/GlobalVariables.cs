@@ -157,6 +157,10 @@ public static class GlobalVariables
     public static GameObject DomainBezier { get => _domainBezier; }
     public static GameObject BezierEndpoint { get => _bezierEndpoint; }
 
+    // Protein Atom
+    private static GameObject _atom = Resources.Load("Atom") as GameObject;
+    public static GameObject Atom { get => _atom; }
+
 
     // Strand colors
     private static Color orange = new Color(1.0f, 0.64f, 0.0f);

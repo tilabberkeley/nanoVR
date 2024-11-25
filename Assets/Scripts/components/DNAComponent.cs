@@ -112,6 +112,11 @@ public abstract class DNAComponent : MonoBehaviour
         _outline.enabled = false;
     }
 
+    public void ShowHide(bool enabled)
+    {
+        _ntRenderer.enabled = enabled;
+    }
+
     /// <summary>
     /// Returns whether this DNA component is apart of a strand.
     /// </summary>

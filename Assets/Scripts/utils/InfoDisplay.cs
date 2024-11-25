@@ -8,8 +8,8 @@ using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using TMPro;
-using static GlobalVariables;
 using System.Text;
+using static GlobalVariables;
 
 public class InfoDisplay : MonoBehaviour
 {
@@ -18,6 +18,8 @@ public class InfoDisplay : MonoBehaviour
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rayInteractor;
+
+    private static string PROTEIN_STRING = "Protein";
 
     void GetDevice()
     {
@@ -49,12 +51,6 @@ public class InfoDisplay : MonoBehaviour
             {
                 DisplayNucleotideInfo(s_hit.collider.gameObject);
             }
-            // Removing backbone info for now because it doesn't really add any useful information
-
-            /*else if (s_hit.collider.GetComponent<BackBoneComponent>() != null)
-            {
-                DisplayBackboneInfo(s_hit.collider.gameObject);
-            }*/
             else if (s_hit.collider.GetComponent<LoopoutComponent>() != null)
             {
                 DisplayLoopoutInfo(s_hit.collider.gameObject);
@@ -63,7 +59,19 @@ public class InfoDisplay : MonoBehaviour
             {
                 DisplayXoverInfo(s_hit.collider.gameObject);
             }
+            else if (s_hit.collider.name.Contains(PROTEIN_STRING))
+            {
+                DisplayProteinInfo(s_hit.collider.gameObject);
+            }
         }
+    }
+
+    private void DisplayProteinInfo(GameObject go) 
+    {
+        StringBuilder text = new StringBuilder();
+        text.Append($"<b>{PROTEIN_STRING}</b>\n");
+        text.Append(go.name);
+        textBox.text = text.ToString();
     }
 
     private void DisplayNucleotideInfo(GameObject go)
@@ -73,8 +81,6 @@ public class InfoDisplay : MonoBehaviour
         text.Append("<b>Nucleotide</b>\n");
         text.Append("DNA: " + comp.Sequence + "\n");
         if (comp.IsInsertion) text.Append("Insertion Length: " + comp.Insertion + "\n");
-
-
         text.Append("Nucl Id: " + comp.Id + "\n");
         text.Append("Helix Id: " + comp.HelixId + "\n");
         text.Append("Direction: " + (comp.Direction == 1 ? "Forward" : "Reverse") + "\n");

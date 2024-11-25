@@ -477,7 +477,7 @@ public abstract class DNAGrid
     {
         // Attach parent transforms
         TransformHandle.ShowTransform(this);
-        TransformHandle.AttachChildren(this);
+        TransformHandle.AttachChildren(new List<DNAGrid> { this });
         TransformHandle.Gizmos.transform.rotation = Quaternion.Euler(yaw, pitch, roll);
         TransformHandle.DetachChildren();
 

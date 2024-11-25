@@ -21,7 +21,7 @@ public class DomainComponent : MonoBehaviour
     private List<DNAComponent> _dnaComponents = new List<DNAComponent>();
     public List<DNAComponent> DNAComponents { get => _dnaComponents; set => _dnaComponents = value; }
 
-    private List<Bezier> _beziers = new List<Bezier>();
+    private readonly List<Bezier> _beziers = new List<Bezier>();
     public List<Bezier> Beziers { get => _beziers; }
 
     private Strand _strand;
@@ -105,7 +105,8 @@ public class DomainComponent : MonoBehaviour
     {
         foreach (Bezier bezier in _beziers)
         {
-            bezier.SetActive(true);
+            //bezier.SetActive(true);
+            bezier.Enabled(true);
         }
     }
 
@@ -119,7 +120,8 @@ public class DomainComponent : MonoBehaviour
             {
                 Debug.Log("Bezier is null");
             }
-            bezier.SetActive(false);
+            //bezier.SetActive(false);
+            bezier.Enabled(false);
         }
     }
 
@@ -138,7 +140,9 @@ public class DomainComponent : MonoBehaviour
         foreach(DNAComponent nucleotide in _dnaComponents)
         {
             nucleotide.gameObject.SetActive(true);
-            nucleotide.Complement.gameObject.SetActive(true);
+            nucleotide.Complement.SetActive(true);
+            //nucleotide.ShowHide(true);
+            //nucleotide.Complement.GetComponent<DNAComponent>().ShowHide(true);
 
             // If nucleotide is connected to a xover, then it should be shown too.
             if (!nucleotide.IsBackbone)
@@ -164,7 +168,9 @@ public class DomainComponent : MonoBehaviour
         foreach (DNAComponent nucleotide in _dnaComponents)
         {
             nucleotide.gameObject.SetActive(false);
-            nucleotide.Complement.gameObject.SetActive(false);
+            nucleotide.Complement.SetActive(false);
+            //nucleotide.ShowHide(false);
+            //nucleotide.Complement.GetComponent<DNAComponent>().ShowHide(false);
 
             // If nucleotide is connected to a xover, then it should be hidden too.
             //if (!nucleotide.IsBackbone)

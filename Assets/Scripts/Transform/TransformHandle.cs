@@ -73,17 +73,20 @@ public class TransformHandle : MonoBehaviour
         _rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool rightTriggerValue);
 
         if (leftGripValue && rightGripValue
-                && leftGripReleased && rightGripReleased
-                && (rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit) || leftRayInteractor.TryGetCurrent3DRaycastHit(out s_hit)))
+                && leftGripReleased && rightGripReleased)
         {
             leftGripReleased = false;
             rightGripReleased = false;
-            var gc = s_hit.collider.gameObject.GetComponent<GridComponent>();
-            if (gc)
+
+            //Debug.Log("Hitting GridComponent");
+            translatedGrids = SelectGrid.Grids;
+            if (translatedGrids.Count == 0)
             {
-                //Debug.Log("Hitting GridComponent");
-                ShowTransform(gc.Grid);
-                translatedGrids = SelectGrid.Grids;
+                Debug.Log("Please select at least one grid to translate/rotate.");
+            }
+            else
+            {
+                ShowTransform(translatedGrids[0]);
                 AttachChildren(translatedGrids);
             }
         }
@@ -132,7 +135,8 @@ public class TransformHandle : MonoBehaviour
             int minXIndex = grid.GridXToIndex(grid.MinimumBound.X);
             int minYIndex = grid.GridYToIndex(grid.MinimumBound.Y);
             Transform transform = grid.Grid2D[minXIndex, minYIndex].transform;
-            gizmosTransform.SetPositionAndRotation(transform.position - 0.2f * transform.forward, transform.rotation);
+            Vector3 position = Camera.main.transform.position + Camera.main.transform.forward * 0.5f;
+            gizmosTransform.SetPositionAndRotation(position, transform.rotation);
         }
     }
 
@@ -157,7 +161,7 @@ public class TransformHandle : MonoBehaviour
         }
     }
 
-    public static void AttachChildren(DNAGrid grid)
+    private static void AttachChildren(DNAGrid grid)
     {
         //ShowTransform();
         //translatedGrids.Add(grid);

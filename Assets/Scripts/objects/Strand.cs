@@ -564,7 +564,7 @@ public class Strand
     {
         foreach (DomainComponent domainComponent in _domains)
         {
-            domainComponent.DeleteBezier(); // Remove bezier if it exits
+            domainComponent.DeleteBezier(); // Remove bezier if it exists
             GameObject.Destroy(domainComponent.gameObject);
         }
         _domains.Clear();
