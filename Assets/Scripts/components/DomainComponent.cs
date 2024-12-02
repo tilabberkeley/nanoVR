@@ -27,11 +27,11 @@ public class DomainComponent : MonoBehaviour
     private Strand _strand;
     public Strand Strand { get => _strand; set => _strand = value; }
 
-    private Vector3 _bezierStartPoint;
-    public Vector3 BezierStartPoint { get => _bezierStartPoint; }
+    private GameObject _bezierStartPoint;
+    public GameObject BezierStartPoint { get => _bezierStartPoint; }
 
-    private Vector3 _bezierEndPoint;
-    public Vector3 BezierEndPoint { get => _bezierEndPoint; }
+    private GameObject _bezierEndPoint;
+    public GameObject BezierEndPoint { get => _bezierEndPoint; }
 
     /// <summary>
     /// Configures the domain with given dna components.
@@ -65,10 +65,10 @@ public class DomainComponent : MonoBehaviour
                 nuclSubList.Add(_dnaComponents[i]);
                 if (nuclSubList.Count % BEZIER_COUNT == 0 || i == _dnaComponents.Count - 1)
                 {
-                    Bezier bezier = DrawPoint.MakeDomainBezier(nuclSubList, _strand.Color, out Vector3 bezierStartPoint, out Vector3 bezierEndPoint);
-                    bezier.Tube.transform.SetParent(transform, true);
+                    Bezier bezier = DrawPoint.MakeDomainBezier(nuclSubList, _strand.Color, out GameObject bezierStartPoint, out GameObject bezierEndPoint);
+                    /*bezier.Tube.transform.SetParent(transform, true);
                     bezier.Endpoint0.transform.SetParent(transform, true);
-                    bezier.Endpoint1.transform.SetParent(transform, true);
+                    bezier.Endpoint1.transform.SetParent(transform, true);*/
 
                     if (_beziers.Count == 0)
                     {
@@ -83,6 +83,22 @@ public class DomainComponent : MonoBehaviour
                     nuclSubList.RemoveRange(0, nuclSubList.Count - 1); // Remove all but last nucl to keep Beziers continuous.
                 }
             }
+        }
+    }
+
+    public void SetParent(Transform goTransform)
+    {
+        if (this.transform.parent == goTransform)
+        {
+            return;
+        }
+        
+        this.transform.SetParent(goTransform, true);
+        foreach (Bezier bezier in _beziers)
+        {
+            bezier.Tube.transform.SetParent(goTransform, true);
+            bezier.Endpoint0.transform.SetParent(goTransform, true);
+            bezier.Endpoint1.transform.SetParent(goTransform, true);
         }
     }
 

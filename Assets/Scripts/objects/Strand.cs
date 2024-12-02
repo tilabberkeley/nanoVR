@@ -41,7 +41,7 @@ public class Strand
     //public int HelixId { get { return _head.GetComponent<NucleotideComponent>().HelixId; } }
 
     // This strand's color.
-    private Color _color;
+    private Color32 _color;
     public Color Color { get { return _color; } }
 
     // GameObject at front of this strand (at index 0 of nucleotides list).
@@ -304,8 +304,8 @@ public class Strand
         _nucleotides.Insert(0, newNucl);
         _nucleotidesOnly.Insert(0, newNucl.GetComponent<NucleotideComponent>());
         _head = _nucleotides[0];
-        SetCone();
-        ResetDomains();
+        //SetCone();
+        //ResetDomains();
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
         //_cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
@@ -322,8 +322,8 @@ public class Strand
         _nucleotidesOnly.InsertRange(0, nucleotideComponents);
         _head = _nucleotides[0];
         //_cone.transform.position = _head.transform.position;
-        SetCone();
-        ResetDomains();
+        //SetCone();
+        //ResetDomains();
         _xoversWasChanged = true;
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
@@ -358,7 +358,7 @@ public class Strand
         newNucls.ForEach(n => nucleotideComponents.Add(n.GetComponent<NucleotideComponent>()));
         _nucleotidesOnly.AddRange(nucleotideComponents);
         _tail = _nucleotides.Last();
-        ResetDomains();
+        //ResetDomains();
         _xoversWasChanged = true;
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
@@ -616,13 +616,11 @@ public class Strand
             {
                 if (!xoverBefore)
                 {
-                    if (!ntc.IsExtension)
-                    {
-                        DomainComponent nextDomianComponent = DrawPoint.MakeDomain(domain, this);
-                        _domains.Add(nextDomianComponent);
-                        // Since xover endpoint nucleotides are sequential, this creating more domains than needed.
-                        xoverBefore = true;
-                    }
+                 
+                    DomainComponent nextDomianComponent = DrawPoint.MakeDomain(domain, this);
+                    _domains.Add(nextDomianComponent);
+                    // Since xover endpoint nucleotides are sequential, this creating more domains than needed.
+                    xoverBefore = true;
                     domain.Clear();
                 }
                 else
@@ -633,11 +631,8 @@ public class Strand
         }
 
         // Always create a domain component for the last domain
-        if (!domain.Last().GetComponent<NucleotideComponent>().IsExtension)
-        {
-            DomainComponent lastDomainComponent = DrawPoint.MakeDomain(domain, this);
-            _domains.Add(lastDomainComponent);
-        }
+        DomainComponent lastDomainComponent = DrawPoint.MakeDomain(domain, this);
+        _domains.Add(lastDomainComponent);
     }
 
     /// <summary>
@@ -924,9 +919,9 @@ public class Strand
     /// </summary>
     /// <param name="color">Color that is different than the output.</param>
     /// <returns>Color that is different than the input.</returns>
-    public static Color GetDifferentColor(Color color)
+    public static Color32 GetDifferentColor(Color32 color)
     {
-        Color nextColor = Colors[s_numStrands % Colors.Length];
+        Color32 nextColor = Colors[s_numStrands % Colors.Length];
         if (nextColor.Equals(color))
         {
             return Colors[(s_numStrands + 1) % Colors.Length];

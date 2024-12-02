@@ -878,6 +878,7 @@ public class Helix
         foreach (GameObject nucleotide in _nucleotidesA)
         {
             nucleotide.transform.SetParent(goTransform, true);
+           
             if (goTransform != null)
             {
                 nucleotide.GetComponent<Collider>().enabled = false;
@@ -886,14 +887,11 @@ public class Helix
             {
                 nucleotide.GetComponent<Collider>().enabled = true;
             }
-
             var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            if (ntc.Domain != null)
+ 
+            if (ntc.Domain != null && ntc.Domain.transform.parent != goTransform)
             {
-                Debug.Log("Trying to set parent of ntc domain");
-                Debug.Log($"ntc domain child count: {ntc.Domain.transform.childCount}");
-                ntc.Domain.transform.SetParent(goTransform, true);
-                Debug.Log($"ntc domain parent: {ntc.Domain.transform.parent}");
+                ntc.Domain.SetParent(goTransform);
             }
         }
         foreach (GameObject nucleotide in _nucleotidesB)
@@ -909,11 +907,12 @@ public class Helix
             }
 
             var ntc = nucleotide.GetComponent<NucleotideComponent>();
-            if (ntc.Domain != null)
+            if (ntc.Domain != null && ntc.Domain.transform.parent != goTransform)
             {
-                ntc.Domain.transform.SetParent(goTransform, true);
+                ntc.Domain.SetParent(goTransform);
             }
         }
+
         foreach (GameObject nucleotide in _backbonesA)
         {
             nucleotide.transform.SetParent(goTransform, true);

@@ -230,19 +230,14 @@ public class CopyPaste : MonoBehaviour
 
     public static List<GameObject> GetNucleotides(Strand strand, GameObject newGO, GameObject firstStrandHead)
     {
-        if (s_copied[0].Head.GetComponent<NucleotideComponent>().Direction != newGO.GetComponent<NucleotideComponent>().Direction)
+        /*if (s_copied[0].Head.GetComponent<NucleotideComponent>().Direction != newGO.GetComponent<NucleotideComponent>().Direction)
         {
             return null;
-        }
+        }*/
 
         List<GameObject> nucleotides = new List<GameObject>();
         List<(GameObject, GameObject)> endpoints = new List<(GameObject, GameObject)>();
-        GameObject head = strand.Head;
-        Helix helix = s_helixDict[head.GetComponent<NucleotideComponent>().HelixId];
-        GridPoint gp = helix._gridComponent.GridPoint;
-        int newDirection = newGO.GetComponent<DNAComponent>().Direction;
-        int x = gp.X;
-        int y = gp.Y;
+        bool differentDirection = newGO.GetComponent<DNAComponent>().Direction != firstStrandHead.GetComponent<DNAComponent>().Direction;
         List<(bool, int)> isXover = new List<(bool, int)>();
 
         /* Adds start and end point of each substrand to endpoints list. */
@@ -250,11 +245,10 @@ public class CopyPaste : MonoBehaviour
         // NOTE: Change this to domains!!! DY 9/12
         if (strand.Xovers.Count > 0)
         {
-            endpoints.Add((head, strand.Xovers[0].GetComponent<XoverComponent>().PrevGO));
+            endpoints.Add((strand.Head, strand.Xovers[0].GetComponent<XoverComponent>().PrevGO));
             if (strand.Xovers[0].GetComponent<XoverComponent>().IsXover)
             {
                 isXover.Add((true, 0));
-                Debug.Log("First domain Is xover copy/paste");
             }
             else
             {
@@ -262,7 +256,6 @@ public class CopyPaste : MonoBehaviour
             }
             for (int i = 0; i < strand.Xovers.Count - 1; i++)
             {
-                Debug.Log("entered for loop");
                 /* Determine if we're copying xover or loopout */
                 if (strand.Xovers[i].GetComponent<XoverComponent>().IsXover)
                 {
@@ -274,35 +267,16 @@ public class CopyPaste : MonoBehaviour
                 }
                 endpoints.Add((strand.Xovers[i].GetComponent<XoverComponent>().NextGO, strand.Xovers[i + 1].GetComponent<XoverComponent>().PrevGO));
             }
-            Debug.Log("About to add last domain");
-            Debug.Log("strand last xover: " + strand.Xovers.Last());
-            Debug.Log("strand last xover component: " + strand.Xovers.Last().GetComponent<XoverComponent>());
-            Debug.Log("strand last xover component next go: " + strand.Xovers.Last().GetComponent<XoverComponent>().NextGO);
             endpoints.Add((strand.Xovers.Last().GetComponent<XoverComponent>().NextGO, strand.Tail));
-            Debug.Log("Domain start: " + strand.Xovers.Last().GetComponent<XoverComponent>().NextGO.GetComponent<NucleotideComponent>().Id + ", end: " + strand.Tail.GetComponent<NucleotideComponent>().Id);
-
-            /*if (strand.Xovers.Last().GetComponent<XoverComponent>().IsXover)
-            {
-                isXover.Add((true, 0));
-                Debug.Log("Add last domain is xover");
-            }
-            else
-            {
-                isXover.Add((false, strand.Xovers.Last().GetComponent<LoopoutComponent>().SequenceLength));
-            }*/
         }
         else
         {
-            endpoints.Add((head, strand.Tail));
+            endpoints.Add((strand.Head, strand.Tail));
         }
         isXovers.Add(isXover);
 
-        Debug.Log("Finished getting xovers, xover count: " + isXover.Count);
-
         /* Calculate distances between each strand segment's gridPoint and the start segment's. */
-        List<(int, int)> xyDistances = CalculateXYDistances(strand, x, y);
-
-        Debug.Log("Finished calculating xyDistances, count: " + xyDistances.Count);
+        List<(int, int)> xyDistances = CalculateXYDistances(strand, firstStrandHead);
 
         /* Get pasted position's GridPoint */
         Helix newHelix = s_helixDict[newGO.GetComponent<NucleotideComponent>().HelixId];
@@ -311,15 +285,11 @@ public class CopyPaste : MonoBehaviour
         int newX = newGP.X;
         int newY = newGP.Y;
 
-        Debug.Log("Finished getting new position's gridPoint");
-
         /* Calculate offset between each strand's starting index and new pasting idx */
         int firstStrandHeadIdx = firstStrandHead.GetComponent<NucleotideComponent>().Id;
-        int newGOOffset = newGO.GetComponent<NucleotideComponent>().Id - head.GetComponent<NucleotideComponent>().Id;
-        int firstStrandHeadOffset = firstStrandHeadIdx - head.GetComponent<NucleotideComponent>().Id;
+        int newGOOffset = newGO.GetComponent<NucleotideComponent>().Id - strand.Head.GetComponent<NucleotideComponent>().Id;
+        int firstStrandHeadOffset = firstStrandHeadIdx - strand.Head.GetComponent<NucleotideComponent>().Id;
         int offset = newGOOffset - firstStrandHeadOffset;
-
-        Debug.Log("Finished calculating offset: " + offset);
 
         /* Getting nucleotide list of new potentially pasted strand */
         for (int i = 0; i < xyDistances.Count; i++)
@@ -329,38 +299,36 @@ public class CopyPaste : MonoBehaviour
             int indexX = grid.GridXToIndex(tempX);
             int indexY = grid.GridYToIndex(tempY);
             GridComponent gc = grid.Grid2D[indexX, indexY];
+            Debug.Log($"tempX: {tempX}, tempY: {tempY}");
 
-            Debug.Log("Get gc");
             if (gc == null || !gc.Selected)
             {
                 Debug.Log("GC null or doesn't have helix");
-
                 return null;
             }
 
-            List<GameObject> subNucleotides = GetSubList(endpoints[i].Item1, endpoints[i].Item2, gc, offset);//, newDirection);
+            List<GameObject> subNucleotides = GetSubList(endpoints[i].Item1, endpoints[i].Item2, gc, offset, differentDirection);
             if (subNucleotides == null)
             {
                 Debug.Log("subnucl list null");
                 return null;
             }
             nucleotides.AddRange(subNucleotides);
-            Debug.Log("Adding subnucl list");
         }
-        Debug.Log("Finished GetNucleotides()");
         return nucleotides;
     }
 
-    public static List<GameObject> GetSubList(GameObject start, GameObject end, GridComponent gc, int offset)//, int newDirection)
+    public static List<GameObject> GetSubList(GameObject start, GameObject end, GridComponent gc, int offset, bool differentDirection)
     {
         int direction = start.GetComponent<NucleotideComponent>().Direction;
+        int realDirection = differentDirection ? 1 - direction : direction;
         int startId = GetNewIndex(start.GetComponent<NucleotideComponent>().Id, offset);
         int endId = GetNewIndex(end.GetComponent<NucleotideComponent>().Id, offset);
         if (startId < endId)
         {
-            return gc.Helix.GetHelixSub(startId, endId, direction);
+            return gc.Helix.GetHelixSub(startId, endId, realDirection);
         }
-        return gc.Helix.GetHelixSub(endId, startId, direction);
+        return gc.Helix.GetHelixSub(endId, startId, realDirection);
     }
 
     public static int GetNewIndex(int origIndex, int offset)
@@ -370,18 +338,33 @@ public class CopyPaste : MonoBehaviour
 
     
 
-    private static List<(int, int)> CalculateXYDistances(Strand strand, int x, int y)
+    private static List<(int, int)> CalculateXYDistances(Strand strand, GameObject firstStrandHead)
     {
+        Helix firstDomainHelix = s_helixDict[strand.Head.GetComponent<NucleotideComponent>().HelixId];
+        GridPoint firstDomainGP = firstDomainHelix._gridComponent.GridPoint;
+        int fdX = firstDomainGP.X;
+        int fdY = firstDomainGP.Y;
+
+        Helix firstStrandHelix = s_helixDict[firstStrandHead.GetComponent<DNAComponent>().HelixId];
+        GridPoint firstStrandGP = firstStrandHelix._gridComponent.GridPoint;
+        int fsX = firstStrandGP.X;
+        int fsY = firstStrandGP.Y;
+
+        int dx = fdX - fsX;
+        int dy = fdY - fsY;
+
+
         List<(int, int)> xyDistances = new List<(int, int)>
         {
-            (0, 0) // NOTE: Fix this since it won't be (0, 0) for strands besides the original strand
+            (dx, dy) // NOTE: Fix this since it won't be (0, 0) for strands besides the original strand
         };
         for (int i = 0; i < strand.Xovers.Count; i++)
         {
             GameObject go = strand.Xovers[i].GetComponent<XoverComponent>().NextGO;
             Helix helix = s_helixDict[go.GetComponent<NucleotideComponent>().HelixId];
             GridPoint gp = helix._gridComponent.GridPoint;
-            (int, int) distance = (gp.X - x, gp.Y - y);
+            (int, int) distance = (gp.X - fdX + dx, gp.Y - fdY + dy);
+            Debug.Log($"XY distance: {distance}");
             xyDistances.Add(distance);
         }
         return xyDistances;

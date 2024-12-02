@@ -478,7 +478,7 @@ public class FileImport : MonoBehaviour
                     }
                     else
                     {
-                        int extensionLength = (int)domains[j]["extension_num_bases"];
+                        int extensionLength = (int) domains[j]["extension_num_bases"];
                         DrawOxViewExtension(extensionLength, j, xoverEndpoints, nucleotides);
                     }
                 }
@@ -543,10 +543,7 @@ public class FileImport : MonoBehaviour
                 sequence = CleanSlash(strands[strandIndex]["sequence"].ToString());
             }
 
-            List<GameObject> nucleotides = new List<GameObject>();
-            List<GameObject> xoverEndpoints = new List<GameObject>();
-            
-
+  
             for (int j = 0; j < domains.Count; j++)
             {
                 if (domains[j]["extension_num_bases"] != null)
@@ -667,7 +664,6 @@ public class FileImport : MonoBehaviour
         }
 
         loadingMenu.enabled = false;
-        //Debug.Log(string.Format("Overall sc import took {0} ms to complete", st.ElapsedMilliseconds));
     }
 
     private bool DrawHeadExtension(DNAGrid grid, GridComponent domainGC, Strand strand, int startId, int endId, bool forward, int extensionLength, int dx, int dy)
@@ -716,7 +712,7 @@ public class FileImport : MonoBehaviour
                 GameObject oldHead = strand.Head;
                 strand.AddToHead(domain);
                 strand.SetComponents();
-                strand.Xovers.Add(DrawCrossover.CreateXoverHelper(oldHead, domain.Last(), showXover: false));
+                strand.Xovers.Add(DrawCrossover.CreateXoverHelper(domain.Last(), oldHead, showXover: false));
                 return true;
             }
         }
@@ -770,7 +766,7 @@ public class FileImport : MonoBehaviour
                 SetExtensions(domain);
                 strand.AddToTail(domain);
                 strand.SetComponents();
-                strand.Xovers.Add(DrawCrossover.CreateXoverHelper(domain[0], oldTail, showXover: false));
+                strand.Xovers.Add(DrawCrossover.CreateXoverHelper(oldTail, domain[0], showXover: false));
                 return true;
             }
         }
@@ -794,7 +790,6 @@ public class FileImport : MonoBehaviour
         Vector3 direction;
         if (currHeadDirection == 0)
         {
-            // TODO: Get these turns correct
             direction = gc.transform.right;
         }
         else
@@ -807,6 +802,8 @@ public class FileImport : MonoBehaviour
         {
             List<GameObject> nucls = ObjectPoolManager.Instance.GetNucleotides(extensionLength);
             List<GameObject> backs = ObjectPoolManager.Instance.GetBackbones(extensionLength - 1);
+
+
 
             for (int k = 0; k < nucls.Count; k++)
             {

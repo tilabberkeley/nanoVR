@@ -197,7 +197,7 @@ public class TransformHandle : MonoBehaviour
     {
         if (gizmos != null)
         {
-            Debug.Log("Num children: " + gizmos.transform.childCount);
+            //Debug.Log("Num children: " + gizmos.transform.childCount);
             //int n = gizmos.transform.childCount;
             foreach (DNAGrid grid in translatedGrids)
             {
