@@ -67,13 +67,32 @@ public class OxDNASystem
                 normal = normal.Rotate(grooveGammaCorrection, forward);
 
                 var mod = modMap[helixId][nucleotideComponent.Id];
-                
-                // TODO: handle insertion behavior.
 
-                var cen = origin + forward * (nucleotideComponent.Id + mod) * RISE_PER_BASE_PAIR * NM_TO_OX_UNITS;
-                var norm = normal.Rotate(STEP_ROTATION * (nucleotideComponent.Id + mod), forward);
-                var forw = isNucleotideForward ? -forward : forward;
-                var oxdnaNucleotide = new OxdnaNucleotide(cen, norm, forw, nucleotideComponent, nucleotideComponent.Sequence);
+                OxdnaVector cen; OxdnaVector norm; OxdnaVector forw;
+                OxdnaNucleotide oxdnaNucleotide;
+
+                var sequence = nucleotideComponent.Sequence;
+                var sequenceIndex = 0;
+
+                // Handle insertion logic.
+                if (nucleotideComponent.IsInsertion)
+                {
+                    var insertionLength = nucleotideComponent.Insertion;
+                    for (int i = 0; i < insertionLength; i++)
+                    {
+                        cen = origin + forward * (nucleotideComponent.Id + mod + i - insertionLength) * RISE_PER_BASE_PAIR * NM_TO_OX_UNITS;
+                        norm = normal.Rotate(STEP_ROTATION * (nucleotideComponent.Id + mod + i - insertionLength), forward);
+                        forw = isNucleotideForward ? -forward : forward;
+                        oxdnaNucleotide = new OxdnaNucleotide(cen, norm, forw, nucleotideComponent, sequence[sequenceIndex].ToString());
+                        oxdnaStrand.Nucleotides.Add(oxdnaNucleotide);
+                        sequenceIndex++;
+                    }
+                }
+
+                cen = origin + forward * (nucleotideComponent.Id + mod) * RISE_PER_BASE_PAIR * NM_TO_OX_UNITS;
+                norm = normal.Rotate(STEP_ROTATION * (nucleotideComponent.Id + mod), forward);
+                forw = isNucleotideForward ? -forward : forward;
+                oxdnaNucleotide = new OxdnaNucleotide(cen, norm, forw, nucleotideComponent, sequence[sequenceIndex].ToString());
                 oxdnaStrand.Nucleotides.Add(oxdnaNucleotide);
             }
 
