@@ -6,6 +6,8 @@ using static Utils;
 using static GlobalVariables;
 using System.Text;
 using Oculus.Interaction;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 public class OxDNASystem
 {
@@ -40,6 +42,7 @@ public class OxDNASystem
         foreach (Strand strand in s_strandDict.Values)
         {
             var oxdnaStrand = new OxdnaStrand();
+            oxdnaStrand.Color = strand.Color;
 
             foreach (GameObject nucleotide in strand.Nucleotides)
             {
@@ -295,7 +298,108 @@ public class OxDNASystem
     /// </summary>
     public string OxViewFile()
     {
-        throw new NotImplementedException();
+        var oxViewFile = new OxViewFile
+        {
+            Date = DateTime.UtcNow.ToString("o")
+        };
+
+        var boundingBox = ComputeBoundingBox();
+        var serializedBoundingBox = new List<double>
+        {
+            boundingBox.X,
+            boundingBox.Y,
+            boundingBox.Z
+        };
+        oxViewFile.Box = serializedBoundingBox;
+
+        var oxViewSystem = new OxViewSystem { Id = 0 };
+        oxViewFile.Systems.Add(oxViewSystem);
+
+        int nucleotideId = 0; // Num nucleotides
+        int strandId = 0; // Num strands
+
+        // Using reference types as keys, but nucleotide components won't get destroyed when writing file.
+        var nucleotideCompToOxviewIndex = new Dictionary<NucleotideComponent, int>();
+        var oxviewIndexToNucleotideComp = new Dictionary<int, NucleotideComponent>();
+
+        foreach (var oxdnaStrand in _oxdnaStrands)
+        {
+            var oxViewStrand = new OxViewStrand
+            {
+                Id = strandId++,
+                Class = "NucleicAcidStrand",
+                End5 = nucleotideId, // Start nucleotide index
+            };
+
+            // Convert Unity Color to OxView format
+            int strandColor = ((int)(oxdnaStrand.Color.r * 255) << 16) // Red shifted by 16 bits
+                            | ((int)(oxdnaStrand.Color.g * 255) << 8)  // Green shifted by 8 bits
+                            | (int)(oxdnaStrand.Color.b * 255);        // Blue component
+
+            for (int i = oxdnaStrand.Nucleotides.Count - 1; i >= 0; i--)
+            {
+                var nucleotide = oxdnaStrand.Nucleotides[i];
+
+                var oxViewMonomer = new OxViewMonomer
+                {
+                    Id = nucleotideId,
+                    Type = nucleotide.Base,
+                    Class = "DNA",
+                    P = new List<float> { (float)nucleotide.R.X, (float)nucleotide.R.Y, (float)nucleotide.R.Z },
+                    A1 = new List<float> { (float)nucleotide.B.X, (float)nucleotide.B.Y, (float)nucleotide.B.Z },
+                    A3 = new List<float> { (float)nucleotide.N.X, (float)nucleotide.N.Y, (float)nucleotide.N.Z },
+                    Cluster = 1,
+                    Color = strandColor,
+                };
+
+                // Link nucleotides
+                if (oxViewStrand.Monomers.Count > 0)
+                {
+                    oxViewMonomer.N5 = nucleotideId - 1;
+                    oxViewStrand.Monomers[oxViewStrand.Monomers.Count - 1].N3 = nucleotideId;
+                }
+
+                nucleotideCompToOxviewIndex.Add(nucleotide.Nucleotide, nucleotideId);
+                oxviewIndexToNucleotideComp.Add(nucleotideId, nucleotide.Nucleotide);
+
+                oxViewStrand.Monomers.Add(oxViewMonomer);
+                nucleotideId++;
+            }
+
+            oxViewStrand.End3 = nucleotideId; // End nucleotide index
+            oxViewSystem.Strands.Add(oxViewStrand);
+        }
+
+        // Assign the bp values of the monomers
+        /*foreach (var oxViewStrand in oxViewSystem.Strands)
+        {
+            foreach (var oxViewMonomer in oxViewStrand.Monomers)
+            {
+                int id = oxViewMonomer.Id;
+
+                var nucleotideComp = oxviewIndexToNucleotideComp[id];
+                var nucleotideCompComplement = nucleotideComp.Complement.GetComponent<NucleotideComponent>();
+
+                var complementId = nucleotideCompToOxviewIndex[nucleotideCompComplement];
+                oxViewMonomer.Bp = complementId;
+            }
+        }*/
+
+        return JsonConvert.SerializeObject(
+            oxViewFile,
+            new JsonSerializerSettings
+            {
+                ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new CamelCaseNamingStrategy
+                    {
+                        ProcessDictionaryKeys = true,
+                        OverrideSpecifiedNames = true
+                    }
+                },
+                NullValueHandling = NullValueHandling.Ignore // Properties that are null won't get serialized
+            }
+        );
     }
 }
 
@@ -418,6 +522,7 @@ class OxdnaNucleotide
 class OxdnaStrand
 {
     public List<OxdnaNucleotide> Nucleotides { get; private set; } = new List<OxdnaNucleotide>();
+    public Color Color { get; set; }
 
     public OxdnaStrand() { }
 }

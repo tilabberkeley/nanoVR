@@ -749,7 +749,7 @@ public class Helix
     /// Returns the helices that neighbor this helix.
     /// </summary>
     /// <returns>List of neighboring helices.</returns>
-    public List<Helix> getNeighborHelices()
+    public List<Helix> GetNeighborHelices()
     {
         List<Helix> helices = new List<Helix>();
         foreach (GridComponent gridComponent in _gridComponent.getNeighborGridComponents())

@@ -18,29 +18,6 @@ using static GlobalVariables;
 using static UnityEngine.EventSystems.EventTrigger;
 using static Utils;
 
-public class OxViewStrand
-{
-    public int Id { get; set; }
-    public List<OxViewMonomer> Monomers { get; set; } = new List<OxViewMonomer>();
-    public int End3 { get; set; }
-    public int End5 { get; set; }
-    public string Class { get; set; } = "";
-}
-
-public class OxViewMonomer
-{
-    public int Id { get; set; }
-    public string Type { get; set; } = "";
-    public string Class { get; set; } = "";
-    public List<float> P { get; set; } = new List<float>();
-    public List<float> A1 { get; set; } = new List<float>();
-    public List<float> A3 { get; set; } = new List<float>();
-    public int? N3 { get; set; }
-    public int? N5 { get; set; }
-    public int Cluster { get; set; }
-    public int Color { get; set; }
-}
-
 public class OxDNAMapping
 {
     public GameObject Nucleotide { get; set; }

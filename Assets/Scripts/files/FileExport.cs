@@ -87,6 +87,10 @@ public class FileExport : MonoBehaviour
         {
             WriteOxdnaFiles();
         }
+        else if (exportType.Equals("oxview"))
+        {
+            WriteOxViewFile();
+        }
         else
         {
             WriteCSVFile();
@@ -427,8 +431,6 @@ public class FileExport : MonoBehaviour
         },
         () => { Debug.Log("Canceled"); },
         FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
-
-        Debug.Log("Download result: " + result);
     }
 
     /// <summary>
@@ -511,5 +513,23 @@ public class FileExport : MonoBehaviour
         }
 
         // WriteOxdnaFiles(topContent, oxdnaContent);
+    }
+
+    private void CreateOxViewFile(string path, string content)
+    {
+        string oxviewPath = path + ".oxview";
+        
+        File.WriteAllText(oxviewPath, content);
+    }
+
+    private void WriteOxViewFile()
+    {
+        bool result = FileBrowser.ShowSaveDialog((paths) => {
+            OxDNASystem oxDNASystem = new OxDNASystem();
+            var oxViewFile = oxDNASystem.OxViewFile();
+            CreateOxViewFile(paths[0], oxViewFile);
+        },
+        () => { Debug.Log("Canceled"); },
+        FileBrowser.PickMode.Files, false, null, null, "Save", "Save");
     }
 }
