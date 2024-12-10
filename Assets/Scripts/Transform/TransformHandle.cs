@@ -73,17 +73,20 @@ public class TransformHandle : MonoBehaviour
         _rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool rightTriggerValue);
 
         if (leftGripValue && rightGripValue
-                && leftGripReleased && rightGripReleased
-                && (rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit) || leftRayInteractor.TryGetCurrent3DRaycastHit(out s_hit)))
+                && leftGripReleased && rightGripReleased)
         {
             leftGripReleased = false;
             rightGripReleased = false;
-            var gc = s_hit.collider.gameObject.GetComponent<GridComponent>();
-            if (gc)
+
+            //Debug.Log("Hitting GridComponent");
+            translatedGrids = SelectGrid.Grids;
+            if (translatedGrids.Count == 0)
             {
-                //Debug.Log("Hitting GridComponent");
-                ShowTransform(gc.Grid);
-                translatedGrids = SelectGrid.Grids;
+                Debug.Log("Please select at least one grid to translate/rotate.");
+            }
+            else
+            {
+                ShowTransform(translatedGrids[0]);
                 AttachChildren(translatedGrids);
             }
         }
@@ -93,10 +96,10 @@ public class TransformHandle : MonoBehaviour
             leftTriggerReleased = false;
             rightTriggerReleased = false;
 
-            Debug.Log("Detach children");
+            //Debug.Log("Detach children");
             DetachChildren();
 
-            Debug.Log("done hiding transform");
+            //Debug.Log("done hiding transform");
         }
 
         if (!leftGripValue)
@@ -132,7 +135,8 @@ public class TransformHandle : MonoBehaviour
             int minXIndex = grid.GridXToIndex(grid.MinimumBound.X);
             int minYIndex = grid.GridYToIndex(grid.MinimumBound.Y);
             Transform transform = grid.Grid2D[minXIndex, minYIndex].transform;
-            gizmosTransform.SetPositionAndRotation(transform.position - 0.2f * transform.forward, transform.rotation);
+            Vector3 position = Camera.main.transform.position + Camera.main.transform.forward * 0.5f;
+            gizmosTransform.SetPositionAndRotation(position, transform.rotation);
         }
     }
 
@@ -157,7 +161,7 @@ public class TransformHandle : MonoBehaviour
         }
     }
 
-    public static void AttachChildren(DNAGrid grid)
+    private static void AttachChildren(DNAGrid grid)
     {
         //ShowTransform();
         //translatedGrids.Add(grid);
@@ -183,6 +187,7 @@ public class TransformHandle : MonoBehaviour
             for (int j = 0; j < grid.Width; j++)
             {
                 grid.Grid2D[i, j].transform.SetParent(gizmosTransform, true);
+                grid.Grid2D[i, j].GetComponent<Collider>().enabled = false;
                 grid.Grid2D[i, j].Helix?.SetParent(gizmosTransform);
             }
         }
@@ -192,7 +197,7 @@ public class TransformHandle : MonoBehaviour
     {
         if (gizmos != null)
         {
-            Debug.Log("Num children: " + gizmos.transform.childCount);
+            //Debug.Log("Num children: " + gizmos.transform.childCount);
             //int n = gizmos.transform.childCount;
             foreach (DNAGrid grid in translatedGrids)
             {
@@ -201,6 +206,7 @@ public class TransformHandle : MonoBehaviour
                     for (int j = 0; j < grid.Width; j++)
                     {
                         grid.Grid2D[i, j].transform.SetParent(null);
+                        grid.Grid2D[i, j].GetComponent<Collider>().enabled = true;
                         grid.Grid2D[i, j].Helix?.SetParent(null);
                     }
                 }

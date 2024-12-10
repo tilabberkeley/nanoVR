@@ -61,7 +61,7 @@ public static class ViewingPerspective
         foreach (Strand strand in s_strandDict.Values)
         {
             List<Bezier> strandBeziers = strand.ToStrandView();
-            foreach (Bezier bezier in strandBeziers)
+            /*foreach (Bezier bezier in strandBeziers)
             {
                 GameObject tube = bezier.Tube;
                 tube.isStatic = true;
@@ -69,7 +69,7 @@ public static class ViewingPerspective
 
                 staticBatchingEndpoints.Add(bezier.Endpoint0);
                 staticBatchingEndpoints.Add(bezier.Endpoint1);
-            }
+            }*/
 
             strand.ShowHideCone(false);
             // strand.ShowHideXovers(true);
@@ -77,8 +77,8 @@ public static class ViewingPerspective
             yield return null;
         }
 
-        StaticBatchingUtility.Combine(staticBatchingTubes.ToArray(), s_staticBatchTubesRoot);
-        StaticBatchingUtility.Combine(staticBatchingEndpoints.ToArray(), s_staticBatchEndpointsRoot);
+        //StaticBatchingUtility.Combine(staticBatchingTubes.ToArray(), s_staticBatchTubesRoot);
+        //StaticBatchingUtility.Combine(staticBatchingEndpoints.ToArray(), s_staticBatchEndpointsRoot);
     }
 
     public static IEnumerator ViewHelix()

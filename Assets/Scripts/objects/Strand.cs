@@ -41,7 +41,7 @@ public class Strand
     //public int HelixId { get { return _head.GetComponent<NucleotideComponent>().HelixId; } }
 
     // This strand's color.
-    private Color _color;
+    private Color32 _color;
     public Color Color { get { return _color; } }
 
     // GameObject at front of this strand (at index 0 of nucleotides list).
@@ -178,7 +178,7 @@ public class Strand
             {
                 _lengthWasChanged = false;
                 int count = 0;
-                for (int i = _nucleotides.Count - 1; i >=0; i--)
+                for (int i = _nucleotides.Count - 1; i >= 0; i--)
                 {
                     NucleotideComponent ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
                     if (ntc != null)
@@ -306,8 +306,8 @@ public class Strand
         _nucleotides.Insert(0, newNucl);
         _nucleotidesOnly.Insert(0, newNucl.GetComponent<NucleotideComponent>());
         _head = _nucleotides[0];
-        SetCone();
-        ResetDomains();
+        //SetCone();
+        //ResetDomains();
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
         //_cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
@@ -324,8 +324,8 @@ public class Strand
         _nucleotidesOnly.InsertRange(0, nucleotideComponents);
         _head = _nucleotides[0];
         //_cone.transform.position = _head.transform.position;
-        SetCone();
-        ResetDomains();
+        //SetCone();
+        //ResetDomains();
         _xoversWasChanged = true;
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
@@ -360,7 +360,7 @@ public class Strand
         newNucls.ForEach(n => nucleotideComponents.Add(n.GetComponent<NucleotideComponent>()));
         _nucleotidesOnly.AddRange(nucleotideComponents);
         _tail = _nucleotides.Last();
-        ResetDomains();
+        //ResetDomains();
         _xoversWasChanged = true;
         _sequenceWasChanged = true;
         _lengthWasChanged = true;
@@ -566,7 +566,7 @@ public class Strand
     {
         foreach (DomainComponent domainComponent in _domains)
         {
-            domainComponent.DeleteBezier(); // Remove bezier if it exits
+            domainComponent.DeleteBezier(); // Remove bezier if it exists
             GameObject.Destroy(domainComponent.gameObject);
         }
         _domains.Clear();
@@ -618,11 +618,12 @@ public class Strand
             {
                 if (!xoverBefore)
                 {
+                 
                     DomainComponent nextDomianComponent = DrawPoint.MakeDomain(domain, this);
                     _domains.Add(nextDomianComponent);
-                    domain.Clear();
                     // Since xover endpoint nucleotides are sequential, this creating more domains than needed.
                     xoverBefore = true;
+                    domain.Clear();
                 }
                 else
                 {
@@ -691,7 +692,8 @@ public class Strand
                 sequence += "?";
             }
         }
-
+        //Debug.Log($"strand length: {strandLength}");
+        //Debug.Log($"Nucleotides Count: {_nucleotides.Count}");
         _sequence = sequence;
 
         int seqCount = 0;
@@ -710,7 +712,9 @@ public class Strand
                 else
                 {
                     ntc.Sequence = sequence.Substring(seqCount, ntc.Insertion + 1); // TODO: Change ntc.Insertion to seqComp.SequenceLength??
+                    //Debug.Log("NTC Seq: " + ntc.Sequence);
                     seqCount += ntc.Insertion + 1;
+                    //Debug.Log($"New seqCount: {seqCount}");
                 }
 
                 if (ntc.HasXover)
@@ -737,16 +741,21 @@ public class Strand
         if (_isOxview) { return; }
 
         _cone.GetComponent<ConeComponent>().Color = _color;
-        int helixId = _head.GetComponent<NucleotideComponent>().HelixId;
-        GameObject neighbor;
-        if (s_visualMode)
+        GameObject neighbor = null;
+        var ntc = _head.GetComponent<NucleotideComponent>();
+        if (!ntc.IsExtension)
         {
-            neighbor = s_visHelixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
+            int helixId = ntc.HelixId;
+            if (s_visualMode)
+            {
+                neighbor = s_visHelixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
+            }
+            else
+            {
+                neighbor = s_helixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
+            }
         }
-        else
-        {
-            neighbor = s_helixDict[helixId].GetHeadNeighbor(_head, _head.GetComponent<NucleotideComponent>().Direction);
-        }
+        
         Vector3 toDirection;
 
         // If strand head is index 0 of nucleotide, recalculate direction of cone with next nucleotide.
@@ -759,7 +768,6 @@ public class Strand
         }
         _cone.transform.SetPositionAndRotation(_head.transform.position, Quaternion.FromToRotation(Vector3.up, toDirection));
         _cone.transform.SetParent(_head.transform, true);
-        Debug.Log($"Set cone, cone parent: {_cone.transform.parent}");
     }
 
     // Resets all GameObject components in the nucleotides list.
@@ -913,9 +921,9 @@ public class Strand
     /// </summary>
     /// <param name="color">Color that is different than the output.</param>
     /// <returns>Color that is different than the input.</returns>
-    public static Color GetDifferentColor(Color color)
+    public static Color32 GetDifferentColor(Color32 color)
     {
-        Color nextColor = Colors[s_numStrands % Colors.Length];
+        Color32 nextColor = Colors[s_numStrands % Colors.Length];
         if (nextColor.Equals(color))
         {
             return Colors[(s_numStrands + 1) % Colors.Length];

@@ -11,6 +11,7 @@ using static GlobalVariables;
 using SplineMesh;
 using static OVRPlugin;
 using UnityEngine.UIElements;
+using TMPro;
 
 /// <summary>
 /// Creates needed gameobjects like nucleotides, backbones, cones, Xovers, spheres, and grids.
@@ -378,14 +379,13 @@ public static class DrawPoint
     /// <param name="yOffset">2D y direction offset of grid circle in grid object.</param>
     /// <param name="plane">Plane direction of grid object.</param>
     /// <returns></returns>
-    public static GameObject MakeGridCircleGO(Vector3 startPosition, GameObject startGridCircle, float xOffset, float yOffset, string plane)
+    public static GameObject MakeGridCircleGO(Vector3 startPosition, GameObject startGridCircle, float xOffset, float yOffset, string plane, GridPoint gridPoint)
     {
         // Calculate position.
         Vector3 position;
         if (startGridCircle != null)
         {
             position = startPosition + xOffset * startGridCircle.transform.right + yOffset * startGridCircle.transform.up;
-            Debug.Log($"startGridCircle position: {position}");
         }
         else
         {
@@ -401,8 +401,6 @@ public static class DrawPoint
             else
             {
                 position = new Vector3(startPosition.x + xOffset, startPosition.y, startPosition.z + yOffset);
-                Debug.Log($"XZ position: {position}");
-
             }
         }
 
@@ -415,28 +413,25 @@ public static class DrawPoint
         if (startGridCircle != null)
         {
             gridCircle.transform.rotation = startGridCircle.transform.rotation;
-            Debug.Log($"startGridCircle rotation: {gridCircle.transform.rotation}");
-
         }
         else
         {
             if (plane.Equals("XZ"))
             {
                 gridCircle.transform.Rotate(90f, 0f, 0f, 0);
-                Debug.Log($"XZ rotation: {gridCircle.transform.rotation}");
-
             }
             else if (plane.Equals("YZ"))
             {
-                gridCircle.transform.Rotate(0f, -90f, 0f, 0);
+                gridCircle.transform.Rotate(0f, 90f, 90f, 0);
                 Debug.Log($"YZ rotation: {gridCircle.transform.rotation}");
-
             }
         }
 
         gridCircle.name = "gridPoint";
         //GridComponent gridComponent = gridCircle.GetComponent<GridComponent>();
         //gridComponent.Position = position;
+        TextMeshPro tmp = gridCircle.GetComponentInChildren<TextMeshPro>();
+        tmp.text = $"[{gridPoint.X}, {gridPoint.Y}]";
         SaveGameObject(gridCircle);
         //gridCircle.isStatic = true;
         return gridCircle;
@@ -445,7 +440,7 @@ public static class DrawPoint
     /// <summary>
     /// Creates a simpler bezier representation gameobject of a domain. 
     /// </summary>
-    public static Bezier MakeDomainBezier(List<DNAComponent> dnaComponents, Color32 color, out Vector3 bezierStartPoint, out Vector3 bezierEndPoint)
+    public static Bezier MakeDomainBezier(List<DNAComponent> dnaComponents, Color32 color, out GameObject bezierStartPoint, out GameObject bezierEndPoint)
     {
         GameObject domainBezier = Instantiate(DomainBezier,
                    Vector3.zero,
@@ -464,16 +459,19 @@ public static class DrawPoint
 
         tubeRend.points = anchorPoints;
 
-        bezierStartPoint = anchorPoints[0];
-        bezierEndPoint = anchorPoints[anchorPoints.Length - 1];
+        //bezierStartPoint = anchorPoints[0];
+        //.bezierEndPoint = anchorPoints[anchorPoints.Length - 1];
 
-        GameObject endpoint0 = MakeBezierEndpoint(bezierStartPoint, color);
+        GameObject endpoint0 = MakeBezierEndpoint(anchorPoints[0], color);
         //endpoint0.transform.SetParent(domainBezier.transform);
-        GameObject endpoint1 = MakeBezierEndpoint(bezierEndPoint, color);
+        GameObject endpoint1 = MakeBezierEndpoint(anchorPoints[anchorPoints.Length - 1], color);
         //endpoint1.transform.SetParent(domainBezier.transform);
 
+        bezierStartPoint = endpoint0;
+        bezierEndPoint = endpoint1;
+
         // Enable static batching
-        domainBezier.isStatic = true;
+        //domainBezier.isStatic = true;
 
         Bezier bezier = new Bezier(domainBezier, endpoint0, endpoint1);
 
@@ -501,21 +499,23 @@ public static class DrawPoint
         Vector3[] anchorPoints = new Vector3[2];
 
         // Set nucleotides to be start and end point of bezier xover.
-        //anchorPoints[0] = xoverComponent.PrevGO.GetComponent<DNAComponent>().Domain.BezierStartPoint;
-        //anchorPoints[1] = xoverComponent.NextGO.GetComponent<DNAComponent>().Domain.BezierEndPoint;
-        anchorPoints[0] = xoverComponent.PrevGO.transform.position;
-        anchorPoints[1] = xoverComponent.NextGO.transform.position;
+        anchorPoints[0] = xoverComponent.PrevGO.GetComponent<DNAComponent>().Domain.BezierStartPoint.transform.position;
+        anchorPoints[1] = xoverComponent.NextGO.GetComponent<DNAComponent>().Domain.BezierEndPoint.transform.position;
+        
+        // NOTE: These do not line up with domain bezier endpoints, need to figure out solution 
+        //anchorPoints[0] = xoverComponent.PrevGO.transform.position;
+        //anchorPoints[1] = xoverComponent.NextGO.transform.position;
 
         tubeRend.points = anchorPoints;
 
         // Set endpoints to parent, so they are destroyed when tube is destroyed
         GameObject endpoint0 = MakeBezierEndpoint(anchorPoints[0], color);
-        endpoint0.transform.SetParent(xoverBezier.transform);
+        //endpoint0.transform.SetParent(xoverBezier.transform);
         GameObject endpoint1 = MakeBezierEndpoint(anchorPoints[1], color);
-        endpoint1.transform.SetParent(xoverBezier.transform);
+        //endpoint1.transform.SetParent(xoverBezier.transform);
 
         // Enable static batching
-        xoverBezier.isStatic = true;
+        //xoverBezier.isStatic = true;
 
         Bezier bezier = new Bezier(xoverBezier, endpoint0, endpoint1);
 
@@ -534,7 +534,7 @@ public static class DrawPoint
 
         bezierEndpoint.name = "Bezier Endpoint";
 
-        // Set color with material property block. This doesn't change the underlying material, just the color. Enables static batching.
+        // Set Color32 with material property block. This doesn't change the underlying material, just the color. Enables static batching.
         Renderer renderer = bezierEndpoint.GetComponent<Renderer>();
         MaterialPropertyBlock materialPropertyBlock = new MaterialPropertyBlock();
         materialPropertyBlock.SetColor("_Color", color);
@@ -544,7 +544,7 @@ public static class DrawPoint
         bezierEndpoint.transform.localScale = new Vector3(TUBE_SIZE * 2, TUBE_SIZE * 2, TUBE_SIZE * 2);
 
         // Enable static batching
-        bezierEndpoint.isStatic = true;
+        //bezierEndpoint.isStatic = true;
 
         return bezierEndpoint;
     }
@@ -719,7 +719,7 @@ public static class DrawPoint
         return domainComponent;
     }
 
-    public static GameObject MakeHelixCylinder(Helix helix, Vector3 startPos, Vector3 endPos, Color color)
+    public static GameObject MakeHelixCylinder(Helix helix, Vector3 startPos, Vector3 endPos, Color32 color)
     {
         GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         cylinder.AddComponent<XRSimpleInteractable>();

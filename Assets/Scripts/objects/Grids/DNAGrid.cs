@@ -447,7 +447,6 @@ public abstract class DNAGrid
         Helix helix = new Helix(id, orientation, length, gridComponent);
         gridComponent.Helix = helix;
         gridComponent.Selected = true;
-        Debug.Log("created helix");
         if (s_visualMode)
         {
             s_visHelixDict.Add(id, helix);
@@ -478,7 +477,7 @@ public abstract class DNAGrid
     {
         // Attach parent transforms
         TransformHandle.ShowTransform(this);
-        TransformHandle.AttachChildren(this);
+        TransformHandle.AttachChildren(new List<DNAGrid> { this });
         TransformHandle.Gizmos.transform.rotation = Quaternion.Euler(yaw, pitch, roll);
         TransformHandle.DetachChildren();
 

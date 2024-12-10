@@ -3,9 +3,6 @@
  * author: David Yang <davidmyang@berkeley.edu>
  */
 using UnityEngine;
-using UnityEngine.UIElements;
-using static DrawPoint;
-using static GlobalVariables;
 
 /// <summary>
 /// Component attached to each xover gameobject. Handles direct Ray interactions and gameobject visuals.
@@ -70,8 +67,8 @@ public class XoverComponent : MonoBehaviour
         }
     }
 
-    private Color _savedColor;
-    public Color SavedColor { get { return _savedColor; } set { _savedColor = value; } }
+    private Color32 _savedColor;
+    public Color32 SavedColor { get { return _savedColor; } set { _savedColor = value; } }
 
     /// <summary>
     /// Whether XoverComponet is xover or loopout.
@@ -132,6 +129,7 @@ public class XoverComponent : MonoBehaviour
     /// </summary>
     public void NucleotideView()
     {
+        _ntRenderer.enabled = true;
         if (_bezier == null)
         {
             return;
@@ -139,20 +137,19 @@ public class XoverComponent : MonoBehaviour
 
         _bezier.Destroy();
         _bezier = null;
-        gameObject.SetActive(true);
     }
 
     /// <summary>
     /// Puts xover in simplified strand view.
     /// </summary>
     /// <param name="color">Color to make simplified version.</param>
-    public void StrandView(Color32 color)
+    public void StrandView(Color color)
     {
         if (_bezier == null)
         {
-            Debug.Log("creating xover bezier");
+            //Debug.Log("creating xover bezier");
             _bezier = DrawPoint.MakeXoverBezier(this, color);
-            gameObject.SetActive(false);
+            _ntRenderer.enabled = false;
         }
     }
 }
