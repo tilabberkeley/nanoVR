@@ -22,6 +22,7 @@ public class OxDNAMapper
     /// </summary>
     public void Add(int lineIndex, NucleotideComponent nucleotide)
     {
+        nucleotide.Position = nucleotide.transform.position; // Save the current position of the nucleotide before simualation.
         _lineIndexToNucleotide.Add(lineIndex, nucleotide);
     }
 

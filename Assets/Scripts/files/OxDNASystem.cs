@@ -8,6 +8,8 @@ using System.Text;
 using Oculus.Interaction;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System.Globalization;
+using System.Linq;
 
 public class OxDNASystem
 {
@@ -43,6 +45,7 @@ public class OxDNASystem
         {
             var oxdnaStrand = new OxdnaStrand();
             oxdnaStrand.Color = strand.Color;
+            oxdnaStrand.IsScaffold = strand.IsScaffold;
 
             foreach (GameObject nucleotide in strand.Nucleotides)
             {
@@ -74,22 +77,25 @@ public class OxDNASystem
                 OxdnaVector cen; OxdnaVector norm; OxdnaVector forw;
                 OxdnaNucleotide oxdnaNucleotide;
 
-                var sequence = nucleotideComponent.Sequence;
+                var sequence = new string(nucleotideComponent.Sequence.Reverse().ToArray());
                 var sequenceIndex = 0;
 
                 // Handle insertion logic.
                 if (nucleotideComponent.IsInsertion)
                 {
                     var insertionLength = nucleotideComponent.Insertion;
-                    for (int i = 0; i < insertionLength; i++)
+                    for (int i = 0; i <= insertionLength; i++)
                     {
-                        cen = origin + forward * (nucleotideComponent.Id + mod + i - insertionLength) * RISE_PER_BASE_PAIR * NM_TO_OX_UNITS;
-                        norm = normal.Rotate(STEP_ROTATION * (nucleotideComponent.Id + mod + i - insertionLength), forward);
+                        int idx = !isNucleotideForward ? (insertionLength - i) : i;
+
+                        cen = origin + forward * (nucleotideComponent.Id + mod + idx - insertionLength) * RISE_PER_BASE_PAIR * NM_TO_OX_UNITS;
+                        norm = normal.Rotate(STEP_ROTATION * (nucleotideComponent.Id + mod + idx - insertionLength), forward);
                         forw = isNucleotideForward ? -forward : forward;
                         oxdnaNucleotide = new OxdnaNucleotide(cen, norm, forw, nucleotideComponent, sequence[sequenceIndex].ToString());
                         oxdnaStrand.Nucleotides.Add(oxdnaNucleotide);
                         sequenceIndex++;
                     }
+                    continue;
                 }
 
                 cen = origin + forward * (nucleotideComponent.Id + mod) * RISE_PER_BASE_PAIR * NM_TO_OX_UNITS;
@@ -322,14 +328,22 @@ public class OxDNASystem
         var nucleotideCompToOxviewIndex = new Dictionary<NucleotideComponent, int>();
         var oxviewIndexToNucleotideComp = new Dictionary<int, NucleotideComponent>();
 
+        // Scaffold Strand Id
+        int scaffholdStrandId = -1;
+
         foreach (var oxdnaStrand in _oxdnaStrands)
         {
             var oxViewStrand = new OxViewStrand
             {
-                Id = strandId++,
+                Id = ++strandId,
                 Class = "NucleicAcidStrand",
                 End5 = nucleotideId, // Start nucleotide index
             };
+
+            if (oxdnaStrand.IsScaffold)
+            {
+                scaffholdStrandId = oxViewStrand.Id;
+            }
 
             // Convert Unity Color to OxView format
             int strandColor = ((int)(oxdnaStrand.Color.r * 255) << 16) // Red shifted by 16 bits
@@ -345,9 +359,9 @@ public class OxDNASystem
                     Id = nucleotideId,
                     Type = nucleotide.Base,
                     Class = "DNA",
-                    P = new List<float> { (float)nucleotide.R.X, (float)nucleotide.R.Y, (float)nucleotide.R.Z },
-                    A1 = new List<float> { (float)nucleotide.B.X, (float)nucleotide.B.Y, (float)nucleotide.B.Z },
-                    A3 = new List<float> { (float)nucleotide.N.X, (float)nucleotide.N.Y, (float)nucleotide.N.Z },
+                    P = new List<double> { nucleotide.R.X, nucleotide.R.Y, nucleotide.R.Z },
+                    A1 = new List<double> { nucleotide.B.X, nucleotide.B.Y, nucleotide.B.Z },
+                    A3 = new List<double> { nucleotide.N.X, nucleotide.N.Y, nucleotide.N.Z },
                     Cluster = 1,
                     Color = strandColor,
                 };
@@ -371,7 +385,7 @@ public class OxDNASystem
         }
 
         // Assign the bp values of the monomers
-        /*foreach (var oxViewStrand in oxViewSystem.Strands)
+        foreach (var oxViewStrand in oxViewSystem.Strands)
         {
             foreach (var oxViewMonomer in oxViewStrand.Monomers)
             {
@@ -383,7 +397,7 @@ public class OxDNASystem
                 var complementId = nucleotideCompToOxviewIndex[nucleotideCompComplement];
                 oxViewMonomer.Bp = complementId;
             }
-        }*/
+        }
 
         return JsonConvert.SerializeObject(
             oxViewFile,
@@ -397,7 +411,11 @@ public class OxDNASystem
                         OverrideSpecifiedNames = true
                     }
                 },
-                NullValueHandling = NullValueHandling.Ignore // Properties that are null won't get serialized
+                NullValueHandling = NullValueHandling.Ignore, // Properties that are null won't get serialized
+                Converters = new List<JsonConverter>
+                {
+                    new FloatPrecisionConverter()
+                }
             }
         );
     }
@@ -523,7 +541,36 @@ class OxdnaStrand
 {
     public List<OxdnaNucleotide> Nucleotides { get; private set; } = new List<OxdnaNucleotide>();
     public Color Color { get; set; }
+    public bool IsScaffold { get; set; }
 
     public OxdnaStrand() { }
+}
+
+/// <summary>
+/// Custom converter for higher precision when serializing floats or ooubles.
+/// </summary>
+public class FloatPrecisionConverter : JsonConverter
+{
+    public override bool CanConvert(Type objectType)
+    {
+        return objectType == typeof(float) || objectType == typeof(double);
+    }
+
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+    {
+        if (value is float floatValue)
+        {
+            writer.WriteRawValue(floatValue.ToString("R", CultureInfo.InvariantCulture)); // Full precision
+        }
+        else if (value is double doubleValue)
+        {
+            writer.WriteRawValue(doubleValue.ToString("R", CultureInfo.InvariantCulture)); // Full precision
+        }
+    }
+
+    public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+    {
+        throw new NotImplementedException("This converter is for writing only.");
+    }
 }
 

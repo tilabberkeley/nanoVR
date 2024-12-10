@@ -109,8 +109,8 @@ public class OxView
 
                 globalNucleotideIndex++;
 
-                Vector3 position = new Vector3(monomer.P[0], monomer.P[1], monomer.P[2]);
-                Vector3 a1Vec = new Vector3(monomer.A1[0], monomer.A1[1], monomer.A1[2]);
+                Vector3 position = new Vector3((float)monomer.P[0], (float)monomer.P[1], (float)monomer.P[2]);
+                Vector3 a1Vec = new Vector3((float)monomer.A1[0], (float)monomer.A1[1], (float)monomer.A1[2]);
 
                 // Convert base 10 color to hex.
                 string hexColor = monomer.Color.ToString("X6");
@@ -386,6 +386,6 @@ public class OxView
     {
         // r center of mass to backbone repulsion site.
         Vector3 position = (mapping.Position - 0.4f * mapping.A1) / SCALE_FROM_NANOVR_TO_NM;
-        DrawPoint.SetNucleotide(mapping.Nucleotide, Vector3.zero, Vector3.zero, Vector3.zero, position, mapping.Id, -1, -1, false, true);
+        DrawPoint.SetNucleotide(mapping.Nucleotide, position, mapping.Id, -1, -1, false, true);
     }
 }

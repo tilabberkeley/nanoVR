@@ -47,21 +47,11 @@ public class NucleotideComponent : DNAComponent
     private HashSet<XoverSuggestionComponent> _xoverSuggestionComponents;
     public HashSet<XoverSuggestionComponent> XoverSuggestionComponents { get { return _xoverSuggestionComponents; } }
 
-    // Editing location
+    /// <summary>
+    /// Editing location - location of this nucleotide before simulation.
+    /// </summary>
     private Vector3 _position = Vector3.zero;
     public Vector3 Position { get { return _position; } set { _position = value; } }
-
-    // r center of mass vector for oxDNA
-    private Vector3 _r = Vector3.zero;
-    public Vector3 R { get { return _r; } set { _r = value; } }
-
-    // a1 orientation vector for oxDNA
-    private Vector3 _a1 = Vector3.zero;
-    public Vector3 A1 { get { return _a1; } set { _a1 = value; } }
-
-    // a3 orientation vector for oxDNA
-    private Vector3 _a3 = Vector3.zero;
-    public Vector3 A3 { get { return _a3; } set { _a3 = value; } }
 
     // Awake is called before the first frame update
     protected override void Awake()

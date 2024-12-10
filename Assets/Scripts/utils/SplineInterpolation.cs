@@ -5,7 +5,6 @@ using System.Configuration;
 using System.Linq;
 using UnityEngine;
 using static GlobalVariables;
-using static Helix.NucleotideOrientationInfo;
 
 public static class SplineInterpolation
 {
@@ -231,19 +230,19 @@ public static class SplineInterpolation
         int index = nucleotideComponent.Id;
         Vector3 currentPosition = nucleotideComponent.gameObject.transform.position;
 
-        helix.CalculateNextNucleotidePositions(index + 1, out Helix.NucleotideOrientationInfo nextInfoA, out Helix.NucleotideOrientationInfo nextInfoB);
-        helix.CalculateNextNucleotidePositions(index - 1, out Helix.NucleotideOrientationInfo prevInfoA, out Helix.NucleotideOrientationInfo prevInfoB);
+        helix.CalculateNextNucleotidePositions(index + 1, out Vector3 nextPosA, out Vector3 nextPosB);
+        helix.CalculateNextNucleotidePositions(index - 1, out Vector3 prevPosA, out Vector3 prevPosB);
 
         // TODO: Fix this for rotations
         if (direction == 1) // 1 corresponds to position A - sorry for the magic numbers. Prob want an enum eventually.
         {
-            nextNuceotidePosition = nextInfoA.NativePosition;
-            prevNucleotidePosition = prevInfoA.NativePosition;
+            nextNuceotidePosition = nextPosA;
+            prevNucleotidePosition = prevPosA;
         }
         else // With the other direction, the positioning gets swapped.
         {
-            nextNuceotidePosition = prevInfoB.NativePosition;
-            prevNucleotidePosition = nextInfoB.NativePosition;
+            nextNuceotidePosition = prevPosB;
+            prevNucleotidePosition = nextPosB;
         }
 
         // Calculate where the back bone would be - in between the nucleotides.
