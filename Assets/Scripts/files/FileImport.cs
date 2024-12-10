@@ -367,7 +367,7 @@ public class FileImport : MonoBehaviour
     {
         // Maps strand index in .sc file to strandId in nanoVR
         Dictionary<int, int> extensionStrands = new Dictionary<int, int>();
-        bool isHelixBoundExt = extensionTog.isOn;
+        // bool isHelixBoundExt = extensionTog.isOn;
 
         // Drawing strands
         for (int i = 0; i < strands.Count; i++)
@@ -472,15 +472,16 @@ public class FileImport : MonoBehaviour
                 else
                 {
                     // Save strands with extensions so that we can parse them after other strands
-                    if (isHelixBoundExt)
-                    {
-                        extensionStrands.Add(i, strandId);
-                    }
-                    else
-                    {
-                        int extensionLength = (int) domains[j]["extension_num_bases"];
-                        DrawOxViewExtension(extensionLength, j, xoverEndpoints, nucleotides);
-                    }
+                    extensionStrands.Add(i, strandId);
+                    //if (isHelixBoundExt)
+                    //{
+                    //    extensionStrands.Add(i, strandId);
+                    //}
+                    //else
+                    //{
+                    //    int extensionLength = (int) domains[j]["extension_num_bases"];
+                    //    DrawOxViewExtension(extensionLength, j, xoverEndpoints, nucleotides);
+                    //}
                 }
             }
 

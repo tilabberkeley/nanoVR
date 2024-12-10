@@ -12,7 +12,7 @@ using UnityEngine;
 public class PDBImport : MonoBehaviour
 {
     // Ångström to Unity coordinate scale
-    private static float scaleFactor = 1 / Utils.ATOM_SCALE / Utils.SCALE;
+    private static float scaleFactor = 1 / Utils.ATOM_SCALE / Utils.SCALE_FROM_NANOVR_TO_NM;
 
     // Atom radii (van der Waals radii in Ångströms)
     private static readonly Dictionary<string, float> AtomRadii = new Dictionary<string, float>
