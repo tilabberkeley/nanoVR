@@ -121,9 +121,14 @@ public class FileImport : MonoBehaviour
 
         if (File.Exists(selectedFilePath))
         {
-            StreamReader sr = File.OpenText(selectedFilePath);
-            string fileContent = sr.ReadToEnd();
-            string fileType = FileBrowser.GetExtensionFromFilename(selectedFilePath, false);
+            string fileType = Path.GetExtension(selectedFilePath);
+            string fileContent;
+            
+            using (StreamReader sr = File.OpenText(selectedFilePath))
+            {
+                fileContent = sr.ReadToEnd();
+            }
+
             if (fileType.Equals(".sc") || fileType.Equals(".sc.txt"))
             {
                 //StartCoroutine(ParseSC(@fileContent, false));

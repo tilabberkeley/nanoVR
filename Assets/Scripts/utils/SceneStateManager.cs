@@ -19,12 +19,6 @@ public class SceneStateManager : MonoBehaviour
         _savePath = Path.Combine(Application.persistentDataPath, "scene_save.sc");
         _fileImport = _fileImportButton.GetComponent<FileImport>();
         _fileExport = _fileExportButton.GetComponent<FileExport>();
-
-        // Load scene automatically on startup if the file exists
-        if (File.Exists(_savePath))
-        {
-            LoadScene();
-        }
     }
 
     public void SaveScene()
@@ -38,9 +32,6 @@ public class SceneStateManager : MonoBehaviour
     {
         if (File.Exists(_savePath))
         {
-            // Restart scene first.
-            RestartScene();
-
             DeserializeScene(_savePath);
         }
         else
