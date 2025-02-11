@@ -112,7 +112,7 @@ public class FileImport : MonoBehaviour
                               FileBrowser.PickMode.Files, false, null, null, "Select File", "Select");
     }
 
-    private void LoadFile(string selectedFilePath)
+    public void LoadFile(string selectedFilePath)
     {
         if (string.IsNullOrEmpty(selectedFilePath))
         {

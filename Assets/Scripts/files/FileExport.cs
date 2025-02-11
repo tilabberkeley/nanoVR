@@ -97,7 +97,7 @@ public class FileExport : MonoBehaviour
         }
     }
 
-    private string GetSCJSON(bool isOxDNA = false)
+    public string GetSCJSON(bool isOxDNA = false)
     {
         return GetSCJSON(new List<string>(s_gridDict.Keys), false, isOxDNA);
     }
