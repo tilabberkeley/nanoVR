@@ -17,22 +17,22 @@ public class ImportShapes : MonoBehaviour
         Instance = this;
     }
 
-    public async void ImportSquare()
+    public void ImportSquare()
     {
-        await ImportShape(GlobalVariables.SQUARE_SC);
+        ImportShape(GlobalVariables.SQUARE_SC);
     }
-    public async void ImportTriangle()
+    public void ImportTriangle()
     {
-        await ImportShape(GlobalVariables.TRIANGLE_SC);
+        ImportShape(GlobalVariables.TRIANGLE_SC);
     }
-    public async void Import6HB()
+    public void Import6HB()
     {
-        await ImportShape(GlobalVariables.SIXHB_SC);
+        ImportShape(GlobalVariables.SIXHB_SC);
     }
 
 
-    private async Task ImportShape(string fileContent)
+    private void ImportShape(string fileContent)
     {
-        await FileImport.Instance.ParseSC(fileContent);
+        FileImport.Instance.ParseSC(fileContent);
     }
 }

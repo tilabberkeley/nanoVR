@@ -167,7 +167,7 @@ public class FileImport : MonoBehaviour
     /// <param name="isCopyPaste">Whether this is being called for copy/pasting a grid</param>
     /// <param name="visualMode">Whether this is being called for converting to visual mode</param>
     /// <returns>List of grids created</returns>
-    public async Task<List<DNAGrid>> ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
+    public List<DNAGrid> ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
     {
         loadingMenu.enabled = true;
         List<DNAGrid> grids = new List<DNAGrid>();
@@ -262,7 +262,7 @@ public class FileImport : MonoBehaviour
         
         // Parse helices.
         int lastHelixId = s_numHelices;
-        await ParseHelices(helices, isMultiGrid);
+        ParseHelices(helices, isMultiGrid);
 
         // Parse strands.
         CoRunner.Instance.Run(ParseStrands(strands, lastHelixId));
@@ -281,7 +281,7 @@ public class FileImport : MonoBehaviour
     /// <summary>
     /// Async method to parse and draw Helices from scadnano file
     /// </summary>
-    private async Task ParseHelices(JArray helices, bool isMultiGrid)
+    private void ParseHelices(JArray helices, bool isMultiGrid)
     {
         int startHelixId = s_numHelices;
         //Debug.Log("Start parsing helices");
@@ -346,7 +346,7 @@ public class FileImport : MonoBehaviour
                 int yInd = grid.GridYToIndex(yGrid);
                 GridComponent gc = grid.Grid2D[xInd, yInd];
                 Helix helix = grid.AddHelix(helixId, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
-                await helix.ExtendAsync(length, hideNucleotides: true);
+                helix.Extend(length, hideNucleotides: true);
                 //Debug.Log("Finished extending helix");
             }
             catch (Exception e)

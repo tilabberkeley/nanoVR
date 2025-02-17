@@ -2110,6 +2110,7 @@ GameObject:
   - component: {fileID: 2333582759794358065}
   - component: {fileID: 2333582759794358070}
   - component: {fileID: 2333582759794358071}
+  - component: {fileID: 2189970446442894090}
   m_Layer: 0
   m_Name: XR Origin
   m_TagString: Untagged
@@ -4313,3 +4314,18 @@ MonoBehaviour:
   _rightXRNode: 5
   leftRayInteractor: {fileID: 2333582758512940836}
   rightRayInteractor: {fileID: 2333582758016648252}
+--- !u!114 &2189970446442894090
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2333582759794358073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c29ce1f343a3aed40aa6662ad8633dbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nucleotideMesh: {fileID: 4300000, guid: 5fb4fdcc23faa834b83d90a503bc0440, type: 2}
+  material: {fileID: 2100000, guid: bab79a71049899a4481a55d5fd4ec9e4, type: 2}
+  backboneMesh: {fileID: 4300000, guid: 05fa974bac93b704886d66be005c8e31, type: 2}

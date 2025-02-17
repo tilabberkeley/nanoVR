@@ -78,6 +78,21 @@ public class Helix
     private List<GameObject> _helixViewCylinders;
     //private GameObject _collider;
 
+    // Lists to store per?instance matrices for GPU instancing.
+    private List<Matrix4x4> _nucleotideMatricesA = new List<Matrix4x4>();
+    private List<Matrix4x4> _nucleotideMatricesB = new List<Matrix4x4>();
+    private List<Matrix4x4> _backboneMatricesA = new List<Matrix4x4>();
+    private List<Matrix4x4> _backboneMatricesB = new List<Matrix4x4>();
+
+    public List<Matrix4x4> NucleotideMatricesA { get { return _nucleotideMatricesA; } }
+    public List<Matrix4x4> NucleotideMatricesB { get { return _nucleotideMatricesB; } }
+    public List<Matrix4x4> BackboneMatricesA { get { return _backboneMatricesA; } }
+    public List<Matrix4x4> BackboneMatricesB { get { return _backboneMatricesB; } }
+
+    // Also store nucleotide positions so we can compute backbone matrices.
+    private List<Vector3> _nucleotidePositionsA = new List<Vector3>();
+    private List<Vector3> _nucleotidePositionsB = new List<Vector3>();
+
     // Helix constructor.
     public Helix(int id, string orientation, int length, GridComponent gridComponent)
     {
@@ -202,81 +217,48 @@ public class Helix
 
         await Task.Yield();
     }
+    
+
+    /// <summary>
+    /// Extends the DNA helix by the specified number of base pairs.
+    /// Instead of creating GameObjects, we compute and store transformation matrices
+    /// for both the nucleotides and backbones.
+    /// </summary>
     public void Extend(int length, bool hideNucleotides = false)
     {
         int prevLength = _length;
         _length += length;
 
-        int numBacks;
-        if (prevLength == 0)
+        for (int i = prevLength; i < _length; i++)
         {
-            numBacks = length - 1;
-        }
-        else
-        {
-            numBacks = length;
-        }
+            // Calculate the positions for the two nucleotides at index i.
+            CalculateNextNucleotidePositions(i, out Vector3 posA, out Vector3 posB);
 
-        if (ObjectPoolManager.Instance.CanGetNucleotides(2 * length) && ObjectPoolManager.Instance.CanGetBackbones(2 * numBacks))
-        {
-            _nucleotidesA.AddRange(ObjectPoolManager.Instance.GetNucleotides(length));
-            _nucleotidesB.AddRange(ObjectPoolManager.Instance.GetNucleotides(length));
-            _backbonesA.AddRange(ObjectPoolManager.Instance.GetBackbones(numBacks));
-            _backbonesB.AddRange(ObjectPoolManager.Instance.GetBackbones(numBacks));
+            // Save positions (for backbone computations)
+            _nucleotidePositionsA.Add(posA);
+            _nucleotidePositionsB.Add(posB);
 
-            for (int i = prevLength; i < _length; i++)
+            // Create TRS matrices for the nucleotides.
+            // (You can add rotation/scale as needed; here we use identity rotation and uniform scale.)
+            Matrix4x4 matrixA = Matrix4x4.TRS(posA, Quaternion.identity, Vector3.one);
+            Matrix4x4 matrixB = Matrix4x4.TRS(posB, Quaternion.identity, Vector3.one);
+            _nucleotideMatricesA.Add(matrixA);
+            _nucleotideMatricesB.Add(matrixB);
+
+            // For nucleotides beyond the first, compute backbone matrices connecting the previous nucleotide to the current one.
+            if (i > 0)
             {
-                CalculateNextNucleotidePositions(i, out Vector3 posA, out Vector3 posB);
+                Vector3 prevPosA = _nucleotidePositionsA[i - 1];
+                Matrix4x4 backboneMatrixA = GetBackboneMatrix(prevPosA, posA);
+                _backboneMatricesA.Add(backboneMatrixA);
 
-                // Get nucleotide gameobjects and set them.
-                GameObject sphereA = _nucleotidesA[i];
-                GameObject sphereB = _nucleotidesB[i];
-                _helixA.Add(sphereA);
-                _helixB.Add(sphereB);
-                DrawPoint.SetNucleotide(sphereA, posA, i, _id, 1, hideNucleotides);
-                DrawPoint.SetNucleotide(sphereB, posB, i, _id, 0, hideNucleotides);
-
-                // Draw backbones
-                if (i > 0)
-                {
-                    GameObject cylinderA = _backbonesA[i - 1];
-                    DrawPoint.SetBackbone(cylinderA, i - 1, _id, 1, _nucleotidesA[i].transform.position, _nucleotidesA[i - 1].transform.position, hideNucleotides);
-                    _helixA.Add(cylinderA);
-
-                    GameObject cylinderB = _backbonesB[i - 1];
-                    DrawPoint.SetBackbone(cylinderB, i - 1, _id, 0, _nucleotidesB[i].transform.position, _nucleotidesB[i - 1].transform.position, hideNucleotides);
-                    _helixB.Add(cylinderB);
-                }
-            }
-        } 
-        else
-        {
-            for (int i = prevLength; i < _length; i++)
-            {
-                CalculateNextNucleotidePositions(i, out Vector3 posA, out Vector3 posB);
-
-                // Generate and set the nucleotides.
-                GameObject sphereA = DrawPoint.MakeNucleotide(posA, i, _id, 1, hideNucleotides);
-                GameObject sphereB = DrawPoint.MakeNucleotide(posB, i, _id, 0, hideNucleotides);
-                _nucleotidesA.Add(sphereA);
-                _nucleotidesB.Add(sphereB);
-                _helixA.Add(sphereA);
-                _helixB.Add(sphereB);
-
-                // Draw backbones
-                if (i > 0)
-                {
-                    GameObject cylinderA = DrawPoint.MakeBackbone(i - 1, _id, 1, _nucleotidesA[i].transform.position, _nucleotidesA[i - 1].transform.position, hideNucleotides);
-                    _helixA.Add(cylinderA);
-                    _backbonesA.Add(cylinderA);
-
-                    GameObject cylinderB = DrawPoint.MakeBackbone(i - 1, _id, 0, _nucleotidesB[i].transform.position, _nucleotidesB[i - 1].transform.position, hideNucleotides);
-                    _helixB.Add(cylinderB);
-                    _backbonesB.Add(cylinderB);
-                }
+                Vector3 prevPosB = _nucleotidePositionsB[i - 1];
+                Matrix4x4 backboneMatrixB = GetBackboneMatrix(prevPosB, posB);
+                _backboneMatricesB.Add(backboneMatrixB);
             }
         }
     }
+
 
     /// <summary>
     /// Calculates the native positions of the nucleotides at the given index i.
@@ -303,6 +285,22 @@ public class Helix
 
         posA = rotatedPositionA;
         posB = rotatedPositionB;
+    }
+
+    /// <summary>
+    /// Computes a transformation matrix for a backbone (cylinder) connecting two points.
+    /// Assumes that the cylinder mesh is aligned along its Y-axis and centered.
+    /// </summary>
+    private Matrix4x4 GetBackboneMatrix(Vector3 start, Vector3 end)
+    {
+        Vector3 midpoint = (start + end) * 0.5f;
+        Vector3 direction = end - start;
+        float length = direction.magnitude;
+        // Compute rotation so that the cylinder’s Y axis aligns with the direction vector.
+        Quaternion rotation = Quaternion.FromToRotation(Vector3.up, direction.normalized);
+        // Assuming the original cylinder mesh has a height of 1, scale Y by the length.
+        Vector3 scale = new Vector3(1, length, 1);
+        return Matrix4x4.TRS(midpoint, rotation, scale);
     }
 
     /// <summary>
