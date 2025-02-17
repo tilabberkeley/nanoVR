@@ -79,19 +79,19 @@ public class Helix
     //private GameObject _collider;
 
     // Lists to store per?instance matrices for GPU instancing.
-    private List<Matrix4x4> _nucleotideMatricesA = new List<Matrix4x4>();
-    private List<Matrix4x4> _nucleotideMatricesB = new List<Matrix4x4>();
-    private List<Matrix4x4> _backboneMatricesA = new List<Matrix4x4>();
-    private List<Matrix4x4> _backboneMatricesB = new List<Matrix4x4>();
+    private List<Matrix4x4> nucleotideMatricesA = new List<Matrix4x4>();
+    private List<Matrix4x4> nucleotideMatricesB = new List<Matrix4x4>();
+    private List<Matrix4x4> backboneMatricesA = new List<Matrix4x4>();
+    private List<Matrix4x4> backboneMatricesB = new List<Matrix4x4>();
 
-    public List<Matrix4x4> NucleotideMatricesA { get { return _nucleotideMatricesA; } }
-    public List<Matrix4x4> NucleotideMatricesB { get { return _nucleotideMatricesB; } }
-    public List<Matrix4x4> BackboneMatricesA { get { return _backboneMatricesA; } }
-    public List<Matrix4x4> BackboneMatricesB { get { return _backboneMatricesB; } }
+    public List<Matrix4x4> NucleotideMatricesA { get { return nucleotideMatricesA; } }
+    public List<Matrix4x4> NucleotideMatricesB { get { return nucleotideMatricesB; } }
+    public List<Matrix4x4> BackboneMatricesA { get { return backboneMatricesA; } }
+    public List<Matrix4x4> BackboneMatricesB { get { return backboneMatricesB; } }
 
     // Also store nucleotide positions so we can compute backbone matrices.
-    private List<Vector3> _nucleotidePositionsA = new List<Vector3>();
-    private List<Vector3> _nucleotidePositionsB = new List<Vector3>();
+    private List<Vector3> nucleotidePositionsA = new List<Vector3>();
+    private List<Vector3> nucleotidePositionsB = new List<Vector3>();
 
     private List<NucleotideData> nucleotideDataA = new List<NucleotideData>();
     private List<NucleotideData> nucleotideDataB = new List<NucleotideData>();
@@ -240,15 +240,15 @@ public class Helix
             CalculateNextNucleotidePositions(i, out Vector3 posA, out Vector3 posB);
 
             // Save positions (for backbone computations)
-            _nucleotidePositionsA.Add(posA);
-            _nucleotidePositionsB.Add(posB);
+            nucleotidePositionsA.Add(posA);
+            nucleotidePositionsB.Add(posB);
 
             // Create TRS matrices for the nucleotides.
             // (You can add rotation/scale as needed; here we use identity rotation and uniform scale.)
             Matrix4x4 matrixA = Matrix4x4.TRS(posA, Quaternion.identity, Vector3.one);
             Matrix4x4 matrixB = Matrix4x4.TRS(posB, Quaternion.identity, Vector3.one);
-            _nucleotideMatricesA.Add(matrixA);
-            _nucleotideMatricesB.Add(matrixB);
+            nucleotideMatricesA.Add(matrixA);
+            nucleotideMatricesB.Add(matrixB);
 
 
             // Create and store the data.
@@ -261,13 +261,13 @@ public class Helix
             // For nucleotides beyond the first, compute backbone matrices connecting the previous nucleotide to the current one.
             if (i > 0)
             {
-                Vector3 prevPosA = _nucleotidePositionsA[i - 1];
+                Vector3 prevPosA = nucleotidePositionsA[i - 1];
                 Matrix4x4 backboneMatrixA = GetBackboneMatrix(prevPosA, posA);
-                _backboneMatricesA.Add(backboneMatrixA);
+                backboneMatricesA.Add(backboneMatrixA);
 
-                Vector3 prevPosB = _nucleotidePositionsB[i - 1];
+                Vector3 prevPosB = nucleotidePositionsB[i - 1];
                 Matrix4x4 backboneMatrixB = GetBackboneMatrix(prevPosB, posB);
-                _backboneMatricesB.Add(backboneMatrixB);
+                backboneMatricesB.Add(backboneMatrixB);
             }
         }
     }
@@ -311,8 +311,7 @@ public class Helix
         float length = direction.magnitude;
         // Compute rotation so that the cylinder’s Y axis aligns with the direction vector.
         Quaternion rotation = Quaternion.FromToRotation(Vector3.up, direction.normalized);
-        // Assuming the original cylinder mesh has a height of 1, scale Y by the length.
-        Vector3 scale = new Vector3(1, length, 1);
+        Vector3 scale = new Vector3(0.25f, length, 0.25f);
         return Matrix4x4.TRS(midpoint, rotation, scale);
     }
 
@@ -351,6 +350,47 @@ public class Helix
             temp.Add(_nucleotidesA[eIndex]);
             temp.Reverse();
             return temp;
+        }
+    }
+
+    public Matrix4x4 GetNucleotideMesh(int id, int direction)
+    {
+        // Need to prevent indexOutOfBounds
+        if (id < 0 || id >= nucleotideMatricesA.Count) { throw new IndexOutOfRangeException(); }
+        if (direction == 0)
+        {
+            return nucleotideMatricesB[id];
+        }
+        else
+        {
+            return nucleotideMatricesA[id];
+        }
+    }
+
+    public Matrix4x4 GetBackboneMesh(int id, int direction)
+    {
+        if (id < 0 || id >= backboneMatricesA.Count) { throw new IndexOutOfRangeException(); }
+        if (direction == 0)
+        {
+            return backboneMatricesB[id];
+        }
+        else
+        {
+            return backboneMatricesB[id];
+        }
+    }
+
+    public NucleotideData GetNucleotideData(int id, int direction)
+    {
+        // Need to prevent indexOutOfBounds
+        if (id < 0 || id >= nucleotideDataA.Count) { throw new IndexOutOfRangeException(); }
+        if (direction == 0)
+        {
+            return nucleotideDataB[id];
+        }
+        else
+        {
+            return nucleotideDataA[id];
         }
     }
 

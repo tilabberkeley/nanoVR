@@ -28,6 +28,9 @@ public class Strand
         set { _nucleotides = value; _head = value[0]; _tail = value.Last(); } 
     }
 
+    private List<Domain> domains = new List<Domain>();
+    public List<Domain> Domains { get => domains; }
+
     private List<NucleotideComponent> _nucleotidesOnly;
     public List<NucleotideComponent> NucleotidesOnly
     {
@@ -82,7 +85,7 @@ public class Strand
     private List<GameObject> _beziers;
 
     private List<DomainComponent> _domains;
-    public List<DomainComponent> Domains { get { return _domains; } }
+    // public List<DomainComponent> Domains { get { return _domains; } }
 
     public List<(int, int, NucleotideComponent)> Insertions
     {

@@ -16,12 +16,20 @@ public class NucleotideData
     private int insertion = 0;
     private bool deletion = false;
 
-    public int Id 
+    public int Id { get => id; }
+    public int HelixId { get => helixId; }
+    public int StrandId { get => strandId; set => strandId = value; }
+    public int Direction { get => direction; }
+    public string Sequence { get => sequence; set => sequence = value; }
+    public Color Color { get => color; set => color = value; }
+    public int Insertion { get => insertion; set => insertion = value; }
+    public bool Deletion { get => deletion; set => deletion = value; }
+
 
     public NucleotideData(int id, int helixId, int direction)
     {
-        Id = id;
-        HelixId = helixId;
-        Direction = direction;
+        this.id = id;
+        this.helixId = helixId;
+        this.direction = direction;
     }
 }
