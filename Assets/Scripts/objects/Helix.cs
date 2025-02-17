@@ -93,6 +93,11 @@ public class Helix
     private List<Vector3> _nucleotidePositionsA = new List<Vector3>();
     private List<Vector3> _nucleotidePositionsB = new List<Vector3>();
 
+    private List<NucleotideData> nucleotideDataA = new List<NucleotideData>();
+    private List<NucleotideData> nucleotideDataB = new List<NucleotideData>();
+    public List<NucleotideData> NucleotideDataA { get { return nucleotideDataA; } }
+    public List<NucleotideData> NucleotideDataB { get { return nucleotideDataB; } }
+
     // Helix constructor.
     public Helix(int id, string orientation, int length, GridComponent gridComponent)
     {
@@ -244,6 +249,14 @@ public class Helix
             Matrix4x4 matrixB = Matrix4x4.TRS(posB, Quaternion.identity, Vector3.one);
             _nucleotideMatricesA.Add(matrixA);
             _nucleotideMatricesB.Add(matrixB);
+
+
+            // Create and store the data.
+            NucleotideData nuclA = new NucleotideData(nucleotideDataA.Count, _id, 1);
+            NucleotideData nuclB = new NucleotideData(nucleotideDataB.Count, _id, 0);
+
+            nucleotideDataA.Add(nuclA);
+            nucleotideDataB.Add(nuclB);
 
             // For nucleotides beyond the first, compute backbone matrices connecting the previous nucleotide to the current one.
             if (i > 0)
