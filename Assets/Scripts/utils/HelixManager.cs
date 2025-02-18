@@ -9,7 +9,7 @@ public class HelixManager : MonoBehaviour
 {
     [Header("Meshes & Materials")]
     public Mesh nucleotideMesh;           // Mesh for nucleotides (e.g., a sphere)
-    public Material material;   // Material with GPU instancing enabled
+    public Material material;             // Material with GPU instancing enabled
     public Mesh backboneMesh;             // Mesh for backbones (e.g., a cylinder)
 
     // List of Helix instances (could be plain classes or MonoBehaviours)
@@ -20,11 +20,11 @@ public class HelixManager : MonoBehaviour
         // Iterate over each helix and draw its instances
         foreach (Helix helix in GlobalVariables.s_helixDict.Values)
         {
-            // Draw nucleotides for strand A and strand B.
+            // Draw nucleotides for helix A and helix B.
             DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesA);
             DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesB);
 
-            // Draw backbones for strand A and strand B.
+            // Draw backbones for helix A and helix B.
             DrawInstances(backboneMesh, material, helix.BackboneMatricesA);
             DrawInstances(backboneMesh, material, helix.BackboneMatricesB);
         }
@@ -40,13 +40,16 @@ public class HelixManager : MonoBehaviour
             return;
 
         const int batchSize = 1023;
-        Matrix4x4[] batchMatrices = new Matrix4x4[batchSize];
+
+        foreach (Matrix4x4 matrix in matrices)
+        {
+            Debug.Log($"Position: {matrix.m13}, {matrix.m23}, {matrix.m33}");
+        }
 
         for (int i = 0; i < count; i += batchSize)
         {
             int batchCount = Mathf.Min(batchSize, count - i);
-            matrices.CopyTo(i, batchMatrices, 0, batchCount);
-            Graphics.DrawMeshInstanced(mesh, 0, material, batchMatrices, batchCount);
+            Graphics.DrawMeshInstanced(mesh, 0, material, matrices.GetRange(i, batchCount).ToArray());
         }
     }
 }

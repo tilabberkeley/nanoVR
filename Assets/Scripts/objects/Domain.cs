@@ -86,4 +86,24 @@ public class Domain
 
         return data;
     }
+
+    public Matrix4x4 GetHeadMesh()
+    {
+        return GetNucleotideMesh(startId);
+    }
+
+    public Matrix4x4 GetTailMesh()
+    {
+        return GetNucleotideMesh(endId);
+    }
+
+    public NucleotideData GetHeadData()
+    {
+        return GetNucleotideData(startId);
+    }
+
+    public NucleotideData GetTailData()
+    {
+        return GetNucleotideData(endId);
+    }
 }

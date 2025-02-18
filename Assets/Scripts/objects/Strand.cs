@@ -31,6 +31,21 @@ public class Strand
     private List<Domain> domains = new List<Domain>();
     public List<Domain> Domains { get => domains; }
 
+    public Strand(Domain domain, int strandId, Color color, bool isOxview = false) : this(new List<Domain> { domain }, strandId, color, isOxview) {}
+
+    public Strand(List<Domain> domains, int strandId, Color color, bool isOxview = false)
+    {
+        _strandId = strandId;
+        _color = color;
+        if (!isOxview)
+        {
+            _cone = DrawPoint.MakeCone();
+        }
+        _beziers = new List<GameObject>();
+        _isOxview = isOxview;
+        this.domains.AddRange(domains);
+    }
+
     private List<NucleotideComponent> _nucleotidesOnly;
     public List<NucleotideComponent> NucleotidesOnly
     {

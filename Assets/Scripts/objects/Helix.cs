@@ -250,7 +250,6 @@ public class Helix
             nucleotideMatricesA.Add(matrixA);
             nucleotideMatricesB.Add(matrixB);
 
-
             // Create and store the data.
             NucleotideData nuclA = new NucleotideData(nucleotideDataA.Count, _id, 1);
             NucleotideData nuclB = new NucleotideData(nucleotideDataB.Count, _id, 0);
@@ -311,7 +310,7 @@ public class Helix
         float length = direction.magnitude;
         // Compute rotation so that the cylinder’s Y axis aligns with the direction vector.
         Quaternion rotation = Quaternion.FromToRotation(Vector3.up, direction.normalized);
-        Vector3 scale = new Vector3(0.25f, length, 0.25f);
+        Vector3 scale = new Vector3(0.25f, length / 2, 0.25f);
         return Matrix4x4.TRS(midpoint, rotation, scale);
     }
 
