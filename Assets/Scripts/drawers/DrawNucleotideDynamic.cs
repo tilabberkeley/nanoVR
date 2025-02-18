@@ -345,7 +345,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
         {
             int helixId = nucComp.HelixId;
             s_helixDict.TryGetValue(helixId, out Helix helix);
-            helix.ExtendAsync(64);
+            helix.Extend(64);
         }
     }
 }

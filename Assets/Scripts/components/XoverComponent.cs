@@ -30,6 +30,12 @@ public class XoverComponent : MonoBehaviour
     private GameObject _nextGO = null;
     public GameObject NextGO { get { return _nextGO; } set { _nextGO = value; } }
 
+    private int prevDomainIdx; // Index of the domain within Strand's domain list
+    private int nextDomainIdx; // Same as above
+
+    public int PrevDomainIdx { get { return prevDomainIdx; } set { prevDomainIdx = value; } }
+    public int NextDomainIdx { get { return nextDomainIdx; } set { nextDomainIdx = value; } }
+
     protected Color _color = s_defaultColor;
     public virtual Color Color
     {

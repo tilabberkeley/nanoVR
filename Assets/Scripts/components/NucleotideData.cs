@@ -16,6 +16,8 @@ public class NucleotideData
     private int insertion = 0;
     private bool deletion = false;
 
+    private GameObject xover = null; // Gameobject of xover or loopout attached to this nucleotide. Null if there isn't a xover or loopout.
+
     public int Id { get => id; }
     public int HelixId { get => helixId; }
     public int StrandId { get => strandId; set => strandId = value; }
@@ -24,6 +26,8 @@ public class NucleotideData
     public Color Color { get => color; set => color = value; }
     public int Insertion { get => insertion; set => insertion = value; }
     public bool Deletion { get => deletion; set => deletion = value; }
+    public GameObject Xover { get => xover; set => xover = value; }
+    public bool HasXover { get => xover != null; }
 
 
     public NucleotideData(int id, int helixId, int direction)

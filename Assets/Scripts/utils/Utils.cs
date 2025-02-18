@@ -35,6 +35,13 @@ public static class Utils
         return helix.GetNucleotide(id, direction);
     }
 
+    public static Strand CreateStrand(List<Domain> domains, int strandId, Color color, string sequence, bool isScaffold, bool isOxview = false)
+    {
+        Strand strand = new Strand(domains, strandId, color, isOxview);
+
+
+        return strand;
+    }
 
     // Create strand overloading methods.
     public static Strand CreateStrand(List<GameObject> nucleotides, int strandId, bool isOxview = false) { return CreateStrand(nucleotides, strandId, Colors[s_numStrands % Colors.Length], new List<(GameObject, int)>(), new List<GameObject>(), "", false, isOxview); }

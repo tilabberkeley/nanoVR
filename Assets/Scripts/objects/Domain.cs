@@ -7,9 +7,12 @@ public class Domain
     private int id;
     private int strandId;
     private int helixId;
-    private int direction;
+    private int direction; // direction 1 is forward (nucleotidesA), direction 0 is reverse (nucleotidesB)
     private int startId;
     private int endId;
+
+    private List<(int, int)> insertions; // (nucleotideId, insertionLength)
+    private List<int> deletions; // nucleotideIds
 
     // public int Id { get => id; }
     public int StrandId { get => strandId; set => strandId = value; }
@@ -18,7 +21,7 @@ public class Domain
     public int StartId { get => startId; set => startId = value; }
     public int EndId { get => endId; set => endId = value; }
 
-    public Domain(int strandId, int helixId, int direction, int startId, int endId)
+    public Domain(int strandId, int helixId, int direction, int startId, int endId, List<(int, int)> insertions, List<int> deletions)
     {
         // this.id = id;
         this.strandId = strandId;
@@ -26,6 +29,8 @@ public class Domain
         this.direction = direction;
         this.startId = startId;
         this.endId = endId;
+        this.insertions = new List<(int, int)> (insertions);
+        this.deletions = new List<int>(deletions);
     }
 
     /// <summary>
@@ -71,6 +76,11 @@ public class Domain
             }
         }
 
+        if (direction == 0)
+        {
+            meshes.Reverse();
+        }
+
         return meshes;
     }
 
@@ -84,22 +94,39 @@ public class Domain
             data.Add(GetNucleotideData(i));
         }
 
+        if (direction == 0)
+        {
+            data.Reverse();
+        }
+
         return data;
     }
 
     public Matrix4x4 GetHeadMesh()
     {
-        return GetNucleotideMesh(startId);
+        if (direction == 1)
+        {
+            return GetNucleotideMesh(startId);
+        }
+        return GetNucleotideMesh(endId);
     }
 
     public Matrix4x4 GetTailMesh()
     {
-        return GetNucleotideMesh(endId);
+        if (direction == 1)
+        {
+            return GetNucleotideMesh(endId);
+        }
+        return GetNucleotideMesh(startId);
     }
 
     public NucleotideData GetHeadData()
     {
-        return GetNucleotideData(startId);
+        if (direction == 1)
+        {
+            return GetNucleotideData(startId);
+        }
+        return GetNucleotideData(endId);
     }
 
     public NucleotideData GetTailData()
