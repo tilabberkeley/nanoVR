@@ -21,6 +21,18 @@ public class HelixManager : MonoBehaviour
         foreach (Helix helix in GlobalVariables.s_helixDict.Values)
         {
             // Draw nucleotides for helix A and helix B.
+
+            //List<Matrix4x4> helixA = new List<Matrix4x4>();
+            //helixA.AddRange(helix.NucleotideMatricesA);
+            //helixA.AddRange(helix.BackboneMatricesA);
+
+            //List<Matrix4x4> helixB = new List<Matrix4x4>();
+            //helixA.AddRange(helix.NucleotideMatricesB);
+            //helixA.AddRange(helix.BackboneMatricesB);
+
+            //DrawInstances(nucleotideMesh, material, helixA);
+            //DrawInstances(nucleotideMesh, material, helixB);
+
             DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesA);
             DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesB);
 
@@ -40,11 +52,6 @@ public class HelixManager : MonoBehaviour
             return;
 
         const int batchSize = 1023;
-
-        foreach (Matrix4x4 matrix in matrices)
-        {
-            Debug.Log($"Position: {matrix.m13}, {matrix.m23}, {matrix.m33}");
-        }
 
         for (int i = 0; i < count; i += batchSize)
         {

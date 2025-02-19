@@ -246,7 +246,7 @@ public class CopyPaste : MonoBehaviour
         if (strand.Xovers.Count > 0)
         {
             endpoints.Add((strand.Head, strand.Xovers[0].GetComponent<XoverComponent>().PrevGO));
-            if (strand.Xovers[0].GetComponent<XoverComponent>().IsXover)
+            if (!strand.Xovers[0].GetComponent<XoverComponent>().IsLoopout)
             {
                 isXover.Add((true, 0));
             }
@@ -257,7 +257,7 @@ public class CopyPaste : MonoBehaviour
             for (int i = 0; i < strand.Xovers.Count - 1; i++)
             {
                 /* Determine if we're copying xover or loopout */
-                if (strand.Xovers[i].GetComponent<XoverComponent>().IsXover)
+                if (!strand.Xovers[i].GetComponent<XoverComponent>().IsLoopout)
                 {
                     isXover.Add((true, 0));
                 }

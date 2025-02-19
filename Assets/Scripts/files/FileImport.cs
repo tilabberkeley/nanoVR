@@ -345,7 +345,7 @@ public class FileImport : MonoBehaviour
                 int yInd = grid.GridYToIndex(yGrid);
                 GridComponent gc = grid.Grid2D[xInd, yInd];
                 Helix helix = grid.AddHelix(helixId, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
-                helix.Extend(length, hideNucleotides: true);
+                helix.Extend(length);
                 //Debug.Log("Finished extending helix");
             }
             catch (Exception e)
@@ -411,7 +411,7 @@ public class FileImport : MonoBehaviour
                     // Store domains of strand.
                     try
                     {
-                        Dictionary<int, int> domainInsertions = insertions.ToObject<Dictionary<int, int>>();
+                        Dictionary<int, int> domainInsertions = insertions.Children<JArray>().ToDictionary(inner => (int)inner[0], inner => (int)inner[1]);
                         List<int> domainDeletions = deletions.Select(j => j.Value<int>()).ToList();
                         Domain domain = new Domain(strandId, helixId, Convert.ToInt32(forward), startId, endId, domainInsertions, domainDeletions);
                         strandDomains.Add(domain);
@@ -576,20 +576,20 @@ public class FileImport : MonoBehaviour
 
         // Abstracts to Helix or Strand Views if there are more than MAX_NUCLEOTIDES in scene.
         // This helps with performance.
-        if (GlobalVariables.allGameObjects.Count > MAX_HELIX_NUCLEOTIDES || s_helixView)
-        {
-            //Togglers.Instance.CheckHelixToggle();
-            CoRunner.Instance.Run(ViewingPerspective.ViewHelix());
-        }
-        else if (GlobalVariables.allGameObjects.Count > MAX_STRAND_NUCLEOTIDES || s_strandView)
-        {
-            //Togglers.Instance.CheckStrandToggle();
-            CoRunner.Instance.Run(ViewingPerspective.ViewStrand());
-        }
-        else
-        {
-            CoRunner.Instance.Run(ViewingPerspective.ViewNucleotide());
-        }
+        //if (GlobalVariables.allGameObjects.Count > MAX_HELIX_NUCLEOTIDES || s_helixView)
+        //{
+        //    //Togglers.Instance.CheckHelixToggle();
+        //    CoRunner.Instance.Run(ViewingPerspective.ViewHelix());
+        //}
+        //else if (GlobalVariables.allGameObjects.Count > MAX_STRAND_NUCLEOTIDES || s_strandView)
+        //{
+        //    //Togglers.Instance.CheckStrandToggle();
+        //    CoRunner.Instance.Run(ViewingPerspective.ViewStrand());
+        //}
+        //else
+        //{
+        //    CoRunner.Instance.Run(ViewingPerspective.ViewNucleotide());
+        //}
 
         loadingMenu.enabled = false;
     }
@@ -613,7 +613,7 @@ public class FileImport : MonoBehaviour
             if (gc.Helix == null)
             {
                 helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), actualLength, PLANE, gc);
-                helix.Extend(actualLength, hideNucleotides: true);
+                helix.Extend(actualLength);
                 grid.CheckExpansion(gc);
             }
             else
@@ -621,7 +621,7 @@ public class FileImport : MonoBehaviour
                 helix = gc.Helix;
                 if (length > helix.Length)
                 {
-                    helix.Extend(actualLength - helix.Length, hideNucleotides: true);
+                    helix.Extend(actualLength - helix.Length);
                 }
             }
 
@@ -667,7 +667,7 @@ public class FileImport : MonoBehaviour
             if (gc.Helix == null)
             {
                 helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), actualLength, PLANE, gc);
-                helix.Extend(actualLength, hideNucleotides: true);
+                helix.Extend(actualLength);
                 grid.CheckExpansion(gc);
             }
             else
@@ -675,7 +675,7 @@ public class FileImport : MonoBehaviour
                 helix = gc.Helix;
                 if (length > helix.Length)
                 {
-                    helix.Extend(actualLength - helix.Length, hideNucleotides: true);
+                    helix.Extend(actualLength - helix.Length);
                 }
             }
 

@@ -58,7 +58,21 @@ public static class Utils
 
         // Set sequence
         strand.SetSequenceRevamp(sequence);
-        // CheckMismatch(strand);
+
+        // Add to dict and strand list
+        if (s_visualMode)
+        {
+            s_visStrandDict.Add(strandId, strand);
+            s_numVisStrands += 1;
+        }
+        else
+        {
+            s_strandDict.Add(strandId, strand);
+            ObjectListManager.CreateStrandButton(strandId);
+            s_numStrands += 1;
+        }
+
+        // TODO: CheckMismatch(strand);
         return strand;
     }
 

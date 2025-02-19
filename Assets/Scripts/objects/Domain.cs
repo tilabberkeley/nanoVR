@@ -149,7 +149,7 @@ public class Domain
 
     public int GetLength()
     {
-        int insertionsLength = insertions.Sum(tuple => tuple.Item2);
+        int insertionsLength = insertions.Values.Sum();
         int deletionsLength = deletions.Count;
         return endId - startId + 1 + insertionsLength - deletionsLength;
     }

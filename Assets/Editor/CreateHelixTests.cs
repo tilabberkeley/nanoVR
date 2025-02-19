@@ -34,11 +34,11 @@ public class CreateHelixTests
     }
 
     [Test]
-    public async void SingleHelixTest()
+    public void SingleHelixTest()
     {
         DNAGrid grid = DrawGrid.CreateGrid("1", "XY", new Vector3(0, 0, 0), "square");
         Helix helix = grid.AddHelix(0, grid.Grid2D[0, 0].Position, 64, "XY", grid.Grid2D[0, 0]);
-        await helix.ExtendAsync(64);
+        helix.Extend(64);
         Assert.AreEqual(1, s_helixDict.Count);
         Assert.AreEqual(64, helix.Length);
         Assert.AreEqual(0, helix.Id);

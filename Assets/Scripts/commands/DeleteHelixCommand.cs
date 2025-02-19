@@ -41,6 +41,6 @@ public class DeleteHelixCommand : ICommand
     public void Undo()
     {
         Helix helix = _grid.AddHelix(_id, _startPoint, _length, _orientation, _gridComponent);
-        helix.ExtendAsync(_length);
+        helix.Extend(_length);
     }
 }
