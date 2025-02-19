@@ -79,8 +79,8 @@ public class XoverComponent : MonoBehaviour
     /// <summary>
     /// Whether XoverComponet is xover or loopout.
     /// </summary>
-    private bool _isXover = true;
-    public bool IsXover { get => _isXover; set => _isXover = value; }
+    private bool isLoopout = false;
+    public bool IsLoopout { get => isLoopout; set => isLoopout = value; }
 
     protected virtual void Update()
     {

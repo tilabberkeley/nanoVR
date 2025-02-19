@@ -8,8 +8,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
 using static GlobalVariables;
-using static UnityEngine.EventSystems.EventTrigger;
-using static DrawPoint;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// Strand object keeps track of an individual strand of nucleotides.
@@ -29,11 +28,10 @@ public class Strand
     }
 
     private List<Domain> domains = new List<Domain>();
-    public List<Domain> Domains { get => domains; }
 
-    public Strand(Domain domain, int strandId, Color color, bool isOxview = false) : this(new List<Domain> { domain }, strandId, color, isOxview) {}
+    public Strand(Domain domain, int strandId, Color color, bool isOxview = false) : this(new List<Domain> { domain }, strandId, color, sequence: "", isScaffold: false, isOxview) {}
 
-    public Strand(List<Domain> domains, int strandId, Color color, bool isOxview = false)
+    public Strand(List<Domain> domains, int strandId, Color color, string sequence, bool isScaffold, bool isOxview = false)
     {
         _strandId = strandId;
         _color = color;
@@ -41,9 +39,15 @@ public class Strand
         {
             _cone = DrawPoint.MakeCone();
         }
-        _beziers = new List<GameObject>();
         _isOxview = isOxview;
+        _isScaffold = isScaffold;
         this.domains.AddRange(domains);
+         
+    }
+
+    public Domain GetDomain(int domainIdx)
+    {
+        return domains[domainIdx];
     }
 
     private List<NucleotideComponent> _nucleotidesOnly;
@@ -655,6 +659,14 @@ public class Strand
         _domains.Add(lastDomainComponent);
     }
 
+    public void SetDomainsRevamp()
+    {
+        for (int i = 0; i < domains.Count; i++)
+        {
+            domains[i].SetDomain(i, _strandId, _color);
+        }
+    }
+
     /// <summary>
     /// Sets variables of each GameObject's component (strandId, color, etc).
     /// </summary>
@@ -749,6 +761,55 @@ public class Strand
             }
         }
     }
+
+    public void SetSequenceRevamp(string sequence)
+    {
+        if (sequence.Equals("")) return;
+
+        int strandLength = GetLength();
+        if (sequence.Length < strandLength)
+        {
+            for (int i = 0; i < strandLength - sequence.Length; i++)
+            {
+                sequence += "?";
+            }
+        }
+        
+        _sequence = sequence;
+
+        int seqCount = 0;
+        for (int i = 0; i < domains.Count; i++)
+        {
+            Domain domain = domains[i];
+            int domainLength = domain.GetLength();
+            domain.SetSequence(sequence.Substring(seqCount, domainLength));
+            seqCount += domainLength;
+
+            if (domain.NextXover != null && domain.NextXover.IsLoopout)
+            {
+                LoopoutComponent loopout = (LoopoutComponent)domain.NextXover;
+                int loopoutLength = loopout.SequenceLength;
+                loopout.Sequence = sequence.Substring(seqCount, loopout.SequenceLength);
+                seqCount += loopout.SequenceLength;
+            }
+        }
+    }
+
+    public int GetLength()
+    {
+        int length = 0;
+        foreach (Domain domain in domains)
+        {
+            length += domain.GetLength();
+            if (domain.NextXover != null && domain.NextXover.IsLoopout)
+            {
+                LoopoutComponent loopout = (LoopoutComponent) domain.NextXover;
+                length += loopout.SequenceLength;
+            }
+        }
+        return length;
+    }
+
 
     /// <summary>
     /// Sets cone position and rotation (pointing left or right).

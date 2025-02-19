@@ -14,9 +14,10 @@ public class NucleotideData
     private string sequence = "";
     private Color color;
     private int insertion = 0;
-    private bool deletion = false;
+    private bool isDeletion = false;
 
-    private GameObject xover = null; // Gameobject of xover or loopout attached to this nucleotide. Null if there isn't a xover or loopout.
+    private XoverComponent xover = null; // Gameobject of xover or loopout attached to this nucleotide. Null if there isn't a xover or loopout.
+    private int domainIdx = -1;          // Index of the domain within Strand's domain list
 
     public int Id { get => id; }
     public int HelixId { get => helixId; }
@@ -25,9 +26,10 @@ public class NucleotideData
     public string Sequence { get => sequence; set => sequence = value; }
     public Color Color { get => color; set => color = value; }
     public int Insertion { get => insertion; set => insertion = value; }
-    public bool Deletion { get => deletion; set => deletion = value; }
-    public GameObject Xover { get => xover; set => xover = value; }
+    public bool IsDeletion { get => isDeletion; set => isDeletion = value; }
+    public XoverComponent Xover { get => xover; set => xover = value; }
     public bool HasXover { get => xover != null; }
+    public int DomainIdx { get => domainIdx; set => domainIdx = value; }
 
 
     public NucleotideData(int id, int helixId, int direction)
@@ -35,5 +37,17 @@ public class NucleotideData
         this.id = id;
         this.helixId = helixId;
         this.direction = direction;
+    }
+
+    public Matrix4x4 GetMatrix()
+    {
+        Helix helix = GlobalVariables.s_helixDict[helixId];
+        return helix.GetNucleotideMesh(id, direction);
+    }
+
+    public Vector3 GetPosition()
+    {
+        Matrix4x4 matrix = GetMatrix();
+        return new Vector3(matrix.m13, matrix.m23, matrix.m33);
     }
 }

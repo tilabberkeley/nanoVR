@@ -601,6 +601,47 @@ public static class DrawPoint
         return xover;
     }
 
+    public static GameObject MakeXover(Domain prevDomain, Domain nextDomain)
+    {
+        GameObject xover =
+                   Instantiate(Xover,
+                   Vector3.zero,
+                   Quaternion.identity) as GameObject;
+        xover.name = "xover";
+        Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
+
+        NucleotideData prevNucl;
+        NucleotideData nextNucl;
+
+        if (prevDomain.Direction == 1) // forward direction
+        {
+            prevNucl = prevDomain.GetTailData();
+            nextNucl = nextDomain.GetHeadData();
+        }
+        else
+        {
+            prevNucl = prevDomain.GetHeadData();
+            nextNucl = nextDomain.GetTailData();
+        }
+        Vector3 prevPosition = prevNucl.GetPosition();
+        Vector3 nextPosition = nextNucl.GetPosition();
+
+        // Position
+        xover.transform.position = (nextPosition + prevPosition) / 2.0F;
+
+        // Rotation
+        Vector3 dirV = Vector3.Normalize(nextPosition - prevPosition);
+        Vector3 rotAxisV = dirV + cylDefaultOrientation;
+        rotAxisV = Vector3.Normalize(rotAxisV);
+        xover.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
+
+        // Scale        
+        float dist = Vector3.Distance(nextPosition, prevPosition);
+        xover.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
+
+        return xover;
+    }
+
     /// <summary>
     /// Creates a loopout between the given two nucleotides.
     /// </summary>
@@ -685,12 +726,92 @@ public static class DrawPoint
         loopoutComponent.PrevStrandId = prevStrandId;
         loopoutComponent.Color = prevNucleotideComponent.Color;
         loopoutComponent.SavedColor = nextNucleotideComponent.Color;
-        loopoutComponent.IsXover = false;
 
         // Assign to meshGO that has the loopout component.
         prevNucleotideComponent.Xover = meshGO;
         nextNucleotideComponent.Xover = meshGO;
         SaveGameObject(meshGO);
+
+        return meshGO;
+    }
+
+    public static GameObject MakeLoopout(Domain prevDomain, Domain nextDomain)
+    {
+        // Transform scale of the loopout gamebobject - needed for relative node location.
+        float scale = 0.005f;
+
+        /* For this spline, the location of the gameobject is placed between the two nucleotides.
+         * The locations of the nodes are relative to the center of the gameobject, so the center
+         * of the gameobject is the origin of the node coordinate system. So to find the location
+         * of the nodes, you have to find the direction from the center of the gameobject
+         * (in this case the midpoint) to where you want to node in the actual world space. This also 
+         * needs to be scaled by the scale of the gameobject, which is in the transform component. 
+         * You can see this in the loopout prefab. For a nice bend, I just patterned matched. You
+         * just have to make the direction the location of the node +/- an orthogonal vector. 
+         * Again, I just patterned matched to figure this out, not exactly sure how it works. */
+        NucleotideData prevNucl;
+        NucleotideData nextNucl;
+
+        if (prevDomain.Direction == 1) // forward direction
+        {
+            prevNucl = prevDomain.GetTailData();
+            nextNucl = nextDomain.GetHeadData();
+        }
+        else
+        {
+            prevNucl = prevDomain.GetHeadData();
+            nextNucl = nextDomain.GetTailData();
+        }
+        Vector3 prevPosition = prevNucl.GetPosition();
+        Vector3 nextPosition = nextNucl.GetPosition();
+
+        Vector3 midpoint = (prevPosition + nextPosition) / 2;
+
+        Vector3 midPointToPrevScaled = (prevPosition - midpoint) / scale;
+        Vector3 midPointToNextScaled = (nextPosition - midpoint) / scale;
+
+        GameObject loopout = Instantiate(Loopout, midpoint, Quaternion.identity);
+
+        // Create spline
+        Spline spline = loopout.GetComponent<Spline>();
+        SplineMeshTiling splineMeshTiling = loopout.GetComponent<SplineMeshTiling>();
+
+        Vector3 prevToNext = nextPosition - prevPosition;
+        float distance = prevToNext.magnitude;
+
+        float a = prevToNext.x;
+        float b = prevToNext.y;
+        float c = prevToNext.z;
+        // Also have to scale orthogonal vector? I didn't try without it. Either way just adjust bend factor.
+        Vector3 orthogonalVector = new Vector3(b + c, c - a, -a - b).normalized / scale;
+
+        Vector3 prevDirection = midPointToPrevScaled + (orthogonalVector * distance * LOOPOUT_BEND_FACTOR);
+        Vector3 nextDirection = midPointToNextScaled - (orthogonalVector * distance * LOOPOUT_BEND_FACTOR);
+
+        SplineNode prevNode = new SplineNode(midPointToPrevScaled, prevDirection);
+        SplineNode nextNode = new SplineNode(midPointToNextScaled, nextDirection);
+
+        // Remove default nodes from spline
+        SplineNode toRemove0 = spline.nodes[0];
+        SplineNode toRemove1 = spline.nodes[1];
+
+        // Update spline, and create mesh
+        spline.AddNode(prevNode);
+        spline.AddNode(nextNode);
+        spline.RemoveNode(toRemove0);
+        spline.RemoveNode(toRemove1);
+        splineMeshTiling.CreateMeshes();
+
+        // SplineMeshTiling script adds a gameobject as a grandchild of the loopout, which is where the mesh is attached.
+        GameObject meshGO = loopout.transform.GetChild(0).GetChild(0).gameObject;
+
+        // Add xr interactable to mesh gameobject
+        meshGO.AddComponent<XRSimpleInteractable>();
+
+        // Add outline component
+        Outline outline = meshGO.AddComponent<Outline>();
+        outline.enabled = false;
+        outline.OutlineWidth = 3;
 
         return meshGO;
     }

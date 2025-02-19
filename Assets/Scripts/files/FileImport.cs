@@ -390,11 +390,8 @@ public class FileImport : MonoBehaviour
             {
                 isCircular = (bool) strands[i]["circular"];
             }
-            List<GameObject> nucleotides = new List<GameObject>();
-            List<GameObject> xoverEndpoints = new List<GameObject>();
-            List<GameObject> sDeletions = new List<GameObject>();
-            List<(GameObject, int)> sInsertions = new List<(GameObject, int)>();
-            Dictionary<GameObject, int> loopouts = new Dictionary<GameObject, int>();
+
+            Dictionary<int, int> loopouts = new Dictionary<int, int>(); // (domainIdx of previous domain, loopoutLength)
             List<Domain> strandDomains = new List<Domain>();
 
             for (int j = 0; j < domains.Count; j++)
@@ -411,55 +408,13 @@ public class FileImport : MonoBehaviour
                     if (domains[j]["insertions"] != null) { insertions = JArray.Parse(domains[j]["insertions"].ToString()); }
                     Helix helix = s_helixDict[helixId];
 
-                    //// Store deletions and insertions.
-                    //try
-                    //{
-                    //    for (int k = 0; k < deletions.Count; k++)
-                    //    {
-                    //        GameObject nt = helix.GetNucleotide((int)deletions[k], Convert.ToInt32(forward));
-                    //        sDeletions.Add(nt);
-                    //    }
-                    //    for (int k = 0; k < insertions.Count; k++)
-                    //    {
-                    //        GameObject nt = helix.GetNucleotide((int)insertions[k][0], Convert.ToInt32(forward));
-                    //        sInsertions.Add((nt, (int)insertions[k][1]));
-                    //    }
-                    //}
-                    //catch (Exception e)
-                    //{
-                    //    Debug.Log("Exception when parsing deletions and insertions");
-                    //    Debug.Log(e.Message);
-                    //}
-
                     // Store domains of strand.
                     try
                     {
-                        List<(int, int)> domainInsertions = insertions.Select(j => (j[0].Value<int>(), j[1].Value<int>())).ToList();
+                        Dictionary<int, int> domainInsertions = insertions.ToObject<Dictionary<int, int>>();
                         List<int> domainDeletions = deletions.Select(j => j.Value<int>()).ToList();
                         Domain domain = new Domain(strandId, helixId, Convert.ToInt32(forward), startId, endId, domainInsertions, domainDeletions);
                         strandDomains.Add(domain);
-                        //List<GameObject> domain = helix.GetHelixSub(startId, endId, Convert.ToInt32(forward));
-                        //nucleotides.InsertRange(0, domain);
-
-                        //// Store xover endpoints.
-                        //if ((j == 0 && domains[0]["extension_num_bases"] == null)
-                        //    // In case there are 5' extensions, second domain in domains list is first helix-bound domain
-                        //    || (j == 1 && domains[0]["extension_num_bases"] != null))
-                        //{
-                        //    xoverEndpoints.Insert(0, domain[0]);
-                        //}
-                        //else if ((j == domains.Count - 1 && domains[domains.Count - 1]["extension_num_bases"] == null)
-                        //// In case there are 3' extensions, second to last domain in domains list is last helix-bound domain
-                        //    || (j == domains.Count - 2 && domains[domains.Count - 1]["extension_num_bases"] != null)) 
-                        //{
-                        //    xoverEndpoints.Insert(0, domain.Last());
-                        //}
-                        //else
-                        //{
-                        //    xoverEndpoints.Insert(0, domain.Last());
-                        //    xoverEndpoints.Insert(0, domain[0]);
-                        //}
-
                     }
                     catch (Exception e)
                     {
@@ -467,12 +422,12 @@ public class FileImport : MonoBehaviour
                         Debug.Log(e.Message);
                     }
                 }
-                //else if (domains[j]["loopout"] != null)
-                //{
-                //    int loopoutLength = (int) domains[j]["loopout"];
-                //    GameObject nextEndpoint = xoverEndpoints[0];
-                //    loopouts[nextEndpoint] = loopoutLength;
-                //}
+                else if (domains[j]["loopout"] != null)
+                {
+                    int loopoutLength = (int) domains[j]["loopout"];
+                    int domainIdx = strandDomains.Count - 1;
+                    loopouts[domainIdx] = loopoutLength;
+                }
                 //else
                 //{
                 //    // Save strands with extensions so that we can parse them after other strands
@@ -492,60 +447,13 @@ public class FileImport : MonoBehaviour
             //Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
 
 
-
-
-
-
-
-
-            // TODO: STOPPED HERE, STILL DEBATING HOW TO HANDLE XOVERS/LOOPOUTS, SEQUENCE, SETTING NUCL_DATA, CIRCULARITY, ETC.
-
-
-
-
-
-            Strand strand = CreateStrand(strandDomains, strandId, color, sequence, isScaffold);
+            Strand strand = CreateStrand(strandDomains, strandId, color, sequence, isScaffold, loopouts);
             if (isCircular)
             {
                 strand.IsCircular = true;
                 strand.ShowHideCone(false);
             }
-
-            try
-            {
-                // Add xovers and loopouts to Strand object.
-                for (int j = 1; j < xoverEndpoints.Count; j += 2)
-                {
-                    GameObject nextGO = xoverEndpoints[j];
-                    
-                    if (loopouts.ContainsKey(nextGO))
-                    {
-                        // TODO: Check this works
-                        strand.Xovers.Add(DrawLoopout.CreateLoopoutHelper(xoverEndpoints[j - 1], nextGO, loopouts[nextGO]));
-                    }
-                    else
-                    {
-                        strand.Xovers.Add(DrawCrossover.CreateXoverHelper(xoverEndpoints[j - 1], nextGO, showXover: false));
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.Log("Exception when adding xovers/loopouts to strand");
-                Debug.Log(e.Message);
-            }
-
-            try
-            {
-                // Set sequence and check for mismatches with complement strands.
-                strand.Sequence = sequence;
-                Utils.CheckMismatch(strand);
-            }
-            catch (Exception e)
-            {
-                Debug.Log("Exception when setting strand sequence and checking mismatch");
-                Debug.Log(e.Message);
-            }
+         
 
             yield return null;
         }

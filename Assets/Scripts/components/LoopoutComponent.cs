@@ -2,10 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 /// <summary>
 /// Component for loopout game objects. Treating a loopout as a crossover, except that it has a sequence associated with it. 
@@ -17,7 +14,7 @@ public class LoopoutComponent : XoverComponent
     public int SequenceLength { get => _sequenceLength; set => _sequenceLength = value; }
 
     // Sequence of this loopout.
-    private string _sequence;
+    private string _sequence = "";
     public string Sequence { get => _sequence; set => _sequence = value; }
 
     // Changing color of loopout done through mesh renderer
@@ -30,6 +27,8 @@ public class LoopoutComponent : XoverComponent
             GetComponent<MeshRenderer>().material.SetColor("_Color", value);
         }
     }
+
+    private bool isLoopout = true;
 
     protected override void Update()
     {

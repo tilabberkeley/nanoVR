@@ -8,6 +8,7 @@ using static GlobalVariables;
 using static Utils;
 using TMPro;
 using System;
+using static OVRPlugin;
 
 public class DrawLoopout : MonoBehaviour
 {
@@ -228,6 +229,28 @@ public class DrawLoopout : MonoBehaviour
         GameObject loopout = DrawPoint.MakeLoopout(prevGO, nextGO, strandId, prevStrandId, sequenceLength);
 
         return loopout;
+    }
+
+    public static void CreateLoopoutHelper(Domain prevDomain, Domain nextDomain, int strandId, int loopoutLength, int prevStrandId = -1, bool showXover = true)
+    {
+        // Create crossover, assign appropiate prev and next properties.
+        Strand strand = GlobalVariables.s_strandDict[strandId];
+        GameObject loopout = DrawPoint.MakeLoopout(prevDomain, nextDomain);
+        LoopoutComponent loopoutComponent = loopout.AddComponent<LoopoutComponent>();
+
+        loopoutComponent.SequenceLength = loopoutLength;
+        loopoutComponent.PrevDomainIdx = prevDomain.Id;
+        loopoutComponent.NextDomainIdx = nextDomain.Id;
+        loopoutComponent.StrandId = strandId;
+        loopoutComponent.PrevStrandId = prevStrandId;
+
+        prevDomain.NextXover = loopoutComponent;
+        nextDomain.PrevXover = loopoutComponent;
+
+        loopoutComponent.Color = prevDomain.Color;
+        loopoutComponent.SavedColor = nextDomain.Color;
+
+        loopout.SetActive(showXover);
     }
 
     /// <summary>
