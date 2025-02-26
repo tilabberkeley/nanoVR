@@ -2,6 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+using Microsoft.SqlServer.Server;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -310,7 +311,7 @@ public class Helix
         float length = direction.magnitude;
         // Compute rotation so that the cylinder’s Y axis aligns with the direction vector.
         Quaternion rotation = Quaternion.FromToRotation(Vector3.up, direction.normalized);
-        Vector3 scale = new Vector3(0.01f, length / 2, 0.01f);
+        Vector3 scale = new Vector3(0.25f, length / 2, 0.25f);
         return Matrix4x4.TRS(midpoint, rotation, scale);
     }
 
@@ -417,6 +418,53 @@ public class Helix
         {
             return _backbonesA[id];
         }
+    }
+
+    public Color GetNucleotideColor(int id, int direction)
+    {
+        NucleotideData nd = GetNucleotideData(id, direction);
+        return nd.Color;
+    }
+
+    public Color GetBackboneColor(int id, int direction)
+    {
+        Color color1 = GetNucleotideColor(id, direction);
+        Color color2 = GetNucleotideColor(id + 1, direction);
+        if (color1 == color2)
+        {
+            return color1;
+        }
+        return Color.white;
+    }
+
+    /// <summary>
+    /// Returns list of nucleotide colors in helix.
+    /// </summary>
+    /// <param name="direction">Direction 1 corresponds to nucleotideA and direction 0 corresponds to nucleotideB.</param>
+    /// <returns></returns>
+    public List<Color> GetNucleotideColors(int direction)
+    {
+        List<Color> colors = new List<Color>();
+        for (int i = 0; i < nucleotideMatricesA.Count; i++)
+        {
+            colors.Add(GetNucleotideColor(i, direction));
+        }
+        return colors;
+    }
+
+    /// <summary>
+    /// Returns list of backbone colors in helix.
+    /// </summary>
+    /// <param name="direction">Direction 1 corresponds to nucleotideA and direction 0 corresponds to nucleotideB.</param>
+    /// <returns></returns>
+    public List<Color> GetBackboneColors(int direction)
+    {
+        List<Color> colors = new List<Color>();
+        for (int i = 0; i < backboneMatricesA.Count; i++)
+        {
+            colors.Add(GetBackboneColor(i, direction));
+        }
+        return colors;
     }
 
     /// <summary>

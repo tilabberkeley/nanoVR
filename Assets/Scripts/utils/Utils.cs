@@ -42,6 +42,9 @@ public static class Utils
 
         // Set strand domains
         strand.SetDomainsRevamp();
+        
+        // Set cone
+        strand.SetConeRevamp();
 
         // Draw and set xovers and loopouts
         for (int i = 1; i < domains.Count; i++)

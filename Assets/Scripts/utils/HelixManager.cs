@@ -14,6 +14,10 @@ public class HelixManager : MonoBehaviour
 
     // List of Helix instances (could be plain classes or MonoBehaviours)
     public List<Helix> helixInstances = new List<Helix>();
+    const int BATCH_SIZE = 1023;
+
+    private Matrix4x4[] _matrixBuffer = new Matrix4x4[BATCH_SIZE];
+
 
     void Update()
     {
@@ -33,30 +37,52 @@ public class HelixManager : MonoBehaviour
             //DrawInstances(nucleotideMesh, material, helixA);
             //DrawInstances(nucleotideMesh, material, helixB);
 
-            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesA);
-            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesB);
+            List<Color> nucleotideColorsA = helix.GetNucleotideColors(direction: 1);
+            List<Color> nucleotideColorsB = helix.GetNucleotideColors(direction: 0);
+            List<Color> backboneColorsA = helix.GetBackboneColors(direction: 1);
+            List<Color> backboneColorsB = helix.GetBackboneColors(direction: 0);
+
+
+            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesA, nucleotideColorsA);
+            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesB, nucleotideColorsB);
 
             // Draw backbones for helix A and helix B.
-            DrawInstances(backboneMesh, material, helix.BackboneMatricesA);
-            DrawInstances(backboneMesh, material, helix.BackboneMatricesB);
+            DrawInstances(backboneMesh, material, helix.BackboneMatricesA, backboneColorsA);
+            DrawInstances(backboneMesh, material, helix.BackboneMatricesB, backboneColorsB);
         }
     }
 
     /// <summary>
     /// Draws instances using GPU instancing in batches of 1023.
     /// </summary>
-    private void DrawInstances(Mesh mesh, Material material, List<Matrix4x4> matrices)
+    private void DrawInstances(Mesh mesh, Material material, List<Matrix4x4> matrices, List<Color> colors)
     {
         int count = matrices.Count;
         if (count == 0)
             return;
 
-        const int batchSize = 1023;
+        // Create a MaterialPropertyBlock that will carry our per-instance colors.
+        MaterialPropertyBlock mpb = new MaterialPropertyBlock();
 
-        for (int i = 0; i < count; i += batchSize)
+        // Temporary arrays for a batch.
+        Vector4[] colorBuffer = new Vector4[BATCH_SIZE];
+
+        for (int i = 0; i < count; i += BATCH_SIZE)
         {
-            int batchCount = Mathf.Min(batchSize, count - i);
-            Graphics.DrawMeshInstanced(mesh, 0, material, matrices.GetRange(i, batchCount).ToArray());
+            int batchCount = Mathf.Min(BATCH_SIZE, count - i);
+
+            for (int j = 0; j < batchCount; j++)
+            {
+                _matrixBuffer[j] = matrices[i + j];
+                // Convert Color to Vector4 (Color implicitly converts to Vector4)
+                colorBuffer[j] = colors[i + j];
+            }
+            // Set the per-instance color array (property name "_Color" must match your shader)
+            mpb.SetVectorArray("_Color", colorBuffer);
+
+            // Draw the batch with the MaterialPropertyBlock.
+            Graphics.DrawMeshInstanced(mesh, 0, material, _matrixBuffer, batchCount, mpb);
         }
     }
+
 }

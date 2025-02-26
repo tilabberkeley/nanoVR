@@ -12,7 +12,7 @@ public class NucleotideData
     private int strandId = -1;
     private int direction;
     private string sequence = "";
-    private Color color;
+    private Color color = Color.white;
     private int insertion = 0;
     private bool isDeletion = false;
 

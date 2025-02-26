@@ -234,7 +234,6 @@ public class DrawLoopout : MonoBehaviour
     public static void CreateLoopoutHelper(Domain prevDomain, Domain nextDomain, int strandId, int loopoutLength, int prevStrandId = -1, bool showXover = true)
     {
         // Create crossover, assign appropiate prev and next properties.
-        Strand strand = GlobalVariables.s_strandDict[strandId];
         GameObject loopout = DrawPoint.MakeLoopout(prevDomain, nextDomain);
         LoopoutComponent loopoutComponent = loopout.AddComponent<LoopoutComponent>();
 

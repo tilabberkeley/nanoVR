@@ -849,6 +849,28 @@ public class Strand
         _cone.transform.SetParent(_head.transform, true);
     }
 
+    public void SetConeRevamp()
+    {
+        // No cones in oxView mode. Also no valid helixId anyways.
+        if (_isOxview) { return; }
+
+        _cone.GetComponent<ConeComponent>().Color = _color;
+        // TODO: Add directionality!!!
+
+        Matrix4x4 tailMesh = GetTailMesh();
+        _cone.transform.SetPositionAndRotation(tailMesh.GetColumn(3), Quaternion.LookRotation(tailMesh.GetColumn(2), tailMesh.GetColumn(1)));
+    }
+
+    private NucleotideData GetTailData()
+    {
+        return domains[domains.Count - 1].GetTailData();
+    }
+
+    private Matrix4x4 GetTailMesh()
+    {
+        return domains[domains.Count - 1].GetTailMesh();
+    }
+
     // Resets all GameObject components in the nucleotides list.
     public void ResetComponents(List<GameObject> nucleotides)
     {

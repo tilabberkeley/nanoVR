@@ -279,7 +279,6 @@ public class DrawCrossover : MonoBehaviour
     public static void CreateXoverHelper(Domain prevDomain, Domain nextDomain, int strandId, int prevStrandId = -1, bool showXover = true)
     {
         // Create crossover, assign appropiate prev and next properties.
-        Strand strand = GlobalVariables.s_strandDict[strandId];
         GameObject xover = DrawPoint.MakeXover(prevDomain, nextDomain);
         XoverComponent xoverComponent = xover.GetComponent<XoverComponent>();
         xoverComponent.PrevDomainIdx = prevDomain.Id;
