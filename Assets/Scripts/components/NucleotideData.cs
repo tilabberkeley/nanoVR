@@ -46,8 +46,7 @@ public class NucleotideData
     }
 
     public Vector3 GetPosition()
-    {
-        Matrix4x4 matrix = GetMatrix();
-        return new Vector3(matrix.m13, matrix.m23, matrix.m33);
+    {   
+        return GetMatrix().GetColumn(3);
     }
 }

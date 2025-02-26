@@ -637,7 +637,7 @@ public static class DrawPoint
 
         // Scale        
         float dist = Vector3.Distance(nextPosition, prevPosition);
-        xover.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
+        xover.transform.localScale = new Vector3(0.25f, dist, 0.25f);
 
         return xover;
     }
@@ -645,7 +645,7 @@ public static class DrawPoint
     /// <summary>
     /// Creates a loopout between the given two nucleotides.
     /// </summary>
-    /// <param name="sequenceLengt">Sequence length of the loopout.</param>
+    /// <param name="sequenceLength">Sequence length of the loopout.</param>
     /// <param name="prevNucleotide">Nucleotide that loopout begins on.</param>
     /// <param name="nextNucleotide">Nucleotide that loopout ends on.</param>
     /// <param name="color">Color of the loopout.</param>

@@ -19531,7 +19531,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1555935031}
   m_HandleRect: {fileID: 1555935029}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -35238,6 +35238,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2189970446442894090, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: backboneMesh
+      value: 
+      objectReference: {fileID: 4300000, guid: b097d977c90abd8439e8e7176bec77f0, type: 2}
+    - target: {fileID: 2189970446442894090, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: nucleotideMesh
+      value: 
+      objectReference: {fileID: 4300000, guid: 8e5a99e69050fb84394402e06d0fd5aa, type: 2}
     - target: {fileID: 2333582758016648224, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _menu
       value: 

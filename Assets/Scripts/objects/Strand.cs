@@ -857,8 +857,9 @@ public class Strand
         _cone.GetComponent<ConeComponent>().Color = _color;
         // TODO: Add directionality!!!
 
-        Matrix4x4 tailMesh = GetTailMesh();
-        _cone.transform.SetPositionAndRotation(tailMesh.GetColumn(3), Quaternion.LookRotation(tailMesh.GetColumn(2), tailMesh.GetColumn(1)));
+        NucleotideData tailData = GetTailData();
+        _cone.transform.position = tailData.GetPosition();
+        Debug.Log("Set cone!");
     }
 
     private NucleotideData GetTailData()
@@ -866,10 +867,6 @@ public class Strand
         return domains[domains.Count - 1].GetTailData();
     }
 
-    private Matrix4x4 GetTailMesh()
-    {
-        return domains[domains.Count - 1].GetTailMesh();
-    }
 
     // Resets all GameObject components in the nucleotides list.
     public void ResetComponents(List<GameObject> nucleotides)
