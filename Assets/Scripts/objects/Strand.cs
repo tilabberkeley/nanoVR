@@ -335,6 +335,27 @@ public class Strand
         //_cone.transform.position = _head.transform.position + new Vector3(0.015f, 0, 0);
     }
 
+    public void AddToHead(Domain domain)
+    {
+        domains.Insert(0, domain);
+    }
+
+    public void AddToHead(List<Domain> domains)
+    {
+        this.domains.InsertRange(0, domains);
+    }
+
+    public void AddToTail(Domain domain)
+    {
+        domains.Add(domain);
+    }
+
+    public void AddToTail(List<Domain> domains)
+    {
+        this.domains.AddRange(domains);
+    }
+
+
     /// <summary>
     /// Adds list of GameObjects to front of nucleotide list.
     /// </summary>
@@ -488,6 +509,19 @@ public class Strand
         return splitList;
     }
 
+    public List<Domain> SplitBefore(NucleotideData nd)
+    {
+        Domain domain = GetDomain(nd.DomainIdx);
+        Domain newDomain = domain.SplitBefore(nd);
+        
+        List<Domain> newStrandDomains = new List<Domain>();
+        newStrandDomains.AddRange(domains.GetRange(0, nd.DomainIdx));
+        newStrandDomains.Add(newDomain);
+
+        domains.RemoveRange(0, nd.DomainIdx);
+        return newStrandDomains;
+    }
+
     public void SplitCircularBefore(GameObject go)
     {
         //TODO: Add DomainCollider logic
@@ -551,6 +585,21 @@ public class Strand
         _isCircular = false;
         ShowHideCone(true);
         SetCone();
+    }
+
+    public List<Domain> SplitAfter(NucleotideData nd)
+    {
+        Domain domain = GetDomain(nd.DomainIdx);
+        Domain newDomain = domain.SplitAfter(nd);
+
+        List<Domain> newStrandDomains = new List<Domain>
+        {
+            newDomain
+        };
+        newStrandDomains.AddRange(domains.GetRange(nd.DomainIdx + 1, domains.Count - (nd.DomainIdx + 1)));
+
+        domains.RemoveRange(nd.DomainIdx + 1, domains.Count - (nd.DomainIdx + 1));
+        return newStrandDomains;
     }
 
     public void DeleteXovers()

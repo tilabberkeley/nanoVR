@@ -413,7 +413,7 @@ public class FileImport : MonoBehaviour
                     {
                         Dictionary<int, int> domainInsertions = insertions.Children<JArray>().ToDictionary(inner => (int)inner[0], inner => (int)inner[1]);
                         List<int> domainDeletions = deletions.Select(j => j.Value<int>()).ToList();
-                        Domain domain = new Domain(strandId, helixId, Convert.ToInt32(forward), startId, endId, domainInsertions, domainDeletions);
+                        Domain domain = new Domain(helixId, Convert.ToInt32(forward), startId, endId, domainInsertions, domainDeletions);
                         strandDomains.Add(domain);
                     }
                     catch (Exception e)

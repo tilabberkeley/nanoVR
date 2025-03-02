@@ -38,10 +38,10 @@ public class Domain
     public XoverComponent NextXover { get => nextXover; set => nextXover = value; }
     public Color Color { get => color; set => color = value; }
 
-    public Domain(int strandId, int helixId, int direction, int startId, int endId, Dictionary<int, int> insertions, List<int> deletions)
+    public Domain(int helixId, int direction, int startId, int endId, Dictionary<int, int> insertions, List<int> deletions)
     {
         // this.id = id;
-        this.strandId = strandId;
+        // this.strandId = strandId;
         this.helixId = helixId;
         this.direction = direction;
         this.startId = startId;
@@ -147,6 +147,70 @@ public class Domain
         return GetNucleotideData(endId);
     }
 
+    public Domain SplitBefore(NucleotideData nd)
+    {
+        Dictionary<int, int> newDomainInsertions = new Dictionary<int, int>();
+        List<int> newDomainDeletions = new List<int>();
+
+        // Create new domain's insertions dictionary and remove them from this domain.
+        foreach (KeyValuePair<int, int> entry in insertions.ToList())
+        {
+            if (entry.Key < nd.Id)
+            {
+                newDomainInsertions.Add(entry.Key, entry.Value);
+                insertions.Remove(entry.Key);
+            }
+        }
+
+        // Create new domain's deletions list and remove them from this domain.
+        foreach (int deletion in deletions.ToList())
+        {
+            if (deletion < nd.Id)
+            {
+                newDomainDeletions.Add(deletion);
+                deletions.Remove(deletion);
+            }
+        }
+
+        Domain newDomain = new Domain(helixId, direction, startId, nd.Id - 1, newDomainInsertions, newDomainDeletions);
+
+        // Update this domain's startId.
+        startId = nd.Id;
+        return newDomain;
+    }
+
+    public Domain SplitAfter(NucleotideData nd)
+    {
+        Dictionary<int, int> newDomainInsertions = new Dictionary<int, int>();
+        List<int> newDomainDeletions = new List<int>();
+
+        // Create new domain's insertions dictionary and remove them from this domain.
+        foreach (KeyValuePair<int, int> entry in insertions.ToList())
+        {
+            if (entry.Key > nd.Id)
+            {
+                newDomainInsertions.Add(entry.Key, entry.Value);
+                insertions.Remove(entry.Key);
+            }
+        }
+
+        // Create new domain's deletions list and remove them from this domain.
+        foreach (int deletion in deletions.ToList())
+        {
+            if (deletion > nd.Id)
+            {
+                newDomainDeletions.Add(deletion);
+                deletions.Remove(deletion);
+            }
+        }
+
+        Domain newDomain = new Domain(helixId, direction, nd.Id + 1, endId, newDomainInsertions, newDomainDeletions);
+
+        // Update this domain's endId.
+        endId = nd.Id;
+        return newDomain;
+    }
+
     public int GetLength()
     {
         int insertionsLength = insertions.Values.Sum();
@@ -156,6 +220,8 @@ public class Domain
 
     public void SetDomain(int id, int strandId, Color color)
     {
+        this.strandId = strandId;
+        this.id = id;
         this.color = color;
 
         for (int i = startId; i <= endId; i++)
