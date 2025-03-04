@@ -199,7 +199,7 @@ public class FileExport : MonoBehaviour
         foreach (var item in s_strandDict)
         {
             Strand strand = item.Value;
-            if (!gridIds.Contains(strand.Head.GetComponent<NucleotideComponent>().GridId))
+            if (!gridIds.Contains(strand.GetHeadDomain().GetGridId()))
             {
                 continue;
             }
@@ -211,86 +211,52 @@ public class FileExport : MonoBehaviour
             }
 
             JArray domains = new JArray();
-            List<int> insertions = new List<int>();
-            List<int> deletions = new List<int>();
-            bool isStartGO = false;
-            int endId = 0;
-
+           
             // Creating domains data for each strand.
-            for (int i = strand.Nucleotides.Count - 1; i >= 0; i--)
+            foreach (Domain domain in strand.Domains)
             {
-                var nt = strand.Nucleotides[i];
-                var ntc = nt.GetComponent<NucleotideComponent>();
-                if (ntc == null)
-                {
-                    continue;
-                }
+                
+                JObject domainObject;
 
-                if (ntc.IsDeletion)
+                if (!domain.IsExtension)
                 {
-                    deletions.Add(ntc.Id);
-                }
-
-                if (ntc.IsInsertion)
-                {
-                    insertions.Add(ntc.Id);
-                }
-
-                if ((i == strand.Nucleotides.Count - 1) || (ntc.HasXover && !isStartGO))
-                {
-                    endId = ntc.Id;
-                    isStartGO = true;
-                }
-                else if ((i == 0) || (ntc.HasXover && isStartGO))
-                {
-                    isStartGO = false;
-                    JObject domain;
-
-                    if (!ntc.IsExtension)
+                    domainObject = new JObject
                     {
-                        domain = new JObject
-                        {
-                            ["helix"] = ntc.HelixId,
-                            ["forward"] = Convert.ToBoolean(ntc.Direction),
-                            ["start"] = Math.Min(ntc.Id, endId),
-                            ["end"] = Math.Max(ntc.Id, endId) + 1, // + 1 accounts for .sc endId being exclusive
-                        };
-                        if (insertions.Count > 0)
-                        {
-                            insertions.Sort();
-                            domain["insertions"] = JArray.FromObject(insertions);
-                        }
-                        if (deletions.Count > 0)
-                        {
-                            deletions.Sort();
-                            domain["deletions"] = JArray.FromObject(deletions);
-                        }
-                    }
-                    else
+                        ["helix"] = domain.HelixId,
+                        ["forward"] = Convert.ToBoolean(domain.Direction),
+                        ["start"] = domain.StartId,
+                        ["end"] = domain.EndId + 1, // + 1 accounts for .sc endId being exclusive
+                    };
+                    if (domain.Insertions.Count > 0)
                     {
-                        domain = new JObject
-                        {
-                            ["extension_num_bases"] = Math.Abs(ntc.Id - endId) + 1,
-                        };
+                        // insertions.Sort();
+                        domainObject["insertions"] = JArray.FromObject(domain.Insertions);
                     }
+                    if (domain.Deletions.Count > 0)
+                    {
+                        domainObject["deletions"] = JArray.FromObject(domain.Deletions);
+                    }
+                }
+                else
+                {
+                    domainObject = new JObject
+                    {
+                        ["extension_num_bases"] = domain.EndId - domain.StartId + 1,
+                    };
+                }
                     
-                    domains.Add(domain);
-                    insertions.Clear();
-                    deletions.Clear();
-                }
+                domains.Add(domain);  
+                
 
                 // Adds loopout objects
-                if (ntc.HasXover)
+                if (domain.NextXover != null && domain.NextXover.IsLoopout)
                 {
-                    LoopoutComponent loopComp = ntc.Xover.GetComponent<LoopoutComponent>();
-                    if (loopComp != null && loopComp.NextGO == ntc.gameObject)
+                    LoopoutComponent loopComp = (LoopoutComponent) domain.NextXover;
+                    JObject loopout = new JObject
                     {
-                        JObject loopout = new JObject
-                        {
-                            ["loopout"] = loopComp.SequenceLength,
-                        };
-                        domains.Add(loopout);
-                    }
+                        ["loopout"] = loopComp.SequenceLength,
+                    };
+                    domains.Add(loopout);
                 }
             }
 

@@ -610,19 +610,19 @@ public static class DrawPoint
         xover.name = "xover";
         Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
 
-        NucleotideData prevNucl;
-        NucleotideData nextNucl;
+        NucleotideData prevNucl = prevDomain.GetTailData();
+        NucleotideData nextNucl = nextDomain.GetHeadData();
 
-        if (prevDomain.Direction == 1) // forward direction
-        {
-            prevNucl = prevDomain.GetTailData();
-            nextNucl = nextDomain.GetHeadData();
-        }
-        else
-        {
-            prevNucl = prevDomain.GetHeadData();
-            nextNucl = nextDomain.GetTailData();
-        }
+        //if (prevDomain.Direction == 1) // forward direction
+        //{
+        //    prevNucl = prevDomain.GetTailData();
+        //    nextNucl = nextDomain.GetHeadData();
+        //}
+        //else
+        //{
+        //    prevNucl = prevDomain.GetHeadData();
+        //    nextNucl = nextDomain.GetTailData();
+        //}
         Vector3 prevPosition = prevNucl.GetPosition();
         Vector3 nextPosition = nextNucl.GetPosition();
 

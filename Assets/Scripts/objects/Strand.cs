@@ -21,15 +21,16 @@ public class Strand
 
     // List of nucleotide and backbone GameObjects included in this strand.
     private List<GameObject> _nucleotides;
-    public List<GameObject> Nucleotides 
-    { 
-        get { return _nucleotides; } 
-        set { _nucleotides = value; _head = value[0]; _tail = value.Last(); } 
+    public List<GameObject> Nucleotides
+    {
+        get { return _nucleotides; }
+        set { _nucleotides = value; _head = value[0]; _tail = value.Last(); }
     }
 
     private List<Domain> domains = new List<Domain>();
+    public List<Domain> Domains { get { return domains; } }
 
-    public Strand(Domain domain, int strandId, Color color, bool isOxview = false) : this(new List<Domain> { domain }, strandId, color, sequence: "", isScaffold: false, isOxview) {}
+    public Strand(Domain domain, int strandId, Color color, bool isOxview = false) : this(new List<Domain> { domain }, strandId, color, sequence: "", isScaffold: false, isOxview) { }
 
     public Strand(List<Domain> domains, int strandId, Color color, string sequence, bool isScaffold, bool isOxview = false)
     {
@@ -42,12 +43,22 @@ public class Strand
         _isOxview = isOxview;
         _isScaffold = isScaffold;
         this.domains.AddRange(domains);
-         
+
     }
 
     public Domain GetDomain(int domainIdx)
     {
         return domains[domainIdx];
+    }
+
+    public Domain GetHeadDomain()
+    {
+        return GetDomain(0);
+    }
+
+    public Domain GetTailDomain()
+    {
+        return GetDomain(domains.Count - 1);
     }
 
     private List<NucleotideComponent> _nucleotidesOnly;
@@ -905,10 +916,11 @@ public class Strand
 
         _cone.GetComponent<ConeComponent>().Color = _color;
         // TODO: Add directionality!!!
-
+        Debug.Log("Set cone color");
         NucleotideData tailData = GetTailData();
+        Debug.Log("Got tail data");
         _cone.transform.position = tailData.GetPosition();
-        Debug.Log("Set cone!");
+        Debug.Log("Cone done!");
     }
 
     private NucleotideData GetTailData()
@@ -950,11 +962,10 @@ public class Strand
 
     public bool MoreThanOneGrid()
     {
-        string gridId = _head.GetComponent<DNAComponent>().GridId;
-        for (int i = _nucleotides.Count - 1; i >= 0; i--)
+        string gridId = GetHeadDomain().GetGridId();
+        foreach (Domain domain in domains)
         {
-            DNAComponent dnaComp = _nucleotides[i].GetComponent<DNAComponent>();
-            if (!dnaComp.GridId.Equals(gridId))
+            if (!domain.GetGridId().Equals(gridId))
             {
                 return true;
             }

@@ -2,7 +2,6 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
-using OVR.OpenVR;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -39,10 +38,11 @@ public static class Utils
     public static Strand CreateStrand(List<Domain> domains, int strandId, Color color, string sequence, bool isScaffold, Dictionary<int, int> loopouts, bool isOxview = false)
     {
         Strand strand = new Strand(domains, strandId, color, sequence, isScaffold, isOxview);
-
+        Debug.Log("Created strand");
         // Set strand domains
         strand.SetDomainsRevamp();
-        
+        Debug.Log("Set domains");
+
         // Set cone
         strand.SetConeRevamp();
 
@@ -56,11 +56,13 @@ public static class Utils
             else
             {
                 DrawCrossover.CreateXoverHelper(domains[i - 1], domains[i], strandId);
+                Debug.Log("Created xover");
             }
         }
 
         // Set sequence
         strand.SetSequenceRevamp(sequence);
+        Debug.Log("Set sequence");
 
         // Add to dict and strand list
         if (s_visualMode)

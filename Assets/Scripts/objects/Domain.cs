@@ -32,6 +32,8 @@ public class Domain
     public int Direction { get => direction; }
     public int StartId { get => startId; set => startId = value; }
     public int EndId { get => endId; set => endId = value; } // INCLUSIVE
+    public Dictionary<int, int> Insertions { get => insertions; }
+    public List<int> Deletions { get => deletions; }
     public bool IsExtension { get => isExtension; set => isExtension = value; }
     public bool IsHelixBound { get => isHelixBound; set => isHelixBound = value; }
     public XoverComponent PrevXover { get => prevXover; set => prevXover = value; }
@@ -144,7 +146,11 @@ public class Domain
 
     public NucleotideData GetTailData()
     {
-        return GetNucleotideData(endId);
+        if (direction == 1)
+        {
+            return GetNucleotideData(endId);
+        }
+        return GetNucleotideData(startId);
     }
 
     public Domain SplitBefore(NucleotideData nd)
@@ -260,5 +266,10 @@ public class Domain
                 seqIdx += nuclLength;
             }
         }
+    }
+
+    public string GetGridId()
+    {
+        return GlobalVariables.s_helixDict[helixId].GridId;
     }
 }

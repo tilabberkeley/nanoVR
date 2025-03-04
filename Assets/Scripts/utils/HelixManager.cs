@@ -8,9 +8,10 @@ using System.Collections.Generic;
 public class HelixManager : MonoBehaviour
 {
     [Header("Meshes & Materials")]
-    public Mesh nucleotideMesh;           // Mesh for nucleotides (e.g., a sphere)
     public Material material;             // Material with GPU instancing enabled
-    public Mesh backboneMesh;             // Mesh for backbones (e.g., a cylinder)
+    public Mesh nucleotideMesh;           // Mesh for nucleotides
+    public Mesh backboneMesh;             // Mesh for backbones
+    public Mesh gcMesh;                   // Mesh for GridCircles
 
     // List of Helix instances (could be plain classes or MonoBehaviours)
     public List<Helix> helixInstances = new List<Helix>();
@@ -23,25 +24,11 @@ public class HelixManager : MonoBehaviour
     {
         // Iterate over each helix and draw its instances
         foreach (Helix helix in GlobalVariables.s_helixDict.Values)
-        {
-            // Draw nucleotides for helix A and helix B.
-
-            //List<Matrix4x4> helixA = new List<Matrix4x4>();
-            //helixA.AddRange(helix.NucleotideMatricesA);
-            //helixA.AddRange(helix.BackboneMatricesA);
-
-            //List<Matrix4x4> helixB = new List<Matrix4x4>();
-            //helixA.AddRange(helix.NucleotideMatricesB);
-            //helixA.AddRange(helix.BackboneMatricesB);
-
-            //DrawInstances(nucleotideMesh, material, helixA);
-            //DrawInstances(nucleotideMesh, material, helixB);
-
+        { 
             List<Color> nucleotideColorsA = helix.GetNucleotideColors(direction: 1);
             List<Color> nucleotideColorsB = helix.GetNucleotideColors(direction: 0);
             List<Color> backboneColorsA = helix.GetBackboneColors(direction: 1);
             List<Color> backboneColorsB = helix.GetBackboneColors(direction: 0);
-
 
             DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesA, nucleotideColorsA);
             DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesB, nucleotideColorsB);
