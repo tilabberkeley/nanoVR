@@ -19,57 +19,59 @@ public class HelixManager : MonoBehaviour
 
     private Matrix4x4[] _matrixBuffer = new Matrix4x4[BATCH_SIZE];
 
-
     void Update()
     {
-        // Iterate over each helix and draw its instances
+        // Get the current parent offset from the gizmo.
+        // Assume TransformHandle.Gizmos is the current gizmo GameObject.
+        Matrix4x4 currentOffset = (TransformHandle.Gizmos != null)
+            ? TransformHandle.Gizmos.transform.localToWorldMatrix
+            : Matrix4x4.identity;
+
+        // Iterate over each helix and draw its instances with the current offset.
         foreach (Helix helix in GlobalVariables.s_helixDict.Values)
-        { 
+        {
             List<Color> nucleotideColorsA = helix.GetNucleotideColors(direction: 1);
             List<Color> nucleotideColorsB = helix.GetNucleotideColors(direction: 0);
             List<Color> backboneColorsA = helix.GetBackboneColors(direction: 1);
             List<Color> backboneColorsB = helix.GetBackboneColors(direction: 0);
 
-            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesA, nucleotideColorsA);
-            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesB, nucleotideColorsB);
+            // Apply the current gizmo transform as the offset.
+            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesA, nucleotideColorsA, currentOffset);
+            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesB, nucleotideColorsB, currentOffset);
 
-            // Draw backbones for helix A and helix B.
-            DrawInstances(backboneMesh, material, helix.BackboneMatricesA, backboneColorsA);
-            DrawInstances(backboneMesh, material, helix.BackboneMatricesB, backboneColorsB);
+            DrawInstances(backboneMesh, material, helix.BackboneMatricesA, backboneColorsA, currentOffset);
+            DrawInstances(backboneMesh, material, helix.BackboneMatricesB, backboneColorsB, currentOffset);
         }
     }
 
     /// <summary>
-    /// Draws instances using GPU instancing in batches of 1023.
+    /// Draws instances using GPU instancing in batches of 1023, applying the given parent offset.
     /// </summary>
-    private void DrawInstances(Mesh mesh, Material material, List<Matrix4x4> matrices, List<Color> colors)
+    /// <param name="mesh">Mesh to draw.</param>
+    /// <param name="material">Material with instancing enabled.</param>
+    /// <param name="matrices">Local instance matrices.</param>
+    /// <param name="colors">Per-instance colors.</param>
+    /// <param name="parentOffset">Parent transform offset to apply.</param>
+    private void DrawInstances(Mesh mesh, Material material, List<Matrix4x4> matrices, List<Color> colors, Matrix4x4 parentOffset)
     {
         int count = matrices.Count;
         if (count == 0)
             return;
 
-        // Create a MaterialPropertyBlock that will carry our per-instance colors.
         MaterialPropertyBlock mpb = new MaterialPropertyBlock();
-
-        // Temporary arrays for a batch.
         Vector4[] colorBuffer = new Vector4[BATCH_SIZE];
 
         for (int i = 0; i < count; i += BATCH_SIZE)
         {
             int batchCount = Mathf.Min(BATCH_SIZE, count - i);
-
             for (int j = 0; j < batchCount; j++)
             {
-                _matrixBuffer[j] = matrices[i + j];
-                // Convert Color to Vector4 (Color implicitly converts to Vector4)
+                // Multiply each local matrix by the parent offset.
+                _matrixBuffer[j] = parentOffset * matrices[i + j];
                 colorBuffer[j] = colors[i + j];
             }
-            // Set the per-instance color array (property name "_Color" must match your shader)
             mpb.SetVectorArray("_Color", colorBuffer);
-
-            // Draw the batch with the MaterialPropertyBlock.
             Graphics.DrawMeshInstanced(mesh, 0, material, _matrixBuffer, batchCount, mpb);
         }
     }
-
 }
