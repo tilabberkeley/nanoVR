@@ -292,6 +292,7 @@ public class DrawCrossover : MonoBehaviour
         xoverComponent.Color = prevDomain.Color;
         xoverComponent.SavedColor = nextDomain.Color;
 
+        xoverComponent.gameObject.transform.SetParent(prevDomain.GetHelix()._gridComponent.transform); // This helps with transformations
         xover.SetActive(showXover);
     }
 

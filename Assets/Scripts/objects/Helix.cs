@@ -16,6 +16,8 @@ using Debug = UnityEngine.Debug;
 public class Helix
 {
     private const float ADJUSTMENT = 0.05f; // Accounts for Icosphere prefab's weird positioning 
+    private const float NUCL_RAD = 0.008f; // Radius of nucleotide sphere
+
     // Helix id.
     private int _id;
     public int Id { get { return _id; } set { _id = value; } }
@@ -249,8 +251,8 @@ public class Helix
 
             // Create TRS matrices for the nucleotides.
             // (You can add rotation/scale as needed; here we use identity rotation and uniform scale.)
-            Matrix4x4 matrixA = Matrix4x4.TRS(posA, Quaternion.identity, new Vector3(0.007f, 0.007f, 0.007f));
-            Matrix4x4 matrixB = Matrix4x4.TRS(posB, Quaternion.identity, new Vector3(0.007f, 0.007f, 0.007f));
+            Matrix4x4 matrixA = Matrix4x4.TRS(posA, Quaternion.identity, new Vector3(NUCL_RAD, NUCL_RAD, NUCL_RAD));
+            Matrix4x4 matrixB = Matrix4x4.TRS(posB, Quaternion.identity, new Vector3(NUCL_RAD, NUCL_RAD, NUCL_RAD));
             nucleotideMatricesA.Add(matrixA);
             nucleotideMatricesB.Add(matrixB);
 
@@ -314,7 +316,7 @@ public class Helix
         float length = direction.magnitude;
         // Compute rotation so that the cylinder’s Y axis aligns with the direction vector.
         Quaternion rotation = Quaternion.FromToRotation(Vector3.up, direction.normalized);
-        Vector3 scale = new Vector3(0.15f, length, 0.15f);
+        Vector3 scale = new Vector3(0.2f, length, 0.2f);
         return Matrix4x4.TRS(midpoint, rotation, scale);
     }
 

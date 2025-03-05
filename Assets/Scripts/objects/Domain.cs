@@ -59,13 +59,13 @@ public class Domain
     /// <returns></returns>
     public Matrix4x4 GetNucleotideMesh(int nucleotideId)
     {
-        Helix helix = GlobalVariables.s_helixDict[helixId];
+        Helix helix = GetHelix();
         return helix.GetNucleotideMesh(nucleotideId, direction);
     }
 
     public Matrix4x4 GetBackboneMesh(int backboneId)
     {
-        Helix helix = GlobalVariables.s_helixDict[helixId];
+        Helix helix = GetHelix();
         return helix.GetBackboneMesh(backboneId, direction);
     }
 
@@ -76,7 +76,7 @@ public class Domain
     /// <returns></returns>
     public NucleotideData GetNucleotideData(int nucleotideId)
     {
-        Helix helix = GlobalVariables.s_helixDict[helixId];
+        Helix helix = GetHelix();
         return helix.GetNucleotideData(nucleotideId, direction);
     }
 
@@ -271,5 +271,10 @@ public class Domain
     public string GetGridId()
     {
         return GlobalVariables.s_helixDict[helixId].GridId;
+    }
+
+    public Helix GetHelix()
+    {
+        return GlobalVariables.s_helixDict[helixId];
     }
 }

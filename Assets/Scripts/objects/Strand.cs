@@ -36,10 +36,6 @@ public class Strand
     {
         _strandId = strandId;
         _color = color;
-        if (!isOxview)
-        {
-            _cone = DrawPoint.MakeCone();
-        }
         _isOxview = isOxview;
         _isScaffold = isScaffold;
         this.domains.AddRange(domains);

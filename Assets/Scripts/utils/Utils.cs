@@ -44,7 +44,7 @@ public static class Utils
         Debug.Log("Set domains");
 
         // Set cone
-        strand.SetConeRevamp();
+        //strand.SetConeRevamp();
 
         // Draw and set xovers and loopouts
         for (int i = 1; i < domains.Count; i++)
