@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2580568094286351010}
   - component: {fileID: 6238271396823710370}
-  - component: {fileID: 6407052390026210513}
   - component: {fileID: 7368288484218702523}
   m_Layer: 0
   m_Name: Cone
@@ -74,14 +73,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &6407052390026210513
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6779014084964482527}
-  m_Mesh: {fileID: 4300000, guid: c28fa8d61f81fb742b1180a6d4516625, type: 3}
 --- !u!114 &7368288484218702523
 MonoBehaviour:
   m_ObjectHideFlags: 0

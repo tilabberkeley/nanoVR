@@ -13,7 +13,7 @@ using static GlobalVariables;
 public static class Utils
 {
     // CONSTANTS
-    public const float SCALE_FROM_NANOVR_TO_NM = 19f; // Multiply nanovr coordinate to get to nm scale.
+    public const float SCALE_FROM_NANOVR_TO_NM = 25f; // Multiply nanovr coordinate to get to nm scale.
     public const float RADIUS = 1f / SCALE_FROM_NANOVR_TO_NM;
     public const float HELIX_GAP = 3f / SCALE_FROM_NANOVR_TO_NM;
     public const float RISE = .34f / SCALE_FROM_NANOVR_TO_NM;
@@ -61,8 +61,8 @@ public static class Utils
         }
 
         // Set sequence
-        strand.SetSequenceRevamp(sequence);
-        Debug.Log("Set sequence");
+        //strand.SetSequenceRevamp(sequence);
+        //Debug.Log("Set sequence");
 
         // Add to dict and strand list
         if (s_visualMode)

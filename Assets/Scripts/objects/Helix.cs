@@ -97,6 +97,11 @@ public class Helix
     public List<NucleotideData> NucleotideDataA { get { return nucleotideDataA; } }
     public List<NucleotideData> NucleotideDataB { get { return nucleotideDataB; } }
 
+    private bool isTransforming = false;
+    public bool IsTransforming { get { return isTransforming; } set { isTransforming = value; } }
+    private Matrix4x4 transformOffset = Matrix4x4.identity;
+    public Matrix4x4 TransformOffset { get { return transformOffset; } set { transformOffset = value; } }
+
     // Helix constructor.
     public Helix(int id, string orientation, int length, GridComponent gridComponent)
     {
@@ -244,8 +249,8 @@ public class Helix
 
             // Create TRS matrices for the nucleotides.
             // (You can add rotation/scale as needed; here we use identity rotation and uniform scale.)
-            Matrix4x4 matrixA = Matrix4x4.TRS(posA, Quaternion.identity, new Vector3(0.01f, 0.01f, 0.01f));
-            Matrix4x4 matrixB = Matrix4x4.TRS(posB, Quaternion.identity, new Vector3(0.01f, 0.01f, 0.01f));
+            Matrix4x4 matrixA = Matrix4x4.TRS(posA, Quaternion.identity, new Vector3(0.007f, 0.007f, 0.007f));
+            Matrix4x4 matrixB = Matrix4x4.TRS(posB, Quaternion.identity, new Vector3(0.007f, 0.007f, 0.007f));
             nucleotideMatricesA.Add(matrixA);
             nucleotideMatricesB.Add(matrixB);
 
@@ -309,7 +314,7 @@ public class Helix
         float length = direction.magnitude;
         // Compute rotation so that the cylinder’s Y axis aligns with the direction vector.
         Quaternion rotation = Quaternion.FromToRotation(Vector3.up, direction.normalized);
-        Vector3 scale = new Vector3(0.25f, length, 0.25f);
+        Vector3 scale = new Vector3(0.15f, length, 0.15f);
         return Matrix4x4.TRS(midpoint, rotation, scale);
     }
 

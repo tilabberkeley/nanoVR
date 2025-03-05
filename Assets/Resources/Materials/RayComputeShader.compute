@@ -1,0 +1,46 @@
+// RaycastComputeShader.compute
+
+#pragma kernel CSMain
+
+// Structure must match the one in C#
+struct NucleotidePickData
+{
+    float3 position;
+    float pickRadius;
+    int helixId; // Optional: for additional logic
+    int direction; // Optional: for additional logic
+};
+
+RWStructuredBuffer<NucleotidePickData> _NucleotideBuffer;
+RWStructuredBuffer<float> _IntersectionBuffer;
+
+float3 _RayOrigin;
+float3 _RayDir;
+int _NucleotideCount;
+
+[numthreads(256, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    uint index = id.x;
+    if (index >= _NucleotideCount)
+        return;
+        
+    NucleotidePickData nuc = _NucleotideBuffer[index];
+    
+    // Ray-sphere intersection test.
+    float3 oc = _RayOrigin - nuc.position;
+    float a = dot(_RayDir, _RayDir);
+    float b = 2.0 * dot(oc, _RayDir);
+    float c = dot(oc, oc) - nuc.pickRadius * nuc.pickRadius;
+    float discriminant = b * b - 4.0 * a * c;
+    float t = -1.0;
+    if (discriminant >= 0.0)
+    {
+        t = (-b - sqrt(discriminant)) / (2.0 * a);
+        if (t < 0.0)
+            t = -1.0;
+    }
+    
+    _IntersectionBuffer[index] = t;
+}
+

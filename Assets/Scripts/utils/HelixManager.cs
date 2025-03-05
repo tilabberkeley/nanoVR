@@ -19,14 +19,11 @@ public class HelixManager : MonoBehaviour
 
     private Matrix4x4[] _matrixBuffer = new Matrix4x4[BATCH_SIZE];
 
+    // Assume TransformHandle.Gizmos is the current gizmo GameObject.
+    private Matrix4x4 currentOffset;
+
     void Update()
     {
-        // Get the current parent offset from the gizmo.
-        // Assume TransformHandle.Gizmos is the current gizmo GameObject.
-        Matrix4x4 currentOffset = (TransformHandle.Gizmos != null)
-            ? TransformHandle.Gizmos.transform.localToWorldMatrix
-            : Matrix4x4.identity;
-
         // Iterate over each helix and draw its instances with the current offset.
         foreach (Helix helix in GlobalVariables.s_helixDict.Values)
         {
@@ -34,6 +31,18 @@ public class HelixManager : MonoBehaviour
             List<Color> nucleotideColorsB = helix.GetNucleotideColors(direction: 0);
             List<Color> backboneColorsA = helix.GetBackboneColors(direction: 1);
             List<Color> backboneColorsB = helix.GetBackboneColors(direction: 0);
+
+            Matrix4x4 gizmosMatrix = Matrix4x4.TRS(
+                                        TransformHandle.GizmosTransform.position,
+                                        TransformHandle.GizmosTransform.rotation,
+                                        Vector3.one);
+            Matrix4x4 delta = gizmosMatrix * TransformHandle.InitialGizmoMatrix.inverse;
+
+            currentOffset = helix.TransformOffset;
+            if (TransformHandle.Gizmos != null && helix.IsTransforming) {
+                currentOffset *= delta;
+                // helix.TransformOffset = currentOffset;
+            }
 
             // Apply the current gizmo transform as the offset.
             DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesA, nucleotideColorsA, currentOffset);

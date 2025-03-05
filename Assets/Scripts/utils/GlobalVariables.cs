@@ -138,7 +138,7 @@ public static class GlobalVariables
 
 
 
-    private static GameObject _cone = Resources.Load("Cone") as GameObject;
+    private static GameObject _cone = Resources.Load("HexCone") as GameObject;
     private static GameObject _xover = Resources.Load("Xover") as GameObject;
     private static GameObject _xoverSuggestion = Resources.Load("XoverSuggestion") as GameObject;
     private static GameObject _gridCircle = Resources.Load("GridCircle") as GameObject;

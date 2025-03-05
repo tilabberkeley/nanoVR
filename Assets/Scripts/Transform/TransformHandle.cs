@@ -3,6 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -15,8 +16,11 @@ public class TransformHandle : MonoBehaviour
 {
     [SerializeField] private XRNode _leftXRNode;
     [SerializeField] private XRNode _rightXRNode;
-    private static GameObject gizmos = null;
+    private static GameObject gizmos;
+    private static Transform gizmosTransform;
     public static GameObject Gizmos { get { return gizmos; } }
+    public static Transform GizmosTransform { get { return gizmosTransform; } }
+
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _leftDevice;
     private InputDevice _rightDevice;
@@ -32,10 +36,17 @@ public class TransformHandle : MonoBehaviour
 
     public static TransformHandle Instance;
 
-    /*private void Awake()
+    // These variables record the initial state when the transformation begins.
+    private static Matrix4x4 initialGizmoMatrix = Matrix4x4.identity;
+    public static Matrix4x4 InitialGizmoMatrix { get { return initialGizmoMatrix; } }
+
+    private void Awake()
     {
-        Instance = this;
-    }*/
+        //Instance = this;
+        gizmos = Instantiate(GlobalVariables.Gizmos);
+        gizmosTransform = gizmos.transform;
+        gizmos.SetActive(false);
+    }
 
     private void GetDevice()
     {
@@ -90,8 +101,8 @@ public class TransformHandle : MonoBehaviour
                 AttachChildren(translatedGrids);
             }
         }
-        
-        if ((leftTriggerValue || rightTriggerValue) && leftTriggerReleased && rightTriggerReleased && gizmos != null)
+
+        if ((leftTriggerValue || rightTriggerValue) && leftTriggerReleased && rightTriggerReleased && gizmos.activeSelf == true)
         {
             leftTriggerReleased = false;
             rightTriggerReleased = false;
@@ -128,29 +139,25 @@ public class TransformHandle : MonoBehaviour
     /// </summary>
     public static void ShowTransform(DNAGrid grid)
     {
-        if (gizmos == null)
-        {
-            gizmos = Instantiate(GlobalVariables.Gizmos);
-            Transform gizmosTransform = gizmos.transform;
-            int minXIndex = grid.GridXToIndex(grid.MinimumBound.X);
-            int minYIndex = grid.GridYToIndex(grid.MinimumBound.Y);
-            Transform transform = grid.Grid2D[minXIndex, minYIndex].transform;
-            Vector3 position = Camera.main.transform.position + Camera.main.transform.forward * 0.5f;
-            gizmosTransform.SetPositionAndRotation(position, transform.rotation);
-        }
+        gizmos.SetActive(true);
+        int minXIndex = grid.GridXToIndex(grid.MinimumBound.X);
+        int minYIndex = grid.GridYToIndex(grid.MinimumBound.Y);
+        Transform transform = grid.Grid2D[minXIndex, minYIndex].transform;
+        Vector3 position = Camera.main.transform.position + Camera.main.transform.forward * 0.5f;
+        gizmosTransform.SetPositionAndRotation(position, transform.rotation);
+
+        initialGizmoMatrix = Matrix4x4.TRS(
+                    gizmosTransform.position,
+                    gizmosTransform.rotation,
+                    Vector3.one);
     }
 
     /// <summary>
     /// Hides transform gizmo.
     /// </summary>
     private static void HideTransform()
-    {
-        if (gizmos != null)
-        {
-            gizmos.SetActive(false);
-            GameObject.Destroy(gizmos);
-        }
-        gizmos = null;
+    { 
+        gizmos.SetActive(false);
     }
 
     public static void AttachChildren(List<DNAGrid> grids)
@@ -165,10 +172,6 @@ public class TransformHandle : MonoBehaviour
     {
         //ShowTransform();
         //translatedGrids.Add(grid);
-        if (gizmos == null)
-        {
-            return;
-        }
 
         Transform gizmosTransform = gizmos.transform;
 
@@ -188,31 +191,43 @@ public class TransformHandle : MonoBehaviour
             {
                 grid.Grid2D[i, j].transform.SetParent(gizmosTransform, true);
                 grid.Grid2D[i, j].GetComponent<Collider>().enabled = false;
-                grid.Grid2D[i, j].Helix?.SetParent(gizmosTransform);
+                if (grid.Grid2D[i, j].Helix != null)
+                {
+                    grid.Grid2D[i, j].Helix.IsTransforming = true;
+                }
             }
         }
     }
 
     public static void DetachChildren()
-    {
-        if (gizmos != null)
+    {   
+        //Debug.Log("Num children: " + gizmos.transform.childCount);
+        //int n = gizmos.transform.childCount;
+
+        Matrix4x4 gizmosMatrix = Matrix4x4.TRS(
+                                    gizmosTransform.position,
+                                    gizmosTransform.rotation,
+                                    Vector3.one);
+        Matrix4x4 delta = gizmosMatrix * initialGizmoMatrix.inverse;
+        foreach (DNAGrid grid in translatedGrids)
         {
-            //Debug.Log("Num children: " + gizmos.transform.childCount);
-            //int n = gizmos.transform.childCount;
-            foreach (DNAGrid grid in translatedGrids)
+            for (int i = 0; i < grid.Length; i++)
             {
-                for (int i = 0; i < grid.Length; i++)
+                for (int j = 0; j < grid.Width; j++)
                 {
-                    for (int j = 0; j < grid.Width; j++)
+                    grid.Grid2D[i, j].transform.SetParent(null);
+                    grid.Grid2D[i, j].GetComponent<Collider>().enabled = true;
+                    if (grid.Grid2D[i, j].Helix != null)
                     {
-                        grid.Grid2D[i, j].transform.SetParent(null);
-                        grid.Grid2D[i, j].GetComponent<Collider>().enabled = true;
-                        grid.Grid2D[i, j].Helix?.SetParent(null);
+                        grid.Grid2D[i, j].Helix.IsTransforming = false;
+                        grid.Grid2D[i, j].Helix.TransformOffset *= delta;
                     }
                 }
             }
+
         }
         //translatedGrids.Clear();
+        initialGizmoMatrix = Matrix4x4.identity;
         HideTransform();
     }
 }
