@@ -20,7 +20,8 @@ public class HelixManager : MonoBehaviour
     private Matrix4x4[] _matrixBuffer = new Matrix4x4[BATCH_SIZE];
 
     // Assume TransformHandle.Gizmos is the current gizmo GameObject.
-    private Matrix4x4 currentOffset;
+    private Matrix4x4 _currentOffset;
+    public Matrix4x4 CurrentOffset { get => _currentOffset; }
 
     void Update()
     {
@@ -38,18 +39,18 @@ public class HelixManager : MonoBehaviour
                                         Vector3.one);
             Matrix4x4 delta = gizmosMatrix * TransformHandle.InitialGizmoMatrix.inverse;
 
-            currentOffset = helix.TransformOffset;
+            _currentOffset = helix.TransformOffset;
             if (TransformHandle.Gizmos != null && helix.IsTransforming) {
-                currentOffset *= delta;
+                _currentOffset *= delta;
                 // helix.TransformOffset = currentOffset;
             }
 
             // Apply the current gizmo transform as the offset.
-            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesA, nucleotideColorsA, currentOffset);
-            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesB, nucleotideColorsB, currentOffset);
+            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesA, nucleotideColorsA, _currentOffset);
+            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesB, nucleotideColorsB, _currentOffset);
 
-            DrawInstances(backboneMesh, material, helix.BackboneMatricesA, backboneColorsA, currentOffset);
-            DrawInstances(backboneMesh, material, helix.BackboneMatricesB, backboneColorsB, currentOffset);
+            DrawInstances(backboneMesh, material, helix.BackboneMatricesA, backboneColorsA, _currentOffset);
+            DrawInstances(backboneMesh, material, helix.BackboneMatricesB, backboneColorsB, _currentOffset);
         }
     }
 
