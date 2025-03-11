@@ -49,4 +49,25 @@ public class NucleotideData
     {   
         return GetMatrix().GetColumn(3);
     }
+
+    public Domain GetDomain()
+    {
+        if (strandId == -1 || domainIdx == -1)
+        {
+            return null;
+        }
+
+        Strand strand = GlobalVariables.s_strandDict[strandId];
+        return strand.GetDomain(domainIdx);
+    }
+
+    public Strand GetStrand()
+    {
+        if (strandId == -1)
+        {
+            return null;
+        }
+
+        return GlobalVariables.s_strandDict[strandId];
+    }
 }

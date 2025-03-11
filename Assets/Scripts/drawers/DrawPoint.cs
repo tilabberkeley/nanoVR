@@ -668,5 +668,31 @@ public static class DrawPoint
         cylinder.GetComponent<Renderer>().material.SetColor("_Color", color);
         return cylinder;
     }
+
+    public static HelixComponent MakeHelixCollider(Helix helix, Vector3 startPos, Vector3 endPos)
+    {
+        GameObject cylinder = Instantiate(HelixCollider,
+                   Vector3.zero,
+                   Quaternion.identity);
+        var helixComponent = cylinder.GetComponent<HelixComponent>();
+        helixComponent.Helix = helix;
+        Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
+
+        // Position
+        cylinder.transform.position = (startPos + endPos) / 2.0F;
+
+        // Rotation
+        Vector3 dirV = Vector3.Normalize(endPos - startPos);
+        Vector3 rotAxisV = dirV + cylDefaultOrientation;
+        rotAxisV = Vector3.Normalize(rotAxisV);
+        cylinder.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
+
+        // Scale        
+        float dist = Vector3.Distance(endPos, startPos);
+        cylinder.transform.localScale = new Vector3(Utils.RADIUS * 2, dist / 2, Utils.RADIUS * 2);
+
+        cylinder.transform.SetParent(helix._gridComponent.transform);
+        return helixComponent;
+    }
 }
 

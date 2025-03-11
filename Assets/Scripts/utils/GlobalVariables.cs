@@ -144,6 +144,8 @@ public static class GlobalVariables
     private static GameObject _gridCircle = Resources.Load("GridCircle") as GameObject;
     private static GameObject _gizmos = Resources.Load("Gizmo") as GameObject;
     private static GameObject _loopout = Resources.Load("Loopout") as GameObject;
+    private static GameObject _helixCollider = Resources.Load("HelixCollider") as GameObject;
+
 
     private static GameObject _domainInteractable = Resources.Load("Domains/DomainInteractable") as GameObject;
     private static GameObject _domainBezier = Resources.Load("Domains/DomainBezier") as GameObject;
@@ -159,6 +161,8 @@ public static class GlobalVariables
     public static GameObject DomainInteractable { get => _domainInteractable; }
     public static GameObject DomainBezier { get => _domainBezier; }
     public static GameObject BezierEndpoint { get => _bezierEndpoint; }
+
+    public static GameObject HelixCollider { get => _helixCollider; }
 
     // Protein Atom
     private static GameObject _atom = Resources.Load("Atom") as GameObject;

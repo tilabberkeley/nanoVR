@@ -19,6 +19,8 @@ public static class Utils
     public const float RISE = .34f / SCALE_FROM_NANOVR_TO_NM;
     public const float NUM_BASE_PAIRS = 10.5f;
     public const float CROSSOVER_LENGTH = 7 * .34f / SCALE_FROM_NANOVR_TO_NM; // Ideal xover length of 7 base pairs??
+    public const float NUCL_RAD = 0.008f; // Radius of nucleotide sphere
+
 
     public const float ATOM_SCALE = 10f;
 
@@ -55,7 +57,7 @@ public static class Utils
             }
             else
             {
-                DrawCrossover.CreateXoverHelper(domains[i - 1], domains[i], strandId);
+                DrawCrossover.CreateXoverHelper(domains[i - 1], domains[i], strandId, color, savedColor: color);
                 Debug.Log("Created xover");
             }
         }

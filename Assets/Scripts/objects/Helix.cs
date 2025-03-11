@@ -16,7 +16,6 @@ using Debug = UnityEngine.Debug;
 public class Helix
 {
     private const float ADJUSTMENT = 0.05f; // Accounts for Icosphere prefab's weird positioning 
-    private const float NUCL_RAD = 0.008f; // Radius of nucleotide sphere
 
     // Helix id.
     private int _id;
@@ -103,6 +102,9 @@ public class Helix
     public bool IsTransforming { get { return isTransforming; } set { isTransforming = value; } }
     private Matrix4x4 transformOffset = Matrix4x4.identity;
     public Matrix4x4 TransformOffset { get { return transformOffset; } set { transformOffset = value; } }
+
+    private HelixComponent helixCollider;
+    public HelixComponent HelixCollider { get { return helixCollider; } }
 
     // Helix constructor.
     public Helix(int id, string orientation, int length, GridComponent gridComponent)
@@ -275,6 +277,8 @@ public class Helix
                 backboneMatricesB.Add(backboneMatrixB);
             }
         }
+
+        CreateCollider();
     }
 
 
@@ -802,6 +806,17 @@ public class Helix
             ColorUtility.TryParseHtmlString("#7FA1C3", out color);
         }
         _helixViewCylinders.Add(DrawPoint.MakeHelixCylinder(this, startPos, endPos, color));
+    }
+
+    private void CreateCollider()
+    {
+        if (helixCollider != null)
+        {
+            GameObject.Destroy(helixCollider);
+        }
+        Vector3 startPos = _gridComponent.transform.position;
+        Vector3 endPos = _gridComponent.transform.position + (nucleotideMatricesA.Count * RISE * -_gridComponent.transform.forward);
+        helixCollider = DrawPoint.MakeHelixCollider(this, startPos, endPos);
     }
 
     /// <summary>

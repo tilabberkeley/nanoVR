@@ -179,6 +179,12 @@ public class SelectStrand : MonoBehaviour
         strand.RemoveStrand();
     }
 
+    public static void RemoveStrand(int strandId)
+    {
+        ObjectListManager.DeleteStrandButton(strandId);
+        s_strandDict.Remove(strandId);
+    }
+
     /*
     public static void DeleteStrandFromHelix(GameObject go)
     {

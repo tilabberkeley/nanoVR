@@ -10,7 +10,28 @@ using static GlobalVariables;
 using static Utils;
 
 /// <summary>
-/// Handles crossovers and necessary strand operations.
+/// Virtual representation of a nucleotide for ray-intersection selection.
+/// </summary>
+public struct VirtualNucleotide
+{
+    public Helix helix;  // Reference to the helix this nucleotide belongs to.
+    public int index;    // Index within the helix’s nucleotide list.
+    public int direction; // Direction of nucleotide (in helix list A or list B).
+
+    /// <summary>
+    /// Returns the world position of this nucleotide by extracting the translation
+    /// component from its instance matrix. (Assumes strand A; modify if needed.)
+    /// </summary>
+    public Vector3 GetWorldPosition()
+    {
+        if (direction == 1)
+            return helix.NucleotideMatricesA[index].GetColumn(3);
+        return helix.NucleotideMatricesB[index].GetColumn(3);
+    }
+}
+
+/// <summary>
+/// Handles crossovers and necessary strand operations using the new ray-mesh intersection code.
 /// </summary>
 public class DrawCrossover : MonoBehaviour
 {
@@ -19,10 +40,16 @@ public class DrawCrossover : MonoBehaviour
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rightRayInteractor;
     private bool triggerReleased = true;
-    private static GameObject s_startGO = null;
-    private static GameObject s_endGO = null;
-    private static GameObject s_hitGO;
+
+    // Instead of storing nucleotide GameObjects, we now store virtual nucleotides.
+    private static NucleotideData s_startNuc = null;
+    private static NucleotideData s_endNuc = null;
+    // The helix collider GameObject that was hit.
+    private static GameObject s_hitHelixGO;
     private static GameObject tempXover = null;
+
+    // Radius for the ray-sphere test on nucleotides.
+    [SerializeField] private float nucleotidePickRadius = 0.1f;
 
     private void GetDevice()
     {
@@ -43,10 +70,8 @@ public class DrawCrossover : MonoBehaviour
 
     private void Awake()
     {
-        tempXover =
-                   Instantiate(Xover,
-                   Vector3.zero,
-                   Quaternion.identity) as GameObject;
+        // Create the temporary crossover visualization object.
+        tempXover = Instantiate(Xover, Vector3.zero, Quaternion.identity) as GameObject;
         tempXover.name = "xover";
         tempXover.SetActive(false);
     }
@@ -63,41 +88,53 @@ public class DrawCrossover : MonoBehaviour
             GetDevice();
         }
 
-        // SELECT CROSSOVER NUCLEOTIDE
+        // Get trigger state.
         _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
-        if (triggerValue && triggerReleased
-            && rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit s_hit))
+
+        // Use the XR ray interactor to get a hit.
+        if (triggerValue && triggerReleased && rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit hit))
         {
             triggerReleased = false;
-            s_hitGO = s_hit.collider.gameObject;
-            if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
+            s_hitHelixGO = hit.collider.gameObject;
+
+            // Instead of checking for a NucleotideComponent, check for a HelixComponent.
+            HelixComponent helixComp = s_hitHelixGO.GetComponent<HelixComponent>();
+            if (helixComp != null)
             {
-                if (s_startGO == null)
+                Debug.Log("Hit helix");
+                Helix helix = helixComp.Helix; // The helix data object.
+                                                // Use our new ray-mesh intersection to narrow down the nucleotide.
+                NucleotideData nd = FindHitNucleotide(helix, rightRayInteractor);
+                if (nd != null)
                 {
-                    s_startGO = s_hit.collider.gameObject;
-                    //Highlight(s_startGO);
+                    Debug.Log("Hit nucleotide");
+                    // If no start nucleotide has been selected, set it.
+                    if (s_startNuc == null)
+                    {
+                        s_startNuc = nd;
+                    }
+                    else
+                    {
+                        // Otherwise, set the end nucleotide.
+                        s_endNuc = nd;
+                        if (s_drawTogOn)
+                        {
+                            CreateXover(s_startNuc, s_endNuc);
+                            ResetNucleotides();
+                        }
+                    }
                 }
                 else
                 {
-                    s_endGO = s_hit.collider.gameObject;
-                    //Unhighlight(s_startGO);
-
-                    if (s_drawTogOn)
-                    {
-                        DoCreateXover(s_startGO, s_endGO);
-                        ResetNucleotides();
-                    }
+                    ResetNucleotides();
                 }
             }
-
-            // Also have to make sure this isn't a loopout, otherwise erase xover cammand will
-            // be added to stack when erasing a loopout because of the inheritance.
-            else if (s_hit.collider.GetComponent<XoverComponent>() != null
-                && s_hit.collider.GetComponent<LoopoutComponent>() == null
+            else if (hit.collider.GetComponent<XoverComponent>() != null
+                && hit.collider.GetComponent<LoopoutComponent>() == null
                 && s_eraseTogOn)
             {
-                //Highlight(s_hit.collider.gameObject);
-                DoEraseXover(s_hit.collider.gameObject);        
+                // If the hit is on an existing crossover (and not a loopout), erase it.
+                DoEraseXover(hit.collider.gameObject);
             }
             else
             {
@@ -105,61 +142,132 @@ public class DrawCrossover : MonoBehaviour
             }
         }
 
-        if (!triggerReleased && !triggerValue && rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit hit))
+        // While trigger is held, update the temporary xover visualization.
+        if (!triggerReleased && !triggerValue && rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit hit2))
         {
-            if (hit.collider.gameObject == s_startGO)
+            if (s_startNuc != null)
             {
+                Vector3 startPos = s_startNuc.GetPosition();
+                // Use the hit point or recalc from helix data.
+                Vector3 currentPos = hit2.point;
                 tempXover.SetActive(true);
+                UpdateXover(startPos, currentPos);
             }
         }
 
-        if (s_startGO != null)
-        {
-            UpdateXover(s_hitGO.transform.position, rightRayInteractor.transform.position + rightRayInteractor.transform.forward);
-        }
-
-        // Resets triggers do avoid multiple selections.                                              
         if (!triggerValue)
         {
             triggerReleased = true;
-            //s_hitGO = null;
         }
 
-        // Resets start and end nucleotide.
-        if (triggerValue && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        if (triggerValue && !rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit _))
         {
             triggerReleased = false;
             ResetNucleotides();
         }
     }
 
-    private void UpdateXover(Vector3 start, Vector3 end)
+    /// <summary>
+    /// Iterates through the helix's nucleotide matrices to determine which nucleotide is hit.
+    /// Returns the index of the best hit nucleotide, or -1 if none.
+    /// </summary>
+    private NucleotideData FindHitNucleotide(Helix helix, XRRayInteractor rayInteractor)
     {
-        Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
+        Ray ray = new Ray(rayInteractor.transform.position, rayInteractor.transform.forward);
+        RaycastHit[] hits = Physics.RaycastAll(ray);
+        System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
 
-        // Position
-        tempXover.transform.position = (start + end) / 2.0F;
 
-        // Rotation
-        Vector3 dirV = Vector3.Normalize(start - end);
-        Vector3 rotAxisV = dirV + cylDefaultOrientation;
-        rotAxisV = Vector3.Normalize(rotAxisV);
-        tempXover.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
+        float bestT = float.MaxValue;
+        NucleotideData nd = null;
 
-        // Scale        
-        float dist = Vector3.Distance(start, end);
-        tempXover.transform.localScale = new Vector3(0.005f, dist / 2, 0.005f);
+        foreach (var hit in hits)
+        {
+            float hypotenuse = Vector3.Distance(hit.point, helix._gridComponent.transform.position);
+            float distance = Mathf.Sqrt(hypotenuse * hypotenuse - RADIUS * RADIUS);
+            int index = Mathf.RoundToInt(distance / RISE);
+
+            Matrix4x4 nuclA = helix.GetNucleotideMesh(index, 1);
+            Matrix4x4 nuclB = helix.GetNucleotideMesh(index, 0);
+
+            float distA = Vector3.Distance(nuclA.GetColumn(3), hit.point);
+            float distB = Vector3.Distance(nuclB.GetColumn(3), hit.point);
+
+            if (distA < NUCL_RAD)
+            {
+                bestT = distA;
+                nd = helix.GetNucleotideData(index, 1);
+            }
+
+            if (distB < NUCL_RAD && distB < distA)
+            {
+                bestT = distB;
+                nd = helix.GetNucleotideData(index, 0);
+            }
+
+            if (nd != null)
+            {
+                XRInteractorLineVisual lineVisual = rightRayInteractor.GetComponent<XRInteractorLineVisual>();
+                lineVisual.lineLength = bestT;
+                break;
+            }
+        }
+
+        return nd;
     }
 
     /// <summary>
-    /// Resets the start and end nucleotides.
+    /// Performs a ray-sphere intersection test. Returns true if an intersection occurs and outputs the distance.
     /// </summary>
-    public static void ResetNucleotides()
+    private bool RaySphereIntersection(Ray ray, Vector3 center, float radius, out float t)
     {
-        //Unhighlight(s_startGO);
-        s_startGO = null;
-        s_endGO = null;
+        Vector3 oc = ray.origin - center;
+        float a = Vector3.Dot(ray.direction, ray.direction);
+        float b = 2.0f * Vector3.Dot(oc, ray.direction);
+        float c = Vector3.Dot(oc, oc) - radius * radius;
+        float discriminant = b * b - 4.0f * a * c;
+        if (discriminant < 0)
+        {
+            t = -1;
+            return false;
+        }
+        else
+        {
+            t = (-b - Mathf.Sqrt(discriminant)) / (2.0f * a);
+            return t >= 0;
+        }
+    }
+
+    /// <summary>
+    /// Updates the temporary crossover object's position, rotation, and scale.
+    /// </summary>
+    private void UpdateXover(Vector3 start, Vector3 end)
+    {
+        Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
+        tempXover.transform.position = (start + end) / 2.0f;
+        Vector3 dirV = Vector3.Normalize(start - end);
+        Vector3 rotAxisV = Vector3.Normalize(dirV + cylDefaultOrientation);
+        tempXover.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
+        float dist = Vector3.Distance(start, end);
+        tempXover.transform.localScale = new Vector3(0.005f, dist / 2.0f, 0.005f);
+    }
+
+    /// <summary>
+    /// Resets the virtual nucleotide selections and hides the temporary crossover visualization.
+    /// </summary>
+    private static void ResetNucleotides()
+    {
+        s_startNuc = null;
+        s_endNuc = null;
         tempXover.SetActive(false);
+    }
+
+    private static (NucleotideData, NucleotideData) GetNucleotideData(VirtualNucleotide vn1, VirtualNucleotide vn2)
+    {
+        NucleotideData nd1 = vn1.helix.GetNucleotideData(vn1.index, vn1.direction);
+        NucleotideData nd2 = vn2.helix.GetNucleotideData(vn2.index, vn2.direction);
+
+        return (nd1, nd2);
     }
 
     /// <summary>
@@ -276,7 +384,65 @@ public class DrawCrossover : MonoBehaviour
         return xover;
     }
 
-    public static void CreateXoverHelper(Domain prevDomain, Domain nextDomain, int strandId, int prevStrandId = -1, bool showXover = true)
+    private static bool IsValid(NucleotideData nd1, NucleotideData nd2)
+    {
+        if (nd1.StrandId == -1 || nd2.StrandId == -1)
+        {
+            return false;
+        }
+
+        if (nd1.Xover != null || nd2.Xover != null)
+        {
+            return false;
+        }
+
+        Domain d1 = nd1.GetDomain();
+        Domain d2 = nd2.GetDomain();
+
+        if (nd1.Id != d1.StartId && nd1.Id != d1.EndId || nd2.Id != d2.StartId && nd2.Id != d2.EndId)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static void CreateXover(NucleotideData nd1, NucleotideData nd2)
+    {
+        Debug.Log("create xover start");
+        if (!IsValid(nd1, nd2))
+        {
+            return;
+        }
+
+        Debug.Log("Can draw xover");
+
+        //DrawSplit.SplitStrand(startGO, s_numStrands, Strand.GetDifferentColor(firstNtc.Color), false);
+        //DrawSplit.SplitStrand(endGO, s_numStrands, Strand.GetDifferentColor(secondNtc.Color), true);
+
+        CalcPrevNextDomains(nd1, nd2, out Domain prevDomain, out Domain nextDomain);
+        XoverComponent xover = CreateXoverHelper(prevDomain, nextDomain, nd1.StrandId, nd1.Color, nd2.Color, nd2.StrandId);
+
+        // Create circular strand
+        //if (firstNtc.StrandId == secondNtc.StrandId)
+        //{
+        //    HandleCycle(startGO);
+        //}
+        //else
+        {
+            MergeStrand(nd1, nd2);
+        }
+    }
+
+    /// <summary>
+    /// Creates xover GameObject between two domains and sets the necessary properties.
+    /// </summary>
+    /// <param name="prevDomain">Domain that comes before xover in strand order.</param>
+    /// <param name="nextDomain">Domain that comse after xover in strand order.</param>
+    /// <param name="strandId"></param>
+    /// <param name="prevStrandId"></param>
+    /// <param name="showXover"></param>
+    public static XoverComponent CreateXoverHelper(Domain prevDomain, Domain nextDomain, int strandId, Color color, Color savedColor, int prevStrandId = -1, bool showXover = true)
     {
         // Create crossover, assign appropiate prev and next properties.
         GameObject xover = DrawPoint.MakeXover(prevDomain, nextDomain);
@@ -289,11 +455,29 @@ public class DrawCrossover : MonoBehaviour
         prevDomain.NextXover = xoverComponent;
         nextDomain.PrevXover = xoverComponent;
 
-        xoverComponent.Color = prevDomain.Color;
-        xoverComponent.SavedColor = nextDomain.Color;
+        xoverComponent.Color = color;
+        xoverComponent.SavedColor = savedColor;
 
         xoverComponent.gameObject.transform.SetParent(prevDomain.GetHelix()._gridComponent.transform); // This helps with transformations
         xover.SetActive(showXover);
+        return xoverComponent;
+    }
+
+    private static void CalcPrevNextDomains(NucleotideData nd1, NucleotideData nd2, out Domain prevDomain, out Domain nextDomain)
+    {
+        Domain d1 = nd1.GetDomain();
+        Domain d2 = nd2.GetDomain();
+
+        if (d1.GetHeadData() == nd1 && d2.GetTailData() == nd2)
+        {
+            prevDomain = d2;
+            nextDomain = d1;
+        }
+        else
+        {
+            prevDomain = d1;
+            nextDomain = d2;
+        }       
     }
 
     /// <summary>
@@ -402,6 +586,27 @@ public class DrawCrossover : MonoBehaviour
             firstStrand.AddToTail(nucleotides);
         }
         firstStrand.SetComponents();
+    }
+
+    public static void MergeStrand(NucleotideData nd1, NucleotideData nd2)
+    {
+        Strand s1 = nd1.GetStrand();
+        Strand s2 = nd2.GetStrand();
+        Domain d1 = nd1.GetDomain();
+        Domain d2 = nd2.GetDomain();
+
+        if (d1.GetHeadData() == nd1 && d2.GetTailData() == nd2)
+        {
+            s1.AddToHead(s2.Domains);
+            SelectStrand.RemoveStrand(nd2.StrandId);
+            s1.SetDomainsRevamp();
+        }
+        else if (d1.GetTailData() == nd1 && d2.GetHeadData() == nd2)
+        {
+            s1.AddToTail(s2.Domains);
+            SelectStrand.RemoveStrand(nd2.StrandId);
+            s1.SetDomainsRevamp();
+        }
     }
 
     private static void HandleCycle(GameObject go)
