@@ -14,7 +14,7 @@ public class HelixManager : MonoBehaviour
     public Mesh gcMesh;                   // Mesh for GridCircles
 
     // List of Helix instances (could be plain classes or MonoBehaviours)
-    public List<Helix> helixInstances = new List<Helix>();
+    // public List<Helix> helixInstances = new List<Helix>();
     const int BATCH_SIZE = 1023;
 
     private Matrix4x4[] _matrixBuffer = new Matrix4x4[BATCH_SIZE];

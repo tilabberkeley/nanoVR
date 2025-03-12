@@ -35,7 +35,7 @@ public class NucleotideColliderPoolManager : MonoBehaviour
         _poolIndex = 0;
 
         // Go through each Helix
-        foreach (Helix helix in helixManager.helixInstances)
+        foreach (Helix helix in GlobalVariables.s_helixDict.Values)
         {
             AssignCollidersToHelix(helix, helix.NucleotideMatricesA, 1);
             AssignCollidersToHelix(helix, helix.NucleotideMatricesB, 0);
@@ -75,7 +75,7 @@ public class NucleotideColliderPoolManager : MonoBehaviour
                     colObj.transform.position = position;
 
                     // Setup references so we know which helix/instance
-                    nc.Setup(helix, i, /* direction= */ 1);
+                    nc.Setup(helix, i, direciton);
 
                     _poolIndex++;
                 }
