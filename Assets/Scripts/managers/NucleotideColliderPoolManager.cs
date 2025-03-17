@@ -37,8 +37,11 @@ public class NucleotideColliderPoolManager : MonoBehaviour
         // Go through each Helix
         foreach (Helix helix in GlobalVariables.s_helixDict.Values)
         {
-            AssignCollidersToHelix(helix, helix.NucleotideMatricesA, 1);
-            AssignCollidersToHelix(helix, helix.NucleotideMatricesB, 0);
+            if (helix.BoundingBox.IntersectsSphere(player.position, interactionRadius))
+            {
+                AssignCollidersToHelix(helix, helix.NucleotideMatricesA, 1);
+                AssignCollidersToHelix(helix, helix.NucleotideMatricesB, 0);
+            }
         }
 
         // Deactivate any leftover colliders that we didn't use this frame
@@ -51,6 +54,9 @@ public class NucleotideColliderPoolManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Assigns colliders to the given helix's nucleotides if they are in range of the player.
+    /// </summary>
     private void AssignCollidersToHelix(Helix helix, List<Matrix4x4> matrices, int direciton)
     {
         for (int i = 0; i < matrices.Count; i++)
@@ -82,7 +88,7 @@ public class NucleotideColliderPoolManager : MonoBehaviour
                 else
                 {
                     // Pool is exhausted. You could skip or dynamically expand
-                    Debug.Log("Ran out of colliders in the pool!");
+                    // Debug.Log("Ran out of colliders in the pool!");
                 }
             }
         }

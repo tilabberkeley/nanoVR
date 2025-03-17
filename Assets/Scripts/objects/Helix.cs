@@ -25,7 +25,7 @@ public class Helix
     public string GridId { get { return _gridComponent.GridId; } }
 
     //private Vector3 _startPoint;
-    public Vector3 StartPoint { get { return _gridComponent.Position ; } }
+    public Vector3 StartPoint { get { return _gridComponent.Position; } }
 
     private Vector3 _endPoint;
     public Vector3 EndPoint { get { return _endPoint; } set { _endPoint = value; } }
@@ -40,7 +40,7 @@ public class Helix
     // Grid Component that helix is on.
     // TODO: make all public references to _gridComponent use the property instead.
     public GridComponent _gridComponent;
-    public GridComponent GridComponent { get { return _gridComponent; } } 
+    public GridComponent GridComponent { get { return _gridComponent; } }
 
     // Mesh Combiner component of GridComponent.
     //private MeshCombiner _meshCombiner;
@@ -89,6 +89,10 @@ public class Helix
     public List<Matrix4x4> NucleotideMatricesB { get { return nucleotideMatricesB; } }
     public List<Matrix4x4> BackboneMatricesA { get { return backboneMatricesA; } }
     public List<Matrix4x4> BackboneMatricesB { get { return backboneMatricesB; } }
+
+    // List of bounding boxes for this helix
+    private HelixBoundingBox _boundingBox = new HelixBoundingBox();
+    public HelixBoundingBox BoundingBox { get { return _boundingBox; } }
 
     // Also store nucleotide positions so we can compute backbone matrices.
     private List<Vector3> nucleotidePositionsA = new List<Vector3>();
@@ -245,6 +249,10 @@ public class Helix
             // Calculate the positions for the two nucleotides at index i.
             CalculateNextNucleotidePositions(i, out Vector3 posA, out Vector3 posB);
 
+            // Update the bounding box for this helix.
+            _boundingBox.Extend(posA);
+            _boundingBox.Extend(posB);
+
             // Save positions (for backbone computations)
             nucleotidePositionsA.Add(posA);
             nucleotidePositionsB.Add(posB);
@@ -314,7 +322,7 @@ public class Helix
         Vector3 midpoint = (start + end) * 0.5f;
         Vector3 direction = end - start;
         float length = direction.magnitude;
-        // Compute rotation so that the cylinder’s Y axis aligns with the direction vector.
+        // Compute rotation so that the cylinderï¿½s Y axis aligns with the direction vector.
         Quaternion rotation = Quaternion.FromToRotation(Vector3.up, direction.normalized);
         Vector3 scale = new Vector3(0.2f, length, 0.2f);
         return Matrix4x4.TRS(midpoint, rotation, scale);
