@@ -139,6 +139,7 @@ public class TransformHandle : MonoBehaviour
     /// </summary>
     public static void ShowTransform(DNAGrid grid)
     {
+        Debug.Log("Show transform");
         gizmos.SetActive(true);
         int minXIndex = grid.GridXToIndex(grid.MinimumBound.X);
         int minYIndex = grid.GridYToIndex(grid.MinimumBound.Y);
@@ -156,7 +157,8 @@ public class TransformHandle : MonoBehaviour
     /// Hides transform gizmo.
     /// </summary>
     private static void HideTransform()
-    { 
+    {
+        Debug.Log("Hide transform");
         gizmos.SetActive(false);
     }
 
@@ -170,21 +172,6 @@ public class TransformHandle : MonoBehaviour
 
     private static void AttachChildren(DNAGrid grid)
     {
-        //ShowTransform();
-        //translatedGrids.Add(grid);
-
-        Transform gizmosTransform = gizmos.transform;
-
-        // Position gizmos correctly
-        /*if (translatedGrids.Count == 1)
-        {
-            int minXIndex = grid.GridXToIndex(grid.MinimumBound.X);
-            int minYIndex = grid.GridYToIndex(grid.MinimumBound.Y);
-            Transform transform = grid.Grid2D[minXIndex, minYIndex].transform;
-            gizmosTransform.SetPositionAndRotation(transform.position - 0.2f * transform.forward, transform.rotation);
-        }*/
-        
-
         for (int i = 0; i < grid.Length; i++)
         {
             for (int j = 0; j < grid.Width; j++)
@@ -220,7 +207,7 @@ public class TransformHandle : MonoBehaviour
                     if (grid.Grid2D[i, j].Helix != null)
                     {
                         grid.Grid2D[i, j].Helix.IsTransforming = false;
-                        grid.Grid2D[i, j].Helix.TransformOffset *= delta;
+                        grid.Grid2D[i, j].Helix.TransformOffset = delta * grid.Grid2D[i, j].Helix.TransformOffset;
                     }
                 }
             }

@@ -39,9 +39,10 @@ public class HelixManager : MonoBehaviour
             Matrix4x4 delta = gizmosMatrix * TransformHandle.InitialGizmoMatrix.inverse;
 
             currentOffset = helix.TransformOffset;
-            if (TransformHandle.Gizmos != null && helix.IsTransforming) {
-                currentOffset *= delta;
-                // helix.TransformOffset = currentOffset;
+            if (helix.IsTransforming) {
+                currentOffset = delta * currentOffset;
+
+                //helix.TransformOffset = currentOffset;
             }
 
             // Apply the current gizmo transform as the offset.

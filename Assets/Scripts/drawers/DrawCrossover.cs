@@ -142,14 +142,15 @@ public class DrawCrossover : MonoBehaviour
             }
         }
 
-        // While trigger is held, update the temporary xover visualization.
-        if (!triggerReleased && !triggerValue && rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit hit2))
+        // While trigger is released, update the temporary xover visualization.
+        if (triggerReleased && !triggerValue)
         {
             if (s_startNuc != null)
             {
+                Debug.Log("drawing temp xover");
                 Vector3 startPos = s_startNuc.GetPosition();
                 // Use the hit point or recalc from helix data.
-                Vector3 currentPos = hit2.point;
+                Vector3 currentPos = rightRayInteractor.transform.forward;
                 tempXover.SetActive(true);
                 UpdateXover(startPos, currentPos);
             }
@@ -174,7 +175,7 @@ public class DrawCrossover : MonoBehaviour
     private NucleotideData FindHitNucleotide(Helix helix, XRRayInteractor rayInteractor)
     {
         Ray ray = new Ray(rayInteractor.transform.position, rayInteractor.transform.forward);
-        RaycastHit[] hits = Physics.RaycastAll(ray);
+        RaycastHit[] hits = Physics.RaycastAll(ray, maxDistance: 1f, rightRayInteractor.raycastMask, QueryTriggerInteraction.Collide);
         System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
 
 

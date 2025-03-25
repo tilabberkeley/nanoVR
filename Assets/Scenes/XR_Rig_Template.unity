@@ -24969,7 +24969,7 @@ PrefabInstance:
       objectReference: {fileID: 808933016}
     - target: {fileID: 2333582758016648230, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2333582758016648230, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _customTog
@@ -25072,9 +25072,25 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2333582758016648252, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: m_HitClosestOnly
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2333582758016648252, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: m_InteractionManager
       value: 
       objectReference: {fileID: 620506917}
+    - target: {fileID: 2333582758016648254, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: m_StopLineAtSelection
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2333582758016648254, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: m_StopLineAtFirstRaycastHit
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2333582758016648254, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: m_OverrideInteractorLineLength
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2333582758512940809, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _menu
       value: 
@@ -25169,7 +25185,7 @@ PrefabInstance:
       objectReference: {fileID: 808933016}
     - target: {fileID: 2333582758512940828, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2333582758512940828, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _customTog
@@ -25264,9 +25280,25 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2333582758512940836, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: m_HitClosestOnly
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2333582758512940836, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: m_InteractionManager
       value: 
       objectReference: {fileID: 620506917}
+    - target: {fileID: 2333582758512940837, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: m_StopLineAtSelection
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2333582758512940837, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: m_StopLineAtFirstRaycastHit
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2333582758512940837, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: m_OverrideInteractorLineLength
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2333582759794358065, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: back63Pool.Array.data[0]
       value: 

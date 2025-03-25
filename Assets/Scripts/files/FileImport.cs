@@ -451,8 +451,8 @@ public class FileImport : MonoBehaviour
             if (isCircular)
             {
                 strand.IsCircular = true;
-                strand.ShowHideCone(false);
-                Debug.Log("Show Hide cone");
+                // strand.ShowHideCone(false);
+                // Debug.Log("Show Hide cone");
             }
          
 
@@ -570,7 +570,7 @@ public class FileImport : MonoBehaviour
             }
 
             strand.SetSequenceRevamp(sequence);
-            Debug.Log("Set sequence");
+            //Debug.Log("Set sequence");
             // Utils.CheckMismatch(strand);
 
             yield return null;

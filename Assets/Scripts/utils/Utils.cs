@@ -13,7 +13,7 @@ using static GlobalVariables;
 public static class Utils
 {
     // CONSTANTS
-    public const float SCALE_FROM_NANOVR_TO_NM = 25f; // Multiply nanovr coordinate to get to nm scale.
+    public const float SCALE_FROM_NANOVR_TO_NM = 22f; // Multiply nanovr coordinate to get to nm scale.
     public const float RADIUS = 1f / SCALE_FROM_NANOVR_TO_NM;
     public const float HELIX_GAP = 3f / SCALE_FROM_NANOVR_TO_NM;
     public const float RISE = .34f / SCALE_FROM_NANOVR_TO_NM;
@@ -40,10 +40,10 @@ public static class Utils
     public static Strand CreateStrand(List<Domain> domains, int strandId, Color color, string sequence, bool isScaffold, Dictionary<int, int> loopouts, bool isOxview = false)
     {
         Strand strand = new Strand(domains, strandId, color, sequence, isScaffold, isOxview);
-        Debug.Log("Created strand");
+        //Debug.Log("Created strand");
         // Set strand domains
         strand.SetDomainsRevamp();
-        Debug.Log("Set domains");
+        //Debug.Log("Set domains");
 
         // Set cone
         //strand.SetConeRevamp();
@@ -54,11 +54,11 @@ public static class Utils
             if (loopouts.ContainsKey(i - 1))
             {
                 DrawLoopout.CreateLoopoutHelper(domains[i - 1], domains[i], loopouts[i], strandId);
+                Debug.Log("Created loopout");
             }
             else
             {
-                DrawCrossover.CreateXoverHelper(domains[i - 1], domains[i], strandId, color, savedColor: color);
-                Debug.Log("Created xover");
+                // DrawCrossover.CreateXoverHelper(domains[i - 1], domains[i], strandId, color, savedColor: color);
             }
         }
 
