@@ -14,13 +14,13 @@ public class HelixManager : MonoBehaviour
     public Mesh gcMesh;                   // Mesh for GridCircles
 
     // List of Helix instances (could be plain classes or MonoBehaviours)
-    public List<Helix> helixInstances = new List<Helix>();
+    // public List<Helix> helixInstances = new List<Helix>();
     const int BATCH_SIZE = 1023;
 
     private Matrix4x4[] _matrixBuffer = new Matrix4x4[BATCH_SIZE];
 
     // Assume TransformHandle.Gizmos is the current gizmo GameObject.
-    private Matrix4x4 currentOffset;
+    private Matrix4x4 _currentOffset;
 
     void Update()
     {
@@ -38,19 +38,20 @@ public class HelixManager : MonoBehaviour
                                         Vector3.one);
             Matrix4x4 delta = gizmosMatrix * TransformHandle.InitialGizmoMatrix.inverse;
 
-            currentOffset = helix.TransformOffset;
+            _currentOffset = helix.TransformOffset;
             if (helix.IsTransforming) {
-                currentOffset = delta * currentOffset;
+                _currentOffset = delta * _currentOffset;
 
                 //helix.TransformOffset = currentOffset;
+
             }
 
             // Apply the current gizmo transform as the offset.
-            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesA, nucleotideColorsA, currentOffset);
-            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesB, nucleotideColorsB, currentOffset);
+            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesA, nucleotideColorsA, _currentOffset);
+            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesB, nucleotideColorsB, _currentOffset);
 
-            DrawInstances(backboneMesh, material, helix.BackboneMatricesA, backboneColorsA, currentOffset);
-            DrawInstances(backboneMesh, material, helix.BackboneMatricesB, backboneColorsB, currentOffset);
+            DrawInstances(backboneMesh, material, helix.BackboneMatricesA, backboneColorsA, _currentOffset);
+            DrawInstances(backboneMesh, material, helix.BackboneMatricesB, backboneColorsB, _currentOffset);
         }
     }
 
