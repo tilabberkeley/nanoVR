@@ -21,6 +21,7 @@ public class HelixManager : MonoBehaviour
 
     // Assume TransformHandle.Gizmos is the current gizmo GameObject.
     private Matrix4x4 _currentOffset;
+    public Matrix4x4 CurrentOffset { get => _currentOffset; }
 
     void Update()
     {

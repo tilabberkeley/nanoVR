@@ -241,11 +241,11 @@ public class FileExport : MonoBehaviour
                 {
                     domainObject = new JObject
                     {
-                        ["extension_num_bases"] = domain.EndId - domain.StartId + 1,
+                        ["extension_num_bases"] = domain.GetLength(),
                     };
                 }
                     
-                domains.Add(domain);  
+                domains.Add(domainObject);  
                 
 
                 // Adds loopout objects

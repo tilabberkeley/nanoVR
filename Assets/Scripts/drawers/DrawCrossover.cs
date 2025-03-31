@@ -91,31 +91,25 @@ public class DrawCrossover : MonoBehaviour
         // Get trigger state.
         _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
 
-        // Use the XR ray interactor to get a hit.
         if (triggerValue && triggerReleased && rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit hit))
         {
             triggerReleased = false;
             s_hitHelixGO = hit.collider.gameObject;
 
-            // Instead of checking for a NucleotideComponent, check for a HelixComponent.
-            HelixComponent helixComp = s_hitHelixGO.GetComponent<HelixComponent>();
-            if (helixComp != null)
+            // Check if we hit a nucleotide collider component.
+            NucleotideColliderComponent nucComp = s_hitHelixGO.GetComponent<NucleotideColliderComponent>();
+            if (nucComp != null)
             {
-                Debug.Log("Hit helix");
-                Helix helix = helixComp.Helix; // The helix data object.
-                                                // Use our new ray-mesh intersection to narrow down the nucleotide.
-                NucleotideData nd = FindHitNucleotide(helix, rightRayInteractor);
+                Debug.Log("Hit nucleotide collider");
+                NucleotideData nd = nucComp.Data;
                 if (nd != null)
                 {
-                    Debug.Log("Hit nucleotide");
-                    // If no start nucleotide has been selected, set it.
                     if (s_startNuc == null)
                     {
                         s_startNuc = nd;
                     }
                     else
                     {
-                        // Otherwise, set the end nucleotide.
                         s_endNuc = nd;
                         if (s_drawTogOn)
                         {
@@ -129,9 +123,9 @@ public class DrawCrossover : MonoBehaviour
                     ResetNucleotides();
                 }
             }
-            else if (hit.collider.GetComponent<XoverComponent>() != null
-                && hit.collider.GetComponent<LoopoutComponent>() == null
-                && s_eraseTogOn)
+            else if (hit.collider.GetComponent<XoverComponent>() != null &&
+                     hit.collider.GetComponent<LoopoutComponent>() == null &&
+                     s_eraseTogOn)
             {
                 // If the hit is on an existing crossover (and not a loopout), erase it.
                 DoEraseXover(hit.collider.gameObject);

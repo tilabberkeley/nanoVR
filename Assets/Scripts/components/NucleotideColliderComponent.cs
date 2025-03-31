@@ -1,27 +1,33 @@
 using UnityEngine;
+using System;
 
 public class NucleotideColliderComponent : MonoBehaviour
 {
     // Which Helix this collider is associated with
-    [HideInInspector] public Helix HelixRef;
-    [HideInInspector] public int NucleotideID;
-    [HideInInspector] public int Direction;  // 0 or 1
+    private Helix helixRef;
+    private int nucleotideId;
+    private int direction;  // 0 or 1
 
     // If you want to store the NucleotideData for convenience,
     // you can store it once in Setup():
-    [HideInInspector] public NucleotideData Data;
+    private NucleotideData data;
+
+    public Helix HelixRef { get => helixRef; }
+    public int NucleotideId { get => nucleotideId; }
+    public int Direction { get => direction; }
+    public NucleotideData Data { get => data; }
 
     /// <summary>
     /// Initialize the collider with references so we know
     /// which instance it corresponds to.
     /// </summary>
-    public void Setup(Helix helix, int nucleotideID, int direction)
+    public void Setup(Helix helix, int nucleotideId, int direction)
     {
-        HelixRef = helix;
-        NucleotideID = nucleotideID;
-        Direction = direction;
+        this.helixRef = helix;
+        this.nucleotideId = nucleotideId;
+        this.direction = direction;
 
         // Optionally fetch the data once for quick access later
-        Data = helix.GetNucleotideData(nucleotideID, direction);
+        this.data = helix.GetNucleotideData(nucleotideId, direction);
     }
 }
