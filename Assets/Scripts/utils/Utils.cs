@@ -38,10 +38,10 @@ public static class Utils
     public static Strand CreateStrand(List<Domain> domains, int strandId, Color color, string sequence, bool isScaffold, Dictionary<int, int> loopouts, bool isOxview = false)
     {
         Strand strand = new Strand(domains, strandId, color, sequence, isScaffold, isOxview);
-        Debug.Log("Created strand");
+        // Debug.Log("Created strand");
         // Set strand domains
         strand.SetDomainsRevamp();
-        Debug.Log("Set domains");
+        // Debug.Log("Set domains");
 
         // Set cone
         //strand.SetConeRevamp();
@@ -56,7 +56,7 @@ public static class Utils
             else
             {
                 DrawCrossover.CreateXoverHelper(domains[i - 1], domains[i], strandId);
-                Debug.Log("Created xover");
+                // Debug.Log("Created xover");
             }
         }
 
