@@ -6,6 +6,7 @@ Shader "Custom/InstancingShader"
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
+        _HighlightColor ("Highlight Color", Color) = (1,1,1,1)
     }
     SubShader
     {
@@ -15,8 +16,6 @@ Shader "Custom/InstancingShader"
         CGPROGRAM
         // Physically based Standard lighting model, and enable shadows on all light types
         #pragma surface surf Standard fullforwardshadows
-
-        // Use shader model 3.0 target, to get nicer looking lighting
         #pragma target 3.0
 
         sampler2D _MainTex;
@@ -29,23 +28,33 @@ Shader "Custom/InstancingShader"
         half _Glossiness;
         half _Metallic;
 
-        // Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
-        // See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
-        // #pragma instancing_options assumeuniformscaling
+        // Add instancing support for this shader. 
         UNITY_INSTANCING_BUFFER_START(Props)
-            // put more per-instance properties here
-        UNITY_DEFINE_INSTANCED_PROP(fixed4, _Color)
+            // Base color per instance
+            UNITY_DEFINE_INSTANCED_PROP(fixed4, _Color)
+            // Highlight color per instance (the intensity is fixed in the shader)
+            UNITY_DEFINE_INSTANCED_PROP(fixed4, _HighlightColor)
         UNITY_INSTANCING_BUFFER_END(Props)
 
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
-            // Albedo comes from a texture tinted by color
-            fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
-            o.Albedo = c.rgb;
-            // Metallic and smoothness come from slider variables
+            // Retrieve base color from texture, tinted by the instance-specific _Color
+            fixed4 baseColor = tex2D(_MainTex, IN.uv_MainTex) * UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
+            
+            // Retrieve instance-specific highlight color
+            fixed4 highlightColor = UNITY_ACCESS_INSTANCED_PROP(Props, _HighlightColor);
+            // Fixed highlight intensity at 0.5
+            float highlightIntensity = 0.5;
+            
+            // Blend the base color with the highlight color using a fixed intensity.
+            fixed4 finalColor;
+            finalColor.rgb = lerp(baseColor.rgb, highlightColor.rgb, highlightIntensity);
+            finalColor.a = baseColor.a;
+            
+            o.Albedo = finalColor.rgb;
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
-            o.Alpha = c.a;
+            o.Alpha = finalColor.a;
         }
         ENDCG
     }

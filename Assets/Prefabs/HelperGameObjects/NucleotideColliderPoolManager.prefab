@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6509889984389803740}
+  - component: {fileID: 3844050839433021463}
   m_Layer: 0
   m_Name: NucleotideColliderPoolManager
   m_TagString: Untagged
@@ -30,3 +31,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3844050839433021463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8088058605491712898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8776c9aa4a040f8a2ece12fbb1d680, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  helixManager: {fileID: 0}
+  colliderPrefab: {fileID: 1818009689104708039, guid: 3a3e094df25c74a37892607c780ce994, type: 3}
+  poolSize: 256
+  interactionRadius: 1
+  player: {fileID: 0}

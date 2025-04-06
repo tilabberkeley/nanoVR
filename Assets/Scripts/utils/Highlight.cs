@@ -31,6 +31,12 @@ public static class Highlight
         outline.OutlineColor = color;
     }
 
+    public static void HighlightGO(NucleotideData nd, Color color)
+    {
+        nd.Highlight = color;
+        nd.IsHighlighted = true;
+    }
+
     /// <summary>
     /// Unhighlights given gameobject.
     /// </summary>
@@ -56,6 +62,23 @@ public static class Highlight
             return;
         }
         outline.enabled = false;
+    }
+
+    public static void UnhighlightGO(NucleotideData nd, bool unhighlightInsAndDel)
+    {
+        if (!unhighlightInsAndDel && (nd.IsInsertion || nd.IsDeletion))
+        {
+            if (nd.IsInsertion)
+            {
+                nd.Highlight = drawNucleotideHighlightColor;
+            }
+            else if (nd.IsDeletion)
+            {
+                nd.Highlight = eraseNucleotideHighlightColor;
+            }
+            return;
+        }
+        nd.IsHighlighted = false;
     }
 
     /// <summary>
@@ -128,10 +151,43 @@ public static class Highlight
     }
 
     /// <summary>
+    /// Highlights given list of nucleotides and backbones. Highlights red if erase is on. Green otherwise.
+    /// </summary>
+    /// <param name="list">GameObject list of nucleotides and backbones.</param>
+    public static void HighlightNucleotideSelection(List<NucleotideData> list, bool draw)
+    {
+        Color color = drawNucleotideHighlightColor;
+        if (!draw)
+        {
+            color = eraseNucleotideHighlightColor;
+        }
+        if (list == null)
+        {
+            return;
+        }
+        for (int i = 0; i < list.Count; i++)
+        {
+            HighlightGO(list[i], color);
+        }
+    }
+
+    /// <summary>
     /// Unhighlights given list of nucleotides and backbones.
     /// </summary>
     /// <param name="list">GameObject list of nucleotides and backbones.</param>
     public static void UnhighlightNucleotideSelection(List<GameObject> list, bool isDelete)
+    {
+        if (list == null)
+        {
+            return;
+        }
+        for (int i = 0; i < list.Count; i++)
+        {
+            UnhighlightGO(list[i], isDelete);
+        }
+    }
+
+    public static void UnhighlightNucleotideSelection(List<NucleotideData> list, bool isDelete)
     {
         if (list == null)
         {

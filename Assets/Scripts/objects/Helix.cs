@@ -277,16 +277,16 @@ public class Helix
             if (i > 0)
             {
                 Vector3 prevPosA = nucleotidePositionsA[i - 1];
-                Matrix4x4 backboneMatrixA = GetBackboneMatrix(prevPosA, posA);
+                Matrix4x4 backboneMatrixA = GetBackboneMatrix(prevPosA, posA, fiveToThree: true);
                 backboneMatricesA.Add(backboneMatrixA);
 
                 Vector3 prevPosB = nucleotidePositionsB[i - 1];
-                Matrix4x4 backboneMatrixB = GetBackboneMatrix(prevPosB, posB);
+                Matrix4x4 backboneMatrixB = GetBackboneMatrix(prevPosB, posB, fiveToThree: false);
                 backboneMatricesB.Add(backboneMatrixB);
             }
         }
 
-        CreateCollider();
+        //CreateCollider();
     }
 
 
@@ -321,12 +321,12 @@ public class Helix
     /// Computes a transformation matrix for a backbone (cylinder) connecting two points.
     /// Assumes that the cylinder mesh is aligned along its Y-axis and centered.
     /// </summary>
-    private Matrix4x4 GetBackboneMatrix(Vector3 start, Vector3 end)
+    private Matrix4x4 GetBackboneMatrix(Vector3 start, Vector3 end, bool fiveToThree)
     {
         Vector3 midpoint = (start + end) * 0.5f;
-        Vector3 direction = end - start;
+        Vector3 direction = fiveToThree ? end - start : start - end;
         float length = direction.magnitude;
-        // Compute rotation so that the cylinder�s Y axis aligns with the direction vector.
+        // Compute rotation so that the cylinder's Y axis aligns with the direction vector.
         Quaternion rotation = Quaternion.FromToRotation(Vector3.up, direction.normalized);
         Vector3 scale = new Vector3(0.2f, length, 0.2f);
         return Matrix4x4.TRS(midpoint, rotation, scale);
@@ -368,6 +368,23 @@ public class Helix
             temp.Reverse();
             return temp;
         }
+    }
+
+    public List<NucleotideData> GetSubHelix(int sIndex, int eIndex, int direction)
+    {
+        if (sIndex < 0 || eIndex >= _nucleotidesA.Count)
+        {
+            Debug.Log("Nucleotides A length: " + _nucleotidesA.Count);
+            return null;
+        }
+        List<NucleotideData> temp = new List<NucleotideData>();
+        for (int i = sIndex; i < eIndex; i++)
+        {
+            temp.Add(GetNucleotideData(i, direction));
+        }
+
+        if (direction == 1) { temp.Reverse(); }
+        return temp;
     }
 
     public Matrix4x4 GetNucleotideMesh(int id, int direction)
@@ -443,13 +460,24 @@ public class Helix
         return nd.Color;
     }
 
+    public Color GetNucleotideHighlight(int id, int direction)
+    {
+        NucleotideData nd = GetNucleotideData(id, direction);
+        return nd.Highlight;
+    }
+
     public Color GetBackboneColor(int id, int direction)
     {
-        Color color1 = GetNucleotideColor(id, direction);
-        Color color2 = GetNucleotideColor(id + 1, direction);
-        if (color1 == color2)
+        NucleotideData nd1 = GetNucleotideData(id, direction);
+        NucleotideData nd2 = GetNucleotideData(id + 1, direction);
+        int domainId1 = nd1.DomainIdx;
+        int domainId2 = nd2.DomainIdx;
+        int strandId1 = nd1.StrandId;
+        int strandId2 = nd2.StrandId;
+
+        if (domainId1 == domainId2 && strandId1 == strandId2)
         {
-            return color1;
+            return nd1.Color;
         }
         return Color.white;
     }
@@ -468,6 +496,22 @@ public class Helix
         }
         return colors;
     }
+
+    /// <summary>
+    /// Returns list of nucleotide colors in helix.
+    /// </summary>
+    /// <param name="direction">Direction 1 corresponds to nucleotideA and direction 0 corresponds to nucleotideB.</param>
+    /// <returns></returns>
+    public List<Color> GetNucleotideHighlights(int direction)
+    {
+        List<Color> colors = new List<Color>();
+        for (int i = 0; i < nucleotideMatricesA.Count; i++)
+        {
+            colors.Add(GetNucleotideHighlight(i, direction));
+        }
+        return colors;
+    }
+
 
     /// <summary>
     /// Returns list of backbone colors in helix.

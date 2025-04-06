@@ -19,9 +19,19 @@ public class HelixManager : MonoBehaviour
 
     private Matrix4x4[] _matrixBuffer = new Matrix4x4[BATCH_SIZE];
 
+    private MaterialPropertyBlock _mpb;
+    private Vector4[] _colorBuffer;
+    private Vector4[] _highlightBuffer;
+
     // Assume TransformHandle.Gizmos is the current gizmo GameObject.
     private Matrix4x4 _currentOffset;
     public Matrix4x4 CurrentOffset { get => _currentOffset; }
+
+    void Awake()
+    {
+        _mpb = new MaterialPropertyBlock();
+        _colorBuffer = new Vector4[BATCH_SIZE];
+    }
 
     void Update()
     {
@@ -32,6 +42,8 @@ public class HelixManager : MonoBehaviour
             List<Color> nucleotideColorsB = helix.GetNucleotideColors(direction: 0);
             List<Color> backboneColorsA = helix.GetBackboneColors(direction: 1);
             List<Color> backboneColorsB = helix.GetBackboneColors(direction: 0);
+            List<Color> nucleotideHighlightsA = helix.GetNucleotideHighlights(direction: 1);
+            List<Color> nucleotideHighlightsB = helix.GetNucleotideHighlights(direction: 0);
 
             Matrix4x4 gizmosMatrix = Matrix4x4.TRS(
                                         TransformHandle.GizmosTransform.position,
@@ -48,11 +60,11 @@ public class HelixManager : MonoBehaviour
             }
 
             // Apply the current gizmo transform as the offset.
-            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesA, nucleotideColorsA, _currentOffset);
-            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesB, nucleotideColorsB, _currentOffset);
+            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesA, nucleotideColorsA, nucleotideHighlightsA, _currentOffset);
+            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesB, nucleotideColorsB,nucleotideHighlightsB, _currentOffset);
 
-            DrawInstances(backboneMesh, material, helix.BackboneMatricesA, backboneColorsA, _currentOffset);
-            DrawInstances(backboneMesh, material, helix.BackboneMatricesB, backboneColorsB, _currentOffset);
+            DrawInstances(backboneMesh, material, helix.BackboneMatricesA, backboneColorsA, backboneColorsA, _currentOffset); // No need to highlight backbones
+            DrawInstances(backboneMesh, material, helix.BackboneMatricesB, backboneColorsB, backboneColorsB, _currentOffset); // No need to highlight backbones
         }
     }
 
@@ -64,14 +76,11 @@ public class HelixManager : MonoBehaviour
     /// <param name="matrices">Local instance matrices.</param>
     /// <param name="colors">Per-instance colors.</param>
     /// <param name="parentOffset">Parent transform offset to apply.</param>
-    private void DrawInstances(Mesh mesh, Material material, List<Matrix4x4> matrices, List<Color> colors, Matrix4x4 parentOffset)
+    private void DrawInstances(Mesh mesh, Material material, List<Matrix4x4> matrices, List<Color> colors, List<Color> highlightColors, Matrix4x4 parentOffset)
     {
         int count = matrices.Count;
         if (count == 0)
             return;
-
-        MaterialPropertyBlock mpb = new MaterialPropertyBlock();
-        Vector4[] colorBuffer = new Vector4[BATCH_SIZE];
 
         for (int i = 0; i < count; i += BATCH_SIZE)
         {
@@ -80,10 +89,12 @@ public class HelixManager : MonoBehaviour
             {
                 // Multiply each local matrix by the parent offset.
                 _matrixBuffer[j] = parentOffset * matrices[i + j];
-                colorBuffer[j] = colors[i + j];
+                _colorBuffer[j] = colors[i + j];
+                _highlightBuffer[j] = highlightColors[i + j];
             }
-            mpb.SetVectorArray("_Color", colorBuffer);
-            Graphics.DrawMeshInstanced(mesh, 0, material, _matrixBuffer, batchCount, mpb);
+            _mpb.SetVectorArray("_Color", _colorBuffer);
+            _mpb.SetVectorArray("_HighlightColor", _highlightBuffer);
+            Graphics.DrawMeshInstanced(mesh, 0, material, _matrixBuffer, batchCount, _mpb);
         }
     }
 }

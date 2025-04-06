@@ -414,7 +414,6 @@ public static class DrawPoint
                    Vector3.zero,
                    Quaternion.identity) as GameObject;
         xover.name = "xover";
-        Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
 
         NucleotideData prevNucl = prevDomain.GetTailData();
         NucleotideData nextNucl = nextDomain.GetHeadData();
@@ -436,15 +435,19 @@ public static class DrawPoint
         xover.transform.position = (nextPosition + prevPosition) / 2.0F;
 
         // Rotation
-        Vector3 dirV = Vector3.Normalize(nextPosition - prevPosition);
-        Vector3 rotAxisV = dirV + cylDefaultOrientation;
-        rotAxisV = Vector3.Normalize(rotAxisV);
-        xover.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
+        //Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
+        //Vector3 dirV = Vector3.Normalize(nextPosition - prevPosition);
+        //Vector3 rotAxisV = dirV + cylDefaultOrientation;
+        //rotAxisV = Vector3.Normalize(rotAxisV);
+        //xover.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
+
+        xover.transform.rotation = Quaternion.FromToRotation(Vector3.forward, nextPosition - prevPosition);
+
 
         // Scale        
         float dist = Vector3.Distance(nextPosition, prevPosition);
         xover.transform.localScale = new Vector3(0.2f, dist, 0.2f);
-
+        Debug.Log(string.Format("Finished drawing xover: {0}", xover.transform.localScale));
         return xover;
     }
 

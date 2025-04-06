@@ -79,48 +79,42 @@ public class DrawCrossover : MonoBehaviour
     private void Update()
     {
         if ((!s_drawTogOn && !s_eraseTogOn) || s_hideStencils)
-        {
             return;
-        }
 
         if (!_device.isValid)
-        {
             GetDevice();
-        }
 
         // Get trigger state.
         _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
 
+        // Check if trigger is pressed and was previously released and if we have a valid raycast hit.
         if (triggerValue && triggerReleased && rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit hit))
         {
             triggerReleased = false;
             s_hitHelixGO = hit.collider.gameObject;
 
-            // Check if we hit a nucleotide collider component.
+            // Check for nucleotide collider.
             NucleotideColliderComponent nucComp = s_hitHelixGO.GetComponent<NucleotideColliderComponent>();
             if (nucComp != null)
             {
                 Debug.Log("Hit nucleotide collider");
                 NucleotideData nd = nucComp.Data;
-                if (nd != null)
+                if (nd == null)
                 {
-                    if (s_startNuc == null)
-                    {
-                        s_startNuc = nd;
-                    }
-                    else
-                    {
-                        s_endNuc = nd;
-                        if (s_drawTogOn)
-                        {
-                            CreateXover(s_startNuc, s_endNuc);
-                            ResetNucleotides();
-                        }
-                    }
+                    ResetNucleotides();
+                }
+                else if (s_startNuc == null)
+                {
+                    s_startNuc = nd;
                 }
                 else
                 {
-                    ResetNucleotides();
+                    s_endNuc = nd;
+                    if (s_drawTogOn)
+                    {
+                        CreateXover(s_startNuc, s_endNuc);
+                        ResetNucleotides();
+                    }
                 }
             }
             else if (hit.collider.GetComponent<XoverComponent>() != null &&
@@ -136,18 +130,14 @@ public class DrawCrossover : MonoBehaviour
             }
         }
 
-        // While trigger is released, update the temporary xover visualization.
-        if (triggerReleased && !triggerValue)
+        // Update the temporary xover visualization when trigger is not pressed.
+        if (triggerReleased && !triggerValue && s_startNuc != null)
         {
-            if (s_startNuc != null)
-            {
-                Debug.Log("drawing temp xover");
-                Vector3 startPos = s_startNuc.GetPosition();
-                // Use the hit point or recalc from helix data.
-                Vector3 currentPos = rightRayInteractor.transform.forward;
-                tempXover.SetActive(true);
-                UpdateXover(startPos, currentPos);
-            }
+            Debug.Log("drawing temp xover");
+            Vector3 startPos = s_startNuc.GetPosition();
+            Vector3 currentPos = rightRayInteractor.transform.forward; // Use hit point or recalc from helix data.
+            tempXover.SetActive(true);
+            UpdateXover(startPos, currentPos);
         }
 
         if (!triggerValue)
@@ -155,6 +145,7 @@ public class DrawCrossover : MonoBehaviour
             triggerReleased = true;
         }
 
+        // If trigger is pressed but there is no valid raycast hit, reset nucleotides.
         if (triggerValue && !rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit _))
         {
             triggerReleased = false;
@@ -162,76 +153,6 @@ public class DrawCrossover : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Iterates through the helix's nucleotide matrices to determine which nucleotide is hit.
-    /// Returns the index of the best hit nucleotide, or -1 if none.
-    /// </summary>
-    private NucleotideData FindHitNucleotide(Helix helix, XRRayInteractor rayInteractor)
-    {
-        Ray ray = new Ray(rayInteractor.transform.position, rayInteractor.transform.forward);
-        RaycastHit[] hits = Physics.RaycastAll(ray, maxDistance: 1f, rightRayInteractor.raycastMask, QueryTriggerInteraction.Collide);
-        System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
-
-
-        float bestT = float.MaxValue;
-        NucleotideData nd = null;
-
-        foreach (var hit in hits)
-        {
-            float hypotenuse = Vector3.Distance(hit.point, helix._gridComponent.transform.position);
-            float distance = Mathf.Sqrt(hypotenuse * hypotenuse - RADIUS * RADIUS);
-            int index = Mathf.RoundToInt(distance / RISE);
-
-            Matrix4x4 nuclA = helix.GetNucleotideMesh(index, 1);
-            Matrix4x4 nuclB = helix.GetNucleotideMesh(index, 0);
-
-            float distA = Vector3.Distance(nuclA.GetColumn(3), hit.point);
-            float distB = Vector3.Distance(nuclB.GetColumn(3), hit.point);
-
-            if (distA < NUCL_RAD)
-            {
-                bestT = distA;
-                nd = helix.GetNucleotideData(index, 1);
-            }
-
-            if (distB < NUCL_RAD && distB < distA)
-            {
-                bestT = distB;
-                nd = helix.GetNucleotideData(index, 0);
-            }
-
-            if (nd != null)
-            {
-                XRInteractorLineVisual lineVisual = rightRayInteractor.GetComponent<XRInteractorLineVisual>();
-                lineVisual.lineLength = bestT;
-                break;
-            }
-        }
-
-        return nd;
-    }
-
-    /// <summary>
-    /// Performs a ray-sphere intersection test. Returns true if an intersection occurs and outputs the distance.
-    /// </summary>
-    private bool RaySphereIntersection(Ray ray, Vector3 center, float radius, out float t)
-    {
-        Vector3 oc = ray.origin - center;
-        float a = Vector3.Dot(ray.direction, ray.direction);
-        float b = 2.0f * Vector3.Dot(oc, ray.direction);
-        float c = Vector3.Dot(oc, oc) - radius * radius;
-        float discriminant = b * b - 4.0f * a * c;
-        if (discriminant < 0)
-        {
-            t = -1;
-            return false;
-        }
-        else
-        {
-            t = (-b - Mathf.Sqrt(discriminant)) / (2.0f * a);
-            return t >= 0;
-        }
-    }
 
     /// <summary>
     /// Updates the temporary crossover object's position, rotation, and scale.
@@ -453,7 +374,7 @@ public class DrawCrossover : MonoBehaviour
         xoverComponent.Color = color;
         xoverComponent.SavedColor = savedColor;
 
-        xoverComponent.gameObject.transform.SetParent(prevDomain.GetHelix()._gridComponent.transform); // This helps with transformations
+        xoverComponent.transform.SetParent(prevDomain.GetHelix()._gridComponent.transform); // This helps with transformations
         xover.SetActive(showXover);
         return xoverComponent;
     }

@@ -158,4 +158,18 @@ public class XoverComponent : MonoBehaviour
             _ntRenderer.enabled = false;
         }
     }
+
+    public NucleotideData GetPrevNucl()
+    {
+        Strand strand = GlobalVariables.s_strandDict[_strandId];
+        Domain domain = strand.GetDomain(prevDomainIdx);
+        return domain.GetTailData();
+    }
+
+    public NucleotideData GetNextNucl()
+    {
+        Strand strand = GlobalVariables.s_strandDict[_strandId];
+        Domain domain = strand.GetDomain(nextDomainIdx);
+        return domain.GetHeadData();
+    }
 }

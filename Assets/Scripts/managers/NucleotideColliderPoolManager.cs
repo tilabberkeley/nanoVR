@@ -4,13 +4,14 @@ using UnityEngine;
 public class NucleotideColliderPoolManager : MonoBehaviour
 {
     [Header("References")]
-    public HelixManager helixManager;
     public GameObject colliderPrefab;
 
     [Header("Settings")]
     public int poolSize = 256;
     public float interactionRadius = 1f;
     public Transform player;
+
+    private Vector3 oldPlayerPos;
 
     private List<NucleotideColliderComponent> _colliderPool = new List<NucleotideColliderComponent>();
 
@@ -27,10 +28,17 @@ public class NucleotideColliderPoolManager : MonoBehaviour
             // Keep track of the script reference
             _colliderPool.Add(colObj.GetComponent<NucleotideColliderComponent>());
         }
+
+        oldPlayerPos = player.position;
     }
 
     void Update()
     {
+        if (player.position == oldPlayerPos)
+        {
+            oldPlayerPos = player.position;
+            return;
+        }
         // For this frame, keep track of how many colliders we've used so far
         _poolIndex = 0;
 
@@ -57,12 +65,12 @@ public class NucleotideColliderPoolManager : MonoBehaviour
     /// <summary>
     /// Assigns colliders to the given helix's nucleotides if they are in range of the player.
     /// </summary>
-    private void AssignCollidersToHelix(Helix helix, List<Matrix4x4> matrices, int direciton)
+    private void AssignCollidersToHelix(Helix helix, List<Matrix4x4> matrices, int direction)
     {
         for (int i = 0; i < matrices.Count; i++)
         {
             Matrix4x4 localMat = matrices[i];
-            Matrix4x4 worldMat = helixManager.CurrentOffset * localMat;
+            Matrix4x4 worldMat = helix.TransformOffset * localMat;
 
             Vector3 position = worldMat.GetColumn(3); // the translation
 
@@ -81,7 +89,7 @@ public class NucleotideColliderPoolManager : MonoBehaviour
                     colObj.transform.position = position;
 
                     // Setup references so we know which helix/instance
-                    nc.Setup(helix, i, direciton);
+                    nc.Setup(helix, i, direction);
 
                     _poolIndex++;
                 }

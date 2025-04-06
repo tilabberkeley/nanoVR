@@ -265,6 +265,7 @@ public class FileImport : MonoBehaviour
 
         // Parse strands.
         CoRunner.Instance.Run(ParseStrands(strands, lastHelixId));
+        //ParseStrands(strands, lastHelixId);
 
         /* Unselect imported grids by default.
          * We choose to do this so that imp
@@ -428,32 +429,32 @@ public class FileImport : MonoBehaviour
                     int domainIdx = strandDomains.Count - 1;
                     loopouts[domainIdx] = loopoutLength;
                 }
-                //else
-                //{
-                //    // Save strands with extensions so that we can parse them after other strands
-                //    extensionStrands.Add(i, strandId);
-                //    //if (isHelixBoundExt)
-                //    //{
-                //    //    extensionStrands.Add(i, strandId);
-                //    //}
-                //    //else
-                //    //{
-                //    //    int extensionLength = (int) domains[j]["extension_num_bases"];
-                //    //    DrawOxViewExtension(extensionLength, j, xoverEndpoints, nucleotides);
-                //    //}
-                //}
+                else
+                {
+                    // Save strands with extensions so that we can parse them after other strands
+                    extensionStrands.Add(i, strandId);
+                    //if (isHelixBoundExt)
+                    //{
+                    //    extensionStrands.Add(i, strandId);
+                    //}
+                    //else
+                    //{
+                    //    int extensionLength = (int) domains[j]["extension_num_bases"];
+                    //    DrawOxViewExtension(extensionLength, j, xoverEndpoints, nucleotides);
+                    //}
+                }
             }
 
             //Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
 
 
-            Strand strand = CreateStrand(strandDomains, strandId, color, sequence, isScaffold, loopouts);
-            if (isCircular)
-            {
-                strand.IsCircular = true;
-                // strand.ShowHideCone(false);
-                // Debug.Log("Show Hide cone");
-            }
+            Strand strand = CreateStrand(strandDomains, strandId, color, isScaffold, loopouts);
+            //if (isCircular)
+            //{
+            //    strand.IsCircular = true;
+            //    // strand.ShowHideCone(false);
+            //    // Debug.Log("Show Hide cone");
+            //}
          
 
             yield return null;
@@ -494,7 +495,7 @@ public class FileImport : MonoBehaviour
                         bool drawn = false;
                         for (int i = 0; i < directNeighbors.GetLength(0); i++)
                         {
-                            bool success = DrawTailExtension(grid, nextDomainGC, strand, nextStartId, nextEndId, nextForward,
+                            bool success = DrawHeadExtension(grid, nextDomainGC, strand, nextStartId, nextEndId, !nextForward,
                                     extensionLength, directNeighbors[i, 0], directNeighbors[i, 1]);
                             if (success)
                             {
@@ -507,7 +508,7 @@ public class FileImport : MonoBehaviour
                         {
                             for (int i = 0; i < diagonalNeighbors.GetLength(0); i++)
                             {
-                                bool success = DrawTailExtension(grid, nextDomainGC, strand, nextStartId, nextEndId, nextForward, 
+                                bool success = DrawHeadExtension(grid, nextDomainGC, strand, nextStartId, nextEndId, !nextForward, 
                                     extensionLength, diagonalNeighbors[i, 0], diagonalNeighbors[i, 1]);
                                 if (success)
                                 {
@@ -537,7 +538,7 @@ public class FileImport : MonoBehaviour
                         bool drawn = false;
                         for (int i = 0; i < directNeighbors.GetLength(0); i++)
                         {
-                            bool success = DrawHeadExtension(grid, nextDomainGC, strand, nextStartId, nextEndId, nextForward,
+                            bool success = DrawTailExtension(grid, nextDomainGC, strand, nextStartId, nextEndId, !nextForward,
                                     extensionLength, directNeighbors[i, 0], directNeighbors[i, 1]);
                             if (success)
                             {
@@ -550,7 +551,7 @@ public class FileImport : MonoBehaviour
                         {
                             for (int i = 0; i < diagonalNeighbors.GetLength(0); i++)
                             {
-                                bool success = DrawHeadExtension(grid, nextDomainGC, strand, nextStartId, nextEndId, nextForward,
+                                bool success = DrawTailExtension(grid, nextDomainGC, strand, nextStartId, nextEndId, !nextForward,
                                     extensionLength, diagonalNeighbors[i, 0], diagonalNeighbors[i, 1]);
                                 if (success)
                                 {
@@ -627,22 +628,17 @@ public class FileImport : MonoBehaviour
                 }
             }
 
-            List<GameObject> domain;
-            if (forward)
+            if (Utils.IsValidDomain(helix, startId, endId, Convert.ToInt32(forward)))
             {
-                domain = helix.GetHelixSub(startId - extensionLength + 1, startId, Convert.ToInt32(!forward));
-            }
-            else
-            {
-                domain = helix.GetHelixSub(startId, startId + extensionLength - 1, Convert.ToInt32(!forward));
-            }
-            if (Utils.IsValidNucleotides(domain))
-            {
-                SetExtensions(domain);
-                GameObject oldHead = strand.Head;
+                Domain domain = new Domain(helix.Id, Convert.ToInt32(forward), startId, endId, new Dictionary<int, int>(), new List<int>())
+                {
+                    IsExtension = true
+                };
+
                 strand.AddToHead(domain);
-                strand.SetComponents();
-                strand.Xovers.Add(DrawCrossover.CreateXoverHelper(domain.Last(), oldHead, showXover: false));
+                strand.SetDomainsRevamp();
+                Debug.Log("Drawing head domain extension crossover");
+                DrawCrossover.CreateXoverHelper(domain, strand.GetDomain(1), strand.Id, strand.Color, savedColor: strand.Color);
                 return true;
             }
         }
@@ -669,6 +665,7 @@ public class FileImport : MonoBehaviour
             if (gc.Helix == null)
             {
                 helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), actualLength, PLANE, gc);
+                Debug.Log("Drew helix for extension domain");
                 helix.Extend(actualLength);
                 grid.CheckExpansion(gc);
             }
@@ -681,22 +678,17 @@ public class FileImport : MonoBehaviour
                 }
             }
 
-            List<GameObject> domain;
-            if (forward)
+            if (Utils.IsValidDomain(helix, startId, endId, Convert.ToInt32(forward)))
             {
-                domain = helix.GetHelixSub(startId, endId + extensionLength - 1, Convert.ToInt32(!forward));
-            }
-            else
-            {
-                domain = helix.GetHelixSub(startId - extensionLength + 1, endId, Convert.ToInt32(!forward));
-            }
-            if (Utils.IsValidNucleotides(domain))
-            {
-                GameObject oldTail = strand.Tail;
-                SetExtensions(domain);
+                Domain domain = new Domain(helix.Id, Convert.ToInt32(forward), startId, endId, new Dictionary<int, int>(), new List<int>())
+                {
+                    IsExtension = true
+                };
                 strand.AddToTail(domain);
-                strand.SetComponents();
-                strand.Xovers.Add(DrawCrossover.CreateXoverHelper(oldTail, domain[0], showXover: false));
+                strand.SetDomainsRevamp();
+                Debug.Log("Drawing tail domain extension crossover. domainId " + domain.Id);
+
+                DrawCrossover.CreateXoverHelper(strand.GetDomain(strand.Domains.Count - 2), domain, strand.Id, strand.Color, savedColor: strand.Color);
                 return true;
             }
         }
@@ -732,8 +724,6 @@ public class FileImport : MonoBehaviour
         {
             List<GameObject> nucls = ObjectPoolManager.Instance.GetNucleotides(extensionLength);
             List<GameObject> backs = ObjectPoolManager.Instance.GetBackbones(extensionLength - 1);
-
-
 
             for (int k = 0; k < nucls.Count; k++)
             {

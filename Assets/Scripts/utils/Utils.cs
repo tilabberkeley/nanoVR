@@ -37,9 +37,14 @@ public static class Utils
         return helix.GetNucleotide(id, direction);
     }
 
-    public static Strand CreateStrand(List<Domain> domains, int strandId, Color color, string sequence, bool isScaffold, Dictionary<int, int> loopouts, bool isOxview = false)
+    public static Strand CreateStrand(List<Domain> domains)
     {
-        Strand strand = new Strand(domains, strandId, color, sequence, isScaffold, isOxview);
+        return CreateStrand(domains, s_numStrands, Colors[s_numStrands % Colors.Length], false, new Dictionary<int, int>(), isOxview: false); // TODO: Add sequence and isScaffold (if needed
+    }
+
+    public static Strand CreateStrand(List<Domain> domains, int strandId, Color color, bool isScaffold, Dictionary<int, int> loopouts, bool isOxview = false)
+    {
+        Strand strand = new Strand(domains, strandId, color, isScaffold, isOxview);
         //Debug.Log("Created strand");
         // Set strand domains
         strand.SetDomainsRevamp();
@@ -51,6 +56,11 @@ public static class Utils
         // Draw and set xovers and loopouts
         for (int i = 1; i < domains.Count; i++)
         {
+            if (strandId == 0 && (domains[i].HelixId == 23 || domains[i].HelixId == 24))
+            {
+                Debug.Log(string.Format("Domain head: {0};  tail: {1}", domains[i].GetHeadData(), domains[i].GetTailData()));
+            }
+
             if (loopouts.ContainsKey(i - 1))
             {
                 DrawLoopout.CreateLoopoutHelper(domains[i - 1], domains[i], loopouts[i], strandId);
@@ -58,7 +68,7 @@ public static class Utils
             }
             else
             {
-                // DrawCrossover.CreateXoverHelper(domains[i - 1], domains[i], strandId, color, savedColor: color);
+                DrawCrossover.CreateXoverHelper(domains[i - 1], domains[i], strandId, color, savedColor: color);
             }
         }
 
@@ -292,6 +302,20 @@ public static class Utils
 
             var ntc = nucleotide.GetComponent<DNAComponent>();
             if (ntc.Selected)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static bool IsValidDomain(Helix helix, int startId, int endId, int direction)
+    {
+        if (helix == null) { return false; }
+        for (int i = startId; i <= endId; i++)
+        {
+            NucleotideData nd = helix.GetNucleotideData(i, direction);
+            if (nd.StrandId != -1)
             {
                 return false;
             }

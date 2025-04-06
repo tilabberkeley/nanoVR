@@ -47,7 +47,7 @@ public class InfoDisplay : MonoBehaviour
 
         if (rayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit s_hit))
         {
-            if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
+            if (s_hit.collider.GetComponent<NucleotideColliderComponent>() != null)
             {
                 DisplayNucleotideInfo(s_hit.collider.gameObject);
             }
@@ -58,6 +58,10 @@ public class InfoDisplay : MonoBehaviour
             else if (s_hit.collider.GetComponent<XoverComponent>() != null)
             {
                 DisplayXoverInfo(s_hit.collider.gameObject);
+            }
+            else if (s_hit.collider.GetComponent<GridComponent>() != null)
+            {
+                DisplayGridComponentInfo(s_hit.collider.gameObject);
             }
             else if (s_hit.collider.name.Contains(PROTEIN_STRING))
             {
@@ -76,7 +80,7 @@ public class InfoDisplay : MonoBehaviour
 
     private void DisplayNucleotideInfo(GameObject go)
     {
-        var comp = go.GetComponent<NucleotideComponent>();
+        var comp = go.GetComponent<NucleotideColliderComponent>().Data;
         StringBuilder text = new StringBuilder();
         text.Append("<b>Nucleotide</b>\n");
         text.Append("DNA: " + comp.Sequence + "\n");
@@ -84,7 +88,7 @@ public class InfoDisplay : MonoBehaviour
         text.Append("Nucl Id: " + comp.Id + "\n");
         text.Append("Helix Id: " + comp.HelixId + "\n");
         text.Append("Direction: " + (comp.Direction == 1 ? "Forward" : "Reverse") + "\n");
-        if (comp.IsExtension) text.Append("Is extension \n\n");
+        if (comp.GetDomain() != null && comp.GetDomain().IsExtension) text.Append("Is extension \n\n");
         DisplayStrandInfo(comp.StrandId, text);
 
     }
@@ -103,11 +107,14 @@ public class InfoDisplay : MonoBehaviour
     {
         LoopoutComponent comp = go.GetComponent<LoopoutComponent>();
         StringBuilder text = new StringBuilder();
+        NucleotideData prevNucl = comp.GetPrevNucl();
+        NucleotideData nextNucl = comp.GetNextNucl();
+
         text.Append("<b>Loopout</b>\n");
-        text.Append("Length: " + comp.SequenceLength + "\n");
-        text.Append("Sequence: " + comp.Sequence + "\n");
-        text.Append("First Nucl: " + comp.PrevGO.name + "\n");
-        text.Append("Second Nucl: " + comp.NextGO.name + "\n\n");
+        text.Append(string.Format("Length: {0} \n", comp.SequenceLength));
+        text.Append(string.Format("Sequence: {0} \n", comp.Sequence));
+        text.Append(string.Format("1st Nucl: nucl{0} \n", prevNucl.Id));
+        text.Append(string.Format("2nd Nucl: nucl{0} \n\n", nextNucl.Id));
         DisplayStrandInfo(comp.StrandId, text);
     }
 
@@ -115,10 +122,13 @@ public class InfoDisplay : MonoBehaviour
     {
         var comp = go.GetComponent<XoverComponent>();
         StringBuilder text = new StringBuilder();
+        NucleotideData prevNucl = comp.GetPrevNucl();
+        NucleotideData nextNucl = comp.GetNextNucl();
+
         text.Append("<b>Xover</b>\n");
-        text.Append("Length: " + Math.Round(comp.Length, 2) + "\n");
-        text.Append("1st Nucl: " + comp.PrevGO.name + "\n");
-        text.Append("2nd Nucl: " + comp.NextGO.name + "\n\n");
+        text.Append(string.Format("Length: {0} \n", Math.Round(comp.Length, 2)));
+        text.Append(string.Format("1st Nucl: nucl{0} \n", prevNucl.Id));
+        text.Append(string.Format("2nd Nucl: nucl{0} \n\n", nextNucl.Id));
         DisplayStrandInfo(comp.StrandId, text);
     }
 
@@ -140,8 +150,20 @@ public class InfoDisplay : MonoBehaviour
         }
         text.Append("<b>Strand</b>\n");
         text.Append("Strand Id: " + strand.Id + "\n");
-        text.Append("Length: " + strand.Length + "\n");
-        text.Append("Xovers: " + strand.Xovers.Count);
+        text.Append("Length: " + strand.GetLength() + "\n");
+        text.Append("Domains: " + strand.Domains.Count);
+        textBox.text = text.ToString();
+    }
+
+    private void DisplayGridComponentInfo(GameObject go)
+    {
+        var comp = go.GetComponent<GridComponent>();
+        StringBuilder text = new StringBuilder();
+
+        text.Append("<b>Grid</b>\n");
+        text.Append(string.Format("Grid Id: {0} \n", comp.GridId));
+        text.Append(string.Format("Coord: [{0}, {1}] \n", comp.GridPoint.X, comp.GridPoint.Y));
+        if (comp.Helix != null) text.Append(string.Format("Helix Id: {0} \n\n", comp.Helix.Id));
         textBox.text = text.ToString();
     }
 }

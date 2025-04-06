@@ -36,6 +36,7 @@ public class EditOptionsManager : MonoBehaviour
     [SerializeField] private Button _insEditBtn;
     [SerializeField] private Button _loopoutLengthEditBtn;
     [SerializeField] private Button _loopoutSequenceEditBtn;
+    [SerializeField] private Button _domainExtensionBtn;
     [SerializeField] private Button _cancelButton;
 
     // Strand Settings UI
@@ -69,6 +70,7 @@ public class EditOptionsManager : MonoBehaviour
         _insEditBtn.onClick.AddListener(() => ShowInsEdit());
         _loopoutLengthEditBtn.onClick.AddListener(() => ShowLoopoutLengthEdit());
         _loopoutSequenceEditBtn.onClick.AddListener(() => ShowLoopoutSequenceEdit());
+        _domainExtensionBtn.onClick.AddListener(() => MakeDomainExtension());
         _cancelButton.onClick.AddListener(() => HideEditMenu());
     }
 
@@ -102,8 +104,8 @@ public class EditOptionsManager : MonoBehaviour
                 && rayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit s_hit))
         {
             gripReleased = false;
-            if ((s_hit.collider.GetComponent<NucleotideComponent>() != null
-                && s_hit.collider.GetComponent<NucleotideComponent>().Selected)
+            if ((s_hit.collider.GetComponent<NucleotideColliderComponent>() != null
+                && s_hit.collider.GetComponent<NucleotideColliderComponent>().Data.IsSelected())
                 || s_hit.collider.GetComponent<LoopoutComponent>() != null)
             {
                 s_GO = s_hit.collider.gameObject;
@@ -136,7 +138,7 @@ public class EditOptionsManager : MonoBehaviour
 
     private void ShowCorrectButtons()
     {
-        NucleotideComponent ntc = s_GO.GetComponent<NucleotideComponent>();
+        NucleotideColliderComponent ntc = s_GO.GetComponent<NucleotideColliderComponent>();
         LoopoutComponent loopoutComp = s_GO.GetComponent<LoopoutComponent>();
         if (loopoutComp != null)
         {
@@ -151,7 +153,7 @@ public class EditOptionsManager : MonoBehaviour
         _loopoutLengthEditBtn.interactable = false;
         _loopoutSequenceEditBtn.interactable = false;
 
-        if (ntc.IsInsertion)
+        if (ntc.Data.IsInsertion)
         {
             _insEditBtn.interactable = true;
         }
@@ -160,7 +162,7 @@ public class EditOptionsManager : MonoBehaviour
             _insEditBtn.interactable = false;
         }
 
-        if (ntc.IsDeletion)
+        if (ntc.Data.IsDeletion)
         {
             _nuclEditBtn.interactable = false;
         }
@@ -232,5 +234,18 @@ public class EditOptionsManager : MonoBehaviour
         string text = "Number of bases: " + numberofBases;
         _loopoutInfoText.text = text;
         _loopoutSequenceInput.text = loopComp.Sequence;
+    }
+
+    private void MakeDomainExtension()
+    {
+        NucleotideData nd = s_GO.GetComponent<NucleotideColliderComponent>().Data;
+        if (nd.GetStrand().Domains.Count > 1)
+        {
+            nd.GetDomain().IsExtension = true;
+        }
+        else
+        {
+            Debug.Log("Cannot make domain extension. Strand must have more than one domain."); 
+        }
     }
 }

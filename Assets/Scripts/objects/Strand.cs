@@ -27,12 +27,12 @@ public class Strand
         set { _nucleotides = value; _head = value[0]; _tail = value.Last(); }
     }
 
-    private List<Domain> domains = new List<Domain>();
-    public List<Domain> Domains { get { return domains; } }
+    private readonly List<Domain> domains = new List<Domain>();
+    public List<Domain> Domains { get => domains; }
 
-    public Strand(Domain domain, int strandId, Color color, bool isOxview = false) : this(new List<Domain> { domain }, strandId, color, sequence: "", isScaffold: false, isOxview) { }
+    public Strand(Domain domain, int strandId, Color color, bool isOxview = false) : this(new List<Domain> { domain }, strandId, color, isScaffold: false, isOxview) { }
 
-    public Strand(List<Domain> domains, int strandId, Color color, string sequence, bool isScaffold, bool isOxview = false)
+    public Strand(List<Domain> domains, int strandId, Color color, bool isScaffold, bool isOxview = false)
     {
         _strandId = strandId;
         _color = color;
@@ -55,6 +55,16 @@ public class Strand
     public Domain GetTailDomain()
     {
         return GetDomain(domains.Count - 1);
+    }
+
+    public NucleotideData GetHead()
+    {
+        return GetHeadDomain().GetHeadData();
+    }
+
+    public NucleotideData GetTail()
+    {
+        return GetTailDomain().GetTailData();
     }
 
     private List<NucleotideComponent> _nucleotidesOnly;
