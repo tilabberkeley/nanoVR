@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class GridCircleData
 {
+    private static readonly Vector3 GRIDCIRCLESCALE = new Vector3(0.05f, 0.05f, 0.01f);
+
     private string _gridId;
     public string GridId { get { return _gridId; } }
 
@@ -69,7 +71,7 @@ public class GridCircleData
             );
 
             Quaternion localRotation = Quaternion.identity;
-            Vector3 localScale = Vector3.one;   
+            Vector3 localScale = GRIDCIRCLESCALE;
 
             return Matrix4x4.TRS(localPosition, localRotation, localScale);
         }

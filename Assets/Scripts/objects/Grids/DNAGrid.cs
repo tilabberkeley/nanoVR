@@ -17,7 +17,6 @@ public abstract class DNAGrid
     /*protected const float GRIDCIRCLESIZEFACTOR = 6.0f;
     protected const float DIAMETER = 1 / GRIDCIRCLESIZEFACTOR;
     protected const float RADIUS = DIAMETER / 2;*/
-    private static readonly Vector3 GRIDCIRCLESCALE = new Vector3(0.05f, 0.05f, 0.01f);
 
     public abstract string Type { get; }
 
@@ -131,7 +130,7 @@ public abstract class DNAGrid
         // - Position = startPos (the "center" of the grid)
         // - Rotation = planeRotation
         // - Scale = previous scale of the old grid circle prefab
-        _gridMatrix = Matrix4x4.TRS(startPos, planeRotation, GRIDCIRCLESCALE);
+        _gridMatrix = Matrix4x4.TRS(startPos, planeRotation, Vector3.one);
 
         _grid2D = new GridCircleData[_length, _width];
 
