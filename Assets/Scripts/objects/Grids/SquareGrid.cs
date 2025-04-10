@@ -23,27 +23,18 @@ public class SquareGrid : DNAGrid
     public SquareGrid(string id, string plane, Vector3 startPos) : base(id, plane, startPos) { }
 
     /// <summary>
-    /// Generates a grid circle at the specified grid point.
+    /// Computes the local local XY offset of the grid circle depending on the x and y offset in the grid. 
     /// </summary>
     /// <param name="gridPoint">Grid point to generate circle at.</param>
     /// <param name="xOffset">x direction offset (depends on expansions).</param>
     /// <param name="yOffset">y direction offset (depends on expansions).</param>
-    /// <param name="i">x memory location of grid circle in grid 2D.</param>
-    /// <param name="j">j memory location of grid circle in grid 2D.</param>
-    protected override GameObject CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j)
+    /// <returns>Local XY offset of the grid circle.</returns>
+    protected override Vector2 ComputeLocalOffset(GridPoint gridPoint, int xOffset, int yOffset)
     {
-        float xPosition = xOffset * HELIX_GAP;
-        float yPosition = yOffset * HELIX_GAP;
+        float x = xOffset * HELIX_GAP;
+        float y = yOffset * HELIX_GAP;
 
-        GameObject gridGO = DrawPoint.MakeGridCircleGO(Position, StartGridCircle, xPosition, yPosition, _plane, gridPoint);
-        GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
-        gridComponent.Grid = this;
-        gridComponent.GridPoint = gridPoint;
-        _grid2D[i, j] = gridComponent;
-
-        StaticBatchGridGO(gridGO);
-
-        return gridGO;
+        return new Vector2(x, y);
     }
 
     /// <summary>
@@ -53,20 +44,7 @@ public class SquareGrid : DNAGrid
     /// <returns>List of neighboring grid components.</returns>
     public override List<GridComponent> GetNeighborGridComponents(GridPoint gridPoint)
     {
-        List<GridComponent> gridComponents = new List<GridComponent>();
-        // COME BACK AND FIX EDGE CASES
-        int i = GridXToIndex(gridPoint.X);
-        int j = GridYToIndex(gridPoint.Y);
-        for (int k = i - 1; k <= i + 1; k++)
-        {
-            for (int l = j - 1; l <= j + 1; l++)
-            {
-                if (!(k == i && l == j))
-                {
-                    gridComponents.Add(_grid2D[k, l]);
-                }
-            }
-        }
-        return gridComponents;
+        // TODO
+        return null;
     }
 }

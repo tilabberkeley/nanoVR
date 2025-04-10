@@ -20,40 +20,27 @@ public class HoneycombGrid : DNAGrid
     public HoneycombGrid(string id, string plane, Vector3 startPos) : base(id, plane, startPos) { }
 
     /// <summary>
-    /// Generates a grid circle at the specified grid point.
+    /// Computes the local local XY offset of the grid circle depending on the x and y offset in the grid. 
     /// </summary>
     /// <param name="gridPoint">Grid point to generate circle at.</param>
     /// <param name="xOffset">x direction offset (depends on expansions).</param>
     /// <param name="yOffset">y direction offset (depends on expansions).</param>
-    /// <param name="i">x memory location of grid circle in grid 2D.</param>
-    /// <param name="j">j memory location of grid circle in grid 2D.</param>
-    protected override GameObject CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j)
+    /// <returns>Local XY offset of the grid circle.</returns>
+    protected override Vector2 ComputeLocalOffset(GridPoint gridPoint, int xOffset, int yOffset)
     {
-        bool isXEven = gridPoint.X % 2 == 0;
-        bool isYEven = gridPoint.Y % 2 == 0;
+        bool isXEven = (gridPoint.X % 2 == 0);
+        bool isYEven = (gridPoint.Y % 2 == 0);
 
-        float xPosition = xOffset * (HELIX_GAP / 2 * Mathf.Sqrt(3.0f));
-        // Doing the bit shift right once is the same as floor div 2, but C# has weird behavior with negatives, so bit shift fixes it. 
-        float yPosition = (yOffset >> 1) * HELIX_GAP / 2 * 6 + (!isYEven ? 2 * HELIX_GAP / 2 : 0);
+        float xPosition = xOffset * (HELIX_GAP / 2f * Mathf.Sqrt(3.0f));
+        float yPosition = ((yOffset >> 1) * (HELIX_GAP / 2f * 6f))
+                          + (!isYEven ? (2f * (HELIX_GAP / 2f)) : 0f);
 
         if (!isXEven && isYEven)
-        {
-            yPosition -= HELIX_GAP / 2;
-        }
+            yPosition -= (HELIX_GAP / 2f);
         else if (!isXEven && !isYEven)
-        {
-            yPosition += HELIX_GAP / 2;
-        }
-            
-        GameObject gridGO = DrawPoint.MakeGridCircleGO(Position, StartGridCircle, xPosition, yPosition, _plane, gridPoint);
-        GridComponent gridComponent = gridGO.GetComponent<GridComponent>();
-        gridComponent.Grid = this;
-        gridComponent.GridPoint = gridPoint;
-        _grid2D[i, j] = gridComponent;
+            yPosition += (HELIX_GAP / 2f);
 
-        StaticBatchGridGO(gridGO);
-
-        return gridGO;
+        return new Vector2(xPosition, yPosition);
     }
 
     /// <summary>

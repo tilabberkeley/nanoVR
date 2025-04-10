@@ -18,13 +18,17 @@ public class GridCircleData
     private int _helixId = -1;
     public int HelixId { get { return _helixId; } set { _helixId = value;  } }
 
+    // The local XY offset of this grid circle. Depends on the type of grid this circle is apart of.
+    private Vector2 _localOffset;
+
     // Whether or not this grid component has been clicked on before.
     // public bool Selected { get; set; }
 
-    public GridCircleData(string gridId, GridPoint gridPoint)
+    public GridCircleData(string gridId, GridPoint gridPoint, Vector2 localOffset)
     {
         _gridId = gridId;
         _gridPoint = gridPoint;
+        _localOffset = localOffset;
     }
 
     public Helix Helix
@@ -59,8 +63,8 @@ public class GridCircleData
             // Representing the local position always in the XY plane.
             // Transforming to the other planes or a different rotation will be done with the parent matrix.
             Vector3 localPosition = new Vector3(
-                _gridPoint.X,
-                _gridPoint.Y,
+                _localOffset.x,
+                _localOffset.y,
                 0f
             );
 
@@ -72,14 +76,26 @@ public class GridCircleData
     }
 
     /// <summary>
-    /// This grid circles world position.
+    /// This grid circle's world position.
     /// </summary>
     public Vector3 Position
     {
         get
         {
-            // TODO
-            return Vector3.zero;
+            DNAGrid parentGrid = dnaGrid;
+
+            // Get the grid's world matrix
+            Matrix4x4 gridMatrix = parentGrid.GridMatrix;
+
+            // Get this circle's local matrix (local position in grid space)
+            Matrix4x4 localMatrix = LocalMatrix;
+
+            // Multiply to get the final world-space transform
+            Matrix4x4 finalMatrix = gridMatrix * localMatrix;
+
+            // Extract the translation from the final matrix
+            Vector4 column3 = finalMatrix.GetColumn(3);
+            return new Vector3(column3.x, column3.y, column3.z);
         }
     }
 }
