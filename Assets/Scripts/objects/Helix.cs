@@ -110,6 +110,28 @@ public class Helix
     private HelixComponent helixCollider;
     public HelixComponent HelixCollider { get { return helixCollider; } }
 
+    private List<Color> nucleotideColorA;
+    private List<Color> nucleotideColorB;
+    private List<Color> backboneColorA;
+    private List<Color> backboneColorB;
+
+    private List<Color> nucleotideHighlightA;
+    private List<Color> nucleotideHighlightB;
+
+    private bool nucleotideColorAChanged = true;
+    private bool nucleotideColorBChanged = true;
+    private bool backboneColorAChanged = true;
+    private bool backboneColorBChanged = true;
+    private bool nucleotideHighlightAChanged = true;
+    private bool nucleotideHighlightBChanged = true;
+
+    public bool NucleotideColorAChanged { set => nucleotideColorAChanged = value; }
+    public bool NucleotideColorBChanged { set => nucleotideColorBChanged = value; }
+    public bool BackboneColorAChanged { set => backboneColorAChanged = value; }
+    public bool BackboneColorBChanged { set => backboneColorBChanged = value; }
+    public bool NucleotideHighlightAChanged { set => nucleotideHighlightAChanged = value; }
+    public bool NucleotideHighlightBChanged { set => nucleotideHighlightBChanged = value; }
+
     // Helix constructor.
     public Helix(int id, string orientation, int length, GridComponent gridComponent)
     {
@@ -372,13 +394,13 @@ public class Helix
 
     public List<NucleotideData> GetSubHelix(int sIndex, int eIndex, int direction)
     {
-        if (sIndex < 0 || eIndex >= _nucleotidesA.Count)
+        if (sIndex < 0 || eIndex >= nucleotideDataA.Count)
         {
-            Debug.Log("Nucleotides A length: " + _nucleotidesA.Count);
+            Debug.Log("Nucleotides A length: " + nucleotideDataA.Count);
             return null;
         }
         List<NucleotideData> temp = new List<NucleotideData>();
-        for (int i = sIndex; i < eIndex; i++)
+        for (int i = sIndex; i <= eIndex; i++)
         {
             temp.Add(GetNucleotideData(i, direction));
         }
@@ -489,12 +511,32 @@ public class Helix
     /// <returns></returns>
     public List<Color> GetNucleotideColors(int direction)
     {
-        List<Color> colors = new List<Color>();
-        for (int i = 0; i < nucleotideMatricesA.Count; i++)
+        if (direction == 0)
         {
-            colors.Add(GetNucleotideColor(i, direction));
+            if (nucleotideColorBChanged)
+            {
+                nucleotideColorB = new List<Color>();
+                for (int i = 0; i < nucleotideMatricesB.Count; i++)
+                {
+                    nucleotideColorB.Add(GetNucleotideColor(i, direction));
+                }
+                nucleotideColorBChanged = false;
+            }
+            return nucleotideColorB;
         }
-        return colors;
+        else
+        {
+            if (nucleotideColorAChanged)
+            {
+                nucleotideColorA = new List<Color>();
+                for (int i = 0; i < nucleotideMatricesA.Count; i++)
+                {
+                    nucleotideColorA.Add(GetNucleotideColor(i, direction));
+                }
+                nucleotideColorAChanged = false;
+            }
+            return nucleotideColorA;
+        }
     }
 
     /// <summary>
@@ -504,12 +546,32 @@ public class Helix
     /// <returns></returns>
     public List<Color> GetNucleotideHighlights(int direction)
     {
-        List<Color> colors = new List<Color>();
-        for (int i = 0; i < nucleotideMatricesA.Count; i++)
+        if (direction == 0)
         {
-            colors.Add(GetNucleotideHighlight(i, direction));
+            if (nucleotideHighlightBChanged)
+            {
+                nucleotideHighlightB = new List<Color>();
+                for (int i = 0; i < nucleotideMatricesB.Count; i++)
+                {
+                    nucleotideHighlightB.Add(GetNucleotideHighlight(i, direction));
+                }
+                nucleotideHighlightBChanged = false;
+            }
+            return nucleotideHighlightB;
         }
-        return colors;
+        else
+        {
+            if (nucleotideHighlightAChanged)
+            {
+                nucleotideHighlightA = new List<Color>();
+                for (int i = 0; i < nucleotideMatricesA.Count; i++)
+                {
+                    nucleotideHighlightA.Add(GetNucleotideHighlight(i, direction));
+                }
+                nucleotideHighlightAChanged = false;
+            }
+            return nucleotideHighlightA;
+        }
     }
 
 
@@ -520,12 +582,32 @@ public class Helix
     /// <returns></returns>
     public List<Color> GetBackboneColors(int direction)
     {
-        List<Color> colors = new List<Color>();
-        for (int i = 0; i < backboneMatricesA.Count; i++)
+        if (direction == 0)
         {
-            colors.Add(GetBackboneColor(i, direction));
+            if (backboneColorBChanged)
+            {
+                backboneColorB = new List<Color>();
+                for (int i = 0; i < backboneMatricesB.Count; i++)
+                {
+                    backboneColorB.Add(GetBackboneColor(i, direction));
+                }
+                backboneColorBChanged = false;
+            }
+            return backboneColorB;
         }
-        return colors;
+        else
+        {
+            if (backboneColorAChanged)
+            {
+                backboneColorA = new List<Color>();
+                for (int i = 0; i < backboneMatricesA.Count; i++)
+                {
+                    backboneColorA.Add(GetBackboneColor(i, direction));
+                }
+                backboneColorAChanged = false;
+            }
+            return backboneColorA;
+        }
     }
 
     /// <summary>

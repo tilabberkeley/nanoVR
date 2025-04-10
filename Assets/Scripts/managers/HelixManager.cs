@@ -31,6 +31,7 @@ public class HelixManager : MonoBehaviour
     {
         _mpb = new MaterialPropertyBlock();
         _colorBuffer = new Vector4[BATCH_SIZE];
+        _highlightBuffer = new Vector4[BATCH_SIZE];
     }
 
     void Update()
@@ -61,7 +62,7 @@ public class HelixManager : MonoBehaviour
 
             // Apply the current gizmo transform as the offset.
             DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesA, nucleotideColorsA, nucleotideHighlightsA, _currentOffset);
-            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesB, nucleotideColorsB,nucleotideHighlightsB, _currentOffset);
+            DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesB, nucleotideColorsB, nucleotideHighlightsB, _currentOffset);
 
             DrawInstances(backboneMesh, material, helix.BackboneMatricesA, backboneColorsA, backboneColorsA, _currentOffset); // No need to highlight backbones
             DrawInstances(backboneMesh, material, helix.BackboneMatricesB, backboneColorsB, backboneColorsB, _currentOffset); // No need to highlight backbones

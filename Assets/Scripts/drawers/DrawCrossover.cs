@@ -131,12 +131,15 @@ public class DrawCrossover : MonoBehaviour
         }
 
         // Update the temporary xover visualization when trigger is not pressed.
+        bool isHit = rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit hit2);
         if (triggerReleased && !triggerValue && s_startNuc != null)
         {
-            Debug.Log("drawing temp xover");
+            if (isHit && hit2.collider.gameObject == s_hitHelixGO)
+            {
+                tempXover.SetActive(true);
+            }
             Vector3 startPos = s_startNuc.GetPosition();
-            Vector3 currentPos = rightRayInteractor.transform.forward; // Use hit point or recalc from helix data.
-            tempXover.SetActive(true);
+            Vector3 currentPos = rightRayInteractor.transform.position + rightRayInteractor.transform.forward * 0.7f; // Use hit point or recalc from helix data.
             UpdateXover(startPos, currentPos);
         }
 
@@ -159,11 +162,9 @@ public class DrawCrossover : MonoBehaviour
     /// </summary>
     private void UpdateXover(Vector3 start, Vector3 end)
     {
-        Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
         tempXover.transform.position = (start + end) / 2.0f;
-        Vector3 dirV = Vector3.Normalize(start - end);
-        Vector3 rotAxisV = Vector3.Normalize(dirV + cylDefaultOrientation);
-        tempXover.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
+        Vector3 dirV = Vector3.Normalize(end - start);
+        tempXover.transform.rotation = Quaternion.FromToRotation(Vector3.up, dirV);
         float dist = Vector3.Distance(start, end);
         tempXover.transform.localScale = new Vector3(0.005f, dist / 2.0f, 0.005f);
     }
@@ -312,6 +313,11 @@ public class DrawCrossover : MonoBehaviour
             return false;
         }
 
+        if (nd1.StrandId == nd2.StrandId && nd1.DomainIdx == nd2.DomainIdx)
+        {
+            return false;
+        }
+
         Domain d1 = nd1.GetDomain();
         Domain d2 = nd2.GetDomain();
 
@@ -361,7 +367,8 @@ public class DrawCrossover : MonoBehaviour
     public static XoverComponent CreateXoverHelper(Domain prevDomain, Domain nextDomain, int strandId, Color color, Color savedColor, int prevStrandId = -1, bool showXover = true)
     {
         // Create crossover, assign appropiate prev and next properties.
-        GameObject xover = DrawPoint.MakeXover(prevDomain, nextDomain);
+        Transform gc = prevDomain.GetHelix()._gridComponent.transform;
+        GameObject xover = DrawPoint.MakeXover(prevDomain, nextDomain, gc);
         XoverComponent xoverComponent = xover.GetComponent<XoverComponent>();
         xoverComponent.PrevDomainIdx = prevDomain.Id;
         xoverComponent.NextDomainIdx = nextDomain.Id;
@@ -374,8 +381,7 @@ public class DrawCrossover : MonoBehaviour
         xoverComponent.Color = color;
         xoverComponent.SavedColor = savedColor;
 
-        xoverComponent.transform.SetParent(prevDomain.GetHelix()._gridComponent.transform); // This helps with transformations
-        xover.SetActive(showXover);
+        //xover.SetActive(showXover);
         return xoverComponent;
     }
 

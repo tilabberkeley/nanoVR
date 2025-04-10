@@ -26,7 +26,24 @@ public class NucleotideData
     public int StrandId { get => strandId; set => strandId = value; }
     public int Direction { get => direction; }
     public string Sequence { get => sequence; set => sequence = value; }
-    public Color Color { get => color; set => color = value; }
+    public Color Color 
+    {   get => color; 
+        set 
+        {
+            color = value;
+            Helix helix = GetHelix();
+            if (direction == 1)
+            {
+                helix.NucleotideColorAChanged = true;
+                helix.BackboneColorAChanged = true;
+            }
+            else
+            {
+                helix.NucleotideColorBChanged = true;
+                helix.BackboneColorBChanged = true;
+            }
+        } 
+    }
     public int Insertion { get => insertion; set => insertion = value; }
     public bool IsInsertion { get => insertion > 0; }
     public bool IsDeletion { get => isDeletion; set => isDeletion = value; }
@@ -34,17 +51,33 @@ public class NucleotideData
     public bool HasXover { get => xover != null; }
     public int DomainIdx { get => domainIdx; set => domainIdx = value; }
 
-    public bool IsHighlighted { get => isHighlighted; set => isHighlighted = value; }
+    public bool IsHighlighted { get => isHighlighted; set { Debug.Log("Setting is highlighted to true"); isHighlighted = value; } }
     public Color Highlight
     {
         get
         {
             if (isHighlighted)
+            {
+                Debug.Log("Returning highlight color");
                 return highlight;
+            }
+                
             else
                 return color; // default to color if not highlighted so that result is consistent
         }
-        set => highlight = value;
+        set 
+        {
+            highlight = value;
+            Helix helix = GetHelix();
+            if (direction == 1)
+            {
+                helix.NucleotideHighlightAChanged = true;
+            }
+            else
+            {
+                helix.NucleotideHighlightBChanged = true;
+            }
+        }
     }
 
 

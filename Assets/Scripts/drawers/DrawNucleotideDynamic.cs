@@ -74,7 +74,11 @@ public class DrawNucleotideDynamic : MonoBehaviour
         bool isPrevNucleotide = false;
         if (hitFound)
         {
-            nd = s_hit.transform.GetComponent<NucleotideColliderComponent>().Data;
+            var comp = s_hit.transform.GetComponent<NucleotideColliderComponent>();
+            if (comp != null)
+            {
+                nd = comp.Data;
+            }
             hitIsNucleotide = nd != null;
             isStartNucleotide = ReferenceEquals(nd, s_startGO);
             isPrevNucleotide = ReferenceEquals(nd, s_endGO);

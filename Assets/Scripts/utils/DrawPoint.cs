@@ -10,6 +10,7 @@ using static UnityEngine.Object;
 using static GlobalVariables;
 using SplineMesh;
 using TMPro;
+using UnityEngine.InputSystem.HID;
 
 /// <summary>
 /// Creates needed gameobjects like nucleotides, backbones, cones, Xovers, spheres, and grids.
@@ -407,7 +408,7 @@ public static class DrawPoint
         return xover;
     }
 
-    public static GameObject MakeXover(Domain prevDomain, Domain nextDomain)
+    public static GameObject MakeXover(Domain prevDomain, Domain nextDomain, Transform gc)
     {
         GameObject xover =
                    Instantiate(Xover,
@@ -431,23 +432,30 @@ public static class DrawPoint
         Vector3 prevPosition = prevNucl.GetPosition();
         Vector3 nextPosition = nextNucl.GetPosition();
 
+        //xover.transform.SetParent(gc); // helps with transformations
+
+
         // Position
         xover.transform.position = (nextPosition + prevPosition) / 2.0F;
 
         // Rotation
-        //Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
-        //Vector3 dirV = Vector3.Normalize(nextPosition - prevPosition);
-        //Vector3 rotAxisV = dirV + cylDefaultOrientation;
-        //rotAxisV = Vector3.Normalize(rotAxisV);
-        //xover.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
+        Vector3 dirV = Vector3.Normalize(nextPosition - prevPosition);
+        xover.transform.rotation = Quaternion.FromToRotation(Vector3.up, dirV);
 
-        xover.transform.rotation = Quaternion.FromToRotation(Vector3.forward, nextPosition - prevPosition);
+        //xover.transform.rotation = Quaternion.FromToRotation(Vector3.up, nextPosition - prevPosition);
 
 
         // Scale        
+        //Vector3 inverseScale = new Vector3(1f / gc.localScale.x, 1f / gc.localScale.y, 1f / gc.localScale.z);
+        //transform.SetParent(gc);
+
         float dist = Vector3.Distance(nextPosition, prevPosition);
-        xover.transform.localScale = new Vector3(0.2f, dist, 0.2f);
-        Debug.Log(string.Format("Finished drawing xover: {0}", xover.transform.localScale));
+        xover.transform.localScale = new Vector3(
+            0.2f,
+            (dist),
+            0.2f
+        );        //Debug.Log(string.Format("Finished drawing xover: {0}", xover.transform.localScale));
+
         return xover;
     }
 

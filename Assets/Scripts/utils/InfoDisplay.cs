@@ -70,11 +70,11 @@ public class InfoDisplay : MonoBehaviour
         }
     }
 
-    private void DisplayProteinInfo(GameObject go) 
+    private void DisplayProteinInfo(GameObject go)
     {
         StringBuilder text = new StringBuilder();
-        text.Append($"<b>{PROTEIN_STRING}</b>\n");
-        text.Append(go.name);
+        text.AppendLine(string.Format("<b>{0}</b>", PROTEIN_STRING));
+        text.AppendLine(go.name);
         textBox.text = text.ToString();
     }
 
@@ -82,13 +82,13 @@ public class InfoDisplay : MonoBehaviour
     {
         var comp = go.GetComponent<NucleotideColliderComponent>().Data;
         StringBuilder text = new StringBuilder();
-        text.Append("<b>Nucleotide</b>\n");
-        text.Append("DNA: " + comp.Sequence + "\n");
-        if (comp.IsInsertion) text.Append("Insertion Length: " + comp.Insertion + "\n");
-        text.Append("Nucl Id: " + comp.Id + "\n");
-        text.Append("Helix Id: " + comp.HelixId + "\n");
-        text.Append("Direction: " + (comp.Direction == 1 ? "Forward" : "Reverse") + "\n");
-        if (comp.GetDomain() != null && comp.GetDomain().IsExtension) text.Append("Is extension \n\n");
+        text.AppendLine("<b>Nucleotide</b>");
+        text.AppendLine(string.Format("DNA: {0}", comp.Sequence));
+        if (comp.IsInsertion) text.AppendLine(string.Format("Insertion Length: {0}", comp.Insertion));
+        text.AppendLine(string.Format("Nucl Id: {0}", comp.Id));
+        text.AppendLine(string.Format("Helix Id: {0}", comp.HelixId));
+        text.AppendLine(string.Format("Direction: {0}", comp.Direction == 1 ? "Forward" : "Reverse"));
+        if (comp.GetDomain() != null && comp.GetDomain().IsExtension) text.AppendLine("Is extension");
         DisplayStrandInfo(comp.StrandId, text);
 
     }
@@ -96,10 +96,10 @@ public class InfoDisplay : MonoBehaviour
     /*private void DisplayBackboneInfo(GameObject go)
     {
         var comp = go.GetComponent<BackBoneComponent>();
-        string text = "<b>Backbone</b>\n";
-        text += "Backbone Id: " + comp.Id + "\n";
-        text += "Helix Id: " + comp.HelixId + "\n";
-        text += "Direction: " + (comp.Direction == 1 ? "Forward" : "Reverse") + "\n\n";
+        string text = "<b>Backbone</b>";
+        text += string.Format("Backbone Id: {0}", comp.Id);
+        text += string.Format("Helix Id: {0}", comp.HelixId);
+        text += string.Format("Direction: {0}", comp.Direction == 1 ? "Forward" : "Reverse");
         DisplayStrandInfo(comp.StrandId, text);
     }*/
 
@@ -110,11 +110,11 @@ public class InfoDisplay : MonoBehaviour
         NucleotideData prevNucl = comp.GetPrevNucl();
         NucleotideData nextNucl = comp.GetNextNucl();
 
-        text.Append("<b>Loopout</b>\n");
-        text.Append(string.Format("Length: {0} \n", comp.SequenceLength));
-        text.Append(string.Format("Sequence: {0} \n", comp.Sequence));
-        text.Append(string.Format("1st Nucl: nucl{0} \n", prevNucl.Id));
-        text.Append(string.Format("2nd Nucl: nucl{0} \n\n", nextNucl.Id));
+        text.AppendLine("<b>Loopout</b>");
+        text.AppendLine(string.Format("Length: {0}", comp.SequenceLength));
+        text.AppendLine(string.Format("Sequence: {0}", comp.Sequence));
+        text.AppendLine(string.Format("1st Nucl: nucl{0}", prevNucl.Id));
+        text.AppendLine(string.Format("2nd Nucl: nucl{0}", nextNucl.Id));
         DisplayStrandInfo(comp.StrandId, text);
     }
 
@@ -125,10 +125,10 @@ public class InfoDisplay : MonoBehaviour
         NucleotideData prevNucl = comp.GetPrevNucl();
         NucleotideData nextNucl = comp.GetNextNucl();
 
-        text.Append("<b>Xover</b>\n");
-        text.Append(string.Format("Length: {0} \n", Math.Round(comp.Length, 2)));
-        text.Append(string.Format("1st Nucl: nucl{0} \n", prevNucl.Id));
-        text.Append(string.Format("2nd Nucl: nucl{0} \n\n", nextNucl.Id));
+        text.AppendLine("<b>Xover</b>");
+        text.AppendLine(string.Format("Length: {0}", Math.Round(comp.Length, 2)));
+        text.AppendLine(string.Format("1st Nucl: nucl{0}", prevNucl.Id));
+        text.AppendLine(string.Format("2nd Nucl: nucl{0}", nextNucl.Id));
         DisplayStrandInfo(comp.StrandId, text);
     }
 
@@ -148,10 +148,10 @@ public class InfoDisplay : MonoBehaviour
         {
             s_strandDict.TryGetValue(strandId, out strand);
         }
-        text.Append("<b>Strand</b>\n");
-        text.Append("Strand Id: " + strand.Id + "\n");
-        text.Append("Length: " + strand.GetLength() + "\n");
-        text.Append("Domains: " + strand.Domains.Count);
+        text.AppendLine("<b>Strand</b>");
+        text.AppendLine(string.Format("Strand Id: {0}", strand.Id));
+        text.AppendLine(string.Format("Length: {0}", strand.GetLength()));
+        text.AppendLine(string.Format("Domains: {0}", strand.Domains.Count));
         textBox.text = text.ToString();
     }
 
@@ -160,10 +160,10 @@ public class InfoDisplay : MonoBehaviour
         var comp = go.GetComponent<GridComponent>();
         StringBuilder text = new StringBuilder();
 
-        text.Append("<b>Grid</b>\n");
-        text.Append(string.Format("Grid Id: {0} \n", comp.GridId));
-        text.Append(string.Format("Coord: [{0}, {1}] \n", comp.GridPoint.X, comp.GridPoint.Y));
-        if (comp.Helix != null) text.Append(string.Format("Helix Id: {0} \n\n", comp.Helix.Id));
+        text.AppendLine("<b>Grid</b>");
+        text.AppendLine(string.Format("Grid Id: {0}", comp.GridId));
+        text.AppendLine(string.Format("Coord: [{0}, {1}]", comp.GridPoint.X, comp.GridPoint.Y));
+        if (comp.Helix != null) text.AppendLine(string.Format("Helix Id: {0}", comp.Helix.Id));
         textBox.text = text.ToString();
     }
 }
