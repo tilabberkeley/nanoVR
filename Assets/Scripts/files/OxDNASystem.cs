@@ -174,9 +174,10 @@ public class OxDNASystem
         var rollAxis = new OxdnaVector(0, 0, 1); // (0, 0, 1)
 
         // Extract roll, pitch, and yaw from helix transform
-        var roll = helix.GridComponent.transform.eulerAngles.z;
-        var pitch = helix.GridComponent.transform.eulerAngles.x;
-        var yaw = helix.GridComponent.transform.eulerAngles.y;
+        var euler = helix.GridCircleData.Rotation.eulerAngles;
+        float roll = euler.z;
+        float pitch = euler.x;
+        float yaw = euler.y;
 
         // Apply rotations in the order: yaw -> pitch -> roll
         pitchAxis = pitchAxis.Rotate(-yaw, yawAxis);
@@ -192,7 +193,7 @@ public class OxDNASystem
         var forward = -rollAxis;
         var normal = -yawAxis;
         
-        var helixNativePosition = helix._gridComponent.transform.position;
+        var helixNativePosition = helix.GridCircleData.Position;
 
         // Convert position to oxDNA units.
         var origin = new OxdnaVector(helixNativePosition.x, helixNativePosition.y, helixNativePosition.z) * SCALE_FROM_NANOVR_TO_NM * NM_TO_OX_UNITS;

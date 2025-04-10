@@ -253,8 +253,10 @@ public class SelectHelix : MonoBehaviour
 
             int xInd = grid.GridXToIndex(xGrid);
             int yInd = grid.GridYToIndex(yGrid);
-            GridComponent gc = grid.Grid2D[xInd, yInd];
-            gc.Helix = pair.Value.Helix;
+
+            // Update to grid circle refactor. Not sure if this works properly - Ollie 4/10/2025
+            GridCircleData gc = grid.Grid2D[xInd, yInd];
+            gc.HelixId = pair.Value.Helix.Id;
         }
     }
 

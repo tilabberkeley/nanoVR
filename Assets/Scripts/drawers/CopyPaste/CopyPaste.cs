@@ -280,8 +280,8 @@ public class CopyPaste : MonoBehaviour
 
         /* Get pasted position's GridPoint */
         Helix newHelix = s_helixDict[newGO.GetComponent<NucleotideComponent>().HelixId];
-        GridPoint newGP = newHelix._gridComponent.GridPoint;
-        DNAGrid grid = newHelix._gridComponent.Grid;
+        GridPoint newGP = newHelix.GridCircleData.GridPoint;
+        DNAGrid grid = newHelix.GridCircleData.dnaGrid;
         int newX = newGP.X;
         int newY = newGP.Y;
 
@@ -298,22 +298,22 @@ public class CopyPaste : MonoBehaviour
             int tempY = newY + xyDistances[i].Item2;
             int indexX = grid.GridXToIndex(tempX);
             int indexY = grid.GridYToIndex(tempY);
-            GridComponent gc = grid.Grid2D[indexX, indexY];
+            // GridComponent gc = grid.Grid2D[indexX, indexY]; Commenting out for grid circle refactor - Ollie 4/10/2025
             Debug.Log($"tempX: {tempX}, tempY: {tempY}");
 
-            if (gc == null || !gc.Selected)
-            {
-                Debug.Log("GC null or doesn't have helix");
-                return null;
-            }
+            //if (gc == null || !gc.Selected) Commenting out for grid circle refactor - Ollie 4/10/2025
+            //{
+            //    Debug.Log("GC null or doesn't have helix");
+            //    return null;
+            //}
 
-            List<GameObject> subNucleotides = GetSubList(endpoints[i].Item1, endpoints[i].Item2, gc, offset, differentDirection);
-            if (subNucleotides == null)
-            {
-                Debug.Log("subnucl list null");
-                return null;
-            }
-            nucleotides.AddRange(subNucleotides);
+            //zList<GameObject> subNucleotides = GetSubList(endpoints[i].Item1, endpoints[i].Item2, gc, offset, differentDirection);
+            //if (subNucleotides == null)
+            //{
+            //    Debug.Log("subnucl list null");
+            //    return null;
+            //}
+            //nucleotides.AddRange(subNucleotides);
         }
         return nucleotides;
     }
@@ -341,12 +341,12 @@ public class CopyPaste : MonoBehaviour
     private static List<(int, int)> CalculateXYDistances(Strand strand, GameObject firstStrandHead)
     {
         Helix firstDomainHelix = s_helixDict[strand.Head.GetComponent<NucleotideComponent>().HelixId];
-        GridPoint firstDomainGP = firstDomainHelix._gridComponent.GridPoint;
+        GridPoint firstDomainGP = firstDomainHelix.GridCircleData.GridPoint;
         int fdX = firstDomainGP.X;
         int fdY = firstDomainGP.Y;
 
         Helix firstStrandHelix = s_helixDict[firstStrandHead.GetComponent<DNAComponent>().HelixId];
-        GridPoint firstStrandGP = firstStrandHelix._gridComponent.GridPoint;
+        GridPoint firstStrandGP = firstStrandHelix.GridCircleData.GridPoint;
         int fsX = firstStrandGP.X;
         int fsY = firstStrandGP.Y;
 
@@ -362,7 +362,7 @@ public class CopyPaste : MonoBehaviour
         {
             GameObject go = strand.Xovers[i].GetComponent<XoverComponent>().NextGO;
             Helix helix = s_helixDict[go.GetComponent<NucleotideComponent>().HelixId];
-            GridPoint gp = helix._gridComponent.GridPoint;
+            GridPoint gp = helix.GridCircleData.GridPoint;
             (int, int) distance = (gp.X - fdX + dx, gp.Y - fdY + dy);
             Debug.Log($"XY distance: {distance}");
             xyDistances.Add(distance);

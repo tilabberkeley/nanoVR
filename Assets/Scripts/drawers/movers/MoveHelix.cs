@@ -68,7 +68,7 @@ public class MoveHelix : MonoBehaviour
                     if (!s_hit.collider.gameObject.Equals(s_gridCircle) && gc.Selected)
                     {
                         DoMove(s_gridCircle, s_hit.collider.gameObject);
-                        gc.Grid.CheckExpansion(gc);
+                        // gc.Grid.CheckExpansion(gc); Commenting out for grid circle refactor - Ollie 4/10/2025
                         Reset();
                     }
                 }
@@ -99,24 +99,24 @@ public class MoveHelix : MonoBehaviour
     // Moves helix's nucleotide objects to a new Grid Circle's position.
     public static void Move(GameObject oldCircle, GameObject newCircle)
     {
-        if (!IsValid(oldCircle, newCircle))
-        {
-            return;
-        }
-        float diffX = newCircle.transform.position.x - oldCircle.transform.position.x;
-        float diffY = newCircle.transform.position.y - oldCircle.transform.position.y;
-        float diffZ = newCircle.transform.position.z - oldCircle.transform.position.z;
+        //if (!IsValid(oldCircle, newCircle)) Commenting out for grid circle refactor - Ollie 4/10/2025
+        //{
+        //    return;
+        //}
+        //float diffX = newCircle.transform.position.x - oldCircle.transform.position.x;
+        //float diffY = newCircle.transform.position.y - oldCircle.transform.position.y;
+        //float diffZ = newCircle.transform.position.z - oldCircle.transform.position.z;
 
-        var oldComp = oldCircle.GetComponent<GridComponent>();
-        var newComp = newCircle.GetComponent<GridComponent>();
+        //var oldComp = oldCircle.GetComponent<GridComponent>();
+        //var newComp = newCircle.GetComponent<GridComponent>();
 
-        oldComp.Helix.MoveNucleotides(new Vector3(diffX, diffY, diffZ));
-        newComp.Helix = oldComp.Helix;
-        oldComp.Helix = null;
-        oldComp.Selected = false;
-        newComp.Selected = true;
-        //newComp.Helix.StartPoint = oldCircle.transform.position;
-        newComp.Helix._gridComponent = newComp;
+        //oldComp.Helix.MoveNucleotides(new Vector3(diffX, diffY, diffZ));
+        //newComp.Helix = oldComp.Helix;
+        //oldComp.Helix = null;
+        //oldComp.Selected = false;
+        //newComp.Selected = true;
+        ////newComp.Helix.StartPoint = oldCircle.transform.position;
+        //newComp.Helix._gridComponent = newComp;
     }
 
     public static bool IsValid(GameObject oldCircle, GameObject newCircle)

@@ -133,12 +133,14 @@ public class FileExport : MonoBehaviour
             /* Converts Unity quaternion into pitch, yaw, roll for scadnano json. 
              * @source: https://discussions.unity.com/t/finding-pitch-roll-yaw-from-quaternions/65684/3
              */
-            Quaternion q = grid.StartGridCircle.transform.rotation;
+            Quaternion q = grid.StartGridCircle.Rotation;
             float pitch = Utils.ToPitch(q);
             float yaw = Utils.ToYaw(q);
             float roll = Utils.ToRoll(q);
 
-            Quaternion localQ = grid.StartGridCircle.transform.localRotation;
+            /* This code previously used the local rotation of the grid circle's transfrom, but it shouldn't have a parent,
+               so it would just equal the transform.rotation. Will need to test how this comes out fs. TODO */
+            Quaternion localQ = grid.StartGridCircle.Rotation;
             float pitch_local = Utils.ToPitch(localQ);
             float yaw_local = Utils.ToYaw(localQ);
             float roll_local = Utils.ToRoll(localQ);
@@ -178,10 +180,10 @@ public class FileExport : MonoBehaviour
 
             if (!gridIds.Contains(helix.GridId)) continue;
 
-            JArray gridPosition = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y * -1 }; // Negative Y-axis for .sc format 
+            JArray gridPosition = new JArray { helix.GridCircleData.GridPoint.X, helix.GridCircleData.GridPoint.Y * -1 }; // Negative Y-axis for .sc format 
             if (isOxDNA)
             {
-                gridPosition = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y };
+                gridPosition = new JArray { helix.GridCircleData.GridPoint.X, helix.GridCircleData.GridPoint.Y };
             }
 
             JObject jsonHelix = new JObject

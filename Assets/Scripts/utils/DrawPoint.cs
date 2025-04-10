@@ -408,7 +408,7 @@ public static class DrawPoint
         return xover;
     }
 
-    public static GameObject MakeXover(Domain prevDomain, Domain nextDomain, Transform gc)
+    public static GameObject MakeXover(Domain prevDomain, Domain nextDomain)
     {
         GameObject xover =
                    Instantiate(Xover,
@@ -702,7 +702,7 @@ public static class DrawPoint
         float dist = Vector3.Distance(endPos, startPos);
         cylinder.transform.localScale = new Vector3(Utils.RADIUS * 2, dist / 2, Utils.RADIUS * 2);
 
-        cylinder.transform.SetParent(helix._gridComponent.transform);
+        // cylinder.transform.SetParent(helix._gridComponent.transform); Commenting out for grid circle refactor - Ollie 4/10/2025
         return helixComponent;
     }
 }

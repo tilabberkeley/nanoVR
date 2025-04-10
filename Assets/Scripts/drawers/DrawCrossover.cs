@@ -15,7 +15,7 @@ using static Utils;
 public struct VirtualNucleotide
 {
     public Helix helix;  // Reference to the helix this nucleotide belongs to.
-    public int index;    // Index within the helix’s nucleotide list.
+    public int index;    // Index within the helixï¿½s nucleotide list.
     public int direction; // Direction of nucleotide (in helix list A or list B).
 
     /// <summary>
@@ -367,8 +367,7 @@ public class DrawCrossover : MonoBehaviour
     public static XoverComponent CreateXoverHelper(Domain prevDomain, Domain nextDomain, int strandId, Color color, Color savedColor, int prevStrandId = -1, bool showXover = true)
     {
         // Create crossover, assign appropiate prev and next properties.
-        Transform gc = prevDomain.GetHelix()._gridComponent.transform;
-        GameObject xover = DrawPoint.MakeXover(prevDomain, nextDomain, gc);
+        GameObject xover = DrawPoint.MakeXover(prevDomain, nextDomain);
         XoverComponent xoverComponent = xover.GetComponent<XoverComponent>();
         xoverComponent.PrevDomainIdx = prevDomain.Id;
         xoverComponent.NextDomainIdx = nextDomain.Id;

@@ -413,10 +413,10 @@ public abstract class DNAGrid
     /// Expands the grid if the position of the grid component is on the edge of the grid.
     /// </summary>
     /// <param name="gridComponent">Grid component to check if on the edge.</param>
-    public void CheckExpansion(GridComponent gridComponent)
+    public void CheckExpansion(GridCircleData gridCircleData)
     {
-        int x = gridComponent.GridPoint.X;
-        int y = gridComponent.GridPoint.Y;
+        int x = gridCircleData.GridPoint.X;
+        int y = gridCircleData.GridPoint.Y;
         int maxX = _maximumBound.X;
         int maxY = _maximumBound.Y;
         int minX = _minimumBound.X;
@@ -447,17 +447,18 @@ public abstract class DNAGrid
     /// TODO: Revamp this to grid circle data if this method is useful in the future.
     public abstract List<GridComponent> GetNeighborGridComponents(GridPoint gridPoint);
 
+    // TODO: Convert grid component parameter to grid circle data.
     public void DoAddHelix(int id, Vector3 startPoint, int length, string orientation, GridComponent gridComponent)
     {
         ICommand command = new CreateHelixCommand(id, startPoint, length, orientation, gridComponent, this);
         CommandManager.AddCommand(command);
     }
 
-    public Helix AddHelix(int id, Vector3 startPoint, int length, string orientation, GridComponent gridComponent)
+    public Helix AddHelix(int id, GridCircleData girdCircleData)
     {
-        Helix helix = new Helix(id, orientation, length, gridComponent);
-        gridComponent.Helix = helix;
-        gridComponent.Selected = true;
+        Helix helix = new Helix(id, girdCircleData);
+        girdCircleData.HelixId = id;
+        // gridComponent.Selected = true;
         if (s_visualMode)
         {
             s_visHelixDict.Add(id, helix);
@@ -597,14 +598,5 @@ public abstract class DNAGrid
             }
         }
         return true;
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    protected void StaticBatchGridGO(GameObject gridGO)
-    {
-        GameObject[] gridGOArray = { gridGO };
-        StaticBatchingUtility.Combine(gridGOArray, s_staticBatchRoot);
     }
 }

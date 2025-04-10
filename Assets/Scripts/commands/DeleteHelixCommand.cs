@@ -20,7 +20,7 @@ public class DeleteHelixCommand : ICommand
         _endPoint = helix.EndPoint;
         _orientation = helix.Orientation;
         _length = helix.Length;
-        _gridComponent = helix._gridComponent;
+        // _gridComponent = helix._gridComponent; Commenting out for grid circle refactor - Ollie 4/10/2025
         _grid = _gridComponent.Grid;
     }
 
@@ -34,13 +34,13 @@ public class DeleteHelixCommand : ICommand
         s_helixDict.TryGetValue(_id, out Helix helix);
         _startPoint = helix.StartPoint;
         _length = helix.Length;
-        _gridComponent = helix._gridComponent;
+        // _gridComponent = helix._gridComponent; Commenting out for grid circle refactor - Ollie 4/10/2025
         SelectHelix.DeleteHelix(_id);
     }
 
     public void Undo()
     {
-        Helix helix = _grid.AddHelix(_id, _startPoint, _length, _orientation, _gridComponent);
-        helix.Extend(_length);
+        // Helix helix = _grid.AddHelix(_id, _startPoint, _length, _orientation, _gridComponent); Commenting out for grid circle refactor - Ollie 4/10/2025
+        // helix.Extend(_length);
     }
 }

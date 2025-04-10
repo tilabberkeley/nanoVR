@@ -344,8 +344,8 @@ public class FileImport : MonoBehaviour
             {
                 int xInd = grid.GridXToIndex(xGrid);
                 int yInd = grid.GridYToIndex(yGrid);
-                GridComponent gc = grid.Grid2D[xInd, yInd];
-                Helix helix = grid.AddHelix(helixId, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
+                GridCircleData gc = grid.Grid2D[xInd, yInd];
+                Helix helix = grid.AddHelix(helixId, gc);
                 helix.Extend(length);
                 //Debug.Log("Finished extending helix");
             }
@@ -485,7 +485,7 @@ public class FileImport : MonoBehaviour
                     {     
                         int nextDomainHelixId = (int) domains[j + 1]["helix"] + lastHelixId;
                         Helix nextDomainHelix = s_helixDict[nextDomainHelixId];
-                        GridComponent nextDomainGC = nextDomainHelix.GridComponent;
+                        GridCircleData nextDomainGC = nextDomainHelix.GridCircleData;
                         DNAGrid grid = s_gridDict[nextDomainHelix.GridId];
 
                         bool nextForward = (bool)domains[j + 1]["forward"];
@@ -528,7 +528,7 @@ public class FileImport : MonoBehaviour
                     {
                         int nextDomainHelixId = (int)domains[j - 1]["helix"] + lastHelixId;
                         Helix nextDomainHelix = s_helixDict[nextDomainHelixId];
-                        GridComponent nextDomainGC = nextDomainHelix.GridComponent;
+                        GridCircleData nextDomainGC = nextDomainHelix.GridCircleData;
                         DNAGrid grid = s_gridDict[nextDomainHelix.GridId];
 
                         bool nextForward = (bool)domains[j - 1]["forward"];
@@ -597,13 +597,13 @@ public class FileImport : MonoBehaviour
         loadingMenu.enabled = false;
     }
 
-    private bool DrawHeadExtension(DNAGrid grid, GridComponent domainGC, Strand strand, int startId, int endId, bool forward, int extensionLength, int dx, int dy)
+    private bool DrawHeadExtension(DNAGrid grid, GridCircleData domainGC, Strand strand, int startId, int endId, bool forward, int extensionLength, int dx, int dy)
     {
         int newX = domainGC.GridPoint.X + dx;
         int newY = domainGC.GridPoint.Y + dy;
         int xIndex = grid.GridXToIndex(newX);
         int yIndex = grid.GridYToIndex(newY);
-        GridComponent gc = grid.Grid2D[xIndex, yIndex];
+        GridCircleData gc = grid.Grid2D[xIndex, yIndex];
 
         // We have found a neighbor Grid circle with no helix.
         if (gc != null)
@@ -615,7 +615,7 @@ public class FileImport : MonoBehaviour
 
             if (gc.Helix == null)
             {
-                helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), actualLength, PLANE, gc);
+                helix = grid.AddHelix(s_numHelices, gc);
                 helix.Extend(actualLength);
                 grid.CheckExpansion(gc);
             }
@@ -646,13 +646,13 @@ public class FileImport : MonoBehaviour
         return false;
     }
 
-    private bool DrawTailExtension(DNAGrid grid, GridComponent domainGC, Strand strand, int startId, int endId, bool forward, int extensionLength, int dx, int dy)
+    private bool DrawTailExtension(DNAGrid grid, GridCircleData domainGC, Strand strand, int startId, int endId, bool forward, int extensionLength, int dx, int dy)
     {
         int newX = domainGC.GridPoint.X + dx;
         int newY = domainGC.GridPoint.Y + dy;
         int xIndex = grid.GridXToIndex(newX);
         int yIndex = grid.GridYToIndex(newY);
-        GridComponent gc = grid.Grid2D[xIndex, yIndex];
+        GridCircleData gc = grid.Grid2D[xIndex, yIndex];
 
         // We have found a neighbor Grid circle with no helix.
         if (gc != null)
@@ -664,7 +664,7 @@ public class FileImport : MonoBehaviour
 
             if (gc.Helix == null)
             {
-                helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), actualLength, PLANE, gc);
+                helix = grid.AddHelix(s_numHelices, gc);
                 Debug.Log("Drew helix for extension domain");
                 helix.Extend(actualLength);
                 grid.CheckExpansion(gc);
@@ -708,15 +708,15 @@ public class FileImport : MonoBehaviour
         List<GameObject> domain = new List<GameObject>();
         NucleotideComponent currHead = xoverEndpoints[0].GetComponent<NucleotideComponent>();
         int currHeadDirection = currHead.Direction;
-        GridComponent gc = s_helixDict[currHead.HelixId].GridComponent;
+        GridCircleData gc = s_helixDict[currHead.HelixId].GridCircleData;
         Vector3 direction;
         if (currHeadDirection == 0)
         {
-            direction = gc.transform.right;
+            direction = gc.Right;
         }
         else
         {
-            direction = -gc.transform.right;
+            direction = -gc.Right;
         }
 
 

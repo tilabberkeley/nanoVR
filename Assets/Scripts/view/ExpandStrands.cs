@@ -129,8 +129,8 @@ public class ExpandStrands : MonoBehaviour
             DNAGrid grid = s_visGridDict[gridName];
             int xInd = grid.GridXToIndex((int)coord[0]);
             int yInd = grid.GridYToIndex((int)(coord[1]) * -1);
-            GridComponent gc = grid.Grid2D[xInd, yInd];
-            Helix helix = grid.AddHelix(s_numVisHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, "XY", gc);
+            GridCircleData gc = grid.Grid2D[xInd, yInd];
+            Helix helix = grid.AddHelix(s_numVisHelices, gc);
             helix.Extend(length);
             grid.CheckExpansion(gc);
         }
@@ -264,7 +264,7 @@ public class ExpandStrands : MonoBehaviour
             Helix helix = item.Value;
             JObject jsonHelix = new JObject
             {
-                ["grid_position"] = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y * -1 }, // Negative Y-axis for .sc format 
+                ["grid_position"] = new JArray { helix.GridCircleData.GridPoint.X, helix.GridCircleData.GridPoint.Y * -1 }, // Negative Y-axis for .sc format 
                 ["group"] = helix.GridId.ToString(),
                 ["idx"] = id,
                 ["max_offset"] = helix.Length

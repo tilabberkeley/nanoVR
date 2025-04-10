@@ -98,4 +98,111 @@ public class GridCircleData
             return new Vector3(column3.x, column3.y, column3.z);
         }
     }
+
+    /// <summary>
+    /// Returns the pure world rotation of this grid circle (Quaternion),
+    /// factoring out any scaling in the parent grid's matrix.
+    /// </summary>
+    public Quaternion Rotation
+    {
+        get
+        {
+            DNAGrid parentGrid = dnaGrid;
+
+            // Multiply the grid's world matrix by this circle's local matrix
+            Matrix4x4 finalMatrix = parentGrid.GridMatrix * LocalMatrix;
+
+            // Convert that final matrix to a pure rotation quaternion (removing non-uniform scale).
+            return ExtractPureRotation(finalMatrix);
+        }
+    }
+
+    /// <summary>
+    /// Returns the forward direction of this grid circle.
+    /// </summary>
+    public Vector3 Forward
+    {
+        get
+        {
+            DNAGrid parentGrid = dnaGrid;
+            Matrix4x4 finalMatrix = parentGrid.GridMatrix * LocalMatrix;
+
+            // Extract the pure rotation (strips out non-uniform scale).
+            Quaternion pureRotation = ExtractPureRotation(finalMatrix);
+
+            // The forward direction is rotation * (0,0,1).
+            return pureRotation * Vector3.forward;
+        }
+    }
+
+    /// <summary>
+    /// Returns the right direction of this grid circle.
+    /// </summary>
+    public Vector3 Right
+    {
+        get
+        {
+            DNAGrid parentGrid = dnaGrid;
+            Matrix4x4 finalMatrix = parentGrid.GridMatrix * LocalMatrix;
+
+            // Extract the pure rotation (strips out non-uniform scale).
+            Quaternion pureRotation = ExtractPureRotation(finalMatrix);
+
+            // Multiply that rotation by Vector3.right to get the world +X axis
+            return pureRotation * Vector3.right;
+        }
+    }
+
+
+    /// <summary>
+    /// Extracts a pure rotation (Quaternion) from a 4x4 transform matrix,
+    /// removing any non-uniform scaling by normalizing each axis in the top-left 3x3.
+    /// </summary>
+    private static Quaternion ExtractPureRotation(Matrix4x4 matrix)
+    {
+        // 1) Pull out each basis vector (the columns) from the 3×3 part
+        Vector3 col0 = new Vector3(matrix.m00, matrix.m10, matrix.m20);
+        Vector3 col1 = new Vector3(matrix.m01, matrix.m11, matrix.m21);
+        Vector3 col2 = new Vector3(matrix.m02, matrix.m12, matrix.m22);
+
+        // 2) Compute their magnitudes (the scale factors)
+        float len0 = col0.magnitude;
+        float len1 = col1.magnitude;
+        float len2 = col2.magnitude;
+
+        // Avoid divide-by-zero if scale is extremely small
+        if (len0 < 1e-5f || len1 < 1e-5f || len2 < 1e-5f)
+        {
+            // Fallback: no valid rotation
+            return Quaternion.identity;
+        }
+
+        // 3) Normalize each column to remove scaling
+        col0 /= len0;
+        col1 /= len1;
+        col2 /= len2;
+
+        // 4) Rebuild a 3×3 rotation matrix with no scale
+        Matrix4x4 rotationOnly = Matrix4x4.identity;
+        rotationOnly.m00 = col0.x; rotationOnly.m01 = col1.x; rotationOnly.m02 = col2.x;
+        rotationOnly.m10 = col0.y; rotationOnly.m11 = col1.y; rotationOnly.m12 = col2.y;
+        rotationOnly.m20 = col0.z; rotationOnly.m21 = col1.z; rotationOnly.m22 = col2.z;
+
+        // 5) Extract a Quaternion from that pure rotation matrix
+        return ExtractRotation(rotationOnly);
+    }
+
+    /// <summary>
+    /// Converts a pure rotation matrix (no scale/shear) to a Quaternion.
+    /// </summary>
+    private static Quaternion ExtractRotation(Matrix4x4 m)
+    {
+        // Formula from: https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
+        float w = Mathf.Sqrt(1f + m.m00 + m.m11 + m.m22) / 2f;
+        float w4 = 4f * w;
+        float x = (m.m21 - m.m12) / w4;
+        float y = (m.m02 - m.m20) / w4;
+        float z = (m.m10 - m.m01) / w4;
+        return new Quaternion(x, y, z, w);
+    }
 }

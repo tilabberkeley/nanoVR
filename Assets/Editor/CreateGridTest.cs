@@ -139,7 +139,7 @@ public class CreateGridTest
     public void DeleteGridWithEmptyHelixTest()
     {
         DNAGrid grid = DrawGrid.CreateGrid("1", "XY", new Vector3(0, 0, 0), "square");
-        grid.AddHelix(0, grid.Grid2D[0, 0].Position, 64, "XY", grid.Grid2D[0, 0]);
+        grid.AddHelix(0, grid.Grid2D[0, 0]);
         grid.DeleteGrid();
         Assert.AreEqual(2, GlobalVariables.s_numGrids);
         Assert.AreEqual(0, GlobalVariables.s_gridDict.Count);

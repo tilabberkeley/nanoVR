@@ -139,18 +139,18 @@ public class TransformHandle : MonoBehaviour
     /// </summary>
     public static void ShowTransform(DNAGrid grid)
     {
-        Debug.Log("Show transform");
-        gizmos.SetActive(true);
-        int minXIndex = grid.GridXToIndex(grid.MinimumBound.X);
-        int minYIndex = grid.GridYToIndex(grid.MinimumBound.Y);
-        Transform transform = grid.Grid2D[minXIndex, minYIndex].transform;
-        Vector3 position = Camera.main.transform.position + Camera.main.transform.forward * 0.5f;
-        gizmosTransform.SetPositionAndRotation(position, transform.rotation);
+        //Debug.Log("Show transform"); Commenting out for grid circle refactor - Ollie 4/10/2025
+        //gizmos.SetActive(true);
+        //int minXIndex = grid.GridXToIndex(grid.MinimumBound.X);
+        //int minYIndex = grid.GridYToIndex(grid.MinimumBound.Y);
+        //Transform transform = grid.Grid2D[minXIndex, minYIndex].transform;
+        //Vector3 position = Camera.main.transform.position + Camera.main.transform.forward * 0.5f;
+        //gizmosTransform.SetPositionAndRotation(position, transform.rotation);
 
-        initialGizmoMatrix = Matrix4x4.TRS(
-                    gizmosTransform.position,
-                    gizmosTransform.rotation,
-                    Vector3.one);
+        //initialGizmoMatrix = Matrix4x4.TRS(
+        //            gizmosTransform.position,
+        //            gizmosTransform.rotation,
+        //            Vector3.one);
     }
 
     /// <summary>
@@ -172,49 +172,49 @@ public class TransformHandle : MonoBehaviour
 
     private static void AttachChildren(DNAGrid grid)
     {
-        for (int i = 0; i < grid.Length; i++)
-        {
-            for (int j = 0; j < grid.Width; j++)
-            {
-                grid.Grid2D[i, j].transform.SetParent(gizmosTransform, true);
-                grid.Grid2D[i, j].GetComponent<Collider>().enabled = false;
-                if (grid.Grid2D[i, j].Helix != null)
-                {
-                    grid.Grid2D[i, j].Helix.IsTransforming = true;
-                }
-            }
-        }
+        //for (int i = 0; i < grid.Length; i++) Commenting out for grid circle refactor - Ollie 4/10/2025
+        //{
+        //    for (int j = 0; j < grid.Width; j++)
+        //    {
+        //        grid.Grid2D[i, j].transform.SetParent(gizmosTransform, true);
+        //        grid.Grid2D[i, j].GetComponent<Collider>().enabled = false;
+        //        if (grid.Grid2D[i, j].Helix != null)
+        //        {
+        //            grid.Grid2D[i, j].Helix.IsTransforming = true;
+        //        }
+        //    }
+        //}
     }
 
     public static void DetachChildren()
-    {   
-        //Debug.Log("Num children: " + gizmos.transform.childCount);
+    {
+        //Debug.Log("Num children: " + gizmos.transform.childCount); Commenting out for grid circle refactor - Ollie 4/10/2025
         //int n = gizmos.transform.childCount;
 
-        Matrix4x4 gizmosMatrix = Matrix4x4.TRS(
-                                    gizmosTransform.position,
-                                    gizmosTransform.rotation,
-                                    Vector3.one);
-        Matrix4x4 delta = gizmosMatrix * initialGizmoMatrix.inverse;
-        foreach (DNAGrid grid in translatedGrids)
-        {
-            for (int i = 0; i < grid.Length; i++)
-            {
-                for (int j = 0; j < grid.Width; j++)
-                {
-                    grid.Grid2D[i, j].transform.SetParent(null);
-                    grid.Grid2D[i, j].GetComponent<Collider>().enabled = true;
-                    if (grid.Grid2D[i, j].Helix != null)
-                    {
-                        grid.Grid2D[i, j].Helix.IsTransforming = false;
-                        grid.Grid2D[i, j].Helix.TransformOffset = delta * grid.Grid2D[i, j].Helix.TransformOffset;
-                    }
-                }
-            }
+        //Matrix4x4 gizmosMatrix = Matrix4x4.TRS(
+        //                            gizmosTransform.position,
+        //                            gizmosTransform.rotation,
+        //                            Vector3.one);
+        //Matrix4x4 delta = gizmosMatrix * initialGizmoMatrix.inverse;
+        //foreach (DNAGrid grid in translatedGrids)
+        //{
+        //    for (int i = 0; i < grid.Length; i++)
+        //    {
+        //        for (int j = 0; j < grid.Width; j++)
+        //        {
+        //            grid.Grid2D[i, j].transform.SetParent(null);
+        //            grid.Grid2D[i, j].GetComponent<Collider>().enabled = true;
+        //            if (grid.Grid2D[i, j].Helix != null)
+        //            {
+        //                grid.Grid2D[i, j].Helix.IsTransforming = false;
+        //                grid.Grid2D[i, j].Helix.TransformOffset = delta * grid.Grid2D[i, j].Helix.TransformOffset;
+        //            }
+        //        }
+        //    }
 
-        }
-        //translatedGrids.Clear();
-        initialGizmoMatrix = Matrix4x4.identity;
-        HideTransform();
+        //}
+        ////translatedGrids.Clear();
+        //initialGizmoMatrix = Matrix4x4.identity;
+        //HideTransform();
     }
 }

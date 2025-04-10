@@ -21,10 +21,10 @@ public class Helix
     private int _id;
     public int Id { get { return _id; } set { _id = value; } }
 
-    public string GridId { get { return _gridComponent.GridId; } }
+    public string GridId { get { return _gridCircleData.GridId; } }
 
     //private Vector3 _startPoint;
-    public Vector3 StartPoint { get { return _gridComponent.Position; } }
+    public Vector3 StartPoint { get { return _gridCircleData.Position; } }
 
     private Vector3 _endPoint;
     public Vector3 EndPoint { get { return _endPoint; } set { _endPoint = value; } }
@@ -36,10 +36,9 @@ public class Helix
     private int _length;
     public int Length { get { return _length; } }
 
-    // Grid Component that helix is on.
-    // TODO: make all public references to _gridComponent use the property instead.
-    public GridComponent _gridComponent;
-    public GridComponent GridComponent { get { return _gridComponent; } }
+    // Grid Cirlce that helix is on.
+    public GridCircleData _gridCircleData;
+    public GridCircleData GridCircleData { get { return _gridCircleData; } }
 
     // Mesh Combiner component of GridComponent.
     //private MeshCombiner _meshCombiner;
@@ -133,12 +132,11 @@ public class Helix
     public bool NucleotideHighlightBChanged { set => nucleotideHighlightBChanged = value; }
 
     // Helix constructor.
-    public Helix(int id, string orientation, int length, GridComponent gridComponent)
+    public Helix(int id, GridCircleData gridCircleData)
     {
         _id = id;
         _length = 0;
-        _orientation = orientation;
-        _gridComponent = gridComponent;
+        _gridCircleData = gridCircleData;
         _nucleotidesA = new List<GameObject>();
         _backbonesA = new List<GameObject>();
         _nucleotidesB = new List<GameObject>();
@@ -329,7 +327,7 @@ public class Helix
         Vector3 positionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
 
         // Create a quaternion from the Euler angles of the grid component's transform
-        Quaternion rotation = Quaternion.Euler(_gridComponent.transform.eulerAngles);
+        Quaternion rotation = _gridCircleData.Rotation;
 
         // Apply the rotation to positionA and positionB relative to the start point. 
         Vector3 rotatedPositionA = rotation * (positionA - StartPoint) + StartPoint;
@@ -927,8 +925,8 @@ public class Helix
         {
             return;
         }
-        Vector3 startPos = _gridComponent.transform.position + (RISE * startIdx * -_gridComponent.transform.forward);
-        Vector3 endPos = _gridComponent.transform.position + (endIdx * RISE * -_gridComponent.transform.forward);
+        Vector3 startPos = _gridCircleData.Position + (RISE * startIdx * -_gridCircleData.Forward);
+        Vector3 endPos = _gridCircleData.Position + (endIdx * RISE * -_gridCircleData.Forward);
        
         Color color;
         if (singleStrandRegion)
@@ -948,8 +946,8 @@ public class Helix
         {
             GameObject.Destroy(helixCollider);
         }
-        Vector3 startPos = _gridComponent.transform.position;
-        Vector3 endPos = _gridComponent.transform.position + (nucleotideMatricesA.Count * RISE * -_gridComponent.transform.forward);
+        Vector3 startPos = _gridCircleData.Position;
+        Vector3 endPos = _gridCircleData.Position + (nucleotideMatricesA.Count * RISE * -_gridCircleData.Forward);
         helixCollider = DrawPoint.MakeHelixCollider(this, startPos, endPos);
     }
 
@@ -975,8 +973,8 @@ public class Helix
     /// </summary>
     public void DeleteHelix()
     {
-        _gridComponent.Helix = null;
-        _gridComponent.Selected = false;
+        _gridCircleData.HelixId = -1;
+        // _gridComponent.Selected = false;
         s_helixDict.Remove(_id);
         foreach (GameObject nucleotide in NucleotidesA)
         {
@@ -1003,15 +1001,15 @@ public class Helix
     public List<Helix> GetNeighborHelices()
     {
         List<Helix> helices = new List<Helix>();
-        foreach (GridComponent gridComponent in _gridComponent.getNeighborGridComponents())
-        {
-            Helix helix = gridComponent.Helix;
-            // helix != null if there is a helix on the grid component
-            if (helix != null)
-            {
-                helices.Add(helix);
-            }
-        }
+        //foreach (GridComponent gridComponent in _gridComponent.getNeighborGridComponents()) Commenting out for grid circle refactor - Ollie 4/10/2025
+        //{
+        //    Helix helix = gridComponent.Helix;
+        //    // helix != null if there is a helix on the grid component
+        //    if (helix != null)
+        //    {
+        //        helices.Add(helix);
+        //    }
+        //}
         return helices;
     }
 

@@ -84,7 +84,7 @@ public class DrawGrid : MonoBehaviour
         if (!gc.Selected)
         {
             gc.Grid.DoAddHelix(id, startPos, length, orientation, gc);
-            gc.Grid.CheckExpansion(gc);
+            // gc.Grid.CheckExpansion(gc); Commenting out for grid circle refactor - Ollie 4/10/2025
         }
     }
 }

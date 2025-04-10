@@ -248,7 +248,7 @@ public class DomainComponent : MonoBehaviour
         {
             s_helixDict.TryGetValue(firstNucleotide.HelixId, out Helix helix);
             Helix = helix;
-            Vector3 gridCircleCenter = Helix.GridComponent.transform.position;
+            Vector3 gridCircleCenter = Helix.GridCircleData.Position;
             domainCenter.x = gridCircleCenter.x;
             domainCenter.y = gridCircleCenter.y;
         }
