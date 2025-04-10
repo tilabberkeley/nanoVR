@@ -440,6 +440,36 @@ public abstract class DNAGrid
     }
 
     /// <summary>
+    /// Builds a list of final (world-space) matrices for each grid circle,
+    /// by combining the grid's transform with each circle's local matrix.
+    /// </summary>
+    public List<Matrix4x4> GetCircleMatrices()
+    {
+        // We'll store the final transform for each circle here
+        List<Matrix4x4> finalMatrices = new List<Matrix4x4>();
+
+        for (int i = 0; i < _length; i++)
+        {
+            for (int j = 0; j < _width; j++)
+            {
+                GridCircleData circleData = _grid2D[i, j];
+
+                // The local matrix for this circle
+                Matrix4x4 localMatrix = circleData.LocalMatrix;
+
+                // Multiply by this grid's parent transform (GridMatrix) 
+                // to get the circle's final world-space transform
+                Matrix4x4 finalMatrix = GridMatrix * localMatrix;
+
+                finalMatrices.Add(finalMatrix);
+            }
+        }
+
+        return finalMatrices;
+    }
+
+
+    /// <summary>
     /// Returns neighboring grid components of provided grid component.
     /// </summary>
     /// <param name="gridPoint">Location of grid component.</param>

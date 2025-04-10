@@ -4,6 +4,7 @@
  */
 using UnityEngine;
 using System.Collections.Generic;
+using static GlobalVariables;
 
 public class HelixManager : MonoBehaviour
 {
@@ -15,7 +16,6 @@ public class HelixManager : MonoBehaviour
 
     // List of Helix instances (could be plain classes or MonoBehaviours)
     // public List<Helix> helixInstances = new List<Helix>();
-    const int BATCH_SIZE = 1023;
 
     private Matrix4x4[] _matrixBuffer = new Matrix4x4[BATCH_SIZE];
 

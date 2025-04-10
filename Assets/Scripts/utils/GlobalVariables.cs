@@ -80,7 +80,6 @@ public static class GlobalVariables
     public static int s_numVisGrids = 1;
     public static List<GameObject> allVisGameObjects = new List<GameObject>();
 
-
     // M13 DNA sequences
     private static TextAsset _DNA7249 = Resources.Load("Sequences/dna7249") as TextAsset;
     private static TextAsset _DNA7560 = Resources.Load("Sequences/dna7560") as TextAsset;
@@ -168,10 +167,12 @@ public static class GlobalVariables
     private static GameObject _atom = Resources.Load("Atom") as GameObject;
     public static GameObject Atom { get => _atom; }
 
-
     // Strand colors
     private static Color orange = new Color(1.0f, 0.64f, 0.0f);
     private static Color purple = new Color(0.5f, 0.0f, 0.5f);
     private static Color[] _colors = new Color[] { Color.magenta, Color.green, Color.red, Color.yellow, Color.cyan, orange, purple};
     public static Color[] Colors { get { return _colors; } }
+
+    // Batch size for static batching
+    public const int BATCH_SIZE = 1023;
 }
