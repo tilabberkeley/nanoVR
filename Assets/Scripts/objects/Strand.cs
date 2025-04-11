@@ -848,14 +848,16 @@ public class Strand
         {
             Domain domain = domains[i];
             int domainLength = domain.GetLength();
+            Debug.Log(string.Format("Strand {0} domain {1} length: {2}", _strandId, i, domainLength));
             domain.SetSequence(sequence.Substring(seqCount, domainLength));
             seqCount += domainLength;
 
             if (domain.NextXover != null && domain.NextXover.IsLoopout)
             {
-                LoopoutComponent loopout = (LoopoutComponent)domain.NextXover;
-                int loopoutLength = loopout.SequenceLength;
+                LoopoutComponent loopout = (LoopoutComponent) domain.NextXover;
                 loopout.Sequence = sequence.Substring(seqCount, loopout.SequenceLength);
+                Debug.Log("Loopout length: " + loopout.SequenceLength);
+                Debug.Log(string.Format("SeqCount: {0}, Sequence: {1}", seqCount, loopout.Sequence));
                 seqCount += loopout.SequenceLength;
             }
         }

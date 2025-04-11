@@ -566,19 +566,10 @@ public static class DrawPoint
          * You can see this in the loopout prefab. For a nice bend, I just patterned matched. You
          * just have to make the direction the location of the node +/- an orthogonal vector. 
          * Again, I just patterned matched to figure this out, not exactly sure how it works. */
-        NucleotideData prevNucl;
-        NucleotideData nextNucl;
+        
+        NucleotideData prevNucl = prevDomain.GetTailData();
+        NucleotideData nextNucl = nextDomain.GetHeadData();
 
-        if (prevDomain.Direction == 1) // forward direction
-        {
-            prevNucl = prevDomain.GetTailData();
-            nextNucl = nextDomain.GetHeadData();
-        }
-        else
-        {
-            prevNucl = prevDomain.GetHeadData();
-            nextNucl = nextDomain.GetTailData();
-        }
         Vector3 prevPosition = prevNucl.GetPosition();
         Vector3 nextPosition = nextNucl.GetPosition();
 

@@ -370,8 +370,8 @@ public class DrawCrossover : MonoBehaviour
         Transform gc = prevDomain.GetHelix()._gridComponent.transform;
         GameObject xover = DrawPoint.MakeXover(prevDomain, nextDomain, gc);
         XoverComponent xoverComponent = xover.GetComponent<XoverComponent>();
-        xoverComponent.PrevDomainIdx = prevDomain.Id;
-        xoverComponent.NextDomainIdx = nextDomain.Id;
+        xoverComponent.PrevNucl = prevDomain.GetTailData();
+        xoverComponent.NextNucl = nextDomain.GetHeadData();
         xoverComponent.StrandId = strandId;
         xoverComponent.PrevStrandId = prevStrandId;
 
@@ -381,7 +381,11 @@ public class DrawCrossover : MonoBehaviour
         xoverComponent.Color = color;
         xoverComponent.SavedColor = savedColor;
 
-        //xover.SetActive(showXover);
+        // Adds xover to each endpoint's helix
+        prevDomain.GetHelix().AddXover(xoverComponent);
+        nextDomain.GetHelix().AddXover(xoverComponent);
+
+        xover.SetActive(showXover);
         return xoverComponent;
     }
 

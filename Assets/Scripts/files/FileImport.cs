@@ -597,7 +597,7 @@ public class FileImport : MonoBehaviour
         loadingMenu.enabled = false;
     }
 
-    private bool DrawHeadExtension(DNAGrid grid, GridComponent domainGC, Strand strand, int startId, int endId, bool forward, int extensionLength, int dx, int dy)
+    private bool DrawHeadExtension(DNAGrid grid, GridComponent domainGC, Strand strand, int nextStartId, int nextEndId, bool forward, int extensionLength, int dx, int dy)
     {
         int newX = domainGC.GridPoint.X + dx;
         int newY = domainGC.GridPoint.Y + dy;
@@ -609,7 +609,7 @@ public class FileImport : MonoBehaviour
         if (gc != null)
         {
             Helix helix;
-            int length = Math.Max(startId + extensionLength, endId + 1);
+            int length = Math.Max(nextStartId + extensionLength, nextEndId + 1);
             int num64 = length / 64 + 1;
             int actualLength = num64 * 64;
 
@@ -626,6 +626,19 @@ public class FileImport : MonoBehaviour
                 {
                     helix.Extend(actualLength - helix.Length);
                 }
+            }
+
+            // Calculate startId/endId to correct values.
+            int startId, endId;
+            if (!forward)
+            {
+                startId = nextStartId;
+                endId = startId + extensionLength;
+            }
+            else
+            {
+                endId = nextEndId;
+                startId = endId - extensionLength;
             }
 
             if (Utils.IsValidDomain(helix, startId, endId, Convert.ToInt32(forward)))
@@ -646,7 +659,7 @@ public class FileImport : MonoBehaviour
         return false;
     }
 
-    private bool DrawTailExtension(DNAGrid grid, GridComponent domainGC, Strand strand, int startId, int endId, bool forward, int extensionLength, int dx, int dy)
+    private bool DrawTailExtension(DNAGrid grid, GridComponent domainGC, Strand strand, int prevStartId, int prevEndId, bool forward, int extensionLength, int dx, int dy)
     {
         int newX = domainGC.GridPoint.X + dx;
         int newY = domainGC.GridPoint.Y + dy;
@@ -658,7 +671,7 @@ public class FileImport : MonoBehaviour
         if (gc != null)
         {
             Helix helix;
-            int length = Math.Max(startId + extensionLength, endId + 1);
+            int length = Math.Max(prevStartId + extensionLength, prevEndId + 1);
             int num64 = length / 64 + 1;
             int actualLength = num64 * 64;
 
@@ -676,6 +689,19 @@ public class FileImport : MonoBehaviour
                 {
                     helix.Extend(actualLength - helix.Length);
                 }
+            }
+
+            // Calculate startId/endId to correct values.
+            int startId, endId;
+            if (!forward)
+            {
+                endId = prevEndId;
+                startId = endId - extensionLength;
+            }
+            else
+            {
+                startId = prevStartId;
+                endId = startId + extensionLength;
             }
 
             if (Utils.IsValidDomain(helix, startId, endId, Convert.ToInt32(forward)))

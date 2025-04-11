@@ -207,7 +207,7 @@ public class TransformHandle : MonoBehaviour
                     if (grid.Grid2D[i, j].Helix != null)
                     {
                         grid.Grid2D[i, j].Helix.IsTransforming = false;
-                        grid.Grid2D[i, j].Helix.TransformOffset = delta * grid.Grid2D[i, j].Helix.TransformOffset;
+                        grid.Grid2D[i, j].Helix.OldTransformOffset = delta * grid.Grid2D[i, j].Helix.OldTransformOffset;
                     }
                 }
             }

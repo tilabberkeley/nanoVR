@@ -107,14 +107,14 @@ public class InfoDisplay : MonoBehaviour
     {
         LoopoutComponent comp = go.GetComponent<LoopoutComponent>();
         StringBuilder text = new StringBuilder();
-        NucleotideData prevNucl = comp.GetPrevNucl();
-        NucleotideData nextNucl = comp.GetNextNucl();
+        NucleotideData prevNucl = comp.PrevNucl;
+        NucleotideData nextNucl = comp.NextNucl;
 
         text.AppendLine("<b>Loopout</b>");
         text.AppendLine(string.Format("Length: {0}", comp.SequenceLength));
         text.AppendLine(string.Format("Sequence: {0}", comp.Sequence));
-        text.AppendLine(string.Format("1st Nucl: nucl{0}", prevNucl.Id));
-        text.AppendLine(string.Format("2nd Nucl: nucl{0}", nextNucl.Id));
+        text.AppendLine(string.Format("1st Nucl: {0}", prevNucl.ToString()));
+        text.AppendLine(string.Format("2nd Nucl: {0}", nextNucl.ToString()));
         DisplayStrandInfo(comp.StrandId, text);
     }
 
@@ -122,13 +122,13 @@ public class InfoDisplay : MonoBehaviour
     {
         var comp = go.GetComponent<XoverComponent>();
         StringBuilder text = new StringBuilder();
-        NucleotideData prevNucl = comp.GetPrevNucl();
-        NucleotideData nextNucl = comp.GetNextNucl();
+        NucleotideData prevNucl = comp.PrevNucl;
+        NucleotideData nextNucl = comp.NextNucl;
 
         text.AppendLine("<b>Xover</b>");
         text.AppendLine(string.Format("Length: {0}", Math.Round(comp.Length, 2)));
-        text.AppendLine(string.Format("1st Nucl: nucl{0}", prevNucl.Id));
-        text.AppendLine(string.Format("2nd Nucl: nucl{0}", nextNucl.Id));
+        text.AppendLine(string.Format("1st Nucl: {0}", prevNucl.ToString()));
+        text.AppendLine(string.Format("2nd Nucl: {0}", nextNucl.ToString()));
         DisplayStrandInfo(comp.StrandId, text);
     }
 

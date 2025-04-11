@@ -12,7 +12,7 @@ public class ConsoleToText : MonoBehaviour
     public float updateInterval = 0.5f;
 
     [Tooltip("Maximum number of log entries to retain.")]
-    public int maxLogCount = 100;
+    public int maxLogCount = 500;
 
     private Queue<string> logQueue = new Queue<string>();
     private string latestStackTrace = "";
@@ -35,10 +35,10 @@ public class ConsoleToText : MonoBehaviour
         logQueue.Enqueue(logString);
 
         // Ensure we don't retain more than maxLogCount entries.
-        if (logQueue.Count > maxLogCount)
-        {
-            logQueue.Dequeue();
-        }
+        //if (logQueue.Count > maxLogCount)
+        //{
+        //    logQueue.Dequeue();
+        //}
 
         // Always update the latest stack trace.
         latestStackTrace = stackTrace;

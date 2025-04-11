@@ -30,11 +30,11 @@ public class XoverComponent : MonoBehaviour
     private GameObject _nextGO = null;
     public GameObject NextGO { get { return _nextGO; } set { _nextGO = value; } }
 
-    private int prevDomainIdx; // Index of the domain within Strand's domain list
-    private int nextDomainIdx; // Same as above
+    private NucleotideData prevNucl;
+    private NucleotideData nextNucl;
 
-    public int PrevDomainIdx { get { return prevDomainIdx; } set { prevDomainIdx = value; } }
-    public int NextDomainIdx { get { return nextDomainIdx; } set { nextDomainIdx = value; } }
+    public NucleotideData PrevNucl { get { return prevNucl; } set { prevNucl = value; } }
+    public NucleotideData NextNucl { get { return nextNucl; } set { nextNucl = value; } }
 
     protected Color _color = s_defaultColor;
     public virtual Color Color
@@ -82,37 +82,20 @@ public class XoverComponent : MonoBehaviour
     private bool isLoopout = false;
     public bool IsLoopout { get => isLoopout; set => isLoopout = value; }
 
-    protected virtual void Update()
+    public virtual void UpdateXover()
     {
-        // Dynamically update xover gameobject when its prev and next gameobjects move
-        if ((_prevGO != null && _prevGO.transform.hasChanged)
-            || _nextGO != null && _nextGO.transform.hasChanged)
-        {
-            _prevGO.transform.hasChanged = false;
-            _nextGO.transform.hasChanged = false;
+        Vector3 start = prevNucl.GetPosition();
+        Vector3 end = nextNucl.GetPosition();
 
-            Vector3 start = _prevGO.transform.position;
-            Vector3 end = _nextGO.transform.position;
+        // Scale        
+        float dist = Vector3.Distance(end, start);
+        transform.localScale = new Vector3(0.25f, dist, 0.25f);
 
-            // Scale        
-            float dist = Vector3.Distance(end, start);
-            transform.localScale = new Vector3(0.25f, dist, 0.25f);
+        // Position
+        transform.position = (end + start) / 2.0F;
 
-            // Position
-            transform.position = (end + start) / 2.0F;
-
-            // Rotation
-            transform.up = end - start;
-            _length = dist;
-            Color = Utils.GetStrand(_prevGO).Color;
-
-            if (_bezier != null)
-            {
-                _bezier.Destroy();
-
-                _bezier = DrawPoint.MakeXoverBezier(this, _savedColor);
-            }
-        }
+        // Rotation
+        transform.up = end - start;
     }
 
     // Strand id of the strand that was merged with the first strand
@@ -157,19 +140,5 @@ public class XoverComponent : MonoBehaviour
             _bezier = DrawPoint.MakeXoverBezier(this, color);
             _ntRenderer.enabled = false;
         }
-    }
-
-    public NucleotideData GetPrevNucl()
-    {
-        Strand strand = GlobalVariables.s_strandDict[_strandId];
-        Domain domain = strand.GetDomain(prevDomainIdx);
-        return domain.GetTailData();
-    }
-
-    public NucleotideData GetNextNucl()
-    {
-        Strand strand = GlobalVariables.s_strandDict[_strandId];
-        Domain domain = strand.GetDomain(nextDomainIdx);
-        return domain.GetHeadData();
     }
 }

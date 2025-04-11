@@ -104,11 +104,16 @@ public class Helix
 
     private bool isTransforming = false;
     public bool IsTransforming { get { return isTransforming; } set { isTransforming = value; } }
-    private Matrix4x4 transformOffset = Matrix4x4.identity;
-    public Matrix4x4 TransformOffset { get { return transformOffset; } set { transformOffset = value; } }
+    private Matrix4x4 currTransformOffset = Matrix4x4.identity;
+    private Matrix4x4 oldTransformOffset = Matrix4x4.identity;
+    public Matrix4x4 OldTransformOffset { get { return oldTransformOffset; } set { oldTransformOffset = value; } }
+    public Matrix4x4 CurrTransformOffset { get { return currTransformOffset; } set { currTransformOffset = value; } }
 
     private HelixComponent helixCollider;
     public HelixComponent HelixCollider { get { return helixCollider; } }
+
+    private List<XoverComponent> xovers = new List<XoverComponent>();
+    public List<XoverComponent> Xovers { get { return xovers; } set { xovers = value; } }
 
     private List<Color> nucleotideColorA;
     private List<Color> nucleotideColorB;
@@ -608,6 +613,30 @@ public class Helix
             }
             return backboneColorA;
         }
+    }
+
+    /// <summary>
+    /// Updates transform of XoverComponent attached to this helix.
+    /// </summary>
+    public void UpdateXovers()
+    {
+        // If a xover is on a deleted strand, we remove it from the list.
+        xovers.RemoveAll(xover => xover == null);
+
+        foreach (XoverComponent xover in xovers)
+        {
+            xover.UpdateXover();
+        }
+
+        Debug.Log("Updating xovers");
+    }
+
+    /// <summary>
+    /// Adds xover to xovers list
+    /// </summary>
+    public void AddXover(XoverComponent xover)
+    {
+        xovers.Add(xover);
     }
 
     /// <summary>

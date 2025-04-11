@@ -52,14 +52,16 @@ public class HelixManager : MonoBehaviour
                                         Vector3.one);
             Matrix4x4 delta = gizmosMatrix * TransformHandle.InitialGizmoMatrix.inverse;
 
-            _currentOffset = helix.TransformOffset;
+            _currentOffset = helix.OldTransformOffset;
             if (helix.IsTransforming) {
                 _currentOffset = delta * _currentOffset;
+                //Debug.Log("helix is transforming");
+                helix.CurrTransformOffset = _currentOffset;
 
-                //helix.TransformOffset = currentOffset;
-
+                // Update xover transform when helix is transforming
+                helix.UpdateXovers();
             }
-
+            
             // Apply the current gizmo transform as the offset.
             DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesA, nucleotideColorsA, nucleotideHighlightsA, _currentOffset);
             DrawInstances(nucleotideMesh, material, helix.NucleotideMatricesB, nucleotideColorsB, nucleotideHighlightsB, _currentOffset);
@@ -82,6 +84,11 @@ public class HelixManager : MonoBehaviour
         int count = matrices.Count;
         if (count == 0)
             return;
+        if (colors.Count < count)
+            Debug.Log("Colors list shorter than matrix list " + colors.Count + " " + matrices.Count);
+        
+        if (highlightColors.Count < count)
+            Debug.Log("Highlights list shorter than matrix list " + highlightColors.Count);
 
         for (int i = 0; i < count; i += BATCH_SIZE)
         {
@@ -90,8 +97,8 @@ public class HelixManager : MonoBehaviour
             {
                 // Multiply each local matrix by the parent offset.
                 _matrixBuffer[j] = parentOffset * matrices[i + j];
-                _colorBuffer[j] = colors[i + j];
-                _highlightBuffer[j] = highlightColors[i + j];
+                _colorBuffer[j] = i + j < colors.Count ? colors[i + j] : Color.white;
+                _highlightBuffer[j] = i + j < highlightColors.Count ? highlightColors[i + j] : Color.white;
             }
             _mpb.SetVectorArray("_Color", _colorBuffer);
             _mpb.SetVectorArray("_HighlightColor", _highlightBuffer);

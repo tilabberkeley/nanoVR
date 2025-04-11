@@ -235,11 +235,11 @@ public class DrawLoopout : MonoBehaviour
     {
         // Create crossover, assign appropiate prev and next properties.
         GameObject loopout = DrawPoint.MakeLoopout(prevDomain, nextDomain);
+        //Debug.Log("Finished creating loopout");
         LoopoutComponent loopoutComponent = loopout.AddComponent<LoopoutComponent>();
-
+        loopoutComponent.PrevNucl = prevDomain.GetTailData();
+        loopoutComponent.NextNucl = nextDomain.GetHeadData();
         loopoutComponent.SequenceLength = loopoutLength;
-        loopoutComponent.PrevDomainIdx = prevDomain.Id;
-        loopoutComponent.NextDomainIdx = nextDomain.Id;
         loopoutComponent.StrandId = strandId;
         loopoutComponent.PrevStrandId = prevStrandId;
 
@@ -248,6 +248,8 @@ public class DrawLoopout : MonoBehaviour
 
         loopoutComponent.Color = prevDomain.Color;
         loopoutComponent.SavedColor = nextDomain.Color;
+
+        loopoutComponent.IsLoopout = true;
 
         loopout.SetActive(showXover);
     }

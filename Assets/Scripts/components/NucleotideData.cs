@@ -96,7 +96,7 @@ public class NucleotideData
 
     public Vector3 GetPosition()
     {
-        Matrix4x4 worldMat = GetHelix().TransformOffset * GetMatrix();
+        Matrix4x4 worldMat = GetHelix().CurrTransformOffset * GetMatrix();
         return worldMat.GetColumn(3);
     }
 

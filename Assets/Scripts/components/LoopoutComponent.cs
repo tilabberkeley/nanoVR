@@ -28,11 +28,8 @@ public class LoopoutComponent : XoverComponent
         }
     }
 
-    private bool isLoopout = true;
-
-    protected override void Update()
+    public override void UpdateXover()
     {
-        // TODO: Implement dynamic moving for loopouts
-        return;
+        // TODO: Add implementation
     }
 }

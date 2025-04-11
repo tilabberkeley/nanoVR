@@ -45,7 +45,7 @@ public static class Utils
     public static Strand CreateStrand(List<Domain> domains, int strandId, Color color, bool isScaffold, Dictionary<int, int> loopouts, bool isOxview = false)
     {
         Strand strand = new Strand(domains, strandId, color, isScaffold, isOxview);
-        //Debug.Log("Created strand");
+        Debug.Log("Created strand " + strandId);
         // Set strand domains
         strand.SetDomainsRevamp();
         //Debug.Log("Set domains");
@@ -56,15 +56,9 @@ public static class Utils
         // Draw and set xovers and loopouts
         for (int i = 1; i < domains.Count; i++)
         {
-            if (strandId == 0 && (domains[i].HelixId == 23 || domains[i].HelixId == 24))
-            {
-                Debug.Log(string.Format("Domain head: {0};  tail: {1}", domains[i].GetHeadData(), domains[i].GetTailData()));
-            }
-
             if (loopouts.ContainsKey(i - 1))
             {
-                DrawLoopout.CreateLoopoutHelper(domains[i - 1], domains[i], loopouts[i], strandId);
-                Debug.Log("Created loopout");
+                DrawLoopout.CreateLoopoutHelper(domains[i - 1], domains[i], strandId, loopouts[i - 1]);
             }
             else
             {
