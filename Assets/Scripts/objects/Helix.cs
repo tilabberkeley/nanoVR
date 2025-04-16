@@ -313,8 +313,14 @@ public class Helix
             }
         }
 
-        //CreateCollider();
-    }
+        // Set color flags to true since we now need to update these lists to new helix length
+        nucleotideColorAChanged = true;
+        nucleotideColorBChanged = true;
+        backboneColorAChanged = true;
+        backboneColorBChanged = true;
+        nucleotideHighlightAChanged = true;
+        nucleotideHighlightBChanged = true;
+}
 
 
     /// <summary>
@@ -628,7 +634,7 @@ public class Helix
             xover.UpdateXover();
         }
 
-        Debug.Log("Updating xovers");
+        // Debug.Log("Updating xovers");
     }
 
     /// <summary>
@@ -667,6 +673,28 @@ public class Helix
         }
     }
 
+    public NucleotideData GetHeadNeighbor(NucleotideData nd, int direction)
+    {
+        if (direction == 0)
+        {
+            int index = nucleotideDataB.IndexOf(nd);
+            if (index == 0)
+            {
+                return null;
+            }
+            return nucleotideDataB[index - 1];
+        }
+        else
+        {
+            int index = nucleotideDataA.IndexOf(nd);
+            if (index == nucleotideDataA.Count - 1)
+            {
+                return null;
+            }
+            return nucleotideDataA[index + 1];
+        }
+    }
+
     /// <summary>
     /// Returns nucleotide behind tail nucleotide.
     /// </summary>
@@ -692,6 +720,28 @@ public class Helix
                 return null;
             }
             return _nucleotidesA[index - 1];
+        }
+    }
+
+    public NucleotideData GetTailNeighbor(NucleotideData nd, int direction)
+    {
+        if (direction == 0)
+        {
+            int index = nucleotideDataB.IndexOf(nd);
+            if (index == nucleotideDataB.Count - 1)
+            {
+                return null;
+            }
+            return nucleotideDataB[index + 1];
+        }
+        else
+        {
+            int index = nucleotideDataA.IndexOf(nd);
+            if (index == 0)
+            {
+                return null;
+            }
+            return nucleotideDataA[index - 1];
         }
     }
 

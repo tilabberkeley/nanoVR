@@ -650,7 +650,7 @@ public class FileImport : MonoBehaviour
 
                 strand.AddToHead(domain);
                 strand.SetDomainsRevamp();
-                Debug.Log("Drawing head domain extension crossover");
+                //Debug.Log("Drawing head domain extension crossover");
                 DrawCrossover.CreateXoverHelper(domain, strand.GetDomain(1), strand.Id, strand.Color, savedColor: strand.Color);
                 return true;
             }
@@ -678,7 +678,7 @@ public class FileImport : MonoBehaviour
             if (gc.Helix == null)
             {
                 helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), actualLength, PLANE, gc);
-                Debug.Log("Drew helix for extension domain");
+                //Debug.Log("Drew helix for extension domain");
                 helix.Extend(actualLength);
                 grid.CheckExpansion(gc);
             }
@@ -712,7 +712,7 @@ public class FileImport : MonoBehaviour
                 };
                 strand.AddToTail(domain);
                 strand.SetDomainsRevamp();
-                Debug.Log("Drawing tail domain extension crossover. domainId " + domain.Id);
+                //Debug.Log("Drawing tail domain extension crossover. domainId " + domain.Id);
 
                 DrawCrossover.CreateXoverHelper(strand.GetDomain(strand.Domains.Count - 2), domain, strand.Id, strand.Color, savedColor: strand.Color);
                 return true;

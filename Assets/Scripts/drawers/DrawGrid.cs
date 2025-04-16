@@ -83,6 +83,7 @@ public class DrawGrid : MonoBehaviour
     {
         if (!gc.Selected)
         {
+            Debug.Log("Creating helix");
             gc.Grid.DoAddHelix(id, startPos, length, orientation, gc);
             gc.Grid.CheckExpansion(gc);
         }

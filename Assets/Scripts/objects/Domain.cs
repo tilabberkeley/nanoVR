@@ -4,6 +4,7 @@
  */
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 public class Domain
@@ -217,6 +218,12 @@ public class Domain
         return newDomain;
     }
 
+    public void Merge(Domain domain)
+    {
+        startId = Mathf.Min(startId, domain.startId);
+        endId = Mathf.Max(endId, domain.endId);
+    }
+
     public int GetLength()
     {
         int insertionsLength = insertions.Values.Sum();
@@ -247,6 +254,24 @@ public class Domain
                 nucleotideData.IsDeletion = true;
             }
         }
+    }
+
+    public string GetSequence()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (int i = startId; i <= endId; i++)
+        {
+            NucleotideData nucleotideData = GetNucleotideData(i);
+            if (nucleotideData.IsDeletion)
+            {
+                sb.Append("X");
+            }
+            else
+            {
+                sb.Append(nucleotideData.Sequence);
+            }
+        }
+        return sb.ToString();
     }
 
     public void SetSequence(string sequence)

@@ -143,6 +143,41 @@ public class DrawInsertion : MonoBehaviour
         }
     }
 
+    public static void Insertion(NucleotideData nd, int length)
+    {
+        if (nd.IsDeletion)
+        {
+            Debug.Log("Cannot draw insertion over deletion.");
+            return;
+        }
+        if (!nd.IsSelected())
+        {
+            Debug.Log("Cannot draw insertion on unbound nucleotide.");
+            return;
+        }
+
+        Strand strand = nd.GetStrand();
+
+        if (nd.IsInsertion)
+        {
+            nd.Insertion = 0;
+            UnhighlightInsertion(nd);
+        }
+        else
+        {
+            nd.Insertion = length;
+            HighlightInsertion(nd);
+        }
+
+        // Update strand DNA sequence
+        if (strand != null)
+        {
+            string sequence = strand.Sequence;
+            strand.SetSequenceRevamp(sequence);
+            Utils.CheckMismatch(strand);
+        }
+    }
+
     /// <summary>
     /// Returns whether new insertion length is valid.
     /// </summary>

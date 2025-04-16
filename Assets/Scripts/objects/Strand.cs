@@ -166,21 +166,28 @@ public class Strand
     { 
         get 
         {
-            if (_sequenceWasChanged)
+            //if (_sequenceWasChanged)
+            //{
+            //    _sequenceWasChanged = false;
+            //    StringBuilder sequence = new StringBuilder();
+            //    for (int i = _nucleotides.Count - 1; i >= 0; i--)
+            //    {
+            //        var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
+            //        if (ntc != null)
+            //        {
+            //            sequence.Append(ntc.Sequence);
+            //        }
+            //    }
+            //    _sequence = sequence.ToString();
+            //}
+            //return _sequence;
+            StringBuilder sb = new StringBuilder();
+            foreach (Domain domain in domains)
             {
-                _sequenceWasChanged = false;
-                StringBuilder sequence = new StringBuilder();
-                for (int i = _nucleotides.Count - 1; i >= 0; i--)
-                {
-                    var ntc = _nucleotides[i].GetComponent<NucleotideComponent>();
-                    if (ntc != null)
-                    {
-                        sequence.Append(ntc.Sequence);
-                    }
-                }
-                _sequence = sequence.ToString();
+                sb.Append(domain.GetSequence());
             }
-            return _sequence;
+            return sb.ToString();
+
         }
         set { SetSequence(value); }//SetComplementary(); } 
     }
@@ -848,7 +855,7 @@ public class Strand
         {
             Domain domain = domains[i];
             int domainLength = domain.GetLength();
-            Debug.Log(string.Format("Strand {0} domain {1} length: {2}", _strandId, i, domainLength));
+            //Debug.Log(string.Format("Strand {0} domain {1} length: {2}", _strandId, i, domainLength));
             domain.SetSequence(sequence.Substring(seqCount, domainLength));
             seqCount += domainLength;
 
@@ -856,8 +863,8 @@ public class Strand
             {
                 LoopoutComponent loopout = (LoopoutComponent) domain.NextXover;
                 loopout.Sequence = sequence.Substring(seqCount, loopout.SequenceLength);
-                Debug.Log("Loopout length: " + loopout.SequenceLength);
-                Debug.Log(string.Format("SeqCount: {0}, Sequence: {1}", seqCount, loopout.Sequence));
+                //Debug.Log("Loopout length: " + loopout.SequenceLength);
+                //Debug.Log(string.Format("SeqCount: {0}, Sequence: {1}", seqCount, loopout.Sequence));
                 seqCount += loopout.SequenceLength;
             }
         }

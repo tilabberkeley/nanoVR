@@ -30,8 +30,8 @@ public class XoverComponent : MonoBehaviour
     private GameObject _nextGO = null;
     public GameObject NextGO { get { return _nextGO; } set { _nextGO = value; } }
 
-    private NucleotideData prevNucl;
-    private NucleotideData nextNucl;
+    protected NucleotideData prevNucl;
+    protected NucleotideData nextNucl;
 
     public NucleotideData PrevNucl { get { return prevNucl; } set { prevNucl = value; } }
     public NucleotideData NextNucl { get { return nextNucl; } set { nextNucl = value; } }
@@ -89,7 +89,7 @@ public class XoverComponent : MonoBehaviour
 
         // Scale        
         float dist = Vector3.Distance(end, start);
-        transform.localScale = new Vector3(0.25f, dist, 0.25f);
+        transform.localScale = new Vector3(0.2f, dist, 0.2f);
 
         // Position
         transform.position = (end + start) / 2.0F;

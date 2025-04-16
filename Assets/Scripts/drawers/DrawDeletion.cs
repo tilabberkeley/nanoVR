@@ -119,4 +119,39 @@ public class DrawDeletion
             Utils.CheckMismatch(strand);
         }
     }
+
+    public static void Deletion(NucleotideData nd)
+    {
+        if (nd.IsInsertion)
+        {
+            Debug.Log("Cannot draw deletion over insertion.");
+            return;
+        }
+        if (!nd.IsSelected())
+        {
+            Debug.Log("Cannot draw insertion on unbound nucleotide.");
+            return;
+        }
+
+        Strand strand = nd.GetStrand();
+
+        if (nd.IsDeletion)
+        {
+            nd.IsDeletion = false;
+            UnhighlightDeletion(nd);
+        }
+        else
+        {
+            nd.IsDeletion = true;
+            HighlightDeletion(nd);
+        }
+
+        // Update strand DNA sequence
+        if (strand != null)
+        {
+            string sequence = strand.Sequence;
+            strand.SetSequenceRevamp(sequence);
+            Utils.CheckMismatch(strand);
+        }
+    }
 }

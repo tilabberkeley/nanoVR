@@ -82,10 +82,12 @@ public class UpdateManager : MonoBehaviour
                 //Debug.Log("Split hit");
 
                 triggerReleased = false;
-                if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
+                var comp = s_hit.collider.GetComponent<NucleotideColliderComponent>();
+                if (comp != null)
                 {
                     s_GO = s_hit.collider.gameObject;
-                    DrawSplit.DoSplitStrand(s_GO);
+                    //DrawSplit.DoSplitStrand(s_GO);
+                    DrawSplit.SplitStrand(comp.Data);
                 }
             }
         }
@@ -100,10 +102,13 @@ public class UpdateManager : MonoBehaviour
                 //Debug.Log("Merge hit");
 
                 triggerReleased = false;
-                if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
+                var comp = s_hit.collider.GetComponent<NucleotideColliderComponent>();
+                if (comp != null)
                 {
                     s_GO = s_hit.collider.gameObject;
-                    DrawMerge.DoMergeStrand(s_GO);
+                    //DrawMerge.DoMergeStrand(s_GO);
+
+                    DrawMerge.MergeStrand(comp.Data);
                 }
             }
         }
@@ -119,10 +124,12 @@ public class UpdateManager : MonoBehaviour
                 //Debug.Log("Insertion hit");
 
                 triggerReleased = false;
-                if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
+                var comp = s_hit.collider.GetComponent<NucleotideColliderComponent>();
+                if (comp != null)
                 {
                     s_GO = s_hit.collider.gameObject;
-                    DrawInsertion.DoInsertion(s_GO, INSERTION_LENGTH);
+                    //DrawInsertion.DoInsertion(s_GO, INSERTION_LENGTH);
+                    DrawInsertion.Insertion(comp.Data, INSERTION_LENGTH);
                 }
             }
         }
@@ -135,11 +142,12 @@ public class UpdateManager : MonoBehaviour
             {
                 //Debug.Log("Deletion hit");
                 triggerReleased = false;
-                NucleotideComponent comp = s_hit.collider.GetComponent<NucleotideComponent>();
+                var comp = s_hit.collider.GetComponent<NucleotideColliderComponent>();
                 if (comp != null)
                 {
                     s_GO = s_hit.collider.gameObject;
-                    DrawDeletion.DoDeletion(s_GO);
+                    // DrawDeletion.DoDeletion(s_GO);
+                    DrawDeletion.Deletion(comp.Data);
                 }
             }
         }
@@ -154,6 +162,7 @@ public class UpdateManager : MonoBehaviour
             GridComponent gc = s_hit.collider.GetComponent<GridComponent>();
             if (gc != null)
             {
+                Debug.Log("Hit grid component");
                 Vector3 startPos = s_hit.collider.bounds.center;
                 int id = s_numHelices;
                 DrawGrid.CreateHelix(id, startPos, HELIX_LENGTH, gc.Grid.Plane, gc);

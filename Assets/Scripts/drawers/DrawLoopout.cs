@@ -249,6 +249,10 @@ public class DrawLoopout : MonoBehaviour
         loopoutComponent.Color = prevDomain.Color;
         loopoutComponent.SavedColor = nextDomain.Color;
 
+        // Adds xover to each endpoint's helix
+        prevDomain.GetHelix().AddXover(loopoutComponent);
+        nextDomain.GetHelix().AddXover(loopoutComponent);
+
         loopoutComponent.IsLoopout = true;
 
         loopout.SetActive(showXover);

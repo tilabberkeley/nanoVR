@@ -2,6 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
@@ -118,6 +119,31 @@ public class DrawSplit
         }
     }
 
+    public static void SplitStrand(NucleotideData nd)
+    {
+        if (!IsValid(nd)) { return; }
+        Strand strand = nd.GetStrand();
+
+        bool splitAfter = Convert.ToBoolean(nd.Direction);
+        if (splitAfter)
+        {
+            //if (strand.IsCircular)
+            //{
+            //    strand.SplitCircularAfter(go);
+            //}
+            
+            CreateStrand(strand.SplitAfter(nd));
+        }
+        else
+        {
+            //if (strand.IsCircular)
+            //{
+            //    strand.SplitCircularBefore(go);
+            //}
+            CreateStrand(strand.SplitBefore(nd));
+        }
+    }
+
     public static bool IsValid(GameObject go)
     {
         var ntc = go.GetComponent<NucleotideComponent>();
@@ -139,6 +165,36 @@ public class DrawSplit
         }
 
        
+        /*for (int i = 0; i < strand.GetXovers().Count; i++)
+        {
+            if (go == strand.GetXovers()[i].GetComponent<XoverComponent>().NextGO)
+            {
+                return false;
+            }
+        }*/
+
+        return true;
+    }
+
+    private static bool IsValid(NucleotideData nd)
+    {
+        if (!nd.IsSelected())
+        {
+            return false;
+        }
+        Strand strand = nd.GetStrand();
+
+        if (strand.GetHead() == nd || strand.GetTail() == nd)
+        {
+            return false;
+        }
+
+        if (nd.HasXover)
+        {
+            return false;
+        }
+
+
         /*for (int i = 0; i < strand.GetXovers().Count; i++)
         {
             if (go == strand.GetXovers()[i].GetComponent<XoverComponent>().NextGO)

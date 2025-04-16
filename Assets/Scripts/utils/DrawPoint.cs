@@ -10,7 +10,6 @@ using static UnityEngine.Object;
 using static GlobalVariables;
 using SplineMesh;
 using TMPro;
-using UnityEngine.InputSystem.HID;
 
 /// <summary>
 /// Creates needed gameobjects like nucleotides, backbones, cones, Xovers, spheres, and grids.
@@ -566,8 +565,8 @@ public static class DrawPoint
          * You can see this in the loopout prefab. For a nice bend, I just patterned matched. You
          * just have to make the direction the location of the node +/- an orthogonal vector. 
          * Again, I just patterned matched to figure this out, not exactly sure how it works. */
-        
-        NucleotideData prevNucl = prevDomain.GetTailData();
+
+        /*NucleotideData prevNucl = prevDomain.GetTailData();
         NucleotideData nextNucl = nextDomain.GetHeadData();
 
         Vector3 prevPosition = prevNucl.GetPosition();
@@ -617,11 +616,35 @@ public static class DrawPoint
         meshGO.AddComponent<XRSimpleInteractable>();
 
         // Add outline component
-        Outline outline = meshGO.AddComponent<Outline>();
-        outline.enabled = false;
-        outline.OutlineWidth = 3;
+        //Outline outline = meshGO.AddComponent<Outline>();
+        //outline.enabled = false;
+        //outline.OutlineWidth = 3;
 
-        return meshGO;
+        return meshGO;*/
+
+        GameObject xover =
+                   Instantiate(Xover,
+                   Vector3.zero,
+                   Quaternion.identity);
+        xover.name = "xover";
+
+        NucleotideData prevNucl = prevDomain.GetTailData();
+        NucleotideData nextNucl = nextDomain.GetHeadData();
+
+        Vector3 prevPosition = prevNucl.GetPosition();
+        Vector3 nextPosition = nextNucl.GetPosition();
+
+        // Position
+        xover.transform.position = (nextPosition + prevPosition) / 2.0F;
+
+        // Rotation
+        Vector3 dirV = Vector3.Normalize(nextPosition - prevPosition);
+        xover.transform.rotation = Quaternion.FromToRotation(Vector3.up, dirV);
+
+        // Scale        
+        float dist = Vector3.Distance(nextPosition, prevPosition);
+        xover.transform.localScale = new Vector3(0.4f, dist, 0.4f);
+        return xover;
     }
 
     /// <summary>

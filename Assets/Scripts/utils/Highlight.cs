@@ -92,6 +92,11 @@ public static class Highlight
             HighlightGO(go, drawNucleotideHighlightColor);
         }
     }
+    public static void HighlightInsertion(NucleotideData nd)
+    {      
+        HighlightGO(nd, drawNucleotideHighlightColor);
+    }
+
 
     /// <summary>
     /// Helper method to highlight a deletion nucleotide.
@@ -103,6 +108,11 @@ public static class Highlight
         {
             HighlightGO(go, eraseNucleotideHighlightColor);
         }
+    }
+
+    public static void HighlightDeletion(NucleotideData nd)
+    {
+        HighlightGO(nd, eraseNucleotideHighlightColor);
     }
 
     /// <summary>
@@ -117,6 +127,11 @@ public static class Highlight
         }
     }
 
+    public static void UnhighlightInsertion(NucleotideData nd)
+    {
+        UnhighlightGO(nd, unhighlightInsAndDel: true);
+    }
+
     /// <summary>
     /// Helper method to unhighlight a deletion nucleotide.
     /// </summary>
@@ -127,6 +142,11 @@ public static class Highlight
         {
             UnhighlightGO(go, true);
         }
+    }
+
+    public static void UnhighlightDeletion(NucleotideData nd)
+    {    
+        UnhighlightGO(nd, unhighlightInsAndDel: true);
     }
 
     /// <summary>

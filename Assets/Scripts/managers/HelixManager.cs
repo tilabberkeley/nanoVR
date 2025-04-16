@@ -58,8 +58,9 @@ public class HelixManager : MonoBehaviour
                 //Debug.Log("helix is transforming");
                 helix.CurrTransformOffset = _currentOffset;
 
-                // Update xover transform when helix is transforming
-                helix.UpdateXovers();
+                // Update xover transforms when helix is transforming
+                if (_currentOffset != helix.OldTransformOffset) 
+                    helix.UpdateXovers();
             }
             
             // Apply the current gizmo transform as the offset.
@@ -84,11 +85,6 @@ public class HelixManager : MonoBehaviour
         int count = matrices.Count;
         if (count == 0)
             return;
-        if (colors.Count < count)
-            Debug.Log("Colors list shorter than matrix list " + colors.Count + " " + matrices.Count);
-        
-        if (highlightColors.Count < count)
-            Debug.Log("Highlights list shorter than matrix list " + highlightColors.Count);
 
         for (int i = 0; i < count; i += BATCH_SIZE)
         {

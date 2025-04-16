@@ -45,7 +45,7 @@ public static class Utils
     public static Strand CreateStrand(List<Domain> domains, int strandId, Color color, bool isScaffold, Dictionary<int, int> loopouts, bool isOxview = false)
     {
         Strand strand = new Strand(domains, strandId, color, isScaffold, isOxview);
-        Debug.Log("Created strand " + strandId);
+        //Debug.Log("Created strand " + strandId);
         // Set strand domains
         strand.SetDomainsRevamp();
         //Debug.Log("Set domains");
@@ -54,17 +54,17 @@ public static class Utils
         //strand.SetConeRevamp();
 
         // Draw and set xovers and loopouts
-        for (int i = 1; i < domains.Count; i++)
-        {
-            if (loopouts.ContainsKey(i - 1))
-            {
-                DrawLoopout.CreateLoopoutHelper(domains[i - 1], domains[i], strandId, loopouts[i - 1]);
-            }
-            else
-            {
-                DrawCrossover.CreateXoverHelper(domains[i - 1], domains[i], strandId, color, savedColor: color);
-            }
-        }
+        //for (int i = 1; i < domains.Count; i++)
+        //{
+        //    if (loopouts.ContainsKey(i - 1))
+        //    {
+        //        DrawLoopout.CreateLoopoutHelper(domains[i - 1], domains[i], strandId, loopouts[i - 1]);
+        //    }
+        //    else
+        //    {
+        //        DrawCrossover.CreateXoverHelper(domains[i - 1], domains[i], strandId, color, savedColor: color);
+        //    }
+        //}
 
         // Set sequence
         //strand.SetSequenceRevamp(sequence);

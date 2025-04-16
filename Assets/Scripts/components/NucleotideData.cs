@@ -2,6 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+using System.Linq;
 using UnityEngine;
 
 [System.Serializable]
@@ -44,9 +45,31 @@ public class NucleotideData
             }
         } 
     }
-    public int Insertion { get => insertion; set => insertion = value; }
+    public int Insertion 
+    { 
+        get => insertion;
+        set 
+        { 
+            insertion = value; 
+            if (sequence.Length > insertion + 1)
+            {
+                sequence = sequence.Substring(0, insertion); // Remove the rest of the sequence
+            }
+        } 
+    }
     public bool IsInsertion { get => insertion > 0; }
-    public bool IsDeletion { get => isDeletion; set => isDeletion = value; }
+    public bool IsDeletion 
+    { 
+        get => isDeletion;
+        set 
+        { 
+            isDeletion = value; 
+            if (sequence.Length > 0)
+            {
+                sequence = "X"; // Mark as deleted
+            }
+        }
+    }
     public XoverComponent Xover { get => xover; set => xover = value; }
     public bool HasXover { get => xover != null; }
     public int DomainIdx { get => domainIdx; set => domainIdx = value; }
@@ -58,7 +81,7 @@ public class NucleotideData
         {
             if (isHighlighted)
             {
-                Debug.Log("Returning highlight color");
+                //Debug.Log("Returning highlight color");
                 return highlight;
             }
                 
