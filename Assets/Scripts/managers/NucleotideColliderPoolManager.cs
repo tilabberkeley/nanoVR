@@ -9,12 +9,12 @@ public class NucleotideColliderPoolManager : MonoBehaviour
     public GameObject colliderPrefab;
 
     [Header("Settings")]
-    public float interactionRadius = 1f;
+    public float interactionRadius = 2f;
     public Transform player;
 
     // Pool
     [Tooltip("Initial size of the collider pool.")]
-    public int initialPoolSize = 256;
+    public int initialPoolSize = 1024;
 
     // If we use the entire pool, we double it.
     // If we use < 75% after a full pass, we shrink it to half.
@@ -220,7 +220,7 @@ public class NucleotideColliderPoolManager : MonoBehaviour
 
         // if used is < 75% of capacity, shrink to half
         // e.g. used 128, capacity 256 => 128 < 192 => shrink => 128
-        if (usedCount < capacity * 0.75f)
+        if (usedCount < capacity * 0.5f)
         {
             int newSize = capacity / 2;
             ShrinkPool(newSize);

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using Unity.Collections;
 using static GlobalVariables;
 using static Utils;
 using Debug = UnityEngine.Debug;
@@ -78,7 +79,7 @@ public class Helix
     private List<GameObject> _helixViewCylinders;
     //private GameObject _collider;
 
-    // Lists to store per?instance matrices for GPU instancing.
+    // Lists to store instance matrices for GPU instancing.
     private List<Matrix4x4> nucleotideMatricesA = new List<Matrix4x4>();
     private List<Matrix4x4> nucleotideMatricesB = new List<Matrix4x4>();
     private List<Matrix4x4> backboneMatricesA = new List<Matrix4x4>();

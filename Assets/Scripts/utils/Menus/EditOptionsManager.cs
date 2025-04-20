@@ -196,7 +196,7 @@ public class EditOptionsManager : MonoBehaviour
     private void ShowNuclEdit()
     {
         _editMenu.enabled = false;
-        NucleotideComponent ntc = s_GO.GetComponent<NucleotideComponent>();
+        var ntc = s_GO.GetComponent<NucleotideColliderComponent>().Data;
         _nuclEditMenu.enabled = true;
         NucleotideEdit.Nucleotide = ntc;
 
@@ -239,7 +239,8 @@ public class EditOptionsManager : MonoBehaviour
     private void MakeDomainExtension()
     {
         NucleotideData nd = s_GO.GetComponent<NucleotideColliderComponent>().Data;
-        if (nd.GetStrand().Domains.Count > 1)
+        int numDomains = nd.GetStrand().Domains.Count;
+        if (numDomains > 1 && (nd.GetDomain().Id == 0 || nd.GetDomain().Id == numDomains - 1))
         {
             nd.GetDomain().IsExtension = true;
         }

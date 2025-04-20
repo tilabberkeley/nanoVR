@@ -127,7 +127,7 @@ public class StrandSettings : MonoBehaviour
             }
         }
         sequence = sequence.ToUpper();
-        s_strand.Sequence = sequence;
+        s_strand.SetSequenceRevamp(sequence);
         Debug.Log("Finished setting this strand's sequence");
         if (_complementaryTog.isOn)
         {
@@ -152,12 +152,13 @@ public class StrandSettings : MonoBehaviour
     private bool AlignedInsertionsDeletions(Strand strand)
     {
         bool isAligned = true;
-        List<GameObject> nucleotides = strand.Nucleotides;
-        for (int i = nucleotides.Count - 1; i >= 0; i--)
+        foreach (Domain domain in strand.Domains)
         {
-            NucleotideComponent ntc = nucleotides[i].GetComponent<NucleotideComponent>();
-            isAligned = NucleotideEdit.ValidComplementary(ntc) && isAligned;
-            if (!isAligned) return isAligned;
+            foreach (NucleotideData nd in domain.GetDomainData())
+            {
+                isAligned = NucleotideEdit.ValidComplementary(nd) && isAligned;
+                if (!isAligned) return isAligned;
+            }
         }
         Debug.Log("Can assign complementary bases");
         return true;
@@ -171,39 +172,45 @@ public class StrandSettings : MonoBehaviour
         List<GameObject> nucleotides = s_strand.Nucleotides;
         int seqCount = 0;
 
-        for (int i = nucleotides.Count - 1; i >= 0; i--)
+        for (int i = 0; i < s_strand.Domains.Count; i++)
         {
-            NucleotideComponent ntc = nucleotides[i].GetComponent<NucleotideComponent>();
-            if (i == nucleotides.Count - 1 || i == 0)
+            Domain domain = s_strand.Domains[i];
+            for (int j = 0; j < domain.GetDomainData().Count; j++)
             {
-                CheckTrailingNucls(ntc);
+                NucleotideData nd = domain.GetNucleotideData(i);
+                if (nd == s_strand.GetHead() || nd == s_strand.GetTail())
+                {
+                    CheckTrailingNucls(nd);
+                }
+                
+                NucleotideEdit.SetComplementary(nd, sequence.Substring(seqCount, nd.Insertion + 1));
+                if (!nd.IsDeletion) seqCount += nd.Insertion + 1;
+
             }
-            if (ntc != null)
-            {
-                NucleotideEdit.SetComplementary(ntc, sequence.Substring(seqCount, ntc.Insertion + 1));
-                if (!ntc.IsDeletion) seqCount += ntc.Insertion + 1;
-            }
+            
         }
         Debug.Log("Finished setting complementary bases");
+
+
     }
 
     /// <summary>
     /// Checks if any complementary strands have nucleotides that haven't been assigned a base yet.
     /// If they haven't, assigns "?" to them.
     /// </summary>
-    private void CheckTrailingNucls(NucleotideComponent ntc)
+    private void CheckTrailingNucls(NucleotideData nd)
     {
-        Strand strand = Utils.GetStrand(ntc.gameObject);
-        NucleotideComponent compNtc = ntc.Complement.GetComponent<NucleotideComponent>();
+        Strand strand = nd.GetStrand();
+        NucleotideData comp = nd.GetComplement();
 
         bool towardTail = true;
-        if (ntc.gameObject == strand.Tail)
+        if (nd == strand.GetTail())
         {
            towardTail = false;
         }
-        if (compNtc.Selected)
+        if (comp.IsSelected())
         {
-            FillTrailingNucls(compNtc, towardTail);
+            FillTrailingNucls(comp, towardTail);
         }
     }
 
@@ -212,31 +219,29 @@ public class StrandSettings : MonoBehaviour
     /// </summary>
     /// <param name="ntc"></param>
     /// <param name="towardTail">Boolean indicating whether or not the unassigned nucleotides are towards the tail of the strand.</param>
-    private void FillTrailingNucls(NucleotideComponent ntc, bool towardTail)
+    private void FillTrailingNucls(NucleotideData comp, bool towardTail)
     {
-        Strand strand = Utils.GetStrand(ntc.gameObject);
-        int currIndex = strand.GetIndex(ntc.gameObject);
+        Domain domain = comp.GetDomain();
+        int currIndex = comp.Id;
         int endIndex;
-        if (towardTail) endIndex = strand.GetIndex(strand.Tail);
-        else endIndex = strand.GetIndex(strand.Head);
-        int i = currIndex + 1;
+        if (towardTail) 
+            endIndex = domain.GetTailData().Id;
+        else 
+            endIndex = domain.GetHeadData().Id;
+        //int i = currIndex + 1;
         if (currIndex > endIndex)
         {
             // Swap curr and end index
             int temp = currIndex;
             currIndex = endIndex;
             endIndex = temp;
-            i = currIndex;
         }
 
-        for (; i <= endIndex; i++)
+        for (int i = currIndex; i <= endIndex; i++)
         {
-            NucleotideComponent currNtc = strand.Nucleotides[i].GetComponent<NucleotideComponent>();
-            if (currNtc != null)
-            {
-                if (currNtc.Sequence.Equals("")) currNtc.Sequence = "?";
-                else break;
-            }
+            NucleotideData nd = domain.GetNucleotideData(i);
+            if (nd.Sequence.Equals(""))
+                nd.Sequence = "?";
         }
     }
 

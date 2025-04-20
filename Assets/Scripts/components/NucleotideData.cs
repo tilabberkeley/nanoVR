@@ -36,11 +36,13 @@ public class NucleotideData
             if (direction == 1)
             {
                 helix.NucleotideColorAChanged = true;
+                helix.NucleotideHighlightAChanged = true;
                 helix.BackboneColorAChanged = true;
             }
             else
             {
                 helix.NucleotideColorBChanged = true;
+                helix.NucleotideHighlightBChanged = true;
                 helix.BackboneColorBChanged = true;
             }
         } 

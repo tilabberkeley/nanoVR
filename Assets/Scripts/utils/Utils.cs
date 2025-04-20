@@ -127,14 +127,16 @@ public static class Utils
 
     public static void CheckMismatch(Strand strand)
     {
-        foreach (GameObject nucl in strand.Nucleotides)
+        foreach (Domain domain in strand.Domains)
         {
-            NucleotideComponent ntc = nucl.GetComponent<NucleotideComponent>();
-            if (ntc != null) CheckMismatch(ntc);
+            foreach (NucleotideData nd in domain.GetDomainData())
+            {
+                CheckMismatch(nd);
+            }
         }
     }
 
-    public static void CheckMismatch(NucleotideComponent ntc)
+    /*public static void CheckMismatch(NucleotideComponent ntc)
     {
         NucleotideComponent complementNtc = ntc.Complement.GetComponent<NucleotideComponent>();
 
@@ -151,16 +153,35 @@ public static class Utils
             RemoveMismatch(complementNtc);
             RemoveMismatch(ntc);
         }
+    }*/
+
+    public static void CheckMismatch(NucleotideData ntc)
+    {
+        NucleotideData complementNtc = ntc.GetComplement();
+
+        // If complement nucleotide is not assigned a DNA sequence, there is no mismatch of DNA to check.
+        if (complementNtc.Sequence.Equals("")) return;
+
+        string complementSequence = ComplementSequence(ntc.Sequence);
+        if (!complementNtc.Sequence.Equals(complementSequence))
+        {
+            DrawMismatch(complementNtc);
+        }
+        else
+        {
+            RemoveMismatch(complementNtc);
+            RemoveMismatch(ntc);
+        }
     }
 
-    private static void DrawMismatch(NucleotideComponent complementNtc)
+    private static void DrawMismatch(NucleotideData complementNtc)
     {
-        Highlight.HighlightGO(complementNtc.gameObject, Color.magenta);
+        Highlight.HighlightGO(complementNtc, Color.magenta);
     }
 
-    private static void RemoveMismatch(NucleotideComponent complementNtc)
+    private static void RemoveMismatch(NucleotideData complementNtc)
     {
-        Highlight.UnhighlightGO(complementNtc.gameObject, false);
+        Highlight.UnhighlightGO(complementNtc, false);
     }
 
     /// <summary>
@@ -204,12 +225,13 @@ public static class Utils
     /// </summary>
     public static Strand GetStrand(GameObject nucl)
     {
-        DNAComponent dnaComp = nucl.GetComponent<DNAComponent>();
-        XoverComponent xoverComp = nucl.GetComponent<XoverComponent>();
+        var dnaComp = nucl.GetComponent<NucleotideColliderComponent>();
+        var nd = dnaComp.Data;
+        var xoverComp = nucl.GetComponent<XoverComponent>();
         Strand strand = null;
-        if (dnaComp != null && dnaComp.Selected)
+        if (dnaComp != null && nd.IsSelected())
         {
-            s_strandDict.TryGetValue(dnaComp.StrandId, out strand);
+            nd.GetStrand();
         }
         if (xoverComp != null)
         {

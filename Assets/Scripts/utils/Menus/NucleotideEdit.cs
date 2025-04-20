@@ -20,8 +20,8 @@ public class NucleotideEdit : MonoBehaviour
     [SerializeField] private TMP_Text _nucleotideInfoText;
 
     // Static variables
-    private static NucleotideComponent s_ntc;
-    public static NucleotideComponent Nucleotide { set { s_ntc = value; } }
+    private static NucleotideData s_ntc;
+    public static NucleotideData Nucleotide { set { s_ntc = value; } }
 
     private void Start()
     {
@@ -55,8 +55,8 @@ public class NucleotideEdit : MonoBehaviour
             sequence = sequence.Substring(0, length);
         }
 
-        ICommand command = new EditNucleotideCommand(s_ntc, sequence, _complementaryTog.isOn);
-        CommandManager.AddCommand(command);
+        //ICommand command = new EditNucleotideCommand(s_ntc, sequence, _complementaryTog.isOn);
+        //CommandManager.AddCommand(command);
         //command.Do();
     }
 
@@ -65,7 +65,7 @@ public class NucleotideEdit : MonoBehaviour
     /// </summary>
     public static void SetNucleotide(NucleotideComponent ntc, string sequence, bool changedComplement)
     {
-        ntc.Sequence = sequence;
+        /*ntc.Sequence = sequence;
 
         if (changedComplement)
         {
@@ -73,7 +73,20 @@ public class NucleotideEdit : MonoBehaviour
             if (!ValidComplementary(ntc)) return;
             SetComplementary(ntc, sequence);
         }
-        Utils.CheckMismatch(s_ntc);
+        Utils.CheckMismatch(s_ntc);*/
+    }
+
+    public static void SetNucleotide(NucleotideData nd, string sequence, bool changedComplement)
+    {
+        nd.Sequence = sequence;
+
+        if (changedComplement)
+        {
+            // Set Complementary base
+            if (!ValidComplementary(nd)) return;
+            SetComplementary(nd, sequence);
+        }
+        Utils.CheckMismatch(nd);
     }
 
     /// <summary>
@@ -93,22 +106,19 @@ public class NucleotideEdit : MonoBehaviour
     }
 
     /// <summary>
-    /// Returns whether or not input nucleotide has valid complementary nucleotide.
+    /// Returns whether input nucleotide has valid complementary nucleotide.
     /// </summary>
-    public static bool ValidComplementary(NucleotideComponent nucleotide)
+    public static bool ValidComplementary(NucleotideData nucleotide)
     {
-        if (nucleotide != null)
-        {
-            var compNtc = nucleotide.Complement.GetComponent<NucleotideComponent>();
-            if (compNtc.Selected)
-            {
-                if (nucleotide.IsDeletion && !compNtc.IsDeletion) return false;
-                if (!nucleotide.IsDeletion && compNtc.IsDeletion) return false;
-                if (nucleotide.IsInsertion && !compNtc.IsInsertion) return false;
-                if (!nucleotide.IsInsertion && compNtc.IsInsertion) return false;
-                if (nucleotide.Insertion != compNtc.Insertion) return false;
-            }
-        }
+        var compNtc = nucleotide.GetComplement();
+        if (!compNtc.IsSelected()) return false;
+    
+        if (nucleotide.IsDeletion && !compNtc.IsDeletion) return false;
+        if (!nucleotide.IsDeletion && compNtc.IsDeletion) return false;
+        if (nucleotide.IsInsertion && !compNtc.IsInsertion) return false;
+        if (!nucleotide.IsInsertion && compNtc.IsInsertion) return false;
+        if (nucleotide.Insertion != compNtc.Insertion) return false;
+        
         return true;
     }
 
@@ -132,6 +142,23 @@ public class NucleotideEdit : MonoBehaviour
                 }
                 Debug.Log("Finished setting complement of " + ntc.gameObject.name);
             }
+        }
+    }
+
+    public static void SetComplementary(NucleotideData nd, string sequence)
+    {
+        NucleotideData compNtc = nd.GetComplement();
+        if (compNtc.IsSelected())
+        {
+            if (nd.IsDeletion)
+            {
+                compNtc.Sequence = "X";
+            }
+            else
+            {
+                compNtc.Sequence = Utils.ComplementSequence(sequence);
+            }
+            Debug.Log($"Finished setting complement of {nd}");
         }
     }
 
