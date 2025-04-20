@@ -378,6 +378,9 @@ public class DrawCrossover : MonoBehaviour
         prevDomain.NextXover = xoverComponent;
         nextDomain.PrevXover = xoverComponent;
 
+        prevDomain.GetTailData().Xover = xoverComponent;
+        nextDomain.GetHeadData().Xover = xoverComponent;
+
         xoverComponent.Color = color;
         xoverComponent.SavedColor = savedColor;
 

@@ -246,6 +246,9 @@ public class DrawLoopout : MonoBehaviour
         prevDomain.NextXover = loopoutComponent;
         nextDomain.PrevXover = loopoutComponent;
 
+        prevDomain.GetTailData().Xover = loopoutComponent;
+        nextDomain.GetHeadData().Xover = loopoutComponent;
+
         loopoutComponent.Color = prevDomain.Color;
         loopoutComponent.SavedColor = nextDomain.Color;
 

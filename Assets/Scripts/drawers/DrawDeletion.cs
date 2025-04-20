@@ -138,12 +138,12 @@ public class DrawDeletion
         if (nd.IsDeletion)
         {
             nd.IsDeletion = false;
-            UnhighlightDeletion(nd);
+            //UnhighlightDeletion(nd);
         }
         else
         {
             nd.IsDeletion = true;
-            HighlightDeletion(nd);
+            //HighlightDeletion(nd);
         }
 
         // Update strand DNA sequence

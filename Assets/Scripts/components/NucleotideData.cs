@@ -51,10 +51,6 @@ public class NucleotideData
         set 
         { 
             insertion = value; 
-            if (sequence.Length > insertion + 1)
-            {
-                sequence = sequence.Substring(0, insertion); // Remove the rest of the sequence
-            }
         } 
     }
     public bool IsInsertion { get => insertion > 0; }
@@ -64,10 +60,7 @@ public class NucleotideData
         set 
         { 
             isDeletion = value; 
-            if (sequence.Length > 0)
-            {
-                sequence = "X"; // Mark as deleted
-            }
+
         }
     }
     public XoverComponent Xover { get => xover; set => xover = value; }
@@ -162,7 +155,13 @@ public class NucleotideData
 
     public override string ToString()
     {
-        return string.Format("NucleotideData: id={0}, helixId={1}, strandId={2}, direction={3}",
-            id, helixId, strandId, direction);
+        return string.Format("id={0}, helix={1}, strand={2}, dir={3}", id, helixId, strandId, direction);
+    }
+
+    public NucleotideData GetComplement()
+    {
+        Helix helix = GetHelix();
+        int complementDirection = 1 - direction;
+        return helix.GetNucleotideData(id, complementDirection);
     }
 }

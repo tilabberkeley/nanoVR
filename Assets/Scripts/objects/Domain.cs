@@ -49,7 +49,7 @@ public class Domain
         this.direction = direction;
         this.startId = startId;
         this.endId = endId;
-        this.insertions = new Dictionary<int, int> (insertions);
+        this.insertions = new Dictionary<int, int>(insertions);
         this.deletions = new List<int>(deletions);
     }
 
@@ -237,6 +237,11 @@ public class Domain
         this.id = id;
         this.color = color;
 
+        if (nextXover != null)
+        {
+            nextXover.Color = color;
+        }
+
         for (int i = startId; i <= endId; i++)
         {
             NucleotideData nucleotideData = GetNucleotideData(i);
@@ -274,6 +279,10 @@ public class Domain
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Sets the sequence of domain nucleotides. Also handles insertion/deletion highlights.
+    /// </summary>
+    /// <param name="sequence"></param>
     public void SetSequence(string sequence)
     {
         int seqIdx = 0;
@@ -283,9 +292,15 @@ public class Domain
             if (nucleotideData.IsDeletion)
             {
                 nucleotideData.Sequence = "X";
+                Highlight.HighlightDeletion(nucleotideData);
             }
             else
             {
+                if (nucleotideData.IsInsertion)
+                {
+                    Highlight.HighlightInsertion(nucleotideData);
+                }
+
                 int nuclLength = nucleotideData.Insertion + 1;
                 nucleotideData.Sequence = sequence.Substring(seqIdx, nuclLength);
                 seqIdx += nuclLength;

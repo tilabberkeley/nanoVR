@@ -126,12 +126,12 @@ public class DrawInsertion : MonoBehaviour
         if (ntc.IsInsertion)
         {
             ntc.Insertion = 0;
-            UnhighlightInsertion(go);
+            //UnhighlightInsertion(go);
         }
         else
         {
             ntc.Insertion = length;
-            HighlightInsertion(go);
+            //HighlightInsertion(go);
         }
 
         // Update strand DNA sequence

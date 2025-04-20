@@ -3628,7 +3628,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: scadnano
+  m_Text: oxview
 --- !u!222 &237694195
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -11991,7 +11991,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1010908914}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
   m_Name: 
@@ -13799,7 +13799,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1555935031}
   m_HandleRect: {fileID: 1555935029}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -18699,7 +18699,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -194.99997, y: NaN}
+  m_AnchoredPosition: {x: -195, y: NaN}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1650224458
@@ -21277,7 +21277,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -194.99997, y: NaN}
+  m_AnchoredPosition: {x: -195, y: NaN}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1877134062
@@ -21479,13 +21479,13 @@ MonoBehaviour:
   m_Value: 0
   m_Options:
     m_Options:
+    - m_Text: oxview
+      m_Image: {fileID: 0}
     - m_Text: scadnano
       m_Image: {fileID: 0}
     - m_Text: oxdna
       m_Image: {fileID: 0}
     - m_Text: dna sequences (csv)
-      m_Image: {fileID: 0}
-    - m_Text: oxview
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
@@ -25402,6 +25402,30 @@ PrefabInstance:
     - target: {fileID: 2333582758512940837, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: m_OverrideInteractorLineLength
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2333582759564519727, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: m_ClearFlags
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2333582759564519727, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: orthographic
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2333582759564519727, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: field of view
+      value: 79.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 2333582759564519727, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0.7981043
+      objectReference: {fileID: 0}
+    - target: {fileID: 2333582759564519727, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0.7981043
+      objectReference: {fileID: 0}
+    - target: {fileID: 2333582759564519727, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: 2333582759794358071, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: m_Enabled

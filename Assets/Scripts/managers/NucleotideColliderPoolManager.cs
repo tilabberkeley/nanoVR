@@ -177,7 +177,7 @@ public class NucleotideColliderPoolManager : MonoBehaviour
         for (int i = 0; i < matrices.Count; i++)
         {
             Matrix4x4 localMat = matrices[i];
-            Matrix4x4 worldMat = helixManager.CurrentOffset * localMat;
+            Matrix4x4 worldMat = helix.CurrTransformOffset * localMat;
             Vector3 position = worldMat.GetColumn(3);
 
             float distSqr = (player.position - position).sqrMagnitude;

@@ -234,8 +234,10 @@ public static class DrawPoint
         gridCircle.name = "gridPoint";
         //GridComponent gridComponent = gridCircle.GetComponent<GridComponent>();
         //gridComponent.Position = position;
-        TextMeshPro tmp = gridCircle.GetComponentInChildren<TextMeshPro>();
-        tmp.text = $"[{gridPoint.X}, {gridPoint.Y}]";
+
+        /*TextMeshPro tmp = gridCircle.GetComponentInChildren<TextMeshPro>();
+        tmp.text = $"[{gridPoint.X}, {gridPoint.Y}]";*/
+
         SaveGameObject(gridCircle);
         //gridCircle.isStatic = true;
         return gridCircle;

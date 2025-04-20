@@ -105,8 +105,8 @@ public class XoverComponent : MonoBehaviour
     void Awake()
     {
         _ntRenderer = gameObject.GetComponent<Renderer>();
-        _outline = gameObject.GetComponent<Outline>();
-        _outline.enabled = false;
+        //_outline = gameObject.GetComponent<Outline>();
+        //_outline.enabled = false;
         _mpb = new MaterialPropertyBlock();
     }
 

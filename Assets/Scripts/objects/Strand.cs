@@ -140,6 +140,19 @@ public class Strand
         }
     }
 
+    public List<(int, int, NucleotideData)> GetInsertions()
+    {
+        List<(int, int, NucleotideData)> insertions = new List<(int, int, NucleotideData)>();
+        foreach (Domain domain in domains)
+        {
+            foreach (var insertion in domain.Insertions)
+            {
+                insertions.Add((insertion.Key, insertion.Value, domain.GetNucleotideData(insertion.Key)));
+            }
+        }
+        return insertions;
+    }
+
     public List<(int, NucleotideComponent)> Deletions 
     { 
         get
@@ -155,6 +168,19 @@ public class Strand
             }
             return deletions;
         } 
+    }
+
+    public List<(int, NucleotideData)> GetDeletions()
+    {
+        List<(int, NucleotideData)> deletions = new List<(int, NucleotideData)>();
+        foreach (Domain domain in domains)
+        {
+            foreach (var deletion in domain.Deletions)
+            {
+                deletions.Add((deletion, domain.GetNucleotideData(deletion)));
+            }
+        }
+        return deletions;
     }
 
     /// <summary>
@@ -736,7 +762,14 @@ public class Strand
     {
         for (int i = 0; i < domains.Count; i++)
         {
-            domains[i].SetDomain(i, _strandId, _color);
+            Domain domain = domains[i];
+            domain.SetDomain(i, _strandId, _color);
+
+            /*NucleotideData tail = domain.GetTailData();
+            if (tail.HasXover)
+            {
+                tail.Xover.GetComponent<XoverComponent>().Color = _color;
+            }*/
         }
     }
 

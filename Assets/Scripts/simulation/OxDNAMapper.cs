@@ -10,19 +10,20 @@ using static Geometry;
 /// </summary>
 public class OxDNAMapper
 {
-    private Dictionary<int, NucleotideComponent> _lineIndexToNucleotide;
+    private Dictionary<int, NucleotideData> _lineIndexToNucleotide;
 
     public OxDNAMapper()
     {
-        _lineIndexToNucleotide = new Dictionary<int, NucleotideComponent>();
+        _lineIndexToNucleotide = new Dictionary<int, NucleotideData>();
     }
 
     /// <summary>
     /// Adds a mapping from a line index of a dat file to a nucleotide.
     /// </summary>
-    public void Add(int lineIndex, NucleotideComponent nucleotide)
+    public void Add(int lineIndex, NucleotideData nucleotide)
     {
-        nucleotide.Position = nucleotide.transform.position; // Save the current position of the nucleotide before simualation.
+        // NOTE: Changed by DY 4/18
+        //nucleotide.Position = nucleotide.transform.position; // Save the current position of the nucleotide before simualation.
         _lineIndexToNucleotide.Add(lineIndex, nucleotide);
     }
 
@@ -56,11 +57,11 @@ public class OxDNAMapper
     }
 
     /// <summary>
-    /// Updates the associated nucleotide at the givne line index.
+    /// Updates the associated nucleotide at the given line index.
     /// </summary>
     private void UpdateNucleotidePosition(int lineIndex, Vector3 datFilePosition, Vector3 datFileA1)
     {
-        _lineIndexToNucleotide.TryGetValue(lineIndex, out NucleotideComponent nucleotide);
+        _lineIndexToNucleotide.TryGetValue(lineIndex, out NucleotideData nucleotide);
 
         // Convert oxDNA position to native position.
         Vector3 position = (datFilePosition - 0.4f * datFileA1) / SCALE_FROM_NANOVR_TO_NM / (float)NM_TO_OX_UNITS;
@@ -70,7 +71,9 @@ public class OxDNAMapper
          * 
          * Additionally, we are adding the saved position of the nucleotide because the simulation is centered at the origin.
          */
-        nucleotide.transform.position = position; //+ nucleotide.Position;
+
+        //NOTE: CHANGED BY DY 4/18
+        //nucleotide.transform.position = position; //+ nucleotide.Position;
     }
 
     /// <summary>
@@ -78,9 +81,10 @@ public class OxDNAMapper
     /// </summary>
     public void RestoreNucleotidesToEdit()
     {
-        foreach (NucleotideComponent nucleotideComponent in _lineIndexToNucleotide.Values)
+        foreach (NucleotideData nucleotideComponent in _lineIndexToNucleotide.Values)
         {
-            nucleotideComponent.transform.position = nucleotideComponent.Position;
+            // NOTE: CHANGED BY DY 4/18
+            //nucleotideComponent.transform.position = nucleotideComponent.Position;
         }
     }
 }

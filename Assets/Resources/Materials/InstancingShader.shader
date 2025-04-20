@@ -1,62 +1,49 @@
-Shader "Custom/InstancingShader"
+﻿Shader "Custom/InstancingShader"
 {
-    Properties
-    {
-        _Color ("Color", Color) = (1,1,1,1)
-        _MainTex ("Albedo (RGB)", 2D) = "white" {}
-        _Glossiness ("Smoothness", Range(0,1)) = 0.5
-        _Metallic ("Metallic", Range(0,1)) = 0.0
-        _HighlightColor ("Highlight Color", Color) = (1,1,1,1)
-    }
-    SubShader
-    {
-        Tags { "RenderType"="Opaque" }
-        LOD 200
+    SubShader {
+        Tags { "RenderType" = "Opaque" }
 
-        CGPROGRAM
-        // Physically based Standard lighting model, and enable shadows on all light types
-        #pragma surface surf Standard fullforwardshadows
-        #pragma target 3.0
+        Pass {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_fragment _  LOD_FADE_CROSSFADE
 
-        sampler2D _MainTex;
+            #include "UnityCG.cginc"
 
-        struct Input
-        {
-            float2 uv_MainTex;
-        };
+            struct appdata_t {
+                float4 vertex   : POSITION;
+            };
 
-        half _Glossiness;
-        half _Metallic;
+            struct v2f {
+                float4 vertex    : SV_POSITION;
+                float4  color     : COLOR0;
+                float4  highlight : COLOR1;
+            };
 
-        // Add instancing support for this shader. 
-        UNITY_INSTANCING_BUFFER_START(Props)
-            // Base color per instance
-            UNITY_DEFINE_INSTANCED_PROP(fixed4, _Color)
-            // Highlight color per instance (the intensity is fixed in the shader)
-            UNITY_DEFINE_INSTANCED_PROP(fixed4, _HighlightColor)
-        UNITY_INSTANCING_BUFFER_END(Props)
+            StructuredBuffer<float4x4> _Matrices;
+            StructuredBuffer<float4> _Colors;
+            StructuredBuffer<float4> _Highlights;
 
-        void surf (Input IN, inout SurfaceOutputStandard o)
-        {
-            // Retrieve base color from texture, tinted by the instance-specific _Color
-            fixed4 baseColor = tex2D(_MainTex, IN.uv_MainTex) * UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
-            
-            // Retrieve instance-specific highlight color
-            fixed4 highlightColor = UNITY_ACCESS_INSTANCED_PROP(Props, _HighlightColor);
-            // Fixed highlight intensity at 0.5
-            float highlightIntensity = 0.5;
-            
-            // Blend the base color with the highlight color using a fixed intensity.
-            fixed4 finalColor;
-            finalColor.rgb = lerp(baseColor.rgb, highlightColor.rgb, highlightIntensity);
-            finalColor.a = baseColor.a;
-            
-            o.Albedo = finalColor.rgb;
-            o.Metallic = _Metallic;
-            o.Smoothness = _Glossiness;
-            o.Alpha = finalColor.a;
+
+            v2f vert(appdata_t i, uint instanceID: SV_InstanceID) {
+                v2f o;
+
+                float4 pos = mul(_Matrices[instanceID], i.vertex);
+                o.vertex = UnityObjectToClipPos(pos);
+                o.color = _Colors[instanceID];
+                o.highlight = _Highlights[instanceID];
+
+                return o;
+            }
+
+            float4 frag(v2f i) : SV_Target {
+                return lerp(i.color, i.highlight, 0.5);
+            }
+
+            ENDCG
         }
-        ENDCG
     }
+
     FallBack "Diffuse"
 }

@@ -369,6 +369,7 @@ public class FileImport : MonoBehaviour
         Dictionary<int, int> extensionStrands = new Dictionary<int, int>();
         // bool isHelixBoundExt = extensionTog.isOn;
 
+        Debug.Log($"Num imported strands: {strands.Count}");
         // Drawing strands
         for (int i = 0; i < strands.Count; i++)
         {

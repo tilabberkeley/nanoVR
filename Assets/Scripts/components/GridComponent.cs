@@ -37,7 +37,7 @@ public class GridComponent : MonoBehaviour
     protected virtual void Awake()
     {
         _ntRenderer = GetComponent<Renderer>();
-        _outline = GetComponent<Outline>();
-        _outline.enabled = false;
+        //_outline = GetComponent<Outline>();
+        //_outline.enabled = false;
     }
 }

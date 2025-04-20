@@ -54,17 +54,17 @@ public static class Utils
         //strand.SetConeRevamp();
 
         // Draw and set xovers and loopouts
-        //for (int i = 1; i < domains.Count; i++)
-        //{
-        //    if (loopouts.ContainsKey(i - 1))
-        //    {
-        //        DrawLoopout.CreateLoopoutHelper(domains[i - 1], domains[i], strandId, loopouts[i - 1]);
-        //    }
-        //    else
-        //    {
-        //        DrawCrossover.CreateXoverHelper(domains[i - 1], domains[i], strandId, color, savedColor: color);
-        //    }
-        //}
+        for (int i = 1; i < domains.Count; i++)
+        {
+            if (loopouts.ContainsKey(i - 1))
+            {
+                DrawLoopout.CreateLoopoutHelper(domains[i - 1], domains[i], strandId, loopouts[i - 1]);
+            }
+            else
+            {
+                DrawCrossover.CreateXoverHelper(domains[i - 1], domains[i], strandId, color, savedColor: color);
+            }
+        }
 
         // Set sequence
         //strand.SetSequenceRevamp(sequence);
