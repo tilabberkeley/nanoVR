@@ -369,7 +369,7 @@ public class FileImport : MonoBehaviour
         Dictionary<int, int> extensionStrands = new Dictionary<int, int>();
         // bool isHelixBoundExt = extensionTog.isOn;
 
-        Debug.Log($"Num imported strands: {strands.Count}");
+        //Debug.Log($"Num imported strands: {strands.Count}");
         // Drawing strands
         for (int i = 0; i < strands.Count; i++)
         {
@@ -430,9 +430,10 @@ public class FileImport : MonoBehaviour
                     int domainIdx = strandDomains.Count - 1;
                     loopouts[domainIdx] = loopoutLength;
                 }
-                else
+                else if (domains[j]["extension_num_bases"] != null)
                 {
                     // Save strands with extensions so that we can parse them after other strands
+                    //int extensionLength = (int)domains[j]["extension_num_bases"];
                     extensionStrands.Add(i, strandId);
                     //if (isHelixBoundExt)
                     //{
@@ -443,6 +444,10 @@ public class FileImport : MonoBehaviour
                     //    int extensionLength = (int) domains[j]["extension_num_bases"];
                     //    DrawOxViewExtension(extensionLength, j, xoverEndpoints, nucleotides);
                     //}
+                }
+                else
+                {
+                    Debug.Log($"Cannot parse SC file: {domains[j]}");
                 }
             }
 
@@ -456,7 +461,10 @@ public class FileImport : MonoBehaviour
             //    // strand.ShowHideCone(false);
             //    // Debug.Log("Show Hide cone");
             //}
-         
+            if (!extensionStrands.ContainsKey(i))
+            {
+                strand.SetSequenceRevamp(sequence);
+            }
 
             yield return null;
         }
