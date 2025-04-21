@@ -444,7 +444,6 @@ public abstract class DNAGrid
     /// </summary>
     public List<Matrix4x4> GetCircleMatrices()
     {
-        // We'll store the final transform for each circle here
         List<Matrix4x4> finalMatrices = new List<Matrix4x4>();
 
         for (int i = 0; i < _length; i++)

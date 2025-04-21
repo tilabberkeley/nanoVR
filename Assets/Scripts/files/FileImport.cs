@@ -264,7 +264,7 @@ public class FileImport : MonoBehaviour
         ParseHelices(helices, isMultiGrid);
 
         // Parse strands.
-        CoRunner.Instance.Run(ParseStrands(strands, lastHelixId));
+        // CoRunner.Instance.Run(ParseStrands(strands, lastHelixId)); OLLIE - Turning off strand parsing right now to see without xovers.
         //ParseStrands(strands, lastHelixId);
 
         /* Unselect imported grids by default.

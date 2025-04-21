@@ -13385,6 +13385,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: NucleotideColliderPoolManager
       objectReference: {fileID: 0}
+    - target: {fileID: 8088058605491712898, guid: 4035854ff58674f1aa053f9ea577f7c0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4035854ff58674f1aa053f9ea577f7c0, type: 3}
 --- !u!1 &1125798204
@@ -19527,6 +19531,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1706442107}
   - component: {fileID: 1706442106}
+  - component: {fileID: 1706442108}
   m_Layer: 0
   m_Name: Renderer
   m_TagString: Untagged
@@ -19541,7 +19546,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1706442105}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 04936291f0a6b454c8666aac7aba0e49, type: 3}
   m_Name: 
@@ -19562,6 +19567,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1706442108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1706442105}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a047084e267a74b6ea6f8abd90ceeebd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridCircleMesh: {fileID: 4300000, guid: 5fb4fdcc23faa834b83d90a503bc0440, type: 2}
+  gridCircleMaterial: {fileID: 2100000, guid: d45ae099d4cb945d883f3a744a9bb35d, type: 2}
 --- !u!1 &1711279218
 GameObject:
   m_ObjectHideFlags: 0
