@@ -1,0 +1,38 @@
+// Resources/DrawDataCompute.compute
+
+#pragma kernel CSMain
+
+//int _DrawCount;
+
+struct DrawData
+{
+    float4x4 mat;
+    float4 color;
+    float4 highlight;
+};
+
+StructuredBuffer<float4x4> _HelixOffsets;
+StructuredBuffer<uint> _HelixIndices;
+StructuredBuffer<DrawData> _DrawDataIn;
+RWStructuredBuffer<DrawData> _DrawDataOut;
+
+[numthreads(64, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    uint idx = id.x;
+    
+    //if (idx >= _DrawCount)  
+    //    return;
+    
+    uint helixIdx = _HelixIndices[idx];
+
+    DrawData inData = _DrawDataIn[idx];
+    float4x4 offset = _HelixOffsets[helixIdx];
+
+    DrawData outData;
+    outData.mat = mul(offset, inData.mat);
+    outData.color = inData.color;
+    outData.highlight = inData.highlight;
+
+    _DrawDataOut[idx] = outData;
+}

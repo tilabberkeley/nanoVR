@@ -9,7 +9,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 using static UnityEngine.Object;
 using static GlobalVariables;
 using SplineMesh;
-using TMPro;
+using static Utils;
 
 /// <summary>
 /// Creates needed gameobjects like nucleotides, backbones, cones, Xovers, spheres, and grids.
@@ -452,9 +452,9 @@ public static class DrawPoint
 
         float dist = Vector3.Distance(nextPosition, prevPosition);
         xover.transform.localScale = new Vector3(
-            0.2f,
+            XOVER_RAD,
             (dist),
-            0.2f
+            XOVER_RAD
         );        //Debug.Log(string.Format("Finished drawing xover: {0}", xover.transform.localScale));
 
         return xover;
@@ -645,7 +645,7 @@ public static class DrawPoint
 
         // Scale        
         float dist = Vector3.Distance(nextPosition, prevPosition);
-        xover.transform.localScale = new Vector3(0.4f, dist, 0.4f);
+        xover.transform.localScale = new Vector3(LOOPOUT_RAD, dist, LOOPOUT_RAD);
         return xover;
     }
 

@@ -150,8 +150,11 @@ public class DrawDeletion
         if (strand != null)
         {
             string sequence = strand.Sequence;
-            strand.SetSequenceRevamp(sequence);
-            Utils.CheckMismatch(strand);
+            if (sequence.Length > 0)
+            {
+                strand.SetSequenceRevamp(sequence);
+                Utils.CheckMismatch(strand);
+            }
         }
     }
 }
