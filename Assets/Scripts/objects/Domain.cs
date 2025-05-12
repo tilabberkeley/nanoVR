@@ -282,7 +282,6 @@ public class Domain
     /// <summary>
     /// Sets the sequence of domain nucleotides. Also handles insertion/deletion highlights.
     /// </summary>
-    /// <param name="sequence"></param>
     public void SetSequence(string sequence)
     {
         int seqIdx = 0;

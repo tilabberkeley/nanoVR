@@ -2,6 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+using UnityEditor;
 using UnityEngine;
 
 /// <summary>
@@ -16,6 +17,9 @@ public class HelixBoundingBox
 
     private Vector3 _boxMax;
     public Vector3 BoxMax { get => _boxMax; }
+
+    private Helix _helix;
+    public Helix Helix { get => _helix; set => _helix = value; }
 
     /// <summary>
     /// Creates an "empty" bounding box that you can expand
@@ -45,26 +49,44 @@ public class HelixBoundingBox
     }
 
     /// <summary>
-    /// Check if a sphere (center + radius) intersects (collides with) this axis-aligned box.
+    /// True if a sphere (center + radius) intersects this helix’s bounding box,
+    /// taking the helix’s current parent transform into account.
     /// </summary>
-    /// <param name="sphereCenter">World position of sphere center</param>
-    /// <param name="sphereRadius">Radius of the sphere</param>
-    /// <returns>True if there's any intersection, false otherwise.</returns>
     public bool IntersectsSphere(Vector3 sphereCenter, float sphereRadius)
     {
+        // 1  parent matrix (identity if the helix is still at its spawn position)
+        Matrix4x4 m = _helix.CurrTransformOffset;
+
+        // 2  local AABB centre/extents
+        Vector3 localCenter = (BoxMin + BoxMax) * 0.5f;
+        Vector3 localExtent = (BoxMax - BoxMin) * 0.5f;
+
+        // 3  world-space centre
+        Vector3 worldCenter = m.MultiplyPoint3x4(localCenter);
+
+        // 4  world-space extents = |R| · localExtent  (R = rotational part of m)
+        Vector3 e;
+        e.x = Mathf.Abs(m.m00) * localExtent.x + Mathf.Abs(m.m01) * localExtent.y + Mathf.Abs(m.m02) * localExtent.z;
+        e.y = Mathf.Abs(m.m10) * localExtent.x + Mathf.Abs(m.m11) * localExtent.y + Mathf.Abs(m.m12) * localExtent.z;
+        e.z = Mathf.Abs(m.m20) * localExtent.x + Mathf.Abs(m.m21) * localExtent.y + Mathf.Abs(m.m22) * localExtent.z;
+
+        Vector3 boxMin = worldCenter - e;
+        Vector3 boxMax = worldCenter + e;
+
+        // 5  sphere-vs-AABB test (squared distance)
         float distSqr = 0f;
 
-        // X-axis
-        if (sphereCenter.x < BoxMin.x) distSqr += (sphereCenter.x - BoxMin.x) * (sphereCenter.x - BoxMin.x);
-        else if (sphereCenter.x > BoxMax.x) distSqr += (sphereCenter.x - BoxMax.x) * (sphereCenter.x - BoxMax.x);
+        // X
+        if (sphereCenter.x < boxMin.x) distSqr += (sphereCenter.x - boxMin.x) * (sphereCenter.x - boxMin.x);
+        else if (sphereCenter.x > boxMax.x) distSqr += (sphereCenter.x - boxMax.x) * (sphereCenter.x - boxMax.x);
 
-        // Y-axis
-        if (sphereCenter.y < BoxMin.y) distSqr += (sphereCenter.y - BoxMin.y) * (sphereCenter.y - BoxMin.y);
-        else if (sphereCenter.y > BoxMax.y) distSqr += (sphereCenter.y - BoxMax.y) * (sphereCenter.y - BoxMax.y);
+        // Y
+        if (sphereCenter.y < boxMin.y) distSqr += (sphereCenter.y - boxMin.y) * (sphereCenter.y - boxMin.y);
+        else if (sphereCenter.y > boxMax.y) distSqr += (sphereCenter.y - boxMax.y) * (sphereCenter.y - boxMax.y);
 
-        // Z-axis
-        if (sphereCenter.z < BoxMin.z) distSqr += (sphereCenter.z - BoxMin.z) * (sphereCenter.z - BoxMin.z);
-        else if (sphereCenter.z > BoxMax.z) distSqr += (sphereCenter.z - BoxMax.z) * (sphereCenter.z - BoxMax.z);
+        // Z
+        if (sphereCenter.z < boxMin.z) distSqr += (sphereCenter.z - boxMin.z) * (sphereCenter.z - boxMin.z);
+        else if (sphereCenter.z > boxMax.z) distSqr += (sphereCenter.z - boxMax.z) * (sphereCenter.z - boxMax.z);
 
         return distSqr <= sphereRadius * sphereRadius;
     }

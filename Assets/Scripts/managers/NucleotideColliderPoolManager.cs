@@ -5,7 +5,6 @@ using UnityEngine;
 public class NucleotideColliderPoolManager : MonoBehaviour
 {
     [Header("References")]
-    public HelixManager helixManager;
     public GameObject colliderPrefab;
 
     [Header("Settings")]
@@ -16,8 +15,10 @@ public class NucleotideColliderPoolManager : MonoBehaviour
     [Tooltip("Initial size of the collider pool.")]
     public int initialPoolSize = 1024;
 
+    // private int _wantedThisFrame;
+
     // If we use the entire pool, we double it.
-    // If we use < 75% after a full pass, we shrink it to half.
+    // If we use < 25% after a full pass, we shrink it to half.
     private List<NucleotideColliderComponent> _colliderPool = new List<NucleotideColliderComponent>();
     private int _poolIndex;
 
@@ -134,36 +135,41 @@ public class NucleotideColliderPoolManager : MonoBehaviour
                 }
             }
 
+            ManagePoolSize();
+
             // 4) Wait 0.1s before the next collider assignment cycle
-            //    (Adjust the wait time as you like.)
             yield return new WaitForSeconds(0.1f);
         }
     }
 
-    //void Update()
-    //{
-    //    // For this frame, keep track of how many colliders we've used so far
-    //    _poolIndex = 0;
+    /*
+    void Update()
+    {
+        // For this frame, keep track of how many colliders we've used so far
+        _poolIndex = 0;
 
-    //    // Go through each Helix
-    //    foreach (Helix helix in GlobalVariables.s_helixDict.Values)
-    //    {
-    //        if (helix.BoundingBox.IntersectsSphere(player.position, interactionRadius))
-    //        {
-    //            AssignCollidersToHelix(helix, helix.NucleotideMatricesA, 1);
-    //            AssignCollidersToHelix(helix, helix.NucleotideMatricesB, 0);
-    //        }
-    //    }
+        // Go through each Helix
+        foreach (Helix helix in GlobalVariables.s_helixDict.Values)
+        {
+            if (helix.BoundingBox.IntersectsSphere(player.position, interactionRadius))
+            {
+                AssignCollidersToHelix(helix, helix.NucleotideMatricesA, 1);
+                AssignCollidersToHelix(helix, helix.NucleotideMatricesB, 0);
+            }
+        }
 
-    //    // Deactivate any leftover colliders that we didn't use this frame
-    //    for (int i = _poolIndex; i < _colliderPool.Count; i++)
-    //    {
-    //        if (_colliderPool[i].gameObject.activeSelf)
-    //        {
-    //            _colliderPool[i].gameObject.SetActive(false);
-    //        }
-    //    }
-    //}
+        // Deactivate any leftover colliders that we didn't use this frame
+        for (int i = _poolIndex; i < _colliderPool.Count; i++)
+        {
+            if (_colliderPool[i].gameObject.activeSelf)
+            {
+                _colliderPool[i].gameObject.SetActive(false);
+            }
+        }
+
+        // ManagePoolSize();
+    }
+    */
 
     /// <summary>
     /// Assigns colliders to the given helix's nucleotides if they are in range of the player.
@@ -178,39 +184,40 @@ public class NucleotideColliderPoolManager : MonoBehaviour
         {
             Matrix4x4 localMat = matrices[i];
             Matrix4x4 worldMat = helix.CurrTransformOffset * localMat;
-            Vector3 position = worldMat.GetColumn(3);
+            Vector3 position = worldMat.MultiplyPoint3x4(Vector3.zero);
+
+            // Vector3 position = worldMat.GetColumn(3);
 
             float distSqr = (player.position - position).sqrMagnitude;
             float radiusSqr = interactionRadius * interactionRadius;
 
-            if (distSqr < radiusSqr)
+            //if (distSqr < radiusSqr) This distance check is buggy. Removing it for now.
+            //{
+            // We want a real collider
+            if (_poolIndex >= _colliderPool.Count)
             {
-                // We want a real collider
-                if (_poolIndex >= _colliderPool.Count)
-                {
-                    // We have no colliders left => Expand the pool right now
-                    ExpandPool(_colliderPool.Count); // double the current size
-                }
-
-                NucleotideColliderComponent nucleotideColliderComponent = _colliderPool[_poolIndex];
-                GameObject colObj = nucleotideColliderComponent.gameObject;
-                if (!colObj.activeSelf) colObj.SetActive(true);
-
-                // Position the pooled collider
-                colObj.transform.position = position;
-
-                // Setup references
-                nucleotideColliderComponent.Setup(helix, i, direction);
-
-                _poolIndex++;
+                // We have no colliders left => Expand the pool right now
+                ExpandPool(_colliderPool.Count); // double the current size
             }
+
+            NucleotideColliderComponent nucleotideColliderComponent = _colliderPool[_poolIndex];
+            GameObject colObj = nucleotideColliderComponent.gameObject;
+            if (!colObj.activeSelf) colObj.SetActive(true);
+
+            // Position the pooled collider
+            colObj.transform.position = position;
+
+            // Setup references
+            nucleotideColliderComponent.Setup(helix, i, direction);
+
+            _poolIndex++;
+            //}
         }
     }
 
     /// <summary>
     /// After a full pass, decide if we should shrink the pool based on usage.
-    /// If we used fewer than 75% of colliders, shrink by half.
-    /// Example threshold; adjust logic as desired.
+    /// If we used fewer than 25% of colliders, shrink by half.
     /// </summary>
     private void ManagePoolSize()
     {
@@ -218,9 +225,9 @@ public class NucleotideColliderPoolManager : MonoBehaviour
         int usedCount = _poolIndex;
         int capacity = _colliderPool.Count;
 
-        // if used is < 75% of capacity, shrink to half
-        // e.g. used 128, capacity 256 => 128 < 192 => shrink => 128
-        if (usedCount < capacity * 0.5f)
+        // if used is < 25% of capacity, shrink capacity in half
+        // e.g. used 128, capacity 1024  => 128 < 256 => shrink => 512
+        if (usedCount < capacity / 4)
         {
             int newSize = capacity / 2;
             ShrinkPool(newSize);
@@ -233,8 +240,10 @@ public class NucleotideColliderPoolManager : MonoBehaviour
     /// </summary>
     private void ExpandPool(int amount)
     {
+        Debug.Log("Expanding pool");
+
         int currentCount = _colliderPool.Count;
-        int newCount = currentCount + amount;  // "double" approach
+        int newCount = currentCount + amount;
 
         for (int i = currentCount; i < newCount; i++)
         {
@@ -250,6 +259,8 @@ public class NucleotideColliderPoolManager : MonoBehaviour
     /// </summary>
     private void ShrinkPool(int newSize)
     {
+        Debug.Log("Shrinking Pool");
+
         int currentCount = _colliderPool.Count;
         if (newSize < 1) newSize = 1; // keep at least 1
 

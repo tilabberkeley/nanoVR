@@ -236,18 +236,20 @@ public class HelixManager : MonoBehaviour
 
     void UpdateCurrentOffset(Helix h)
     {
-        Matrix4x4 g = Matrix4x4.TRS(TransformHandle.GizmosTransform.position,
-                                    TransformHandle.GizmosTransform.rotation,
-                                    Vector3.one);
+        Matrix4x4 g = Matrix4x4.TRS(
+                          TransformHandle.GizmosTransform.position,
+                          TransformHandle.GizmosTransform.rotation,
+                          Vector3.one);
         Matrix4x4 delta = g * TransformHandle.InitialGizmoMatrix.inverse;
-        _currentOffset = h.OldTransformOffset;
 
+        _currentOffset = h.OldTransformOffset;   // base offset
         if (h.IsTransforming)
-        {
-            _currentOffset = delta * _currentOffset;
-            h.CurrTransformOffset = _currentOffset;
-            if (_currentOffset != h.OldTransformOffset)
-                h.UpdateXovers();
-        }
+            _currentOffset = delta * _currentOffset; // live gizmo delta
+
+        h.CurrTransformOffset = _currentOffset;         //  <<< ALWAYS write it
+                                                        //      (moved or not)
+
+        if (h.IsTransforming && _currentOffset != h.OldTransformOffset)
+            h.UpdateXovers();                             // keep your old logic
     }
 }

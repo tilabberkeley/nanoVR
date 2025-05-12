@@ -153,6 +153,7 @@ public class Helix
         _helixA = new List<GameObject>();
         _helixB = new List<GameObject>();
         _helixViewCylinders = new List<GameObject>();
+        _boundingBox.Helix = this;
     }
 
     /// <summary>
@@ -321,7 +322,7 @@ public class Helix
         backboneColorBChanged = true;
         nucleotideHighlightAChanged = true;
         nucleotideHighlightBChanged = true;
-}
+    }
 
 
     /// <summary>
