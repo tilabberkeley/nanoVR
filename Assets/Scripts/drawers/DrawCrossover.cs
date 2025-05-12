@@ -72,7 +72,7 @@ public class DrawCrossover : MonoBehaviour
     {
         // Create the temporary crossover visualization object.
         tempXover = Instantiate(Xover, Vector3.zero, Quaternion.identity) as GameObject;
-        tempXover.name = "xover";
+        //tempXover.name = "xover";
         tempXover.SetActive(false);
     }
 
@@ -134,8 +134,10 @@ public class DrawCrossover : MonoBehaviour
         bool isHit = rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit hit2);
         if (triggerReleased && !triggerValue && s_startNuc != null)
         {
+            //Debug.Log("Updating temp xover");
             if (isHit && hit2.collider.gameObject == s_hitHelixGO)
             {
+                Debug.Log("Set xover to active");
                 tempXover.SetActive(true);
             }
             Vector3 startPos = s_startNuc.GetPosition();
@@ -166,7 +168,7 @@ public class DrawCrossover : MonoBehaviour
         Vector3 dirV = Vector3.Normalize(end - start);
         tempXover.transform.rotation = Quaternion.FromToRotation(Vector3.up, dirV);
         float dist = Vector3.Distance(start, end);
-        tempXover.transform.localScale = new Vector3(0.005f, dist / 2.0f, 0.005f);
+        tempXover.transform.localScale = new Vector3(XOVER_RAD, dist, XOVER_RAD);
     }
 
     /// <summary>
@@ -321,12 +323,12 @@ public class DrawCrossover : MonoBehaviour
         Domain d1 = nd1.GetDomain();
         Domain d2 = nd2.GetDomain();
 
-        if (nd1.Id != d1.StartId && nd1.Id != d1.EndId || nd2.Id != d2.StartId && nd2.Id != d2.EndId)
+        if ((nd1 == d1.GetHeadData() && nd2 == d2.GetTailData()) || (nd1 == d1.GetTailData() && nd2 == d2.GetHeadData()))
         {
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     public static void CreateXover(NucleotideData nd1, NucleotideData nd2)

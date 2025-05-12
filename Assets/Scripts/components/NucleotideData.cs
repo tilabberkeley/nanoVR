@@ -69,7 +69,7 @@ public class NucleotideData
     public bool HasXover { get => xover != null; }
     public int DomainIdx { get => domainIdx; set => domainIdx = value; }
 
-    public bool IsHighlighted { get => isHighlighted; set { Debug.Log("Setting is highlighted to true"); isHighlighted = value; } }
+    public bool IsHighlighted { get => isHighlighted; set { isHighlighted = value; } }
     public Color Highlight
     {
         get

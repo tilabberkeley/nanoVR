@@ -25,16 +25,10 @@
             StructuredBuffer<float4> _Colors;
             StructuredBuffer<float4> _Highlights;
 
-            StructuredBuffer<float4x4> _HelixOffsets;
-            StructuredBuffer<uint> _HelixIndices;
-
-
             v2f vert(appdata_t i, uint instanceID: SV_InstanceID) {
                 v2f o;
 
-                uint helixIndex = _HelixIndices[instanceID];
-                float4x4 world = mul(_HelixOffsets[helixIndex], _Matrices[instanceID]);
-                o.vertex = UnityObjectToClipPos(mul(world, i.vertex));
+                o.vertex = UnityObjectToClipPos(mul(_Matrices[instanceID], i.vertex));
                 o.color = _Colors[instanceID];
                 o.highlight = _Highlights[instanceID];
 

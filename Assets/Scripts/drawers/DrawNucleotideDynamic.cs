@@ -98,7 +98,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
                 creatingStrand = true;
                 s_startGO = nd;
                 s_currentNucleotides = MakeNuclList(s_startGO, s_startGO);
-                HighlightNucleotideSelection(s_currentNucleotides, !s_eraseTogOn);
+                //HighlightNucleotideSelection(s_currentNucleotides, !s_eraseTogOn);
             }
         }
         // Holding down trigger, highlight current strand                                             

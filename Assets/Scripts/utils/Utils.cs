@@ -21,6 +21,9 @@ public static class Utils
     public const float CROSSOVER_LENGTH = 7 * .34f / SCALE_FROM_NANOVR_TO_NM; // Ideal xover length of 7 base pairs??
     public const float NUCL_RAD = 0.008f; // Radius of nucleotide sphere
 
+    public const float XOVER_RAD = 0.2f;
+    public const float LOOPOUT_RAD = 0.4f;
+
 
     public const float ATOM_SCALE = 10f;
 

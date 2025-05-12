@@ -21,8 +21,6 @@ public class HelixManager : MonoBehaviour
     ComputeBuffer _nuclMatCB, _nuclColCB, _nuclHilCB, _nuclArgsCB;
     ComputeBuffer _backMatCB, _backColCB, _backHilCB, _backArgsCB;
 
-    ComputeBuffer _helixOffsetCB, _helixIndexCB;
-
     private Matrix4x4 _currentOffset;
     public Matrix4x4 CurrentOffset => _currentOffset;
 
@@ -36,8 +34,6 @@ public class HelixManager : MonoBehaviour
 
         _nuclArgsCB = new ComputeBuffer(1, ARGS_STRIDE_BYTES, ComputeBufferType.IndirectArguments);
         _backArgsCB = new ComputeBuffer(1, ARGS_STRIDE_BYTES, ComputeBufferType.IndirectArguments);
-        _helixOffsetCB = new ComputeBuffer(1, MATRIX_STRIDE);
-        _helixIndexCB = new ComputeBuffer(1, sizeof(uint));
     }
 
     void Update()
@@ -67,44 +63,23 @@ public class HelixManager : MonoBehaviour
         var bColor = new NativeArray<float4>(backCount, Allocator.TempJob);
         var bHighlight = new NativeArray<float4>(backCount, Allocator.TempJob);
 
-        List<Matrix4x4> helixOffsets = new List<Matrix4x4>();
-        List<uint> helixIndices = new List<uint>();
-        Dictionary<Helix, int> helixToIndex = new Dictionary<Helix, int>();
-        int helixOffsetIdx = 0;
-
         int nIdx = 0, bIdx = 0;
         foreach (Helix h in GlobalVariables.s_helixDict.Values)
         {
-            UpdateCurrentOffset(h);
-
-            if (!helixToIndex.ContainsKey(h))
-            {
-                helixToIndex[h] = helixOffsetIdx++;
-                helixOffsets.Add(_currentOffset);
-            }
-
-            uint hIdx = (uint)helixToIndex[h];
+            UpdateCurrentOffset(h);    
 
             FillNativeArrays(h.NucleotideMatricesA, h.GetNucleotideColors(1),
-                             h.GetNucleotideHighlights(1), localMats, colours, highlights, ref nIdx, helixIndices, hIdx);
+                             h.GetNucleotideHighlights(1), localMats, colours, highlights, ref nIdx, _currentOffset);
 
             FillNativeArrays(h.NucleotideMatricesB, h.GetNucleotideColors(0),
-                             h.GetNucleotideHighlights(0), localMats, colours, highlights, ref nIdx, helixIndices, hIdx);
+                             h.GetNucleotideHighlights(0), localMats, colours, highlights, ref nIdx, _currentOffset);
 
             FillNativeArrays(h.BackboneMatricesA, h.GetBackboneColors(1), null,
-                             bLocal, bColor, bHighlight, ref bIdx, helixIndices, hIdx);
+                             bLocal, bColor, bHighlight, ref bIdx, _currentOffset);
 
             FillNativeArrays(h.BackboneMatricesB, h.GetBackboneColors(0), null,
-                             bLocal, bColor, bHighlight, ref bIdx, helixIndices, hIdx);
+                             bLocal, bColor, bHighlight, ref bIdx, _currentOffset);
         }
-
-        _helixOffsetCB.Release();
-        _helixOffsetCB = new ComputeBuffer(helixOffsets.Count, MATRIX_STRIDE);
-        _helixOffsetCB.SetData(helixOffsets);
-
-        _helixIndexCB.Release();
-        _helixIndexCB = new ComputeBuffer(helixIndices.Count, sizeof(uint));
-        _helixIndexCB.SetData(helixIndices);
 
         var gpuMats = _nuclMatCB.BeginWrite<float4x4>(0, nucCount);
         var gpuCols = _nuclColCB.BeginWrite<float4>(0, nucCount);
@@ -160,7 +135,6 @@ public class HelixManager : MonoBehaviour
         _nuclMatCB?.Release(); _nuclColCB?.Release(); _nuclHilCB?.Release();
         _backMatCB?.Release(); _backColCB?.Release(); _backHilCB?.Release();
         _nuclArgsCB?.Release(); _backArgsCB?.Release();
-        _helixOffsetCB?.Release(); _helixIndexCB?.Release();
     }
 
     [BurstCompile(FloatPrecision.Standard, FloatMode.Fast)]
@@ -182,18 +156,16 @@ public class HelixManager : MonoBehaviour
     static void FillNativeArrays(
         List<Matrix4x4> srcMats, List<Color> srcCols, List<Color> srcHls,
         NativeArray<float4x4> dstLocal, NativeArray<float4> dstCol, NativeArray<float4> dstHlt,
-        ref int idx, List<uint> helixIndices, uint helixIdx)
+        ref int idx, Matrix4x4 offset)
     {
         bool hasHlt = srcHls != null;
         for (int i = 0; i < srcMats.Count; ++i, ++idx)
         {
-            dstLocal[idx] = (float4x4)srcMats[i];
+            dstLocal[idx] = math.mul(offset, srcMats[i]);
             dstCol[idx] = new float4(srcCols[i].r, srcCols[i].g, srcCols[i].b, srcCols[i].a);
             dstHlt[idx] = hasHlt
                 ? new float4(srcHls[i].r, srcHls[i].g, srcHls[i].b, srcHls[i].a)
                 : new float4(srcCols[i].r, srcCols[i].g, srcCols[i].b, srcCols[i].a);
-
-            helixIndices.Add(helixIdx);
         }
     }
 
@@ -216,8 +188,6 @@ public class HelixManager : MonoBehaviour
         _mpb.SetBuffer("_Matrices", matCB);
         _mpb.SetBuffer("_Colors", colCB);
         _mpb.SetBuffer("_Highlights", hltCB);
-        _mpb.SetBuffer("_HelixOffsets", _helixOffsetCB);
-        _mpb.SetBuffer("_HelixIndices", _helixIndexCB);
 
         Graphics.DrawMeshInstancedIndirect(mesh, 0, material, bounds, argsCB, 0, _mpb);
     }
