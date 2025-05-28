@@ -16,7 +16,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using static GlobalVariables;
 using static Utils;
-using System.Reflection; // This is used by Android during build process
+using System.Reflection; // Do not remove this, it is used to set FileBrowser to not use SAF on Android devices.
 
 public class FileExport : MonoBehaviour
 {
@@ -130,40 +130,15 @@ public class FileExport : MonoBehaviour
                 position["z"] = grid.Position.z * SCALE_FROM_NANOVR_TO_NM;
             }
 
-            /* Converts Unity quaternion into pitch, yaw, roll for scadnano json. 
-             * @source: https://discussions.unity.com/t/finding-pitch-roll-yaw-from-quaternions/65684/3
-             */
-            Quaternion q = grid.StartGridCircle.transform.rotation;
-            float pitch = Utils.ToPitch(q);
-            float yaw = Utils.ToYaw(q);
-            float roll = Utils.ToRoll(q);
-
-            Quaternion localQ = grid.StartGridCircle.transform.localRotation;
-            float pitch_local = Utils.ToPitch(localQ);
-            float yaw_local = Utils.ToYaw(localQ);
-            float roll_local = Utils.ToRoll(localQ);
-            Debug.Log($"pitch: {pitch}, yaw: {yaw}, roll: {roll}");
-
-            Vector3 eulerAngles = localQ.eulerAngles;
-            Debug.Log($"euler pitch: {eulerAngles.x}, euler yaw: {eulerAngles.y}, euler roll: {eulerAngles.z}");
-            /*float pitch = Mathf.Rad2Deg * Mathf.Atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z);
-            float yaw = Mathf.Rad2Deg * Mathf.Atan2(2 * q.y * q.w - 2 * q.x * q.z, 1 - 2 * q.y * q.y - 2 * q.z * q.z);
-            float roll = Mathf.Rad2Deg * Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w);*/
-            /*Quaternion q = grid.StartGridCircle.transform.rotation;
-            Vector3 zAxis = Vector3.forward;
-            Vector3 xAxis = Vector3.right;
-            Vector3 yAxis = Vector3.up;
-            q.ToAngleAxis(out float pitch, out zAxis);
-            q.ToAngleAxis(out float roll, out xAxis);
-            q.ToAngleAxis(out float yaw, out zAxis);*/
+            (float roll, float pitch, float yaw) = MatrixToYawPitchRoll(grid.CurrTransformOffset);
 
 
             JObject group = new JObject
             {
                 ["position"] = position,
-                ["pitch"] = pitch_local,
-                ["roll"] = roll_local,
-                ["yaw"] = yaw_local,
+                ["pitch"] = pitch,
+                ["roll"] = roll,
+                ["yaw"] = yaw,
                 ["grid"] = grid.Type,
             };
             groups[gridId] = group;
@@ -178,19 +153,15 @@ public class FileExport : MonoBehaviour
 
             if (!gridIds.Contains(helix.GridId)) continue;
 
-            JArray gridPosition = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y * -1 }; // Negative Y-axis for .sc format 
-            if (isOxDNA)
+            JObject jsonHelix;
+            if (s_gridDict[helix.GridId].Type.Equals("none"))
             {
-                gridPosition = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y };
+                jsonHelix = NoneHelixExport(helix);
             }
-
-            JObject jsonHelix = new JObject
+            else
             {
-                ["grid_position"] = gridPosition,
-                ["group"] = helix.GridId,
-                ["idx"] = id,
-                ["max_offset"] = helix.Length
-            };
+                jsonHelix = HelixExport(helix, isOxDNA);
+            }
             helices.Add(jsonHelix);
         }
 
@@ -280,6 +251,44 @@ public class FileExport : MonoBehaviour
         };
 
         return scadnano.ToString();
+    }
+
+    private static JObject HelixExport(Helix helix, bool isOxDNA)
+    {
+        JArray gridPosition = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y * -1 }; // Negative Y-axis for .sc format 
+        if (isOxDNA)
+        {
+            gridPosition = new JArray { helix._gridComponent.GridPoint.X, helix._gridComponent.GridPoint.Y };
+        }
+
+        JObject jsonHelix = new JObject
+        {
+            ["grid_position"] = gridPosition,
+            ["group"] = helix.GridId,
+            ["idx"] = helix.Id,
+            ["max_offset"] = helix.Length
+        };
+
+        return jsonHelix;
+    }
+
+    private static JObject NoneHelixExport(Helix helix)
+    { 
+        JObject position = new JObject
+        {
+            ["x"] = helix.GridComponent.GridPoint.FloatX * SCALE_FROM_NANOVR_TO_NM,
+            ["y"] = helix.GridComponent.GridPoint.FloatY * SCALE_FROM_NANOVR_TO_NM,
+            ["z"] = helix.GridComponent.GridPoint.FloatZ * SCALE_FROM_NANOVR_TO_NM
+        };
+
+        JObject jsonHelix = new JObject
+        {
+            ["position"] = position,
+            ["group"] = helix.GridId,
+            ["max_offset"] = helix.Length
+        };
+
+        return jsonHelix;
     }
 
     /// <summary>

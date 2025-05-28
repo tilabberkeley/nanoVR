@@ -3,11 +3,9 @@
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
-using static GlobalVariables;
 
 /// <summary>
 /// Attaches Gizmos to GameObjects for movement and rotation.
@@ -172,17 +170,19 @@ public class TransformHandle : MonoBehaviour
 
     private static void AttachChildren(DNAGrid grid)
     {
-        for (int i = 0; i < grid.Length; i++)
-        {
+        /*for (int i = 0; i < grid.Length; i++)
+        {            
             for (int j = 0; j < grid.Width; j++)
             {
                 grid.Grid2D[i, j].transform.SetParent(gizmosTransform, true);
                 grid.Grid2D[i, j].GetComponent<Collider>().enabled = false;
-                if (grid.Grid2D[i, j].Helix != null)
-                {
-                    grid.Grid2D[i, j].Helix.IsTransforming = true;
-                }
             }
+        }*/
+        grid.IsTransforming = true;
+        foreach (GridComponent gc in grid.GridComponents)
+        {
+            gc.transform.SetParent(gizmosTransform, true);
+            gc.GetComponent<Collider>().enabled = false;
         }
     }
 
@@ -198,20 +198,22 @@ public class TransformHandle : MonoBehaviour
         Matrix4x4 delta = gizmosMatrix * initialGizmoMatrix.inverse;
         foreach (DNAGrid grid in translatedGrids)
         {
-            for (int i = 0; i < grid.Length; i++)
+            grid.IsTransforming = false;
+            grid.OldTransformOffset = delta * grid.OldTransformOffset;
+
+            /*for (int i = 0; i < grid.Length; i++)
             {
                 for (int j = 0; j < grid.Width; j++)
                 {
                     grid.Grid2D[i, j].transform.SetParent(null);
                     grid.Grid2D[i, j].GetComponent<Collider>().enabled = true;
-                    if (grid.Grid2D[i, j].Helix != null)
-                    {
-                        grid.Grid2D[i, j].Helix.IsTransforming = false;
-                        grid.Grid2D[i, j].Helix.OldTransformOffset = delta * grid.Grid2D[i, j].Helix.OldTransformOffset;
-                    }
                 }
+            }*/
+            foreach (GridComponent gc in grid.GridComponents)
+            {
+                gc.transform.SetParent(null);
+                gc.GetComponent<Collider>().enabled = true;
             }
-
         }
         //translatedGrids.Clear();
         initialGizmoMatrix = Matrix4x4.identity;

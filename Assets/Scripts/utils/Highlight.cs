@@ -225,19 +225,10 @@ public static class Highlight
     /// <param name="strand">Strand to highlight.</param>
     public static void HighlightStrand(Strand strand)
     {
-        List<GameObject> nucleotides = strand.Nucleotides;
-        GameObject cone = strand.Cone;
-        for (int i = 0; i < nucleotides.Count; i++)
+        for (int i = 0; i < strand.Domains.Count; i++)
         {
-            HighlightGO(nucleotides[i], strandHighlightColor);
-            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
-            if (ntc != null && ntc.HasXover)
-            {
-                HighlightGO(ntc.Xover, strandHighlightColor);
-            }
+            HighlightNucleotideSelection(strand.Domains[i].GetDomainData(), true);
         }
-       
-        HighlightGO(cone, strandHighlightColor);
     }
 
     /// <summary>
@@ -246,19 +237,10 @@ public static class Highlight
     /// <param name="strand">Strand to unhighlight.</param>
     public static void UnhighlightStrand(Strand strand, bool isDelete)
     {
-        List<GameObject> nucleotides = strand.Nucleotides;
-        GameObject cone = strand.Cone;
-        for (int i = 0; i < nucleotides.Count; i++)
+        for (int i = 0; i < strand.Domains.Count; i++)
         {
-            UnhighlightGO(nucleotides[i], isDelete);
-            var ntc = nucleotides[i].GetComponent<NucleotideComponent>();
-            if (ntc != null && ntc.HasXover)
-            {
-                UnhighlightGO(ntc.Xover, isDelete);
-            }
+            HighlightNucleotideSelection(strand.Domains[i].GetDomainData(), isDelete);
         }
-
-        UnhighlightGO(cone, isDelete);
     }
     
     /// <summary>

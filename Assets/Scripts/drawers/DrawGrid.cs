@@ -47,6 +47,7 @@ public class DrawGrid : MonoBehaviour
     public static DNAGrid CreateGrid(string gridId, string plane, Vector3 position, string gridType)
     {
         DNAGrid grid;
+        Debug.Log($"Grid type: {gridType}");
         if (gridType.Equals("Square") || gridType.Equals("square"))
         {
             grid = new SquareGrid(gridId, plane, position);
@@ -55,10 +56,16 @@ public class DrawGrid : MonoBehaviour
         {
             grid = new HoneycombGrid(gridId, plane, position);
         }
-        else
+        else if (gridType.Equals("Hex") || gridType.Equals("hex"))
         {
             grid = new HexGrid(gridId, plane, position);
         }
+        else
+        {
+            Debug.Log("Drawing none grid");
+            grid = new NoneGrid(gridId, plane, position);
+        }
+
         if (s_visualMode)
         {
             s_visGridDict.Add(gridId, grid);

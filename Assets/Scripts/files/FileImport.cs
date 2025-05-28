@@ -241,7 +241,9 @@ public class FileImport : MonoBehaviour
                     }
                     if (pitch > 0 || roll > 0 || yaw > 0)
                     {
-                        grid.Rotate(pitch, roll, yaw);
+                        Matrix4x4 offset = Utils.YawPitchRollToMatrix(yaw, pitch, roll);
+
+                        grid.CurrTransformOffset = offset;
                     }
                     //Debug.Log("Fnish rotations");
                 }
@@ -249,7 +251,6 @@ public class FileImport : MonoBehaviour
                 {
                     Debug.Log(e.Message);
                 }
-
             }
         }
         else
@@ -261,7 +262,7 @@ public class FileImport : MonoBehaviour
         
         // Parse helices.
         int lastHelixId = s_numHelices;
-        ParseHelices(helices, isMultiGrid);
+        ParseHelices(helices, isMultiGrid, rayInteractor.transform.position);
 
         // Parse strands.
         CoRunner.Instance.Run(ParseStrands(strands, lastHelixId));
@@ -278,83 +279,128 @@ public class FileImport : MonoBehaviour
         return grids;
     }
 
-    /// <summary>
-    /// Async method to parse and draw Helices from scadnano file
-    /// </summary>
-    private void ParseHelices(JArray helices, bool isMultiGrid)
+    private void ParseHelices(JArray helices, bool isMultiGrid, Vector3 gridPosition)
     {
         int startHelixId = s_numHelices;
-        //Debug.Log("Start parsing helices");
-
         for (int i = 0; i < helices.Count; i++)
-        { 
-            JArray coord = JArray.Parse(helices[i]["grid_position"].ToString());
-            int length = (int) helices[i]["max_offset"];
-            int helixId = s_numHelices;
-
-            // Read helixId from file if available
-            if (helices[i]["idx"] != null)
+        {
+            if (helices[i]["grid_position"] != null)
             {
-                helixId = (int) helices[i]["idx"] + startHelixId;
-            }
-
-            string gridName;
-            if (helices[i]["group"] != null)
-            {
-                string origName = CleanSlash(helices[i]["group"].ToString());
-                gridName = GetGridName(origName, true);
-            }
-            else if (isMultiGrid)
-            {
-                string origName = DEFAULT_GRID_NAME;
-                gridName = GetGridName(origName, true);
+                ParseHelix(helices[i], isMultiGrid, startHelixId);
             }
             else
             {
-                gridName = (s_numGrids - 1).ToString();
+                ParseNoneHelix(helices[i], isMultiGrid, gridPosition);
             }
-
-            DNAGrid grid = s_gridDict[gridName];
-            int xGrid = (int) coord[0];
-            int yGrid = (int) coord[1] * -1;
-
-            /**
-             * Expands grid if necessary so that helix coordinates exist.
-             */
-            GridPoint minBound = grid.MinimumBound;
-            GridPoint maxBound = grid.MaximumBound;
-            while (xGrid <= minBound.X)
-            {
-                grid.ExpandWest();
-            }
-            while (xGrid >= maxBound.X)
-            {
-                grid.ExpandEast();
-            }
-            while (yGrid <= minBound.Y)
-            {
-                grid.ExpandSouth();
-            }
-            while (yGrid >= maxBound.Y)
-            {
-                grid.ExpandNorth();
-            }
-
-            try
-            {
-                int xInd = grid.GridXToIndex(xGrid);
-                int yInd = grid.GridYToIndex(yGrid);
-                GridComponent gc = grid.Grid2D[xInd, yInd];
-                Helix helix = grid.AddHelix(helixId, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
-                helix.Extend(length);
-                //Debug.Log("Finished extending helix");
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e.Message);
-            }
-          
         }
+    }
+
+    /// <summary>
+    /// Parse and draw Helices from scadnano file
+    /// </summary>
+    private void ParseHelix(JToken fileHelix, bool isMultiGrid, int startHelixId)
+    {
+        JArray coord = JArray.Parse(fileHelix["grid_position"].ToString());
+        int length = (int)fileHelix["max_offset"];
+        int helixId = s_numHelices;
+
+        // Read helixId from file if available
+        if (fileHelix["idx"] != null)
+        {
+            helixId = (int) fileHelix["idx"] + startHelixId;
+        }
+
+        string gridName;
+        if (fileHelix["group"] != null)
+        {
+            string origName = CleanSlash(fileHelix["group"].ToString());
+            gridName = GetGridName(origName, true);
+        }
+        else if (isMultiGrid)
+        {
+            string origName = DEFAULT_GRID_NAME;
+            gridName = GetGridName(origName, true);
+        }
+        else
+        {
+            gridName = (s_numGrids - 1).ToString();
+        }
+
+        DNAGrid grid = s_gridDict[gridName];
+        int xGrid = (int) coord[0];
+        int yGrid = (int) coord[1] * -1;
+
+        /**
+        * Expands grid if necessary so that helix coordinates exist.
+        */
+        GridPoint minBound = grid.MinimumBound;
+        GridPoint maxBound = grid.MaximumBound;
+        while (xGrid <= minBound.X)
+        {
+            grid.ExpandWest();
+        }
+        while (xGrid >= maxBound.X)
+        {
+            grid.ExpandEast();
+        }
+        while (yGrid <= minBound.Y)
+        {
+            grid.ExpandSouth();
+        }
+        while (yGrid >= maxBound.Y)
+        {
+            grid.ExpandNorth();
+        }
+
+        try
+        {
+            int xInd = grid.GridXToIndex(xGrid);
+            int yInd = grid.GridYToIndex(yGrid);
+            GridComponent gc = grid.Grid2D[xInd, yInd];
+            Helix helix = grid.AddHelix(helixId, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
+            helix.Extend(length);
+            //Debug.Log("Finished extending helix");
+        }
+        catch (Exception e)
+        {
+            Debug.Log(e.Message);
+        }
+    }
+
+    private void ParseNoneHelix(JToken fileHelix, bool isMultiGrid, Vector3 gridPosition)
+    {
+        int length = (int)fileHelix["max_offset"];
+
+        float x = (float)fileHelix["position"]["x"] / SCALE_FROM_NANOVR_TO_NM;
+        float y = (float)fileHelix["position"]["y"] * -1 / SCALE_FROM_NANOVR_TO_NM;
+        float z = (float)fileHelix["position"]["z"] / SCALE_FROM_NANOVR_TO_NM;
+
+        int helixId = s_numHelices;
+
+        string gridName;
+        if (fileHelix["group"] != null)
+        {
+            string origName = CleanSlash(fileHelix["group"].ToString());
+            gridName = GetGridName(origName, true);
+        }
+        else if (isMultiGrid)
+        {
+            string origName = DEFAULT_GRID_NAME;
+            gridName = GetGridName(origName, true);
+        }
+        else
+        {
+            gridName = (s_numGrids - 1).ToString();
+        }
+
+        NoneGrid grid = (NoneGrid)s_gridDict[gridName];
+        GridPoint gp = new GridPoint(x, y, z);
+        GameObject go = grid.CreateNoneGridCircle(gp, new Vector3(x, y, z));
+        GridComponent gc = go.GetComponent<GridComponent>();
+
+        Vector3 position = gridPosition + new Vector3(gc.GridPoint.FloatX, gc.GridPoint.FloatY, gc.GridPoint.FloatZ);
+        Helix helix = grid.AddHelix(helixId, position, length, PLANE, gc);
+        helix.Extend(length);
     }
 
     /// <summary>
@@ -367,7 +413,6 @@ public class FileImport : MonoBehaviour
     {
         // Maps strand index in .sc file to strandId in nanoVR
         Dictionary<int, int> extensionStrands = new Dictionary<int, int>();
-        // bool isHelixBoundExt = extensionTog.isOn;
 
         //Debug.Log($"Num imported strands: {strands.Count}");
         // Drawing strands
@@ -434,16 +479,54 @@ public class FileImport : MonoBehaviour
                 {
                     // Save strands with extensions so that we can parse them after other strands
                     //int extensionLength = (int)domains[j]["extension_num_bases"];
-                    extensionStrands.Add(i, strandId);
-                    //if (isHelixBoundExt)
-                    //{
-                    //    extensionStrands.Add(i, strandId);
-                    //}
-                    //else
-                    //{
-                    //    int extensionLength = (int) domains[j]["extension_num_bases"];
-                    //    DrawOxViewExtension(extensionLength, j, xoverEndpoints, nucleotides);
-                    //}
+                    //extensionStrands.Add(i, strandId);
+                    Helix helix;
+                    int helixId;
+                    if (j == 0)
+                    {
+                        helixId = (int)domains[j + 1]["helix"] + lastHelixId;
+                        helix = s_helixDict[helixId];
+                    }
+                    else
+                    {
+                        helixId = (int)domains[j - 1]["helix"] + lastHelixId;
+                        helix = s_helixDict[helixId];
+                    }
+
+                    DNAGrid grid = s_gridDict[helix.GridId];
+
+                    if (!grid.Type.Equals("none"))
+                    {
+                        extensionStrands.Add(i, strandId);
+                    }
+                    else
+                    {
+                        int extensionLength = (int)domains[j]["extension_num_bases"];
+                        int direction;
+                        Vector3 lastPos;
+                        Vector3 secondToLastPos;
+                        if (j == 0)
+                        {
+                            helixId = (int)domains[j + 1]["helix"] + lastHelixId;
+                            bool forward = (bool)domains[j + 1]["forward"];
+                            direction = Convert.ToInt32(forward);
+                            int startId = (int)domains[j + 1]["start"];
+                            lastPos = helix.GetNucleotideData(startId, direction).GetPosition();
+                            secondToLastPos = helix.GetNucleotideData(startId + 1, direction).GetPosition();
+                        }
+                        else
+                        {
+                            helixId = (int)domains[j - 1]["helix"] + lastHelixId;
+                            bool forward = (bool)domains[j - 1]["forward"];
+                            direction = Convert.ToInt32(forward);
+                            int endId = (int)domains[j - 1]["end"];
+                            lastPos = helix.GetNucleotideData(endId, direction).GetPosition();
+                            secondToLastPos = helix.GetNucleotideData(endId - 1, direction).GetPosition();
+                        }
+                        Extension ext = new Extension(helixId, direction, extensionLength, lastPos, secondToLastPos);
+                        helix.Extensions.Add(ext);
+                        strandDomains.Add(ext);
+                    }
                 }
                 else
                 {
@@ -612,6 +695,7 @@ public class FileImport : MonoBehaviour
         int newY = domainGC.GridPoint.Y + dy;
         int xIndex = grid.GridXToIndex(newX);
         int yIndex = grid.GridYToIndex(newY);
+        if (xIndex == -1 || yIndex == -1) { return false; }
         GridComponent gc = grid.Grid2D[xIndex, yIndex];
 
         // We have found a neighbor Grid circle with no helix.
@@ -674,6 +758,8 @@ public class FileImport : MonoBehaviour
         int newY = domainGC.GridPoint.Y + dy;
         int xIndex = grid.GridXToIndex(newX);
         int yIndex = grid.GridYToIndex(newY);
+        if (xIndex == -1 || yIndex == -1) { return false; }
+
         GridComponent gc = grid.Grid2D[xIndex, yIndex];
 
         // We have found a neighbor Grid circle with no helix.

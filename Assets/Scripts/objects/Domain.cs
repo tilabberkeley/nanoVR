@@ -2,6 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,7 +28,7 @@ public class Domain
 
     private Color color;
 
-    public int Id { get => id; }
+    public int Id { get => id; set => id = value; }
     public int StrandId { get => strandId; set => strandId = value; }
     public int HelixId { get => helixId; }
     public int Direction { get => direction; }
@@ -58,13 +59,13 @@ public class Domain
     /// </summary>
     /// <param name="nucleotideId"></param>
     /// <returns></returns>
-    public Matrix4x4 GetNucleotideMesh(int nucleotideId)
+    public virtual Matrix4x4 GetNucleotideMesh(int nucleotideId)
     {
         Helix helix = GetHelix();
         return helix.GetNucleotideMesh(nucleotideId, direction);
     }
 
-    public Matrix4x4 GetBackboneMesh(int backboneId)
+    public virtual Matrix4x4 GetBackboneMesh(int backboneId)
     {
         Helix helix = GetHelix();
         return helix.GetBackboneMesh(backboneId, direction);
@@ -75,13 +76,13 @@ public class Domain
     /// </summary>
     /// <param name="nucleotideId"></param>
     /// <returns></returns>
-    public NucleotideData GetNucleotideData(int nucleotideId)
+    public virtual NucleotideData GetNucleotideData(int nucleotideId)
     {
         Helix helix = GetHelix();
         return helix.GetNucleotideData(nucleotideId, direction);
     }
 
-    public List<Matrix4x4> GetDomainMeshes()
+    public virtual List<Matrix4x4> GetDomainMeshes()
     {
         List<Matrix4x4> meshes = new List<Matrix4x4>();
         for (int i = startId; i <= endId; i++)
@@ -102,7 +103,7 @@ public class Domain
         return meshes;
     }
 
-    public List<NucleotideData> GetDomainData()
+    public virtual List<NucleotideData> GetDomainData()
     {
         List<NucleotideData> data = new List<NucleotideData>();
         for (int i = startId; i <= endId; i++)
@@ -118,7 +119,7 @@ public class Domain
         return data;
     }
 
-    public Matrix4x4 GetHeadMesh()
+    public virtual Matrix4x4 GetHeadMesh()
     {
         if (direction == 1)
         {
@@ -127,7 +128,7 @@ public class Domain
         return GetNucleotideMesh(endId);
     }
 
-    public Matrix4x4 GetTailMesh()
+    public virtual Matrix4x4 GetTailMesh()
     {
         if (direction == 1)
         {
@@ -136,7 +137,7 @@ public class Domain
         return GetNucleotideMesh(startId);
     }
 
-    public NucleotideData GetHeadData()
+    public virtual NucleotideData GetHeadData()
     {
         if (direction == 1)
         {
@@ -145,7 +146,7 @@ public class Domain
         return GetNucleotideData(endId);
     }
 
-    public NucleotideData GetTailData()
+    public virtual NucleotideData GetTailData()
     {
         if (direction == 1)
         {
@@ -154,7 +155,7 @@ public class Domain
         return GetNucleotideData(startId);
     }
 
-    public Domain SplitBefore(NucleotideData nd)
+    public virtual Domain SplitBefore(NucleotideData nd)
     {
         Dictionary<int, int> newDomainInsertions = new Dictionary<int, int>();
         List<int> newDomainDeletions = new List<int>();
@@ -186,7 +187,7 @@ public class Domain
         return newDomain;
     }
 
-    public Domain SplitAfter(NucleotideData nd)
+    public virtual Domain SplitAfter(NucleotideData nd)
     {
         Dictionary<int, int> newDomainInsertions = new Dictionary<int, int>();
         List<int> newDomainDeletions = new List<int>();
@@ -218,20 +219,26 @@ public class Domain
         return newDomain;
     }
 
-    public void Merge(Domain domain)
+    public virtual void Merge(Domain domain)
     {
         startId = Mathf.Min(startId, domain.startId);
         endId = Mathf.Max(endId, domain.endId);
     }
 
-    public int GetLength()
+    public virtual int GetLength()
     {
         int insertionsLength = insertions.Values.Sum();
         int deletionsLength = deletions.Count;
         return endId - startId + 1 + insertionsLength - deletionsLength;
     }
 
-    public void SetDomain(int id, int strandId, Color color)
+    /// <summary>
+    /// Sets the domain's nucleotides properties.  Also handles insertion/deletion highlights.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="strandId"></param>
+    /// <param name="color"></param>
+    public virtual void SetDomain(int id, int strandId, Color color)
     {
         this.strandId = strandId;
         this.id = id;
@@ -252,16 +259,18 @@ public class Domain
             if (insertions.ContainsKey(i))
             {
                 nucleotideData.Insertion = insertions[i];
+                Highlight.HighlightDeletion(nucleotideData);
             }
 
             if (deletions.Contains(i))
             {
                 nucleotideData.IsDeletion = true;
+                Highlight.HighlightInsertion(nucleotideData);
             }
         }
     }
 
-    public string GetSequence()
+    public virtual string GetSequence()
     {
         StringBuilder sb = new StringBuilder();
         for (int i = startId; i <= endId; i++)
@@ -280,10 +289,10 @@ public class Domain
     }
 
     /// <summary>
-    /// Sets the sequence of domain nucleotides. Also handles insertion/deletion highlights.
+    /// Sets the sequence of domain nucleotides.
     /// </summary>
     /// <param name="sequence"></param>
-    public void SetSequence(string sequence)
+    public virtual void SetSequence(string sequence)
     {
         int seqIdx = 0;
         for (int i = startId; i <= endId; i++)
@@ -292,15 +301,10 @@ public class Domain
             if (nucleotideData.IsDeletion)
             {
                 nucleotideData.Sequence = "X";
-                Highlight.HighlightDeletion(nucleotideData);
+                
             }
             else
             {
-                if (nucleotideData.IsInsertion)
-                {
-                    Highlight.HighlightInsertion(nucleotideData);
-                }
-
                 int nuclLength = nucleotideData.Insertion + 1;
                 nucleotideData.Sequence = sequence.Substring(seqIdx, nuclLength);
                 seqIdx += nuclLength;

@@ -14,6 +14,7 @@ public static class Utils
 {
     // CONSTANTS
     public const float SCALE_FROM_NANOVR_TO_NM = 22f; // Multiply nanovr coordinate to get to nm scale.
+    public const float SCALE_FROM_NM_TO_NANOVR = 1f / SCALE_FROM_NANOVR_TO_NM; // Divide nanovr coordinate to get to nm scale.
     public const float RADIUS = 1f / SCALE_FROM_NANOVR_TO_NM;
     public const float HELIX_GAP = 3f / SCALE_FROM_NANOVR_TO_NM;
     public const float RISE = .34f / SCALE_FROM_NANOVR_TO_NM;
@@ -56,6 +57,18 @@ public static class Utils
         // Set cone
         //strand.SetConeRevamp();
 
+        if (s_visualMode)
+        {
+            s_visStrandDict.Add(strandId, strand);
+            s_numVisStrands += 1;
+        }
+        else
+        {
+            s_strandDict.Add(strandId, strand);
+            ObjectListManager.CreateStrandButton(strandId);
+            s_numStrands += 1;
+        }
+
         // Draw and set xovers and loopouts
         for (int i = 1; i < domains.Count; i++)
         {
@@ -74,17 +87,7 @@ public static class Utils
         //Debug.Log("Set sequence");
 
         // Add to dict and strand list
-        if (s_visualMode)
-        {
-            s_visStrandDict.Add(strandId, strand);
-            s_numVisStrands += 1;
-        }
-        else
-        {
-            s_strandDict.Add(strandId, strand);
-            ObjectListManager.CreateStrandButton(strandId);
-            s_numStrands += 1;
-        }
+        
 
         // TODO: CheckMismatch(strand);
         return strand;
@@ -308,6 +311,40 @@ public static class Utils
         return yaw;
     }
 
+    public static Matrix4x4 YawPitchRollToMatrix(float yaw, float pitch, float roll)
+    {
+        Quaternion qz = Quaternion.AngleAxis(yaw * Mathf.Rad2Deg, Vector3.forward);  // yaw (Z)
+        Quaternion qy = Quaternion.AngleAxis(pitch * Mathf.Rad2Deg, Vector3.up);     // pitch (Y)
+        Quaternion qx = Quaternion.AngleAxis(roll * Mathf.Rad2Deg, Vector3.right);   // roll (X)
+
+        Quaternion finalRotation = qz * qy * qx; // ZYX intrinsic order
+        return Matrix4x4.Rotate(finalRotation);
+    }
+
+    public static (float, float, float) MatrixToYawPitchRoll(Matrix4x4 m)
+    {
+        Quaternion q = Quaternion.LookRotation(m.GetColumn(2), m.GetColumn(1));
+        Vector3 euler = q.eulerAngles;
+
+        float yaw = euler.y; // around Y in Unity, but Z in scadnano's ZYX
+        float pitch = euler.x; // around X in Unity, but Y in scadnano's ZYX
+        float roll = euler.z; // around Z in Unity, but X in scadnano's ZYX
+
+        return (roll, pitch, yaw); // (X, Y, Z) => (roll, pitch, yaw)
+    }
+
+    public static Vector3 GetPosition(Matrix4x4 matrix)
+    {
+        return matrix.GetColumn(3);
+    }
+
+    public static Matrix4x4 PositionToMatrix(Matrix4x4 matrix, Vector3 position)
+    {
+        matrix.SetColumn(3, new Vector4(position.x, position.y, position.z, 1));
+        return matrix;
+    }
+
+
     public static bool IsValidNucleotides(List<GameObject> nucleotides)
     {
         if (nucleotides == null) { Debug.Log("Is valid nucls are null"); return false; }
@@ -340,5 +377,20 @@ public static class Utils
             }
         }
         return true;
+    }
+
+    /// <summary>
+    /// Computes a transformation matrix for a backbone (cylinder) connecting two points.
+    /// Assumes that the cylinder mesh is aligned along its Y-axis and centered.
+    /// </summary>
+    public static Matrix4x4 GetBackboneMatrix(Vector3 start, Vector3 end, bool fiveToThree)
+    {
+        Vector3 midpoint = (start + end) * 0.5f;
+        Vector3 direction = fiveToThree ? end - start : start - end;
+        float length = direction.magnitude;
+        // Compute rotation so that the cylinder's Y axis aligns with the direction vector.
+        Quaternion rotation = Quaternion.FromToRotation(Vector3.up, direction.normalized);
+        Vector3 scale = new Vector3(0.2f, length, 0.2f);
+        return Matrix4x4.TRS(midpoint, rotation, scale);
     }
 }

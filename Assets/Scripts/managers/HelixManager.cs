@@ -20,12 +20,11 @@ public class HelixManager : MonoBehaviour
 
     ComputeBuffer _nuclMatCB, _nuclColCB, _nuclHilCB, _nuclArgsCB;
     ComputeBuffer _backMatCB, _backColCB, _backHilCB, _backArgsCB;
-
-    private Matrix4x4 _currentOffset;
-    public Matrix4x4 CurrentOffset => _currentOffset;
-
     MaterialPropertyBlock _mpb;
     private Bounds bounds;
+
+    // Tracks whether or not helices need to update their xovers when transforming
+    Dictionary<DNAGrid, bool> updateXoverMap;
 
     void Awake()
     {
@@ -34,15 +33,28 @@ public class HelixManager : MonoBehaviour
 
         _nuclArgsCB = new ComputeBuffer(1, ARGS_STRIDE_BYTES, ComputeBufferType.IndirectArguments);
         _backArgsCB = new ComputeBuffer(1, ARGS_STRIDE_BYTES, ComputeBufferType.IndirectArguments);
+
+        updateXoverMap = new Dictionary<DNAGrid, bool>();
     }
 
     void Update()
     {
+        if (!GlobalVariables.s_nucleotideView)
+        {
+            return;
+        }
+
         int nucCount = 0, backCount = 0;
         foreach (Helix h in GlobalVariables.s_helixDict.Values)
         {
             nucCount += h.NucleotideMatricesA.Count + h.NucleotideMatricesB.Count;
             backCount += h.BackboneMatricesA.Count + h.BackboneMatricesB.Count;
+
+            foreach (Extension ext in h.Extensions)
+            {
+                nucCount += ext.Nucleotides.Count;
+                backCount += ext.Backbones.Count;
+            }
         }
 
         if (nucCount == 0 && backCount == 0) return;
@@ -64,21 +76,59 @@ public class HelixManager : MonoBehaviour
         var bHighlight = new NativeArray<float4>(backCount, Allocator.TempJob);
 
         int nIdx = 0, bIdx = 0;
+
+        foreach (DNAGrid g in GlobalVariables.s_gridDict.Values)
+        {
+            bool updateXovers = UpdateCurrentOffset(g);
+            updateXoverMap[g] = updateXovers;
+        }
+
         foreach (Helix h in GlobalVariables.s_helixDict.Values)
         {
-            UpdateCurrentOffset(h);    
+            if (updateXoverMap[h.GetGrid()])
+            {
+                h.UpdateXovers();
+            }    
+
+            Matrix4x4 offset = h.GetCurrentOffset();
 
             FillNativeArrays(h.NucleotideMatricesA, h.GetNucleotideColors(1),
-                             h.GetNucleotideHighlights(1), localMats, colours, highlights, ref nIdx, _currentOffset);
+                             h.GetNucleotideHighlights(1), localMats, colours, highlights, ref nIdx, offset);
 
             FillNativeArrays(h.NucleotideMatricesB, h.GetNucleotideColors(0),
-                             h.GetNucleotideHighlights(0), localMats, colours, highlights, ref nIdx, _currentOffset);
+                             h.GetNucleotideHighlights(0), localMats, colours, highlights, ref nIdx, offset);
 
             FillNativeArrays(h.BackboneMatricesA, h.GetBackboneColors(1), null,
-                             bLocal, bColor, bHighlight, ref bIdx, _currentOffset);
+                             bLocal, bColor, bHighlight, ref bIdx, offset);
 
             FillNativeArrays(h.BackboneMatricesB, h.GetBackboneColors(0), null,
-                             bLocal, bColor, bHighlight, ref bIdx, _currentOffset);
+                             bLocal, bColor, bHighlight, ref bIdx, offset);
+
+
+            List<Matrix4x4> extensionNucMats = new List<Matrix4x4>();
+            List<Color> extensionNucColors = new List<Color>();
+            List<Color> extensionNucHighlights = new List<Color>();
+            List<Matrix4x4> extensionBackboneMats = new List<Matrix4x4>();
+            List<Color> extensionBackboneColors = new List<Color>();
+
+            foreach (Extension ext in h.Extensions)
+            {
+                extensionNucMats.AddRange(ext.Nucleotides);
+                extensionNucColors.AddRange(ext.GetNucleotideColors());
+                extensionNucHighlights.AddRange(ext.GetNucleotideHighlights());
+                extensionBackboneMats.AddRange(ext.Backbones);
+                extensionBackboneColors.AddRange(ext.GetBackboneColors());               
+            }
+
+            FillNativeArrays(extensionNucMats,
+                 extensionNucColors,
+                 extensionNucHighlights,
+                 localMats, colours, highlights, ref nIdx, offset);
+
+            FillNativeArrays(extensionBackboneMats,
+                             extensionBackboneColors,
+                             null, // if you don't track highlight for backbone
+                             bLocal, bColor, bHighlight, ref bIdx, offset);
         }
 
         var gpuMats = _nuclMatCB.BeginWrite<float4x4>(0, nucCount);
@@ -204,20 +254,21 @@ public class HelixManager : MonoBehaviour
         return cb;
     }
 
-    void UpdateCurrentOffset(Helix h)
+    private bool UpdateCurrentOffset(DNAGrid grid)
     {
-        Matrix4x4 g = Matrix4x4.TRS(TransformHandle.GizmosTransform.position,
+        Matrix4x4 gizmo = Matrix4x4.TRS(TransformHandle.GizmosTransform.position,
                                     TransformHandle.GizmosTransform.rotation,
                                     Vector3.one);
-        Matrix4x4 delta = g * TransformHandle.InitialGizmoMatrix.inverse;
-        _currentOffset = h.OldTransformOffset;
+        Matrix4x4 delta = gizmo * TransformHandle.InitialGizmoMatrix.inverse;
+        Matrix4x4 offset = grid.OldTransformOffset;
 
-        if (h.IsTransforming)
+        if (grid.IsTransforming)
         {
-            _currentOffset = delta * _currentOffset;
-            h.CurrTransformOffset = _currentOffset;
-            if (_currentOffset != h.OldTransformOffset)
-                h.UpdateXovers();
+            offset = delta * offset;
+            grid.CurrTransformOffset = offset;
+            if (offset != grid.OldTransformOffset)
+                return true;
         }
+        return false;
     }
 }

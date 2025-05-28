@@ -20,13 +20,15 @@ public class NucleotideColliderComponent : MonoBehaviour
     /// Initialize the collider with references so we know
     /// which instance it corresponds to.
     /// </summary>
-    public void Setup(Helix helix, int nucleotideId, int direction)
+    public void Setup(Helix helix, int nucleotideId, int direction, int extensionIdx)
     {
         this.helixRef = helix;
         this.nucleotideId = nucleotideId;
         this.direction = direction;
 
-        // Optionally fetch the data once for quick access later
-        this.data = helix.GetNucleotideData(nucleotideId, direction);
+        if (extensionIdx == -1)
+            this.data = helix.GetNucleotideData(nucleotideId, direction);
+        else
+            this.data = helix.GetExtensionNucleotideData(nucleotideId, extensionIdx);
     }
 }

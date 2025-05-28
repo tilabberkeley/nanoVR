@@ -21,6 +21,7 @@ public class NucleotideData
     private XoverComponent xover = null; // Gameobject of xover or loopout attached to this nucleotide. Null if there isn't a xover or loopout.
     private int domainIdx = -1;          // Index of the domain within Strand's domain list
     private bool isHighlighted = false;
+    private bool inExtension;
 
     public int Id { get => id; }
     public int HelixId { get => helixId; }
@@ -98,23 +99,30 @@ public class NucleotideData
         }
     }
 
+    public bool InExtension { get => inExtension; set => inExtension = value; }
 
-    public NucleotideData(int id, int helixId, int direction)
+
+    public NucleotideData(int id, int helixId, int direction, bool inExtension = false)
     {
         this.id = id;
         this.helixId = helixId;
         this.direction = direction;
+        this.inExtension = inExtension;
     }
 
     public Matrix4x4 GetMatrix()
     {
+        if (inExtension)
+        {
+           return GetDomain().GetNucleotideMesh(id);
+        }
         Helix helix = GlobalVariables.s_helixDict[helixId];
         return helix.GetNucleotideMesh(id, direction);
     }
 
     public Vector3 GetPosition()
     {
-        Matrix4x4 worldMat = GetHelix().CurrTransformOffset * GetMatrix();
+        Matrix4x4 worldMat = GetHelix().GetCurrentOffset() * GetMatrix();
         return worldMat.GetColumn(3);
     }
 

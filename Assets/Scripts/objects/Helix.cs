@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
-using Unity.Collections;
 using static GlobalVariables;
 using static Utils;
 using Debug = UnityEngine.Debug;
@@ -103,12 +102,8 @@ public class Helix
     public List<NucleotideData> NucleotideDataA { get { return nucleotideDataA; } }
     public List<NucleotideData> NucleotideDataB { get { return nucleotideDataB; } }
 
-    private bool isTransforming = false;
-    public bool IsTransforming { get { return isTransforming; } set { isTransforming = value; } }
-    private Matrix4x4 currTransformOffset = Matrix4x4.identity;
-    private Matrix4x4 oldTransformOffset = Matrix4x4.identity;
-    public Matrix4x4 OldTransformOffset { get { return oldTransformOffset; } set { oldTransformOffset = value; } }
-    public Matrix4x4 CurrTransformOffset { get { return currTransformOffset; } set { currTransformOffset = value; } }
+    private List<Extension> extensions = new List<Extension>();
+    public List<Extension> Extensions { get { return extensions; } }
 
     private HelixComponent helixCollider;
     public HelixComponent HelixCollider { get { return helixCollider; } }
@@ -352,21 +347,6 @@ public class Helix
     }
 
     /// <summary>
-    /// Computes a transformation matrix for a backbone (cylinder) connecting two points.
-    /// Assumes that the cylinder mesh is aligned along its Y-axis and centered.
-    /// </summary>
-    private Matrix4x4 GetBackboneMatrix(Vector3 start, Vector3 end, bool fiveToThree)
-    {
-        Vector3 midpoint = (start + end) * 0.5f;
-        Vector3 direction = fiveToThree ? end - start : start - end;
-        float length = direction.magnitude;
-        // Compute rotation so that the cylinder's Y axis aligns with the direction vector.
-        Quaternion rotation = Quaternion.FromToRotation(Vector3.up, direction.normalized);
-        Vector3 scale = new Vector3(0.2f, length, 0.2f);
-        return Matrix4x4.TRS(midpoint, rotation, scale);
-    }
-
-    /// <summary>
     /// Returns sublist of nucleotides and backbones from helix spiral.
     /// </summary>
     /// <param name="sIndex">Start index of sublist.</param>
@@ -461,6 +441,21 @@ public class Helix
             return nucleotideDataA[id];
         }
     }
+
+    public NucleotideData GetExtensionNucleotideData(int id, int extensionId)
+    {
+        if (extensionId < 0 || extensionId >= extensions.Count)
+        {
+            throw new IndexOutOfRangeException($"Extension ID {extensionId} is out of range. Valid range is 0 to {extensions.Count - 1}.");
+        }
+
+        Extension ext = extensions[extensionId];
+        if (id < 0 || id >= ext.GetLength())
+        {
+            throw new IndexOutOfRangeException($"Nucleotide ID {id} is out of range for extension {extensionId}. Valid range is 0 to {ext.GetLength() - 1}.");
+        }
+        return ext.GetNucleotideData(id);
+    } 
 
     public GameObject GetNucleotide(int id, int direction)
     {
@@ -872,7 +867,7 @@ public class Helix
 
     public void ToHelixView()
     {
-        HashSet<DomainComponent> domains = new HashSet<DomainComponent>();
+        /*HashSet<DomainComponent> domains = new HashSet<DomainComponent>();
 
         foreach (GameObject nucleotide in _nucleotidesA)
         {
@@ -894,6 +889,68 @@ public class Helix
                 break;
             }
             domain.HelixView();
+        }*/
+
+        int startIdx = -1;
+
+        // type stores what type of strand we are currently iterating over
+        // -1 indicates an empty section
+        // 0 indicates single strand section
+        // 1 indicates double strand section
+        int type = -1;
+        bool singleStrandRegion = false;
+
+        for (int i = 0; i < nucleotideDataA.Count; i++)
+        {
+            NucleotideData nuclA = nucleotideDataA[i];
+            NucleotideData nuclB = nucleotideDataB[i];
+
+            if (nuclA.HasXover)
+            {
+                nuclA.Xover.gameObject.SetActive(false);
+            }
+            if (nuclB.HasXover)
+            {
+                nuclB.Xover.gameObject.SetActive(false);
+            }
+
+            if ((nuclA.IsSelected() && !nuclB.IsSelected()) || (!nuclA.IsSelected() && nuclB.IsSelected()))
+            {
+                if (type == 1)
+                {
+                    CreateCylinder(startIdx, i, singleStrandRegion);
+                    startIdx = -1;
+                }
+                if (startIdx == -1)
+                {
+                    startIdx = i;
+                    type = 0;
+                    singleStrandRegion = true;
+                }
+            }
+            if (nuclA.IsSelected() && nuclB.IsSelected())
+            {
+                if (type == 0)
+                {
+                    CreateCylinder(startIdx, i, singleStrandRegion);
+                    startIdx = -1;
+                }
+                if (startIdx == -1)
+                {
+                    startIdx = i;
+                    type = 1;
+                    singleStrandRegion = false;
+                }
+            }
+            if (!nuclA.IsSelected() && !nuclB.IsSelected())
+            {
+                if (type == 0 || type == 1)
+                {
+                    CreateCylinder(startIdx, i, singleStrandRegion);
+                    startIdx = -1;
+                }
+                type = -1;
+            }
         }
     }
 
@@ -941,7 +998,7 @@ public class Helix
     /// Calculates cylinder length by getting position of smallest indexed nucleotide in a Strand
     /// and position of largest indexed nucleotide in a Strand.
     /// </summary>
-    public void CreateCylinder()
+    /*public void CreateCylinder()
     {
         int startIdx = -1;
 
@@ -997,7 +1054,7 @@ public class Helix
         }
 
         //CreateCollider();
-    }
+    }*/
 
     /// <summary>
     /// Private helper function to figure out what color to make the Helix cylinder
@@ -1284,6 +1341,16 @@ public class Helix
             // Calculate the new world position by adding the reflected vector to the reflection point
             transform.position = objectPosition + displacement;
         }
+    }
+
+    public DNAGrid GetGrid()
+    {
+        return _gridComponent.Grid;
+    }
+
+    public Matrix4x4 GetCurrentOffset()
+    {
+        return GetGrid().CurrTransformOffset;
     }
 }
 

@@ -1092,15 +1092,23 @@ public class Strand
     /// </summary>
     public void ToNucleotideView()
     {
-        foreach (DomainComponent domain in _domains)
-        {
-            domain.NucleotideView();
-        }
+        //foreach (DomainComponent domain in _domains)
+        //{
+        //    domain.NucleotideView();
+        //}
 
-        foreach (GameObject xover in _xovers)
+        foreach (Domain domain in domains)
         {
-            xover.SetActive(true);
-            xover.GetComponent<XoverComponent>().NucleotideView();
+            if (domain.PrevXover != null)
+            {
+                domain.PrevXover.gameObject.SetActive(true);
+            }
+            if (domain.NextXover != null)
+            {
+                domain.NextXover.gameObject.SetActive(true);
+            }
+
+            domain.GetHelix().DestroyCylinder();
         }
     }
 

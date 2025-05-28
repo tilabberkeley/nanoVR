@@ -27,7 +27,7 @@ public class HexGrid : DNAGrid
     /// <param name="yOffset">y direction offset (depends on expansions).</param>
     /// <param name="i">x memory location of grid circle in grid 2D.</param>
     /// <param name="j">j memory location of grid circle in grid 2D.</param>
-    protected override GameObject CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j)
+    public override GameObject CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j)
     {
         bool isXEven = gridPoint.X % 2 == 0;
         // bool isYEven = gridPoint.Y % 2 == 0;
@@ -45,6 +45,7 @@ public class HexGrid : DNAGrid
         gridComponent.Grid = this;
         gridComponent.GridPoint = gridPoint;
         _grid2D[i, j] = gridComponent;
+        _gridComponents.Add(gridComponent);
 
         StaticBatchGridGO(gridGO);
 

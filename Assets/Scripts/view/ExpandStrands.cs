@@ -100,7 +100,7 @@ public class ExpandStrands : MonoBehaviour
                     z = (float)info["position"]["z"];
                 }
                 string gridType = CleanSlash(info["grid"].ToString());
-                DrawGrid.CreateGrid(gridName, "XY", new Vector3(x, y, z), gridType);
+                //DrawGrid.CreateGrid(gridName, "XY", new Vector3(x, y, z), gridType);
             }
         }
 

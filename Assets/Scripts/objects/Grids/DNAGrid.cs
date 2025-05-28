@@ -29,8 +29,8 @@ public abstract class DNAGrid
     /// <summary>
     /// Grid's position based on (0, 0) coordinate. This is used by .sc files.
     /// </summary>
-    private Vector3 _position;
-    public Vector3 Position
+    protected Vector3 _position;
+    public virtual Vector3 Position
     {
         get
         {
@@ -44,7 +44,7 @@ public abstract class DNAGrid
         }
     }
 
-    public GameObject StartGridCircle
+    public virtual GameObject StartGridCircle
     {
         get
         {
@@ -61,7 +61,10 @@ public abstract class DNAGrid
     protected GridComponent[,] _grid2D;
     public GridComponent[,] Grid2D { get { return _grid2D; } }
 
- 
+    protected List<GridComponent> _gridComponents;
+    public List<GridComponent> GridComponents { get { return _gridComponents; }}
+
+
     protected int _length;
     public int Length { get { return _length; } }
 
@@ -85,6 +88,13 @@ public abstract class DNAGrid
 
     private static GameObject s_staticBatchRoot = new GameObject();
 
+    private bool isTransforming = false;
+    public bool IsTransforming { get { return isTransforming; } set { isTransforming = value; } }
+    private Matrix4x4 currTransformOffset = Matrix4x4.identity;
+    private Matrix4x4 oldTransformOffset = Matrix4x4.identity;
+    public Matrix4x4 CurrTransformOffset { get { return currTransformOffset; } set { currTransformOffset = value; } }
+    public Matrix4x4 OldTransformOffset { get { return oldTransformOffset; } set { oldTransformOffset = value; } }
+
     /// <summary>
     /// Grid constructor. 
     /// </summary>
@@ -100,13 +110,14 @@ public abstract class DNAGrid
         SetBounds();
         // 2D array with _length rows and _width columns
         _grid2D = new GridComponent[_length, _width];
+        _gridComponents = new List<GridComponent>();
         DrawGrid();
     }
 
     /// <summary>
     /// Sets fields for bounds and expansions.
     /// </summary>
-    private void SetBounds()
+    protected virtual void SetBounds()
     {
         _length = STARTLENGTH;
         _width = STARTWIDTH;
@@ -124,12 +135,12 @@ public abstract class DNAGrid
     /// <param name="yOffset">y direction offset (depends on expansions).</param>
     /// <param name="i">x memory location of grid circle in grid 2D.</param>
     /// <param name="j">j memory location of grid circle in grid 2D.</param>
-    protected abstract GameObject CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j);
+    public abstract GameObject CreateGridCircle(GridPoint gridPoint, int xOffset, int yOffset, int i, int j);
 
     /// <summary>
     /// Draws the grid in the XY direction.
     /// </summary>
-    protected void DrawGrid()
+    protected virtual void DrawGrid()
     {
         for (int i = 0; i < _length; i++)
         {
@@ -169,7 +180,7 @@ public abstract class DNAGrid
     /// </summary>
     /// <param name="x">grid point x value.</param>
     /// <returns>2D array row index.</returns>
-    public int GridXToIndex(int x)
+    public virtual int GridXToIndex(int x)
     {
         return x - _minimumBound.X;
     }
@@ -179,7 +190,7 @@ public abstract class DNAGrid
     /// </summary>
     /// <param name="y">grid point y value.</param>
     /// <returns>2D array column index.</returns>
-    public int GridYToIndex(int y)
+    public virtual int GridYToIndex(int y)
     {
         return y - _minimumBound.Y;
     }
@@ -187,7 +198,7 @@ public abstract class DNAGrid
     /// <summary>
     /// Expands this grid north.
     /// </summary>
-    public void ExpandNorth()
+    public virtual void ExpandNorth()
     {
         CopyNorth();
         List<GameObject> gridCircles = new List<GameObject>();
@@ -212,7 +223,7 @@ public abstract class DNAGrid
     /// <summary>
     /// Expands this grid east.
     /// </summary>
-    public void ExpandEast()
+    public virtual void ExpandEast()
     {
         CopyEast();
         List<GameObject> gridCircles = new List<GameObject>();
@@ -236,7 +247,7 @@ public abstract class DNAGrid
     /// <summary>
     /// Expands this grid south.
     /// </summary>
-    public void ExpandSouth()
+    public virtual void ExpandSouth()
     {
         CopySouth();
         List<GameObject> gridCircles = new List<GameObject>();
@@ -262,7 +273,7 @@ public abstract class DNAGrid
     /// <summary>
     /// Expands this grid west.
     /// </summary>
-    public void ExpandWest()
+    public virtual void ExpandWest()
     {
         CopyWest();
         List<GameObject> gridCircles = new List<GameObject>();
@@ -375,12 +386,12 @@ public abstract class DNAGrid
     /// <param name="gridComponent">Grid component to check if on the edge.</param>
     public void CheckExpansion(GridComponent gridComponent)
     {
-        int x = gridComponent.GridPoint.X;
-        int y = gridComponent.GridPoint.Y;
-        int maxX = _maximumBound.X;
-        int maxY = _maximumBound.Y;
-        int minX = _minimumBound.X;
-        int minY = _minimumBound.Y;
+        int x = (int)gridComponent.GridPoint.X;
+        int y = (int)gridComponent.GridPoint.Y;
+        int maxX = (int)_maximumBound.X;
+        int maxY = (int)_maximumBound.Y;
+        int minX = (int)_minimumBound.X;
+        int minY = (int)_minimumBound.Y;
         if (x == maxX)
         {
             ExpandEast();

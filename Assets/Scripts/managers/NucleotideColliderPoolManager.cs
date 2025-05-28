@@ -9,7 +9,7 @@ public class NucleotideColliderPoolManager : MonoBehaviour
     public GameObject colliderPrefab;
 
     [Header("Settings")]
-    public float interactionRadius = 2f;
+    public float interactionRadius = 2.5f;
     public Transform player;
 
     // Pool
@@ -49,7 +49,7 @@ public class NucleotideColliderPoolManager : MonoBehaviour
             int currentIndex = 0;
             int total = helixArray.Length;
 
-            if (total == 0)
+            if (total == 0 || !GlobalVariables.s_nucleotideView)
             {
                 // No helices => yield so we don't freeze
                 yield return null;
@@ -177,7 +177,7 @@ public class NucleotideColliderPoolManager : MonoBehaviour
         for (int i = 0; i < matrices.Count; i++)
         {
             Matrix4x4 localMat = matrices[i];
-            Matrix4x4 worldMat = helix.CurrTransformOffset * localMat;
+            Matrix4x4 worldMat = helix.GetCurrentOffset() * localMat;
             Vector3 position = worldMat.GetColumn(3);
 
             float distSqr = (player.position - position).sqrMagnitude;
@@ -200,9 +200,45 @@ public class NucleotideColliderPoolManager : MonoBehaviour
                 colObj.transform.position = position;
 
                 // Setup references
-                nucleotideColliderComponent.Setup(helix, i, direction);
+                nucleotideColliderComponent.Setup(helix, i, direction, extensionIdx: -1);
 
                 _poolIndex++;
+            }
+        }
+
+        for (int i = 0; i < helix.Extensions.Count; i++)
+        {
+            Extension ext = helix.Extensions[i];
+            for (int j = 0; j < ext.GetLength(); j++)
+            {
+                Matrix4x4 localMat = ext.GetNucleotideMesh(i);
+                Matrix4x4 worldMat = helix.GetCurrentOffset() * localMat;
+                Vector3 position = worldMat.GetColumn(3);
+
+                float distSqr = (player.position - position).sqrMagnitude;
+                float radiusSqr = interactionRadius * interactionRadius;
+
+                if (distSqr < radiusSqr)
+                {
+                    // We want a real collider
+                    if (_poolIndex >= _colliderPool.Count)
+                    {
+                        // We have no colliders left => Expand the pool right now
+                        ExpandPool(_colliderPool.Count); // double the current size
+                    }
+
+                    NucleotideColliderComponent nucleotideColliderComponent = _colliderPool[_poolIndex];
+                    GameObject colObj = nucleotideColliderComponent.gameObject;
+                    if (!colObj.activeSelf) colObj.SetActive(true);
+
+                    // Position the pooled collider
+                    colObj.transform.position = position;
+
+                    // Setup references
+                    nucleotideColliderComponent.Setup(helix, nucleotideId: j, direction, extensionIdx: i);
+
+                    _poolIndex++;
+                }
             }
         }
     }
