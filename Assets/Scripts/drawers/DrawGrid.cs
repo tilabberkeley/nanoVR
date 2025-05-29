@@ -47,7 +47,6 @@ public class DrawGrid : MonoBehaviour
     public static DNAGrid CreateGrid(string gridId, string plane, Vector3 position, string gridType)
     {
         DNAGrid grid;
-        Debug.Log($"Grid type: {gridType}");
         if (gridType.Equals("Square") || gridType.Equals("square"))
         {
             grid = new SquareGrid(gridId, plane, position);
@@ -62,7 +61,6 @@ public class DrawGrid : MonoBehaviour
         }
         else
         {
-            Debug.Log("Drawing none grid");
             grid = new NoneGrid(gridId, plane, position);
         }
 

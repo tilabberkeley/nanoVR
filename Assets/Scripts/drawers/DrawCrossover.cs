@@ -158,7 +158,6 @@ public class DrawCrossover : MonoBehaviour
         }
     }
 
-
     /// <summary>
     /// Updates the temporary crossover object's position, rotation, and scale.
     /// </summary>
@@ -306,27 +305,22 @@ public class DrawCrossover : MonoBehaviour
     private static bool IsValid(NucleotideData nd1, NucleotideData nd2)
     {
         if (nd1.StrandId == -1 || nd2.StrandId == -1)
-        {
             return false;
-        }
 
         if (nd1.Xover != null || nd2.Xover != null)
-        {
             return false;
-        }
 
         if (nd1.StrandId == nd2.StrandId && nd1.DomainIdx == nd2.DomainIdx)
-        {
             return false;
-        }
+
+        if (nd1.InExtension || nd2.InExtension)
+            return false;
 
         Domain d1 = nd1.GetDomain();
         Domain d2 = nd2.GetDomain();
 
         if ((nd1 == d1.GetHeadData() && nd2 == d2.GetTailData()) || (nd1 == d1.GetTailData() && nd2 == d2.GetHeadData()))
-        {
             return true;
-        }
 
         return false;
     }

@@ -68,4 +68,46 @@ public class HelixBoundingBox
 
         return distSqr <= sphereRadius * sphereRadius;
     }
+
+    public bool IntersectRay(Ray ray, float maxDistance, out Vector3 hitPoint)
+    {
+        hitPoint = Vector3.zero;
+
+        Vector3 invDir = new Vector3(
+            1.0f / ray.direction.x,
+            1.0f / ray.direction.y,
+            1.0f / ray.direction.z
+        );
+
+        Vector3 tMin = new Vector3(
+            (_boxMin.x - ray.origin.x) * invDir.x,
+            (_boxMin.y - ray.origin.y) * invDir.y,
+            (_boxMin.z - ray.origin.z) * invDir.z
+        );
+
+        Vector3 tMax = new Vector3(
+            (_boxMax.x - ray.origin.x) * invDir.x,
+            (_boxMax.y - ray.origin.y) * invDir.y,
+            (_boxMax.z - ray.origin.z) * invDir.z
+        );
+
+        float t1 = Mathf.Min(tMin.x, tMax.x);
+        float t2 = Mathf.Max(tMin.x, tMax.x);
+        float t3 = Mathf.Min(tMin.y, tMax.y);
+        float t4 = Mathf.Max(tMin.y, tMax.y);
+        float t5 = Mathf.Min(tMin.z, tMax.z);
+        float t6 = Mathf.Max(tMin.z, tMax.z);
+
+        float tNear = Mathf.Max(Mathf.Max(t1, t3), t5);
+        float tFar = Mathf.Min(Mathf.Min(t2, t4), t6);
+
+        if (tNear <= tFar && tFar >= 0f && tNear <= maxDistance)
+        {
+            hitPoint = ray.origin + ray.direction * tNear;
+            return true;
+        }
+
+        return false;
+    }
+
 }
