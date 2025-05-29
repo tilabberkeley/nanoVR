@@ -418,12 +418,8 @@ public static class DrawPoint
         xover.name = "xover";
 
         NucleotideData prevNucl = prevDomain.GetTailData();
-        //if (prevDomain.IsExtension)
-           // Debug.Log($"prevNucl id: {prevNucl.Id}, domain id: {prevDomain.Id}, direction: {prevDomain.Direction}");
         NucleotideData nextNucl = nextDomain.GetHeadData();
-        //if (nextDomain.IsExtension)
-            //Debug.Log($"nextNucl id: {nextNucl.Id}, domain id: {nextDomain.Id}, direction: {nextDomain.Direction}");
-
+    
         //if (prevDomain.Direction == 1) // forward direction
         //{
         //    prevNucl = prevDomain.GetTailData();
@@ -436,9 +432,6 @@ public static class DrawPoint
         //}
         Vector3 prevPosition = prevNucl.GetPosition();
         Vector3 nextPosition = nextNucl.GetPosition();
-
-        Debug.Log($"PrevPosition: {prevPosition}, NextPosition: {nextPosition}");
-
         //xover.transform.SetParent(gc); // helps with transformations
 
 

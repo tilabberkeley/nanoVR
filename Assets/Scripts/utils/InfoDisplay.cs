@@ -162,7 +162,10 @@ public class InfoDisplay : MonoBehaviour
 
         text.AppendLine("<b>Grid</b>");
         text.AppendLine(string.Format("Grid Id: {0}", comp.GridId));
-        text.AppendLine(string.Format("Coord: [{0}, {1}]", comp.GridPoint.X, comp.GridPoint.Y));
+        if (!comp.Grid.Type.Equals("none"))
+        {
+            text.AppendLine(string.Format("Coord: [{0}, {1}]", comp.GridPoint.X, comp.GridPoint.Y));
+        }
         if (comp.Helix != null) text.AppendLine(string.Format("Helix Id: {0}", comp.Helix.Id));
         textBox.text = text.ToString();
     }

@@ -137,11 +137,9 @@ public class TransformHandle : MonoBehaviour
     /// </summary>
     public static void ShowTransform(DNAGrid grid)
     {
-        Debug.Log("Show transform");
+        //Debug.Log("Show transform");
         gizmos.SetActive(true);
-        int minXIndex = grid.GridXToIndex(grid.MinimumBound.X);
-        int minYIndex = grid.GridYToIndex(grid.MinimumBound.Y);
-        Transform transform = grid.Grid2D[minXIndex, minYIndex].transform;
+        Transform transform = grid.GetTransform();
         Vector3 position = Camera.main.transform.position + Camera.main.transform.forward * 0.5f;
         gizmosTransform.SetPositionAndRotation(position, transform.rotation);
 
@@ -156,7 +154,7 @@ public class TransformHandle : MonoBehaviour
     /// </summary>
     private static void HideTransform()
     {
-        Debug.Log("Hide transform");
+        //Debug.Log("Hide transform");
         gizmos.SetActive(false);
     }
 

@@ -530,13 +530,9 @@ public abstract class DNAGrid
     /// <param name="showCircles">Whether or not to show grid circles</param>
     public void ToggleGridCircles(bool showCircles)
     {
-        for (int i = 0; i < _length; i++)
-        {
-            for (int j = 0; j < _width; j++)
-            {
-                GridComponent gc = _grid2D[i, j];
+        foreach (GridComponent gc in _gridComponents)
+        { 
                 gc.gameObject.SetActive(showCircles);
-            }
         }
     }
 
@@ -595,12 +591,18 @@ public abstract class DNAGrid
         return true;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     protected void StaticBatchGridGO(GameObject gridGO)
     {
         GameObject[] gridGOArray = { gridGO };
         StaticBatchingUtility.Combine(gridGOArray, s_staticBatchRoot);
+    }
+
+    /// <summary>
+    /// Returns some transform to use a reference for the grid.
+    /// </summary>
+    /// <returns></returns>
+    public Transform GetTransform()
+    {
+        return _gridComponents[0].transform;
     }
 }

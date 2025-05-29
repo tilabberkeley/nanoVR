@@ -117,31 +117,33 @@ public class FileExport : MonoBehaviour
             DNAGrid grid = s_gridDict[gridId];
             
             JObject position = new JObject();
-            if (isCopyPaste)
-            {
-                position["x"] = 0.0;
-                position["y"] = 0.0;
-                position["z"] = 0.0;
-            }
-            else
-            {
+            //if (isCopyPaste)
+            //{
+            //    position["x"] = 0.0;
+            //    position["y"] = 0.0;
+            //    position["z"] = 0.0;
+            //}
+            //else
+            //{
                 position["x"] = grid.Position.x * SCALE_FROM_NANOVR_TO_NM * -1; // TODO: Check this is right
                 position["y"] = grid.Position.y * SCALE_FROM_NANOVR_TO_NM;
                 position["z"] = grid.Position.z * SCALE_FROM_NANOVR_TO_NM;
-            }
+            //}
 
             (float roll, float pitch, float yaw) = MatrixToYawPitchRoll(grid.CurrTransformOffset);
-
-
             JObject group = new JObject
             {
-                ["position"] = position,
                 ["pitch"] = pitch,
                 ["roll"] = roll,
                 ["yaw"] = yaw,
                 ["grid"] = grid.Type,
             };
-            groups[gridId] = group;
+
+            if (gridIds.Count > 1)
+            {
+                group["position"] = position;
+                groups[gridId] = group;
+            }
         }
 
         // Creating helices data.
@@ -238,6 +240,10 @@ public class FileExport : MonoBehaviour
                 ["is_scaffold"] = strand.IsScaffold,
                 ["domains"] = domains,
             };
+            if (strand.IsCircular)
+            {
+                jsonStrand["circular"] = true;
+            }
             strands.Add(jsonStrand);
         }
 
@@ -245,10 +251,18 @@ public class FileExport : MonoBehaviour
         JObject scadnano = new JObject
         {
             ["version"] = "0.19.1",
-            ["groups"] = groups,
-            ["helices"] = helices,
-            ["strands"] = strands,
         };
+        if (gridIds.Count > 1)
+        {
+            scadnano["groups"] = groups;
+        }
+        else
+        {
+            scadnano["grid"] = s_gridDict[gridIds[0]].Type;
+        }
+
+        scadnano["helices"] = helices;
+        scadnano["strands"] = strands;
 
         return scadnano.ToString();
     }
@@ -277,7 +291,7 @@ public class FileExport : MonoBehaviour
         JObject position = new JObject
         {
             ["x"] = helix.GridComponent.GridPoint.FloatX * SCALE_FROM_NANOVR_TO_NM,
-            ["y"] = helix.GridComponent.GridPoint.FloatY * SCALE_FROM_NANOVR_TO_NM,
+            ["y"] = helix.GridComponent.GridPoint.FloatY * SCALE_FROM_NANOVR_TO_NM * -1,
             ["z"] = helix.GridComponent.GridPoint.FloatZ * SCALE_FROM_NANOVR_TO_NM
         };
 

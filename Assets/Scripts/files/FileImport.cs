@@ -174,6 +174,7 @@ public class FileImport : MonoBehaviour
         JArray helices = JArray.Parse(origami["helices"].ToString());
         JArray strands = JArray.Parse(origami["strands"].ToString());
         bool isMultiGrid = false;
+        Vector3 gridPosition = rayInteractor.transform.position;
 
         /**
          * Parse grids
@@ -209,7 +210,9 @@ public class FileImport : MonoBehaviour
                     
                     string gridType = CleanSlash(info["grid"].ToString());
                     Vector3 startPos;
-                    if (isCopyPaste)
+                    startPos = new Vector3(x, y, z);
+
+                    /*if (isCopyPaste)
                     {
                         //Debug.Log("Is Copypaste");
                         startPos = rayInteractor.transform.position;
@@ -217,7 +220,7 @@ public class FileImport : MonoBehaviour
                     else
                     {
                         startPos = new Vector3(x, y, z);
-                    }
+                    }*/
                     //Debug.Log("startPos: " + startPos);
                     DNAGrid grid = DrawGrid.CreateGrid(gridName, PLANE, startPos, gridType);
                     //Debug.Log("Created grid");
@@ -256,13 +259,13 @@ public class FileImport : MonoBehaviour
         else
         {
             string gridType = CleanSlash(origami["grid"].ToString());
-            DNAGrid grid = DrawGrid.CreateGrid(s_numGrids.ToString(), PLANE, rayInteractor.transform.position, gridType);
+            DNAGrid grid = DrawGrid.CreateGrid(s_numGrids.ToString(), PLANE, gridPosition, gridType);
             grids.Add(grid);
         }
         
         // Parse helices.
         int lastHelixId = s_numHelices;
-        ParseHelices(helices, isMultiGrid, rayInteractor.transform.position);
+        ParseHelices(helices, isMultiGrid, gridPosition);
 
         // Parse strands.
         CoRunner.Instance.Run(ParseStrands(strands, lastHelixId));
@@ -395,11 +398,12 @@ public class FileImport : MonoBehaviour
 
         NoneGrid grid = (NoneGrid)s_gridDict[gridName];
         GridPoint gp = new GridPoint(x, y, z);
-        GameObject go = grid.CreateNoneGridCircle(gp, new Vector3(x, y, z));
+        Vector3 finalPosition = gridPosition + new Vector3(x, y, z);
+
+        GameObject go = grid.CreateNoneGridCircle(gp, finalPosition);
         GridComponent gc = go.GetComponent<GridComponent>();
 
-        Vector3 position = gridPosition + new Vector3(gc.GridPoint.FloatX, gc.GridPoint.FloatY, gc.GridPoint.FloatZ);
-        Helix helix = grid.AddHelix(helixId, position, length, PLANE, gc);
+        Helix helix = grid.AddHelix(helixId, finalPosition, length, PLANE, gc);
         helix.Extend(length);
     }
 
@@ -538,9 +542,9 @@ public class FileImport : MonoBehaviour
 
 
             Strand strand = CreateStrand(strandDomains, strandId, color, isScaffold, loopouts);
-            //if (isCircular)
+            if (isCircular)
             //{
-            //    strand.IsCircular = true;
+                strand.IsCircular = true;
             //    // strand.ShowHideCone(false);
             //    // Debug.Log("Show Hide cone");
             //}

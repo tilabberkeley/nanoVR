@@ -119,7 +119,8 @@ public class Extension : Domain
     {
         if (idx < 0 || idx >= nuclMatrices.Count)
         {
-            throw new IndexOutOfRangeException($" for nucleotide index {idx}. Valid range is 0 to {nuclMatrices.Count - 1}.");
+            Debug.Log($"OOB for nucleotide index {idx}. Valid range is 0 to {nucleotides.Count - 1}.");
+            throw new IndexOutOfRangeException();
         }
         return nuclMatrices[idx];
     }
@@ -137,7 +138,8 @@ public class Extension : Domain
     {
         if (idx < 0 || idx >= nucleotides.Count)
         {
-            throw new IndexOutOfRangeException($" for nucleotide index {idx}. Valid range is 0 to {nucleotides.Count - 1}.");
+            Debug.Log($"OOB for nucleotide index {idx}. Valid range is 0 to {nucleotides.Count - 1}.");
+            throw new IndexOutOfRangeException();
         }
         return nucleotides[idx];
     }
