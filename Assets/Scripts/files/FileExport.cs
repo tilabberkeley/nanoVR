@@ -191,7 +191,14 @@ public class FileExport : MonoBehaviour
                 
                 JObject domainObject;
 
-                if (!domain.IsExtension)
+                if (domain.IsExtension && !domain.IsHelixBound) // true scadnano extension
+                {
+                    domainObject = new JObject
+                    {
+                        ["extension_num_bases"] = domain.GetLength(),
+                    };
+                }
+                else
                 {
                     domainObject = new JObject
                     {
@@ -209,13 +216,6 @@ public class FileExport : MonoBehaviour
                     {
                         domainObject["deletions"] = JArray.FromObject(domain.Deletions);
                     }
-                }
-                else
-                {
-                    domainObject = new JObject
-                    {
-                        ["extension_num_bases"] = domain.GetLength(),
-                    };
                 }
                     
                 domains.Add(domainObject);  

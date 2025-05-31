@@ -97,7 +97,7 @@ public class DrawCrossover : MonoBehaviour
             NucleotideColliderComponent nucComp = s_hitHelixGO.GetComponent<NucleotideColliderComponent>();
             if (nucComp != null)
             {
-                Debug.Log("Hit nucleotide collider");
+                //Debug.Log("Hit nucleotide collider");
                 NucleotideData nd = nucComp.Data;
                 if (nd == null)
                 {
@@ -137,7 +137,7 @@ public class DrawCrossover : MonoBehaviour
             //Debug.Log("Updating temp xover");
             if (isHit && hit2.collider.gameObject == s_hitHelixGO)
             {
-                Debug.Log("Set xover to active");
+                //Debug.Log("Set xover to active");
                 tempXover.SetActive(true);
             }
             Vector3 startPos = s_startNuc.GetPosition();

@@ -223,6 +223,11 @@ public class Domain
     {
         startId = Mathf.Min(startId, domain.startId);
         endId = Mathf.Max(endId, domain.endId);
+        foreach (KeyValuePair<int, int> entry in domain.insertions)
+        {
+            insertions.Add(entry.Key, entry.Value);
+        }
+        deletions.AddRange(domain.Deletions);
     }
 
     public virtual int GetLength()

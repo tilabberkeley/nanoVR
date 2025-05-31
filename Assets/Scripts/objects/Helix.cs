@@ -671,23 +671,24 @@ public class Helix
 
     public NucleotideData GetHeadNeighbor(NucleotideData nd, int direction)
     {
-        if (direction == 0)
+        int index = nd.Id;
+
+        // NOTE: This direction is correct - the old code had a direction mismatch with scadnano.
+        if (direction == 1)
         {
-            int index = nucleotideDataB.IndexOf(nd);
             if (index == 0)
             {
                 return null;
             }
-            return nucleotideDataB[index - 1];
+            return nucleotideDataA[index - 1];
         }
         else
         {
-            int index = nucleotideDataA.IndexOf(nd);
             if (index == nucleotideDataA.Count - 1)
             {
                 return null;
             }
-            return nucleotideDataA[index + 1];
+            return nucleotideDataB[index + 1];
         }
     }
 
@@ -721,23 +722,24 @@ public class Helix
 
     public NucleotideData GetTailNeighbor(NucleotideData nd, int direction)
     {
-        if (direction == 0)
+        int index = nd.Id;
+
+        // NOTE: This direction is correct - the old code had a direction mismatch with scadnano.
+        if (direction == 1)
         {
-            int index = nucleotideDataB.IndexOf(nd);
             if (index == nucleotideDataB.Count - 1)
             {
                 return null;
             }
-            return nucleotideDataB[index + 1];
+            return nucleotideDataA[index + 1];
         }
         else
         {
-            int index = nucleotideDataA.IndexOf(nd);
             if (index == 0)
             {
                 return null;
             }
-            return nucleotideDataA[index - 1];
+            return nucleotideDataB[index - 1];
         }
     }
 

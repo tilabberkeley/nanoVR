@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -28,7 +29,7 @@ public class FileImport : MonoBehaviour
     [SerializeField] private Canvas loadingMenu;
     private Canvas fileBrowser;
     [SerializeField] private XRRayInteractor rayInteractor;
-    [SerializeField] private Toggle extensionTog;
+    [SerializeField] private Toggle boundExtensionTog;
     public static FileImport Instance;
 
     private const string PLANE = "XY";
@@ -36,21 +37,24 @@ public class FileImport : MonoBehaviour
     private const int MAX_HELIX_NUCLEOTIDES = 30000;
 
     private const string DEFAULT_GRID_NAME = "default_group";
+    private const int SPACING = 10;
 
+    private static readonly List<Vector2> candidateOffsets = new List<Vector2>
+    {
+        new Vector2(1, 0),
+        new Vector2(-1, 0),
+        new Vector2(0, 1),
+        new Vector2(0, -1),
+        new Vector2(1, 1),
+        new Vector2(-1, -1),
+        new Vector2(-1, 1),
+        new Vector2(1, -1),
+        new Vector2(2, 0),
+        new Vector2(0, 2),
+        new Vector2(-2, 0),
+        new Vector2(0, -2)
+    };
 
-    private static readonly int[,] directNeighbors = {
-            { -1, 0 }, // Left
-            { 1, 0 },  // Right
-            { 0, 1 },  // Up
-            { 0, -1 }, // Down
-        };
-
-    private static readonly int[,] diagonalNeighbors = {
-            { -1, 1 },  // Upper Left
-            { 1, 1 },   // Upper Right
-            { -1, -1 }, // Lower Left
-            { 1, -1 },  // Lower Right
-        };
 
     void Awake()
     {
@@ -499,7 +503,7 @@ public class FileImport : MonoBehaviour
 
                     DNAGrid grid = s_gridDict[helix.GridId];
 
-                    if (!grid.Type.Equals("none"))
+                    if (boundExtensionTog.isOn)
                     {
                         extensionStrands.Add(i, strandId);
                     }
@@ -563,115 +567,50 @@ public class FileImport : MonoBehaviour
             Strand strand = s_strandDict[strandId];
 
             JArray domains = JArray.Parse(strands[strandIndex]["domains"].ToString());
-            string sequence = "";
-            if (strands[strandIndex]["sequence"] != null)
-            {
-                sequence = CleanSlash(strands[strandIndex]["sequence"].ToString());
-            }
+            string sequence = strands[strandIndex]["sequence"]?.ToString() ?? "";
 
-  
             for (int j = 0; j < domains.Count; j++)
             {
-                if (domains[j]["extension_num_bases"] != null)
+                if (domains[j]["extension_num_bases"] == null) continue;
+
+                int extensionLength = (int)domains[j]["extension_num_bases"];
+
+                bool isHead = j == 0;
+                bool isTail = j == domains.Count - 1;
+                if (!isHead && !isTail) continue;
+
+                int neighborIndex = isHead ? j + 1 : j - 1;
+                JObject neighborDomain = (JObject)domains[neighborIndex];
+
+                int helixId = (int)neighborDomain["helix"] + lastHelixId;
+                Helix baseHelix = s_helixDict[helixId];
+                GridComponent baseGC = baseHelix.GridComponent;
+
+                bool baseForward = (bool)neighborDomain["forward"];
+                int startId = (int)neighborDomain["start"];
+                int endId = (int)neighborDomain["end"] - 1;
+
+                bool drawn = TryDrawExtension(
+                    baseGC.Grid,
+                    baseGC,
+                    strand,
+                    startId,
+                    endId,
+                    !baseForward,
+                    extensionLength,
+                    isHead
+                );
+
+                if (!drawn)
                 {
-                    // Look at next domain to see which helix it will lie on.
-                    int extensionLength = (int)domains[j]["extension_num_bases"];
-
-                    if (j == 0)
-                    {     
-                        int nextDomainHelixId = (int) domains[j + 1]["helix"] + lastHelixId;
-                        Helix nextDomainHelix = s_helixDict[nextDomainHelixId];
-                        GridComponent nextDomainGC = nextDomainHelix.GridComponent;
-                        DNAGrid grid = s_gridDict[nextDomainHelix.GridId];
-
-                        bool nextForward = (bool)domains[j + 1]["forward"];
-                        int nextStartId = (int)domains[j + 1]["start"];
-                        int nextEndId = (int)domains[j + 1]["end"] - 1; // End id is exclusive in .sc file
-
-                        bool drawn = false;
-                        for (int i = 0; i < directNeighbors.GetLength(0); i++)
-                        {
-                            bool success = DrawHeadExtension(grid, nextDomainGC, strand, nextStartId, nextEndId, !nextForward,
-                                    extensionLength, directNeighbors[i, 0], directNeighbors[i, 1]);
-                            if (success)
-                            {
-                                drawn = true;
-                                break;
-                            }
-                        }
-
-                        if (!drawn)
-                        {
-                            for (int i = 0; i < diagonalNeighbors.GetLength(0); i++)
-                            {
-                                bool success = DrawHeadExtension(grid, nextDomainGC, strand, nextStartId, nextEndId, !nextForward, 
-                                    extensionLength, diagonalNeighbors[i, 0], diagonalNeighbors[i, 1]);
-                                if (success)
-                                {
-                                    drawn = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (!drawn)
-                        {
-                            Debug.Log($"Could not draw 5' extension for strand {strand.Id}");
-                            continue;
-                        }
-                    }
-                    else if (j == domains.Count - 1)
-                    {
-                        int nextDomainHelixId = (int)domains[j - 1]["helix"] + lastHelixId;
-                        Helix nextDomainHelix = s_helixDict[nextDomainHelixId];
-                        GridComponent nextDomainGC = nextDomainHelix.GridComponent;
-                        DNAGrid grid = s_gridDict[nextDomainHelix.GridId];
-
-                        bool nextForward = (bool)domains[j - 1]["forward"];
-                        int nextStartId = (int)domains[j - 1]["start"];
-                        int nextEndId = (int)domains[j - 1]["end"] - 1; // End id is exclusive in .sc file
-
-                        bool drawn = false;
-                        for (int i = 0; i < directNeighbors.GetLength(0); i++)
-                        {
-                            bool success = DrawTailExtension(grid, nextDomainGC, strand, nextStartId, nextEndId, !nextForward,
-                                    extensionLength, directNeighbors[i, 0], directNeighbors[i, 1]);
-                            if (success)
-                            {
-                                drawn = true;
-                                break;
-                            }
-                        }
-
-                        if (!drawn)
-                        {
-                            for (int i = 0; i < diagonalNeighbors.GetLength(0); i++)
-                            {
-                                bool success = DrawTailExtension(grid, nextDomainGC, strand, nextStartId, nextEndId, !nextForward,
-                                    extensionLength, diagonalNeighbors[i, 0], diagonalNeighbors[i, 1]);
-                                if (success)
-                                {
-                                    drawn = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (!drawn)
-                        {
-                            Debug.Log($"Could not draw 3' extension for strand {strand.Id}");
-                            continue;
-                        }
-                    }
+                    Debug.LogWarning($"Could not draw {(isHead ? "5'" : "3'")} extension for strand {strand.Id}");
                 }
             }
 
-            strand.SetSequenceRevamp(sequence);
-            //Debug.Log("Set sequence");
-            // Utils.CheckMismatch(strand);
-
+            strand.SetSequenceRevamp(CleanSlash(sequence));
             yield return null;
         }
+
 
         // Abstracts to Helix or Strand Views if there are more than MAX_NUCLEOTIDES in scene.
         // This helps with performance.
@@ -693,7 +632,266 @@ public class FileImport : MonoBehaviour
         loadingMenu.enabled = false;
     }
 
-    private bool DrawHeadExtension(DNAGrid grid, GridComponent domainGC, Strand strand, int nextStartId, int nextEndId, bool forward, int extensionLength, int dx, int dy)
+    private bool TryDrawExtension(
+        DNAGrid grid,
+        GridComponent baseGC,
+        Strand strand,
+        int nextStartId,
+        int nextEndId,
+        bool forward,
+        int extensionLength,
+        bool isHead)
+    {
+        foreach (var offset in candidateOffsets)
+        {
+            float dx = offset.x;
+            float dy = offset.y;
+
+            bool success = isHead
+                ? DrawHeadExtension(grid, baseGC, strand, nextStartId, nextEndId, forward, extensionLength, dx, dy)
+                : DrawTailExtension(grid, baseGC, strand, nextStartId, nextEndId, forward, extensionLength, dx, dy);
+
+            if (success)
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool DrawHeadExtension(DNAGrid grid, GridComponent domainGC, Strand strand,
+    int nextStartId, int nextEndId, bool forward, int extensionLength, float dx, float dy)
+    {
+        if (grid != null && grid.Type != "none")
+        {
+            return TryGridBasedHeadExtension(grid, domainGC, strand, nextStartId, nextEndId, forward, extensionLength, (int) dx, (int) dy);
+        }
+        else
+        {
+            return TryNoGridHeadExtension((NoneGrid)grid, domainGC, strand, nextStartId, nextEndId, forward, extensionLength, dx, dy);
+        }
+    }
+
+    private bool TryGridBasedHeadExtension(DNAGrid grid, GridComponent domainGC, Strand strand,
+    int nextStartId, int nextEndId, bool forward, int extensionLength, int dx, int dy)
+    {
+        int newX = domainGC.GridPoint.X + dx;
+        int newY = domainGC.GridPoint.Y + dy;
+        int xIndex = grid.GridXToIndex(newX);
+        int yIndex = grid.GridYToIndex(newY);
+        if (xIndex == -1 || yIndex == -1) return false;
+
+        GridComponent gc = grid.Grid2D[xIndex, yIndex];
+        if (gc == null) return false;
+
+        Helix helix = gc.Helix;
+        int length = Math.Max(nextStartId + extensionLength, nextEndId + 1);
+        int num64 = length / 64 + 1;
+        int actualLength = num64 * 64;
+
+        if (helix == null)
+        {
+            helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), actualLength, PLANE, gc);
+            helix.Extend(actualLength);
+            grid.CheckExpansion(gc);
+        }
+        else if (actualLength > helix.Length)
+        {
+            helix.Extend(actualLength - helix.Length);
+        }
+
+        int startId = forward ? nextEndId - extensionLength : nextStartId;
+        int endId = forward ? nextEndId : nextStartId + extensionLength;
+
+        if (!Utils.IsValidDomain(helix, startId, endId, Convert.ToInt32(forward)))
+            return false;
+
+        Domain domain = new Domain(helix.Id, Convert.ToInt32(forward), startId, endId,
+            new Dictionary<int, int>(), new List<int>())
+        { IsExtension = true };
+
+        strand.AddToHead(domain);
+        strand.SetDomainsRevamp();
+        DrawCrossover.CreateXoverHelper(domain, strand.GetDomain(1), strand.Id, strand.Color, strand.Color);
+        return true;
+    }
+
+    private bool TryNoGridHeadExtension(NoneGrid grid, GridComponent domainGC, Strand strand,
+                        int nextStartId, int nextEndId, bool forward, int extensionLength, float dx, float dy)
+    {
+        Vector3 basePos = domainGC.transform.position;
+        Vector3 offset = new Vector3(dx, dy, 0) * SPACING / SCALE_FROM_NANOVR_TO_NM; ;
+        Vector3 candidatePos = basePos + offset;
+
+        if (grid.GridComponents.Any(gc => Vector3.Distance(gc.transform.position, candidatePos) < SPACING))
+            return false;
+
+        int length = Math.Max(nextStartId + extensionLength, nextEndId + 1);
+        int num64 = length / 64 + 1;
+        int actualLength = num64 * 64;
+
+        int startId = forward ? nextEndId - extensionLength : nextStartId;
+        int endId = forward ? nextEndId : nextStartId + extensionLength;
+
+        foreach (GridComponent gc in grid.GridComponents)
+        {
+            if (actualLength > gc.Helix.Length)
+            {
+                gc.Helix.Extend(actualLength - gc.Helix.Length);
+            }
+
+            if (Utils.IsValidDomain(gc.Helix, startId, endId, Convert.ToInt32(forward)))
+            {
+                Domain domain = new Domain(gc.Helix.Id, Convert.ToInt32(forward), startId, endId, new Dictionary<int, int>(), new List<int>())
+                { IsExtension = true };
+
+                strand.AddToHead(domain);
+                strand.SetDomainsRevamp();
+                DrawCrossover.CreateXoverHelper(domain, strand.GetDomain(1), strand.Id, strand.Color, strand.Color);
+                return true;
+            }
+        }
+
+        GridPoint gp = new GridPoint(candidatePos.x, candidatePos.y, candidatePos.z);
+
+        GameObject go = grid.CreateNoneGridCircle(gp, candidatePos);
+        GridComponent newGC = go.GetComponent<GridComponent>();
+
+        Helix newHelix = grid.AddHelix(s_numHelices, candidatePos, actualLength, PLANE, newGC);
+        newHelix.Extend(actualLength);
+
+        if (Utils.IsValidDomain(newHelix, startId, endId, Convert.ToInt32(forward)))
+        {
+            Domain domain = new Domain(newHelix.Id, Convert.ToInt32(forward), startId, endId,
+            new Dictionary<int, int>(), new List<int>())
+            { IsExtension = true };
+
+            strand.AddToHead(domain);
+            strand.SetDomainsRevamp();
+            DrawCrossover.CreateXoverHelper(domain, strand.GetDomain(1), strand.Id, strand.Color, strand.Color);
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryGridBasedTailExtension(DNAGrid grid, GridComponent domainGC, Strand strand,
+    int nextStartId, int nextEndId, bool forward, int extensionLength, int dx, int dy)
+    {
+        int newX = domainGC.GridPoint.X + dx;
+        int newY = domainGC.GridPoint.Y + dy;
+        int xIndex = grid.GridXToIndex(newX);
+        int yIndex = grid.GridYToIndex(newY);
+        if (xIndex == -1 || yIndex == -1) return false;
+
+        GridComponent gc = grid.Grid2D[xIndex, yIndex];
+        if (gc == null) return false;
+
+        Helix helix = gc.Helix;
+        int length = Math.Max(nextStartId + extensionLength, nextEndId + 1);
+        int num64 = length / 64 + 1;
+        int actualLength = num64 * 64;
+
+        if (helix == null)
+        {
+            helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), actualLength, PLANE, gc);
+            helix.Extend(actualLength);
+            grid.CheckExpansion(gc);
+        }
+        else if (actualLength > helix.Length)
+        {
+            helix.Extend(actualLength - helix.Length);
+        }
+
+        int startId = forward ? nextEndId - extensionLength : nextStartId;
+        int endId = forward ? nextEndId : nextStartId + extensionLength;
+
+        if (!Utils.IsValidDomain(helix, startId, endId, Convert.ToInt32(forward)))
+            return false;
+
+        Domain domain = new Domain(helix.Id, Convert.ToInt32(forward), startId, endId,
+            new Dictionary<int, int>(), new List<int>())
+        { IsExtension = true };
+
+        strand.AddToTail(domain);
+        strand.SetDomainsRevamp();
+        DrawCrossover.CreateXoverHelper(strand.GetDomain(strand.Domains.Count - 2), domain, strand.Id, strand.Color, strand.Color);
+        return true;
+    }
+
+
+    private bool TryNoGridTailExtension(NoneGrid grid, GridComponent domainGC, Strand strand,
+    int nextStartId, int nextEndId, bool forward, int extensionLength, float dx, float dy)
+    {
+        Vector3 basePos = domainGC.transform.position;
+        Vector3 offset = new Vector3(dx, dy, 0) * SPACING / SCALE_FROM_NANOVR_TO_NM; ;
+        Vector3 candidatePos = basePos + offset;
+
+        /*if (grid.GridComponents.Any(gc => Vector3.Distance(gc.transform.position, candidatePos) < SPACING))
+            return false;*/
+
+        int length = Math.Max(nextStartId + extensionLength, nextEndId + 1);
+        int num64 = length / 64 + 1;
+        int actualLength = num64 * 64;
+
+        int startId = forward ? nextEndId - extensionLength : nextStartId;
+        int endId = forward ? nextEndId : nextStartId + extensionLength;
+
+        // Try to find existing helix first
+        foreach (GridComponent gc in grid.GridComponents)
+        {
+            if (actualLength > gc.Helix.Length)
+            {
+                gc.Helix.Extend(actualLength - gc.Helix.Length);
+            }
+            if (Utils.IsValidDomain(gc.Helix, startId, endId, Convert.ToInt32(forward)))
+            {
+                Domain domain = new Domain(gc.Helix.Id, Convert.ToInt32(forward), startId, endId, new Dictionary<int, int>(), new List<int>())
+                { IsExtension = true };
+
+                strand.AddToTail(domain);
+                strand.SetDomainsRevamp();
+                DrawCrossover.CreateXoverHelper(strand.GetDomain(strand.Domains.Count - 2), domain, strand.Id, strand.Color, strand.Color);
+                return true;
+            }
+        }
+
+        // If we couldn't find existing helix, dynamically create a new one.
+        GridPoint gp = new GridPoint(candidatePos.x, candidatePos.y, candidatePos.z);
+
+        GameObject go = grid.CreateNoneGridCircle(gp, candidatePos);
+        GridComponent newGC = go.GetComponent<GridComponent>();
+
+        Helix newHelix = grid.AddHelix(s_numHelices, candidatePos, actualLength, PLANE, newGC);
+        newHelix.Extend(actualLength);
+
+        if (Utils.IsValidDomain(newHelix, startId, endId, Convert.ToInt32(forward)))
+        {
+            Domain domain = new Domain(newHelix.Id, Convert.ToInt32(forward), startId, endId, new Dictionary<int, int>(), new List<int>())
+            { IsExtension = true };
+
+            strand.AddToTail(domain);
+            strand.SetDomainsRevamp();
+            DrawCrossover.CreateXoverHelper(strand.GetDomain(strand.Domains.Count - 2), domain, strand.Id, strand.Color, strand.Color);
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool DrawTailExtension(DNAGrid grid, GridComponent domainGC, Strand strand,
+    int nextStartId, int nextEndId, bool forward, int extensionLength, float dx, float dy)
+    {
+        if (grid != null && grid.Type != "none")
+        {
+            return TryGridBasedTailExtension(grid, domainGC, strand, nextStartId, nextEndId, forward, extensionLength, (int)dx, (int)dy);
+        }
+        else
+        {
+            return TryNoGridTailExtension((NoneGrid)grid, domainGC, strand, nextStartId, nextEndId, forward, extensionLength, dx, dy);
+        }
+    }
+
+    /*private bool DrawHeadExtension(DNAGrid grid, GridComponent domainGC, Strand strand, int nextStartId, int nextEndId, bool forward, int extensionLength, int dx, int dy)
     {
         int newX = domainGC.GridPoint.X + dx;
         int newY = domainGC.GridPoint.Y + dy;
@@ -819,7 +1017,7 @@ public class FileImport : MonoBehaviour
         }
 
         return false;
-    }
+    }*/
 
     private void DrawOxViewExtension(int extensionLength, int domainIndex, List<GameObject> xoverEndpoints, List<GameObject> nucleotides)
     {

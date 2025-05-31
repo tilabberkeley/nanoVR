@@ -559,16 +559,26 @@ public class Strand
         return splitList;
     }
 
-    public List<Domain> SplitBefore(NucleotideData nd)
+    public List<Domain> Split(NucleotideData nd, bool splitAfter)
     {
         Domain domain = GetDomain(nd.DomainIdx);
-        Domain newDomain = domain.SplitBefore(nd);
-        
-        List<Domain> newStrandDomains = new List<Domain>();
-        newStrandDomains.AddRange(domains.GetRange(0, nd.DomainIdx));
-        newStrandDomains.Add(newDomain);
+        Domain newDomain;
 
-        domains.RemoveRange(0, nd.DomainIdx);
+        if (splitAfter)
+        {
+            newDomain = domain.SplitAfter(nd);
+        }
+        else
+        {
+            newDomain = domain.SplitBefore(nd);
+        }
+        
+        List<Domain> newStrandDomains = new List<Domain>
+        {
+            newDomain
+        };
+        newStrandDomains.AddRange(domains.GetRange(nd.DomainIdx + 1, domains.Count - (nd.DomainIdx + 1)));
+        domains.RemoveRange(nd.DomainIdx + 1, domains.Count - (nd.DomainIdx + 1));
         return newStrandDomains;
     }
 
@@ -637,7 +647,7 @@ public class Strand
         SetCone();
     }
 
-    public List<Domain> SplitAfter(NucleotideData nd)
+    /*public List<Domain> SplitAfter(NucleotideData nd)
     {
         Domain domain = GetDomain(nd.DomainIdx);
         Domain newDomain = domain.SplitAfter(nd);
@@ -650,7 +660,7 @@ public class Strand
 
         domains.RemoveRange(nd.DomainIdx + 1, domains.Count - (nd.DomainIdx + 1));
         return newStrandDomains;
-    }
+    }*/
 
     public void DeleteXovers()
     {
@@ -765,11 +775,11 @@ public class Strand
             Domain domain = domains[i];
             domain.SetDomain(i, _strandId, _color);
 
-            /*NucleotideData tail = domain.GetTailData();
+            NucleotideData tail = domain.GetTailData();
             if (tail.HasXover)
             {
                 tail.Xover.GetComponent<XoverComponent>().Color = _color;
-            }*/
+            }
         }
     }
 
