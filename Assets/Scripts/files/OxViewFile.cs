@@ -10,7 +10,6 @@ public class OxViewFile
     public List<OxViewSystem> Systems { get; set; } = new List<OxViewSystem>();
     public List<int> Forces { get; set; } = new List<int>();
     public List<int> Selections { get; set; } = new List<int>();
-
 }
 
 public class OxViewSystem
