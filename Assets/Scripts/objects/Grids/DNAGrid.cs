@@ -201,7 +201,7 @@ public abstract class DNAGrid
     public virtual void ExpandNorth()
     {
         CopyNorth();
-        List<GameObject> gridCircles = new List<GameObject>();
+        //List<GameObject> gridCircles = new List<GameObject>();
 
         // create new grid components
         for (int i = 0; i < _length; i++)
@@ -213,7 +213,7 @@ public abstract class DNAGrid
             int y = IndexToGridY(newJ);
             GridPoint gridPoint = new GridPoint(x, y);
             GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset - 2, yCreationOffset - 2, i, newJ);
-            gridCircles.Add(gridCircle);
+            //gridCircles.Add(gridCircle);
             _size++;
         }
 
@@ -226,7 +226,7 @@ public abstract class DNAGrid
     public virtual void ExpandEast()
     {
         CopyEast();
-        List<GameObject> gridCircles = new List<GameObject>();
+        //List<GameObject> gridCircles = new List<GameObject>();
         // create new grid components
         for (int j = 0; j < _width; j++)
         {
@@ -237,7 +237,7 @@ public abstract class DNAGrid
             int y = IndexToGridY(j);
             GridPoint gridPoint = new GridPoint(x, y);
             GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset - 2, yCreationOffset - 2, newI, j);
-            gridCircles.Add(gridCircle);
+            //gridCircles.Add(gridCircle);
             _size++;
         }
 
@@ -250,7 +250,7 @@ public abstract class DNAGrid
     public virtual void ExpandSouth()
     {
         CopySouth();
-        List<GameObject> gridCircles = new List<GameObject>();
+        //List<GameObject> gridCircles = new List<GameObject>();
 
         // create new grid components
         for (int i = 0; i < _length; i++)
@@ -262,7 +262,7 @@ public abstract class DNAGrid
             int y = IndexToGridY(newJ);
             GridPoint gridPoint = new GridPoint(x, y);
             GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset - 2, yCreationOffset - 2, i, newJ);
-            gridCircles.Add(gridCircle);
+            //gridCircles.Add(gridCircle);
             _size++;
         }
 
@@ -276,7 +276,7 @@ public abstract class DNAGrid
     public virtual void ExpandWest()
     {
         CopyWest();
-        List<GameObject> gridCircles = new List<GameObject>();
+        //List<GameObject> gridCircles = new List<GameObject>();
 
         // create new grid components
         for (int j = 0; j < _width; j++)
@@ -288,7 +288,7 @@ public abstract class DNAGrid
             int y = IndexToGridY(j);
             GridPoint gridPoint = new GridPoint(x, y);
             GameObject gridCircle = CreateGridCircle(gridPoint, xCreationOffset - 2 , yCreationOffset - 2, newI, j);
-            gridCircles.Add(gridCircle);
+            //gridCircles.Add(gridCircle);
             _size++;
         }
 
@@ -473,14 +473,11 @@ public abstract class DNAGrid
 
     public void ChangeStencilView()
     {
-        for (int i = 0; i < _length; i++)
+        foreach (GridComponent gc in _gridComponents)
         {
-            for (int j = 0; j < _width; j++)
-            {
-                GameObject go = _grid2D[i, j].gameObject;
-                go.SetActive(!s_hideStencils);
-                _grid2D[i, j].Helix?.ChangeStencilView();
-            }
+            gc.gameObject.SetActive(!s_hideStencils);
+            // NOTE: Edited DY 6/1 since this does not work with GPU instancing
+            //gc.Helix?.ChangeStencilView();
         }
     }
 

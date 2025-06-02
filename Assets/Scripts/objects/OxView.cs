@@ -1,26 +1,14 @@
-using Newtonsoft.Json.Linq;
-using Oculus.Platform;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Unity.Collections;
-using Unity.Jobs;
-using Unity.Mathematics;
-using Unity.Burst;
 using UnityEngine;
-using UnityEngine.UIElements;
 using static GlobalVariables;
-using static UnityEngine.EventSystems.EventTrigger;
 using static Utils;
 
 public class OxDNAMapping
 {
-    public GameObject Nucleotide { get; set; }
+    public NucleotideData Nucleotide { get; set; }
     public int Id { get; set; }
     public Vector3 Position { get; set; }
     public Vector3 A1 { get; set; }
@@ -31,7 +19,7 @@ public class OxDNAMapping
 
 public class StrandInfoMapping
 {
-    public List<GameObject> Nucleotides { get; set; }
+    public List<NucleotideData> Nucleotides { get; set; }
     public Color Color { get; set; }
 }
 
@@ -48,6 +36,15 @@ public class OxView
     private StringBuilder _datFileStringBuilder;
     private string _datFile;
     public string DatFile { get => _datFile; }
+
+    private List<NucleotideData> nucleotides;
+    private List<Vector3> nucleotidePositions;
+    private List<Matrix4x4> nuclMatrices;
+    private List<Matrix4x4> backboneMatrices;
+
+    public List<Matrix4x4> Nucleotides { get => nuclMatrices; }
+    public List<Matrix4x4> Backbones { get => backboneMatrices; }
+    public Dictionary<int, StrandInfoMapping> StrandIdToStrandInfo { get => _strandIdToStrandInfo; }
 
     public OxView()
     {
@@ -156,7 +153,7 @@ public class OxView
         {
             StrandInfoMapping strandInfoMapping = new StrandInfoMapping
             {
-                Nucleotides = new List<GameObject>()
+                Nucleotides = new List<NucleotideData>()
             };
             _strandIdToStrandInfo.Add(strandId, strandInfoMapping);
         }
@@ -164,7 +161,7 @@ public class OxView
         // Generate Nucleotides
         int numNucleotides = _lineIndexToOxDNAMapping.Count;
 
-        List<GameObject> newNucleotides = new List<GameObject>();
+        /*List<NucleotideData> newNucleotides = new List<NucleotideData>();
 
         if (ObjectPoolManager.Instance.CanGetNucleotides(numNucleotides))
         {
@@ -174,21 +171,30 @@ public class OxView
         {
             // TODO: Generate new nucleotides if object pool manager is empty
             throw new NotImplementedException("Object pool manager empty");
-        }
+        }*/
 
         int i = 0;
         foreach (KeyValuePair<int, OxDNAMapping> entry in _lineIndexToOxDNAMapping)
         {
-            GameObject newNucleotide = newNucleotides[i++];
+            //NucleotideData newNucleotide = newNucleotides[i++];
+
+            Vector3 pos = (entry.Value.Position - 0.4f * entry.Value.A1) / SCALE_FROM_NANOVR_TO_NM;
+            nucleotidePositions.Add(pos);
+            Matrix4x4 nuclMatrix = Matrix4x4.TRS(pos, Quaternion.identity, new Vector3(NUCL_RAD, NUCL_RAD, NUCL_RAD));
+            nuclMatrices.Add(nuclMatrix);
+            NucleotideData newNucleotide = new NucleotideData(i, -1, -1, inExtension: false, isOxView: true)
+            {
+                SavedPosition = nuclMatrix.GetColumn(3)
+            };
+            nucleotides.Add(newNucleotide);
+
             entry.Value.Nucleotide = newNucleotide;
 
             // Add nucleotide to appropiate strand list
             _strandIdToStrandInfo.TryGetValue(entry.Value.StrandId, out StrandInfoMapping strandInfoMapping);
             strandInfoMapping.Nucleotides.Add(newNucleotide);
             strandInfoMapping.Color = entry.Value.Color; // This is repetive, potential refactor
-
-            // Assign positions
-            SetNucleotidePosition(entry.Value);
+            i++;
         }
 
         BuildStrands();
@@ -198,33 +204,16 @@ public class OxView
     {
         foreach (KeyValuePair<int, StrandInfoMapping> entry in _strandIdToStrandInfo)
         {
-            List<GameObject> nucleotides = entry.Value.Nucleotides;
+            List<NucleotideData> nucleotides = entry.Value.Nucleotides;
             int strandSize = nucleotides.Count;
 
-            // Create backbones
-            List<GameObject> backbones = new List<GameObject>();
-
-            if (ObjectPoolManager.Instance.CanGetBackbones(strandSize - 1))
-            {
-                backbones.AddRange(ObjectPoolManager.Instance.GetBackbones(strandSize - 1));
-            } 
-            else
-            {
-                // TODO: Generate new backbones if object pool manager is empty
-                throw new NotImplementedException("Object pool manager empty");
-            }
-
-            if (strandSize < 1)
-            {
-                // TODO
-                throw new NotImplementedException("Strand size too small for oxview");
-            }
-
-            GameObject firstNucleotide = nucleotides[0];
-            GameObject secondNucleotide;
+            //NucleotideData firstNucleotide = nucleotides[0];
+            //NucleotideData secondNucleotide;
             for (int i = 1; i < strandSize; i++)
             {
-                GameObject backbone = backbones[i - 1];
+                // NOTE: Edited DY 6/1/25 seems like this was not being used in simulations
+
+                /*GameObject backbone = backbones[i - 1];
                 secondNucleotide = nucleotides[i];
                 DrawPoint.SetBackbone(backbone, i - 1, -1, -1, firstNucleotide.transform.position, secondNucleotide.transform.position, false, true);
 
@@ -234,7 +223,12 @@ public class OxView
                 backboneComponent.SecondNucleotide = secondNucleotide;
 
                 // Move to next nucleotide
-                firstNucleotide = secondNucleotide;
+                firstNucleotide = secondNucleotide;*/
+
+                Vector3 prevPos = nucleotides[i - 1].GetPosition();
+                Vector3 pos = nucleotides[i].GetPosition();
+                Matrix4x4 backboneMatrixA = GetBackboneMatrix(prevPos, pos, fiveToThree: true);
+                backboneMatrices.Add(backboneMatrixA);
             }
 
             // Create strand
@@ -376,16 +370,16 @@ public class OxView
             mapping.Position = position;
             mapping.A1 = a1;
 
-            SetNucleotidePosition(mapping);
+            //SetNucleotidePosition(mapping);
 
             nextLine = datFileReader.ReadLine();
         }
     }
 
-    private void SetNucleotidePosition(OxDNAMapping mapping)
+    /*private void SetNucleotidePosition(OxDNAMapping mapping)
     {
         // r center of mass to backbone repulsion site.
         Vector3 position = (mapping.Position - 0.4f * mapping.A1) / SCALE_FROM_NANOVR_TO_NM;
         DrawPoint.SetNucleotide(mapping.Nucleotide, position, mapping.Id, -1, -1, false, true);
-    }
+    }*/
 }

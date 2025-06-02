@@ -2,7 +2,6 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
-using System.Linq;
 using UnityEngine;
 
 [System.Serializable]
@@ -22,6 +21,12 @@ public class NucleotideData
     private int domainIdx = -1;          // Index of the domain within Strand's domain list
     private bool isHighlighted = false;
     private bool inExtension;
+
+    private bool isOxView;
+
+    // This is used to save the position of the nucleotide before simulations.
+    // Also used for oxDNA nucleotides since they don't have helices to grab position from.
+    private Vector3 savedPosition;
 
     public int Id { get => id; }
     public int HelixId { get => helixId; }
@@ -100,21 +105,27 @@ public class NucleotideData
     }
 
     public bool InExtension { get => inExtension; set => inExtension = value; }
+    public bool IsOxView { get => isOxView; set => isOxView = value; }
+    public Vector3 SavedPosition { get => savedPosition; set => savedPosition = value; }
 
-
-    public NucleotideData(int id, int helixId, int direction, bool inExtension = false)
+    public NucleotideData(int id, int helixId, int direction, bool inExtension = false, bool isOxView = false)
     {
         this.id = id;
         this.helixId = helixId;
         this.direction = direction;
         this.inExtension = inExtension;
+        this.isOxView = isOxView;
     }
 
     public Matrix4x4 GetMatrix()
     {
         if (inExtension)
         {
-           return GetDomain().GetNucleotideMesh(id);
+            return GetDomain().GetNucleotideMesh(id);
+        }
+        if (isOxView)
+        {
+            return Matrix4x4.identity;
         }
         Helix helix = GlobalVariables.s_helixDict[helixId];
         return helix.GetNucleotideMesh(id, direction);
@@ -122,12 +133,20 @@ public class NucleotideData
 
     public Vector3 GetPosition()
     {
+        if (isOxView)
+        {
+            return savedPosition;
+        }
         Matrix4x4 worldMat = GetHelix().GetCurrentOffset() * GetMatrix();
         return worldMat.GetColumn(3);
     }
 
     public Helix GetHelix()
     {
+        if (helixId == -1)
+        {
+            return null;
+        }
         return GlobalVariables.s_helixDict[helixId];
     }
 
@@ -159,6 +178,10 @@ public class NucleotideData
 
     public bool IsHelixEnd()
     {
+        if (helixId == -1)
+        {
+            return false; // No helix associated
+        }
         Helix helix = GetHelix();
         return id == helix.Length - 1;
     }
@@ -170,8 +193,24 @@ public class NucleotideData
 
     public NucleotideData GetComplement()
     {
+        if (helixId == -1)
+        {
+            return null; // No helix associated
+        }
         Helix helix = GetHelix();
         int complementDirection = 1 - direction;
         return helix.GetNucleotideData(id, complementDirection);
+    }
+
+    public void UpdatePosition(Vector3 newPosition)
+    {
+        if (isOxView)
+        {
+            GlobalVariables.s_oxView.Nucleotides[id].SetColumn(3, newPosition);
+        }
+        Helix helix = GetHelix();
+        {
+            helix.UpdatePosition(id, direction, newPosition);
+        }
     }
 }

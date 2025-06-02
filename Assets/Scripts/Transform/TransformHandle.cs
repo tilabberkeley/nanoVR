@@ -3,6 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -180,7 +181,7 @@ public class TransformHandle : MonoBehaviour
         foreach (GridComponent gc in grid.GridComponents)
         {
             gc.transform.SetParent(gizmosTransform, true);
-            gc.GetComponent<Collider>().enabled = false;
+            //gc.GetComponent<Collider>().enabled = false;
         }
     }
 
@@ -199,18 +200,20 @@ public class TransformHandle : MonoBehaviour
             grid.IsTransforming = false;
             grid.OldTransformOffset = delta * grid.OldTransformOffset;
 
-            /*for (int i = 0; i < grid.Length; i++)
-            {
-                for (int j = 0; j < grid.Width; j++)
-                {
-                    grid.Grid2D[i, j].transform.SetParent(null);
-                    grid.Grid2D[i, j].GetComponent<Collider>().enabled = true;
-                }
-            }*/
             foreach (GridComponent gc in grid.GridComponents)
             {
                 gc.transform.SetParent(null);
-                gc.GetComponent<Collider>().enabled = true;
+                //gc.GetComponent<Collider>().enabled = true;
+
+                // Update helix bounding box
+                Helix helix = gc.Helix;
+                if (helix != null)
+                {
+                    helix.BoundingBox.Extend(helix.NucleotideDataA[0].GetPosition());
+                    helix.BoundingBox.Extend(helix.NucleotideDataB[0].GetPosition());
+                    helix.BoundingBox.Extend(helix.NucleotideDataA.Last().GetPosition());
+                    helix.BoundingBox.Extend(helix.NucleotideDataB.Last().GetPosition());
+                }
             }
         }
         //translatedGrids.Clear();

@@ -125,7 +125,7 @@ public class DrawSplit
         Strand strand = nd.GetStrand();
 
         bool splitAfter = Convert.ToBoolean(nd.Direction);
-        CreateStrand(strand.Split(nd, splitAfter));
+        CreateStrandWithoutXovers(strand.Split(nd, splitAfter));
     }
 
     public static bool IsValid(GameObject go)

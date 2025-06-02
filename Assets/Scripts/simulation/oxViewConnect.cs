@@ -81,6 +81,7 @@ public class OxViewConnect : MonoBehaviour
         OxDNASystem oxDNAsystem = new OxDNASystem();
         var fileResults = oxDNAsystem.OxDNAFiles();
         _oxDNAMapper = fileResults.oxDNAMapper;
+        _oxDNAMapper.SaveNucleotidePositions();
 
         JObject initialMessage = new JObject(
             new JProperty("top_file", fileResults.topFile),

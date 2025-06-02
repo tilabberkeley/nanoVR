@@ -617,6 +617,18 @@ public class Helix
         }
     }
 
+    public void UpdatePosition(int id, int direction, Vector3 newPosition)
+    {
+        if (direction == 0)
+        {
+            nucleotideMatricesB[id].SetColumn(3, newPosition);
+        }
+        else
+        {
+            nucleotideMatricesA[id].SetColumn(3, newPosition);
+        }
+    }
+
     /// <summary>
     /// Updates transform of XoverComponent attached to this helix.
     /// </summary>
@@ -1353,6 +1365,11 @@ public class Helix
     public Matrix4x4 GetCurrentOffset()
     {
         return GetGrid().CurrTransformOffset;
+    }
+
+    public Matrix4x4 GetOldOffset()
+    {
+        return GetGrid().OldTransformOffset;
     }
 }
 

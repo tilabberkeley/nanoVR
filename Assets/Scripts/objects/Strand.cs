@@ -775,11 +775,12 @@ public class Strand
             Domain domain = domains[i];
             domain.SetDomain(i, _strandId, _color);
 
-            NucleotideData tail = domain.GetTailData();
+           /* NucleotideData tail = domain.GetTailData();
             if (tail.HasXover)
             {
+                Debug.Log($"Setting domain {i} xover to color {_color}");
                 tail.Xover.GetComponent<XoverComponent>().Color = _color;
-            }
+            }*/
         }
     }
 

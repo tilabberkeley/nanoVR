@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Jobs;
 using Unity.Burst;
 using Unity.Mathematics;
+using System.Linq;
 
 public class HelixManager : MonoBehaviour
 {
@@ -211,7 +212,14 @@ public class HelixManager : MonoBehaviour
         bool hasHlt = srcHls != null;
         for (int i = 0; i < srcMats.Count; ++i, ++idx)
         {
-            dstLocal[idx] = math.mul(offset, srcMats[i]);
+            if (!GlobalVariables.s_simulating)
+            {
+                dstLocal[idx] = math.mul(offset, srcMats[i]);
+            }
+            else
+            {
+                dstLocal[idx] = srcMats[i];
+            }
             dstCol[idx] = new float4(srcCols[i].r, srcCols[i].g, srcCols[i].b, srcCols[i].a);
             dstHlt[idx] = hasHlt
                 ? new float4(srcHls[i].r, srcHls[i].g, srcHls[i].b, srcHls[i].a)
@@ -266,9 +274,23 @@ public class HelixManager : MonoBehaviour
         {
             offset = delta * offset;
             grid.CurrTransformOffset = offset;
+
+            foreach (GridComponent gc in grid.GridComponents)
+            {
+                // Update helix bounding box
+                Helix helix = gc.Helix;
+                if (helix != null)
+                {
+                    helix.BoundingBox.Extend(helix.NucleotideDataA[0].GetPosition());
+                    helix.BoundingBox.Extend(helix.NucleotideDataB[0].GetPosition());
+                    helix.BoundingBox.Extend(helix.NucleotideDataA.Last().GetPosition());
+                    helix.BoundingBox.Extend(helix.NucleotideDataB.Last().GetPosition());
+                }
+            }
+
             if (offset != grid.OldTransformOffset)
                 return true;
-        }
+        }       
         return false;
     }
 }

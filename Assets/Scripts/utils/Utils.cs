@@ -46,6 +46,42 @@ public static class Utils
         return CreateStrand(domains, s_numStrands, Colors[s_numStrands % Colors.Length], false, new Dictionary<int, int>(), isOxview: false); // TODO: Add sequence and isScaffold (if needed
     }
 
+    public static Strand CreateStrand(List<NucleotideData> nucleotides, int strandId, Color color, bool isOxView)
+    {
+        // TODO: Implement this
+        return null;
+    }
+
+    /// <summary>
+    /// Create strand without crossovers or loopouts.
+    /// Used by strand splitting since xovers/loopouts already exist.
+    /// </summary>
+    public static Strand CreateStrandWithoutXovers(List<Domain> domains)
+    {
+        int strandId = s_numStrands;
+        Strand strand = new Strand(domains, strandId, Colors[s_numStrands % Colors.Length], isScaffold: false, isOxview: false);
+        //Debug.Log("Created strand " + strandId);
+        // Set strand domains
+        strand.SetDomainsRevamp();
+        //Debug.Log("Set domains");
+
+        // Set cone
+        //strand.SetConeRevamp();
+
+        if (s_visualMode)
+        {
+            s_visStrandDict.Add(strandId, strand);
+            s_numVisStrands += 1;
+        }
+        else
+        {
+            s_strandDict.Add(strandId, strand);
+            ObjectListManager.CreateStrandButton(strandId);
+            s_numStrands += 1;
+        }
+        return strand;
+    }
+
     public static Strand CreateStrand(List<Domain> domains, int strandId, Color color, bool isScaffold, Dictionary<int, int> loopouts, bool isOxview = false)
     {
         Strand strand = new Strand(domains, strandId, color, isScaffold, isOxview);
@@ -85,9 +121,6 @@ public static class Utils
         // Set sequence
         //strand.SetSequenceRevamp(sequence);
         //Debug.Log("Set sequence");
-
-        // Add to dict and strand list
-        
 
         // TODO: CheckMismatch(strand);
         return strand;

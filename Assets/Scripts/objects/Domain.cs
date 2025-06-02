@@ -23,8 +23,8 @@ public class Domain
     private bool isExtension;
     private bool isHelixBound;
 
-    private XoverComponent prevXover;
-    private XoverComponent nextXover;
+    //private XoverComponent prevXover;
+    //private XoverComponent nextXover;
 
     private Color color;
 
@@ -38,8 +38,8 @@ public class Domain
     public List<int> Deletions { get => deletions; }
     public bool IsExtension { get => isExtension; set => isExtension = value; }
     public bool IsHelixBound { get => isHelixBound; set => isHelixBound = value; }
-    public XoverComponent PrevXover { get => prevXover; set => prevXover = value; }
-    public XoverComponent NextXover { get => nextXover; set => nextXover = value; }
+    public XoverComponent PrevXover { get => GetHeadData().Xover; set => GetHeadData().Xover = value; }
+    public XoverComponent NextXover { get => GetTailData().Xover; set => GetTailData().Xover = value; }
     public Color Color { get => color; set => color = value; }
 
     public Domain(int helixId, int direction, int startId, int endId, Dictionary<int, int> insertions, List<int> deletions)
@@ -249,9 +249,11 @@ public class Domain
         this.id = id;
         this.color = color;
 
-        if (nextXover != null)
+        if (NextXover != null)
         {
-            nextXover.Color = color;
+            NextXover.Color = color;
+            NextXover.SavedColor = color;
+            NextXover.StrandId = strandId;
         }
 
         for (int i = startId; i <= endId; i++)

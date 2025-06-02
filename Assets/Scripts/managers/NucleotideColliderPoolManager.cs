@@ -15,7 +15,7 @@ public class NucleotideColliderPoolManager : MonoBehaviour
     public GameObject colliderPrefab;
 
     // Initial size of the collider pool.
-    private const int initialPoolSize = 256;
+    private const int initialPoolSize = 5 * 128; // 5 helices, 128 colliders per helix (64 for each direction).
 
     // If we use the entire pool, we double it.
     // If we use < 75% after a full pass, we shrink it to half.
@@ -27,6 +27,8 @@ public class NucleotideColliderPoolManager : MonoBehaviour
     private const int LEFT_POOL_INDEX = 0;
     private const int RIGHT_POOL_INDEX = initialPoolSize / 2;
 
+    int _poolIndex = 0;
+
     void Start()
     {
         ExpandPool(initialPoolSize);
@@ -34,6 +36,7 @@ public class NucleotideColliderPoolManager : MonoBehaviour
 
     void Update()
     {
+        _poolIndex = 0;
         AssignCollidersForRayInteractor(leftRayInteractor, LEFT_POOL_INDEX);
         AssignCollidersForRayInteractor(rightRayInteractor, RIGHT_POOL_INDEX);
     }
@@ -42,35 +45,29 @@ public class NucleotideColliderPoolManager : MonoBehaviour
     {
         Ray ray = new Ray(rayInteractor.rayOriginTransform.position, rayInteractor.rayOriginTransform.forward);
 
-        Helix closestHelix = null;
-        Vector3 closestHitPoint = Vector3.zero;
-        float closestDistance = float.MaxValue;
+        List<(Helix, Vector3)> hitHelices = new List<(Helix, Vector3)>();
 
         // First pass: find the closest helix hit by the ray
         foreach (Helix helix in GlobalVariables.s_helixDict.Values)
         {
             if (helix.BoundingBox.IntersectRay(ray, rayInteractor.maxRaycastDistance, out Vector3 hitPoint))
             {
-                float distance = Vector3.Distance(ray.origin, hitPoint);
-                if (distance < closestDistance)
-                {
-                    closestHelix = helix;
-                    closestHitPoint = hitPoint;
-                    closestDistance = distance;
-                }
+                hitHelices.Add((helix, hitPoint));
             }
         }
 
-        if (closestHelix != null)
-        {
-            Vector3 gridCirclePos = closestHelix.GridComponent.transform.position;
-            float distance = (closestHitPoint - gridCirclePos).magnitude;
+        foreach ((Helix, Vector3) item in hitHelices)
+        { 
+            Helix helix = item.Item1;
+            Vector3 hitPoint = item.Item2;
+            Vector3 gridCirclePos = helix.GridComponent.transform.position;
+            float distance = (hitPoint - gridCirclePos).magnitude;
             float distAlongHelix = (float) Math.Sqrt(distance * distance - RADIUS * RADIUS);
             int nucleotideIndex = Mathf.RoundToInt(distAlongHelix / RISE);
             int binIndex = nucleotideIndex / 64;
 
-            AssignCollidersToHelix(closestHelix, closestHelix.NucleotideMatricesA, 1, binIndex, rayPoolIndex);
-            AssignCollidersToHelix(closestHelix, closestHelix.NucleotideMatricesB, 0, binIndex, rayPoolIndex);
+            AssignCollidersToHelix(helix, helix.NucleotideMatricesA, 1, binIndex, rayPoolIndex);
+            AssignCollidersToHelix(helix, helix.NucleotideMatricesB, 0, binIndex, rayPoolIndex);
         }
     }
 
@@ -78,7 +75,6 @@ public class NucleotideColliderPoolManager : MonoBehaviour
     {
         int start = binIndex * 64;
         int end = Mathf.Min(start + 64, matrices.Count);
-        int helixIdxOffset = 64 * direction; // Each ray gets 128 colliders total, 64 for each helix. This is hacky way of separating the indices.
 
         for (int i = start; i < end; i++)
         {
@@ -90,16 +86,14 @@ public class NucleotideColliderPoolManager : MonoBehaviour
             Matrix4x4 worldMat = helix.GetCurrentOffset() * localMat;
             Vector3 pos = worldMat.GetColumn(3);
 
-            int localIdx = i - start;           // 0–63
-            int globalIdx = poolIdx + helixIdxOffset + localIdx;
+            if (_poolIndex >= _colliderPool.Count || _poolIndex < 0)
+                ExpandPool(_colliderPool.Count);
 
-            if (globalIdx >= _colliderPool.Count || globalIdx < 0)
-                Debug.Log($"[ColliderPool] Index {globalIdx} out of range! Pool size: {_colliderPool.Count}");
-
-            var col = _colliderPool[globalIdx];
+            var col = _colliderPool[_poolIndex];
             col.gameObject.SetActive(true);
             col.transform.position = pos;
             col.Setup(helix, i, direction, -1);
+            _poolIndex++;
         }
     }
 

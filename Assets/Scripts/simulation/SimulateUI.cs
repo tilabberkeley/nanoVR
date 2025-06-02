@@ -147,8 +147,10 @@ public class SimulateUI : MonoBehaviour
         if (s_simulating)
         {
             _simulateCanvas.enabled = false;
-
+            Debug.Log("before oxview connection");
+            Debug.Log($"oxview is null: {_oxViewConnect == null}");
             _oxViewConnect.Connect(ParseSettings());
+            Debug.Log("oxview connected");
         }
         else
         {

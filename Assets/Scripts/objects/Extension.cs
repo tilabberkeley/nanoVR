@@ -11,7 +11,6 @@ using static Utils;
 public class Extension : Domain
 {
     private List<NucleotideData> nucleotides;
-    private List<Vector3> nucleotidePositions;
     private List<Matrix4x4> nuclMatrices;
     private List<Matrix4x4> backboneMatrices;
     private int length;
@@ -26,7 +25,6 @@ public class Extension : Domain
         IsExtension = true;
         IsHelixBound = false;
         nucleotides = new List<NucleotideData>();
-        nucleotidePositions = new List<Vector3>();
         nuclMatrices = new List<Matrix4x4>();
         backboneMatrices = new List<Matrix4x4>();
         this.length = length;
@@ -41,6 +39,7 @@ public class Extension : Domain
         // Step 2: Rotate it by +36° around Y (helix axis)
         Quaternion twist = Quaternion.AngleAxis(ANGLE_OFFSET_DEG, Vector3.up);
         Vector3 extensionDir = twist * lastSegmentDir;
+        List<Vector3> nucleotidePositions = new List<Vector3>();
 
         // Step 3: Generate positions in a straight line
         for (int i = 0; i < length; i++)

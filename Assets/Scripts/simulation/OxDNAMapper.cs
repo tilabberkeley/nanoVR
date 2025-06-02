@@ -73,7 +73,7 @@ public class OxDNAMapper
          */
 
         //NOTE: CHANGED BY DY 4/18
-        //nucleotide.transform.position = position; //+ nucleotide.Position;
+        nucleotide.UpdatePosition(position + nucleotide.GetPosition());
     }
 
     /// <summary>
@@ -81,10 +81,18 @@ public class OxDNAMapper
     /// </summary>
     public void RestoreNucleotidesToEdit()
     {
-        foreach (NucleotideData nucleotideComponent in _lineIndexToNucleotide.Values)
+        foreach (NucleotideData nd in _lineIndexToNucleotide.Values)
         {
             // NOTE: CHANGED BY DY 4/18
-            //nucleotideComponent.transform.position = nucleotideComponent.Position;
+            nd.UpdatePosition(nd.SavedPosition);
+        }
+    }
+
+    public void SaveNucleotidePositions()
+    {
+        foreach (NucleotideData nd in _lineIndexToNucleotide.Values)
+        {
+            nd.SavedPosition = nd.GetPosition();
         }
     }
 }

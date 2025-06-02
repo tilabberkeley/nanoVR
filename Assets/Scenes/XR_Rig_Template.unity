@@ -21324,30 +21324,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: ConnectionManager
       objectReference: {fileID: 0}
-    - target: {fileID: 6965110528940601449, guid: 11d99397d4807314e92826fb390860e0, type: 3}
+    - target: {fileID: 0}
       propertyPath: _fileExportObject
       value: 
       objectReference: {fileID: 319325367}
-    m_RemovedComponents:
-    - {fileID: 6965110528940601449, guid: 11d99397d4807314e92826fb390860e0, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 11d99397d4807314e92826fb390860e0, type: 3}
 --- !u!1 &1857715263 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4143635275368182425, guid: 11d99397d4807314e92826fb390860e0, type: 3}
   m_PrefabInstance: {fileID: 1857715262}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1857715264
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1857715263}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4b0cfd2c7ba4c304f94824f40195deeb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1867432915
 GameObject:
   m_ObjectHideFlags: 0

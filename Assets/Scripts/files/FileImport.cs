@@ -1019,7 +1019,7 @@ public class FileImport : MonoBehaviour
         return false;
     }*/
 
-    private void DrawOxViewExtension(int extensionLength, int domainIndex, List<GameObject> xoverEndpoints, List<GameObject> nucleotides)
+    /*private void DrawOxViewExtension(int extensionLength, int domainIndex, List<GameObject> xoverEndpoints, List<GameObject> nucleotides)
     {
         // Handle extensions
         // 1. Get extension length n
@@ -1083,21 +1083,21 @@ public class FileImport : MonoBehaviour
             xoverEndpoints.Insert(0, domain.Last());
         }
         nucleotides.InsertRange(0, domain);
-    }
+    }*/
 
-    private void SetExtensions(List<GameObject> domain)
+    /*private void SetExtensions(List<GameObject> domain)
     {
         foreach (GameObject go in domain)
         {
             DNAComponent dna = go.GetComponent<DNAComponent>();
             dna.IsExtension = true;
         }
-    }
+    }*/
 
     private void OxViewImport(string fileContents)
     {
-        Stopwatch sw = new Stopwatch();
-        sw.Start();
+        //Stopwatch sw = new Stopwatch();
+        //sw.Start();
         JObject origami = JObject.Parse(fileContents);
         List<double> box = JsonConvert.DeserializeObject<List<double>>(origami["box"].ToString());
         JArray systems = JArray.Parse(origami["systems"].ToString());
@@ -1106,7 +1106,7 @@ public class FileImport : MonoBehaviour
             List<OxViewStrand> strands = JsonConvert.DeserializeObject<List<OxViewStrand>>(systems[i]["strands"].ToString());
             s_oxView.BuildStrands(strands, box);
         }
-        sw.Stop();
+        //sw.Stop();
         loadingMenu.enabled = false;
         // Debug.Log(string.Format("OxView import took {0} ms to complete", sw.ElapsedMilliseconds));
     }
