@@ -17,14 +17,15 @@ public class UpdateManager : MonoBehaviour
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     private bool triggerReleased = true;
+    private bool gripReleased = true;
 
     // Helper variables
-    private static GameObject s_startGO = null;
-    private static GameObject s_endGO = null;
-    private static GameObject s_GO = null;
+    //private static GameObject s_startGO = null;
+    //private static GameObject s_endGO = null;
+    //private static GameObject s_GO = null;
     private static RaycastHit s_hit;
-    private static List<GameObject> s_currentNucleotides;
-    bool creatingStrand = false;
+    //private static List<GameObject> s_currentNucleotides;
+    //bool creatingStrand = false;
 
     // Draw insertion default length
     private const int INSERTION_LENGTH = 1;
@@ -49,12 +50,6 @@ public class UpdateManager : MonoBehaviour
         }
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
     // Update is called once per frame
     void Update()
     {
@@ -63,10 +58,10 @@ public class UpdateManager : MonoBehaviour
             GetDevice();
         }
 
-        if (s_hideStencils || s_visualMode)
+        /*if (s_hideStencils || s_visualMode)
         {
             return;
-        }
+        }*/
 
         _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
         _device.TryGetFeatureValue(CommonUsages.gripButton, out bool gripValue);
@@ -82,10 +77,9 @@ public class UpdateManager : MonoBehaviour
                 //Debug.Log("Split hit");
 
                 triggerReleased = false;
-                var comp = s_hit.collider.GetComponent<NucleotideColliderComponent>();
-                if (comp != null)
+                if (s_hit.collider.TryGetComponent<NucleotideColliderComponent>(out var comp))
                 {
-                    s_GO = s_hit.collider.gameObject;
+                    //s_GO = s_hit.collider.gameObject;
                     //DrawSplit.DoSplitStrand(s_GO);
                     DrawSplit.SplitStrand(comp.Data);
                 }
@@ -102,10 +96,9 @@ public class UpdateManager : MonoBehaviour
                 //Debug.Log("Merge hit");
 
                 triggerReleased = false;
-                var comp = s_hit.collider.GetComponent<NucleotideColliderComponent>();
-                if (comp != null)
+                if (s_hit.collider.TryGetComponent<NucleotideColliderComponent>(out var comp))
                 {
-                    s_GO = s_hit.collider.gameObject;
+                    //s_GO = s_hit.collider.gameObject;
                     //DrawMerge.DoMergeStrand(s_GO);
 
                     DrawMerge.MergeStrand(comp.Data);
@@ -124,10 +117,9 @@ public class UpdateManager : MonoBehaviour
                 //Debug.Log("Insertion hit");
 
                 triggerReleased = false;
-                var comp = s_hit.collider.GetComponent<NucleotideColliderComponent>();
-                if (comp != null)
+                if (s_hit.collider.TryGetComponent<NucleotideColliderComponent>(out var comp))
                 {
-                    s_GO = s_hit.collider.gameObject;
+                    //s_GO = s_hit.collider.gameObject;
                     //DrawInsertion.DoInsertion(s_GO, INSERTION_LENGTH);
                     DrawInsertion.Insertion(comp.Data, INSERTION_LENGTH);
                 }
@@ -142,10 +134,9 @@ public class UpdateManager : MonoBehaviour
             {
                 //Debug.Log("Deletion hit");
                 triggerReleased = false;
-                var comp = s_hit.collider.GetComponent<NucleotideColliderComponent>();
-                if (comp != null)
+                if (s_hit.collider.TryGetComponent<NucleotideColliderComponent>(out var comp))
                 {
-                    s_GO = s_hit.collider.gameObject;
+                    //s_GO = s_hit.collider.gameObject;
                     // DrawDeletion.DoDeletion(s_GO);
                     DrawDeletion.Deletion(comp.Data);
                 }
@@ -153,19 +144,30 @@ public class UpdateManager : MonoBehaviour
         }
 
 
-
-        // Handles drawing helix in DrawGrid
         if (triggerReleased && triggerValue && hit)
         {
-            triggerReleased = false;
-            // clicking grid circle
-            GridComponent gc = s_hit.collider.GetComponent<GridComponent>();
-            if (gc != null)
+            if (s_hit.collider.TryGetComponent<HelixComponent>(out var hc))
             {
-                Debug.Log("Hit grid component");
+                triggerReleased = false;
+                Debug.Log("Hit helix cylinder");
+                hc.Helix.ToNucleotideView();
+            }
+            else if (s_hit.collider.TryGetComponent<GridComponent>(out var gc))
+            {
+                triggerReleased = false;
                 Vector3 startPos = s_hit.collider.bounds.center;
                 int id = s_numHelices;
                 DrawGrid.CreateHelix(id, startPos, HELIX_LENGTH, gc.Grid.Plane, gc);
+            }
+        }
+
+        if (gripReleased && gripValue && triggerReleased && triggerValue && hit)
+        {
+            gripReleased = false;
+            triggerReleased = false;
+            if (s_hit.collider.TryGetComponent<NucleotideColliderComponent>(out var nc))
+            {
+                nc.Data.GetHelix().ToHelixView();
             }
         }
 
@@ -174,6 +176,11 @@ public class UpdateManager : MonoBehaviour
         if (!triggerValue)
         {
             triggerReleased = true;
+        }
+
+        if (!gripValue)
+        {
+            gripReleased = true;
         }
     }
 }

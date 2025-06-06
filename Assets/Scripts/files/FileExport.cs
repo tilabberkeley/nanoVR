@@ -111,6 +111,11 @@ public class FileExport : MonoBehaviour
     /// <returns>Returns JSON string in scadnano format</returns>
     public static string GetSCJSON(List<string> gridIds, bool isCopyPaste = false, bool isOxDNA = false)
     {
+        if (s_oxViewDict.Count > 0)
+        {
+            Debug.Log("Cannot export OxView structures to scadnano format. If you  want to export all structures, please choose oxDNA/oxview export type.");
+        }
+
         JObject groups = new JObject();
         foreach (string gridId in gridIds)
         {
@@ -373,13 +378,13 @@ public class FileExport : MonoBehaviour
             {
                 continue;
             }
-            NucleotideComponent startNtc = strand.Nucleotides.Last().GetComponent<NucleotideComponent>();
-            NucleotideComponent endNtc = strand.Nucleotides[0].GetComponent<NucleotideComponent>();
+            NucleotideData startNucl = strand.GetHeadDomain().GetHeadData();
+            NucleotideData endNucl = strand.GetTailDomain().GetTailData();
 
-            int startHelixId = startNtc.HelixId;
-            int startNuclId = startNtc.Id;
-            int endHelixId = endNtc.HelixId;
-            int endNuclId = endNtc.Id;
+            int startHelixId = startNucl.HelixId;
+            int startNuclId = startNucl.Id;
+            int endHelixId = endNucl.HelixId;
+            int endNuclId = endNucl.Id;
             string sequence = strand.Sequence.Replace("X", ""); // Remove 'X' (deletion) from sequence
             string strandName = string.Format("ST{0}[{1}]{2}[{3}]", startHelixId, startNuclId, endHelixId, endNuclId);
             if (strand.IsScaffold)
@@ -390,6 +395,9 @@ public class FileExport : MonoBehaviour
 
             csv.AppendLine(strandText);
         }
+
+        // TODO: Add oxView structures to export
+
         return csv.ToString();
     }
 

@@ -10,27 +10,6 @@ using static GlobalVariables;
 using static Utils;
 
 /// <summary>
-/// Virtual representation of a nucleotide for ray-intersection selection.
-/// </summary>
-public struct VirtualNucleotide
-{
-    public Helix helix;  // Reference to the helix this nucleotide belongs to.
-    public int index;    // Index within the helix’s nucleotide list.
-    public int direction; // Direction of nucleotide (in helix list A or list B).
-
-    /// <summary>
-    /// Returns the world position of this nucleotide by extracting the translation
-    /// component from its instance matrix. (Assumes strand A; modify if needed.)
-    /// </summary>
-    public Vector3 GetWorldPosition()
-    {
-        if (direction == 1)
-            return helix.NucleotideMatricesA[index].GetColumn(3);
-        return helix.NucleotideMatricesB[index].GetColumn(3);
-    }
-}
-
-/// <summary>
 /// Handles crossovers and necessary strand operations using the new ray-mesh intersection code.
 /// </summary>
 public class DrawCrossover : MonoBehaviour
@@ -40,6 +19,7 @@ public class DrawCrossover : MonoBehaviour
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rightRayInteractor;
     private bool triggerReleased = true;
+    private static bool drawTempXover = false;
 
     // Instead of storing nucleotide GameObjects, we now store virtual nucleotides.
     private static NucleotideData s_startNuc = null;
@@ -132,14 +112,18 @@ public class DrawCrossover : MonoBehaviour
 
         // Update the temporary xover visualization when trigger is not pressed.
         bool isHit = rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit hit2);
-        if (triggerReleased && !triggerValue && s_startNuc != null)
+        if (triggerReleased && !triggerValue && s_startNuc != null && isHit && hit2.collider.gameObject == s_hitHelixGO)
         {
-            //Debug.Log("Updating temp xover");
-            if (isHit && hit2.collider.gameObject == s_hitHelixGO)
+            Domain domain = s_startNuc.GetDomain();
+            if (s_startNuc == domain.GetHeadData() || s_startNuc == domain.GetTailData())
             {
-                //Debug.Log("Set xover to active");
                 tempXover.SetActive(true);
-            }
+                drawTempXover = true;
+            }          
+        }
+
+        if (drawTempXover)
+        {
             Vector3 startPos = s_startNuc.GetPosition();
             Vector3 currentPos = rightRayInteractor.transform.position + rightRayInteractor.transform.forward * 0.7f; // Use hit point or recalc from helix data.
             UpdateXover(startPos, currentPos);
@@ -178,14 +162,7 @@ public class DrawCrossover : MonoBehaviour
         s_startNuc = null;
         s_endNuc = null;
         tempXover.SetActive(false);
-    }
-
-    private static (NucleotideData, NucleotideData) GetNucleotideData(VirtualNucleotide vn1, VirtualNucleotide vn2)
-    {
-        NucleotideData nd1 = vn1.helix.GetNucleotideData(vn1.index, vn1.direction);
-        NucleotideData nd2 = vn2.helix.GetNucleotideData(vn2.index, vn2.direction);
-
-        return (nd1, nd2);
+        drawTempXover = false;
     }
 
     /// <summary>

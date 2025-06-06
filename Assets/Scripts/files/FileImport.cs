@@ -127,26 +127,36 @@ public class FileImport : MonoBehaviour
             StreamReader sr = File.OpenText(selectedFilePath);
             string fileContent = sr.ReadToEnd();
             string fileType = FileBrowser.GetExtensionFromFilename(selectedFilePath, false);
-            if (fileType.Equals(".sc") || fileType.Equals(".sc.txt"))
+            try
             {
-                //StartCoroutine(ParseSC(@fileContent, false));
-                DoFileImport(fileContent);
-            }
-            else if (fileType.Equals(".oxview"))
-            {
-                // Parse oxview JSON
-                loadingMenu.enabled = true;
-                OxViewImport(fileContent);
-            }
-            else if (fileType.Equals(".pdb"))
-            {
-                loadingMenu.enabled = true;
-                PDBImport.ParseAndVisualizePDB(selectedFilePath);
+                if (fileType.Equals(".sc") || fileType.Equals(".sc.txt"))
+                {
+                    //StartCoroutine(ParseSC(@fileContent, false));
+                    DoFileImport(fileContent);
+                    loadingMenu.enabled = false;
+                }
+                else if (fileType.Equals(".oxview"))
+                {
+                    // Parse oxview JSON
+                    loadingMenu.enabled = true;
+                    OxViewImport(fileContent);
+                    loadingMenu.enabled = false;
+                }
+                else if (fileType.Equals(".pdb"))
+                {
+                    loadingMenu.enabled = true;
+                    PDBImport.ParseAndVisualizePDB(selectedFilePath);
+                }
+                else
+                {
+                    Debug.Log("Don't support file type: " + fileType);
+                }
                 loadingMenu.enabled = false;
             }
-            else
+            catch (Exception e)
             {
-                Debug.Log("Don't support file type: " + fileType);
+                Debug.Log(e);
+                loadingMenu.enabled = false;
             }
         }
         else
@@ -1094,7 +1104,7 @@ public class FileImport : MonoBehaviour
         }
     }*/
 
-    private void OxViewImport(string fileContents)
+    public static void OxViewImport(string fileContents)
     {
         //Stopwatch sw = new Stopwatch();
         //sw.Start();
@@ -1104,10 +1114,14 @@ public class FileImport : MonoBehaviour
         for (int i = 0; i < systems.Count; i++)
         {
             List<OxViewStrand> strands = JsonConvert.DeserializeObject<List<OxViewStrand>>(systems[i]["strands"].ToString());
-            s_oxView.BuildStrands(strands, box);
+            int oxViewId = s_numOxViews;
+            OxView oxView = new OxView(oxViewId);
+            oxView.BuildStrands(strands, box);
+            s_oxViewDict.Add(oxViewId, oxView);
+            s_numOxViews++;
         }
         //sw.Stop();
-        loadingMenu.enabled = false;
+        //loadingMenu.enabled = false;
         // Debug.Log(string.Format("OxView import took {0} ms to complete", sw.ElapsedMilliseconds));
     }
 

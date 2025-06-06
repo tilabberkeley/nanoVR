@@ -4,34 +4,42 @@
  */
 using System.Collections;
 using static GlobalVariables;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
 
-public static class ViewingPerspective
+public class ViewingPerspective : MonoBehaviour
 {
-    private static GameObject s_staticBatchTubesRoot = new GameObject();
-    private static GameObject s_staticBatchEndpointsRoot = new GameObject();
+    //private static GameObject s_staticBatchTubesRoot = new GameObject();
+    //private static GameObject s_staticBatchEndpointsRoot = new GameObject();
 
     /// <summary>
     /// Changes viewing mode to Nucleotide View (individual nucleotides).
-    /// Called by NucleotideViewTog in the View Panel of Menu.
+    /// Called by NucleotideViewBtn in the View Panel of Menu.
     /// </summary>
-    public static IEnumerator ViewNucleotide()
+    public void ViewNucleotide()
+    {
+        CoRunner.Instance.Run(ViewNucleotide(SelectGrid.Grids));
+    }
+
+    private IEnumerator ViewNucleotide(List<DNAGrid> grids)
     {
         //if (!s_nucleotideView) { return; }
-        s_strandView = false;
+        /*s_strandView = false;
         s_helixView = false;
-        s_nucleotideView = true;
-        foreach (Strand strand in s_strandDict.Values)
+        s_nucleotideView = true;*/
+
+        foreach (DNAGrid grid in grids)
         {
-            strand.ToNucleotideView();
-            //strand.ShowHideCone(true);
-            // strand.ShowHideXovers(true);
-            // strand.SetDomainActivity(false);
-            yield return null;
-
+            foreach (GridComponent gc in grid.GridComponents)
+            {
+                if (gc.Helix != null)
+                {
+                    gc.Helix.ToNucleotideView();
+                    yield return null;
+                }
+            }
         }
-
+     
         /*foreach (Helix helix in s_helixDict.Values)
         {
             helix.DestroyCylinder();
@@ -45,7 +53,7 @@ public static class ViewingPerspective
     /// Changes viewing mode to Strand View (abstracted Strands).
     /// Called by StrandViewTog in the View Panel of Menu.
     /// </summary>
-    public static IEnumerator ViewStrand()
+    /*public static IEnumerator ViewStrand()
     {
         s_strandView = true;
         s_helixView = false;
@@ -53,7 +61,7 @@ public static class ViewingPerspective
 
         foreach (Helix helix in s_helixDict.Values)
         {
-            helix.DestroyCylinder();
+            helix.DestroyCylinders();
             helix.ChangeRendering();
         }
 
@@ -63,7 +71,7 @@ public static class ViewingPerspective
         foreach (Strand strand in s_strandDict.Values)
         {
             List<Bezier> strandBeziers = strand.ToStrandView();
-            /*foreach (Bezier bezier in strandBeziers)
+            *//*foreach (Bezier bezier in strandBeziers)
             {
                 GameObject tube = bezier.Tube;
                 tube.isStatic = true;
@@ -71,7 +79,7 @@ public static class ViewingPerspective
 
                 staticBatchingEndpoints.Add(bezier.Endpoint0);
                 staticBatchingEndpoints.Add(bezier.Endpoint1);
-            }*/
+            }*//*
 
             strand.ShowHideCone(false);
             // strand.ShowHideXovers(true);
@@ -81,13 +89,22 @@ public static class ViewingPerspective
 
         //StaticBatchingUtility.Combine(staticBatchingTubes.ToArray(), s_staticBatchTubesRoot);
         //StaticBatchingUtility.Combine(staticBatchingEndpoints.ToArray(), s_staticBatchEndpointsRoot);
+    }*/
+
+    /// <summary>
+    /// Changes viewing mode to Helix View (cylinders).
+    /// Called by HelixViewBtn in the View Panel of Menu.
+    /// </summary>
+    public void ViewHelix()
+    {
+        CoRunner.Instance.Run(ViewHelix(SelectGrid.Grids));
     }
 
-    public static IEnumerator ViewHelix()
+    private IEnumerator ViewHelix(List<DNAGrid> grids)
     {
-        s_strandView = false;
+        /*s_strandView = false;
         s_helixView = true;
-        s_nucleotideView = false;
+        s_nucleotideView = false;*/
 
         /*foreach (Strand strand in s_strandDict.Values)
         {
@@ -96,12 +113,16 @@ public static class ViewingPerspective
             yield return null;
         }*/
 
-        foreach (Helix helix in s_helixDict.Values)
+        foreach (DNAGrid grid in grids)
         {
-            helix.ToHelixView();
-            //helix.CreateCylinder();
-            //helix.ChangeRendering();
-            yield return null;
+            foreach (GridComponent gc in grid.GridComponents)
+            {
+                if (gc.Helix != null)
+                {
+                    gc.Helix.ToHelixView();
+                    yield return null;
+                }
+            }
         }
     }
 }

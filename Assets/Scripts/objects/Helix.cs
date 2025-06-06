@@ -75,7 +75,7 @@ public class Helix
     private Vector3 _lastPositionA;
     private Vector3 _lastPositionB;
 
-    private List<GameObject> _helixViewCylinders;
+    private List<HelixComponent> _helixViewCylinders;
     //private GameObject _collider;
 
     // Lists to store instance matrices for GPU instancing.
@@ -133,6 +133,9 @@ public class Helix
     public bool NucleotideHighlightAChanged { set => nucleotideHighlightAChanged = value; }
     public bool NucleotideHighlightBChanged { set => nucleotideHighlightBChanged = value; }
 
+    private bool isHelixView = false;
+    public bool IsHelixView { get => isHelixView; }
+
     // Helix constructor.
     public Helix(int id, string orientation, int length, GridComponent gridComponent)
     {
@@ -147,7 +150,7 @@ public class Helix
         _strandIds = new List<int>();
         _helixA = new List<GameObject>();
         _helixB = new List<GameObject>();
-        _helixViewCylinders = new List<GameObject>();
+        _helixViewCylinders = new List<HelixComponent>();
         _boundingBox.Helix = this;
     }
 
@@ -333,8 +336,8 @@ public class Helix
         float axisTwoChangeB = (float)(RADIUS * Mathf.Sin(angleB));
 
         // Backbone repulsion sites for each nucleotide, unrotated.
-        Vector3 positionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA, -i * RISE);
-        Vector3 positionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, -i * RISE);
+        Vector3 positionA = StartPoint + new Vector3(axisOneChangeA, axisTwoChangeA, i * RISE);
+        Vector3 positionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, i * RISE);
 
         // Create a quaternion from the Euler angles of the grid component's transform
         Quaternion rotation = Quaternion.Euler(_gridComponent.transform.eulerAngles);
@@ -618,15 +621,19 @@ public class Helix
         }
     }
 
-    public void UpdatePosition(int id, int direction, Vector3 newPosition)
+    public void UpdatePosition(int id, int direction, Vector3 newPos)
     {
         if (direction == 0)
         {
-            nucleotideMatricesB[id].SetColumn(3, newPosition);
+            Matrix4x4 mat = nucleotideMatricesB[id];
+            mat.SetColumn(3, new Vector4(newPos.x, newPos.y, newPos.z, 1f));
+            nucleotideMatricesB[id] = mat;
         }
         else
         {
-            nucleotideMatricesA[id].SetColumn(3, newPosition);
+            Matrix4x4 mat = nucleotideMatricesA[id];
+            mat.SetColumn(3, new Vector4(newPos.x, newPos.y, newPos.z, 1f));
+            nucleotideMatricesA[id] = mat;
         }
     }
 
@@ -882,29 +889,9 @@ public class Helix
 
     public void ToHelixView()
     {
-        /*HashSet<DomainComponent> domains = new HashSet<DomainComponent>();
+        if (isHelixView) return;
 
-        foreach (GameObject nucleotide in _nucleotidesA)
-        {
-            domains.Add(nucleotide.GetComponent<NucleotideComponent>().Domain);
-        }
-        Debug.Log("Added nucls a");
-
-        foreach (GameObject nucleotide in _nucleotidesB)
-        {
-            domains.Add(nucleotide.GetComponent<NucleotideComponent>().Domain);
-        }
-        Debug.Log("Added nucls b");
-
-        foreach (DomainComponent domain in domains)
-        {
-            if (domain == null)
-            {
-                Debug.Log("Domain is null");
-                break;
-            }
-            domain.HelixView();
-        }*/
+        isHelixView = true;
 
         int startIdx = -1;
 
@@ -919,15 +906,6 @@ public class Helix
         {
             NucleotideData nuclA = nucleotideDataA[i];
             NucleotideData nuclB = nucleotideDataB[i];
-
-            if (nuclA.HasXover)
-            {
-                nuclA.Xover.gameObject.SetActive(false);
-            }
-            if (nuclB.HasXover)
-            {
-                nuclB.Xover.gameObject.SetActive(false);
-            }
 
             if ((nuclA.IsSelected() && !nuclB.IsSelected()) || (!nuclA.IsSelected() && nuclB.IsSelected()))
             {
@@ -967,11 +945,35 @@ public class Helix
                 type = -1;
             }
         }
+
+        // Check if we want to hide xovers - only hide if helices of both endpoints are in helix view.
+        foreach (XoverComponent xover in xovers)
+        {
+            NucleotideData prevNucl = xover.PrevNucl;
+            NucleotideData nextNucl = xover.NextNucl;
+
+            if (prevNucl.GetHelix().IsHelixView && nextNucl.GetHelix().IsHelixView)
+            {
+                xover.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public void ToNucleotideView()
+    {
+        if (!isHelixView) return;
+
+        DestroyCylinders();
+        foreach (XoverComponent xover in xovers)
+        {
+            xover.gameObject.SetActive(true);
+        }
+        isHelixView = false;
     }
 
     public void ToStrandView()
     {
-        DestroyCylinder();
+        DestroyCylinders();
 
         Debug.Log("Finished destroying cylinders");
 
@@ -1079,8 +1081,8 @@ public class Helix
         {
             return;
         }
-        Vector3 startPos = _gridComponent.transform.position + (RISE * startIdx * -_gridComponent.transform.forward);
-        Vector3 endPos = _gridComponent.transform.position + (endIdx * RISE * -_gridComponent.transform.forward);
+        Vector3 startPos = _gridComponent.transform.position + (RISE * startIdx * _gridComponent.transform.forward);
+        Vector3 endPos = _gridComponent.transform.position + (endIdx * RISE * _gridComponent.transform.forward);
        
         Color color;
         if (singleStrandRegion)
@@ -1094,7 +1096,7 @@ public class Helix
         _helixViewCylinders.Add(DrawPoint.MakeHelixCylinder(this, startPos, endPos, color));
     }
 
-    private void CreateCollider()
+    /*private void CreateCollider()
     {
         if (helixCollider != null)
         {
@@ -1103,20 +1105,20 @@ public class Helix
         Vector3 startPos = _gridComponent.transform.position;
         Vector3 endPos = _gridComponent.transform.position + (nucleotideMatricesA.Count * RISE * -_gridComponent.transform.forward);
         helixCollider = DrawPoint.MakeHelixCollider(this, startPos, endPos);
-    }
+    }*/
 
     /// <summary>
     /// Destroys cylinders representing Helix in Helix view.
     /// </summary>
-    public void DestroyCylinder()
+    public void DestroyCylinders()
     {
         if (_helixViewCylinders.Count == 0)
         {
             return;
         }
-        foreach (GameObject cylinder in _helixViewCylinders)
+        foreach (HelixComponent cylinder in _helixViewCylinders)
         {
-            GameObject.Destroy(cylinder);
+            if (cylinder) GameObject.Destroy(cylinder.gameObject);
         }
 
         _helixViewCylinders.Clear();
@@ -1206,7 +1208,7 @@ public class Helix
     /// This helps with Grid translations and rotations.
     /// </summary>
     /// <param name="go">GameObject representing the transform gizmo.</param>
-    public void SetParent(Transform goTransform)
+    /*public void SetParent(Transform goTransform)
     {
         foreach (GameObject nucleotide in _nucleotidesA)
         {
@@ -1276,12 +1278,12 @@ public class Helix
         // If we're in helix view, we need to translate the cylinders as well.
         if (s_helixView)
         {
-            foreach (GameObject cylinder in _helixViewCylinders)
+            foreach (HelixComponent cylinder in _helixViewCylinders)
             {
                 cylinder.transform.SetParent(goTransform, true);
             }
         }
-    }
+    }*/
 
     /// <summary>
     /// Reflect entire helix vertically across y-coordinate.

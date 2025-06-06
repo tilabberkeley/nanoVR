@@ -66,25 +66,23 @@ public class NucleotideColliderPoolManager : MonoBehaviour
             int nucleotideIndex = Mathf.RoundToInt(distAlongHelix / RISE);
             int binIndex = nucleotideIndex / 64;
 
-            AssignCollidersToHelix(helix, helix.NucleotideMatricesA, 1, binIndex, rayPoolIndex);
-            AssignCollidersToHelix(helix, helix.NucleotideMatricesB, 0, binIndex, rayPoolIndex);
+            AssignCollidersToHelix(helix, helix.NucleotideDataA, 1, binIndex, rayPoolIndex);
+            AssignCollidersToHelix(helix, helix.NucleotideDataB, 0, binIndex, rayPoolIndex);
         }
     }
 
-    private void AssignCollidersToHelix(Helix helix, List<Matrix4x4> matrices, int direction, int binIndex, int poolIdx)
+    private void AssignCollidersToHelix(Helix helix, List<NucleotideData> nucleotides, int direction, int binIndex, int poolIdx)
     {
         int start = binIndex * 64;
-        int end = Mathf.Min(start + 64, matrices.Count);
+        int end = Mathf.Min(start + 64, nucleotides.Count);
 
         for (int i = start; i < end; i++)
         {
-            if (i < 0 || i >= matrices.Count)
+            if (i < 0 || i >= nucleotides.Count)
             {
-                Debug.Log($"[i] {i} out of range. matrices size: {matrices.Count}");
+                Debug.Log($"[i] {i} out of range. matrices size: {nucleotides.Count}");
             }
-            Matrix4x4 localMat = matrices[i];
-            Matrix4x4 worldMat = helix.GetCurrentOffset() * localMat;
-            Vector3 pos = worldMat.GetColumn(3);
+            Vector3 pos = nucleotides[i].GetPosition();
 
             if (_poolIndex >= _colliderPool.Count || _poolIndex < 0)
                 ExpandPool(_colliderPool.Count);

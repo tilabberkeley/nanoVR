@@ -209,6 +209,8 @@ public class TransformHandle : MonoBehaviour
                 Helix helix = gc.Helix;
                 if (helix != null)
                 {
+                    helix.BoundingBox.Reset();
+
                     helix.BoundingBox.Extend(helix.NucleotideDataA[0].GetPosition());
                     helix.BoundingBox.Extend(helix.NucleotideDataB[0].GetPosition());
                     helix.BoundingBox.Extend(helix.NucleotideDataA.Last().GetPosition());

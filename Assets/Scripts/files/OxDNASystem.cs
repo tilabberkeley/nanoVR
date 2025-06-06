@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Globalization;
 using System.Linq;
+using Oculus.Interaction.PoseDetection;
 
 public class OxDNASystem
 {
@@ -69,7 +70,10 @@ public class OxDNASystem
                 var origin = originForwardNormal.Item1;
                 var forward = originForwardNormal.Item2;
                 var normal = originForwardNormal.Item3;
-                var isDomainForward = domain.Direction == 0; // 5 to 3
+                var isDomainForward = domain.Direction == 1; // 5 to 3 // NOTE: Edited DY 6/4
+                string seq = domain.GetSequence();
+                if (string.IsNullOrEmpty(seq))
+                    seq = new string(DEFAULT_BASE, domain.GetLength());
 
                 if (!isDomainForward)
                 {
@@ -77,9 +81,10 @@ public class OxDNASystem
                 }
 
                 // oxDNA will rotate angles by +/- _GROOVE_GAMMA, so we first unrotate by that amount
-                var grooveGammaCorrection = isDomainForward ? GROOVE_GAMME : -GROOVE_GAMME;
+                var grooveGammaCorrection = isDomainForward ? GROOVE_GAMMA : -GROOVE_GAMMA;
                 normal = normal.Rotate(grooveGammaCorrection, forward);
 
+                int index = 0;
                 foreach (NucleotideData nd in domain.GetDomainData())
                 {
                     if (nd.IsDeletion)
@@ -92,24 +97,6 @@ public class OxDNASystem
                     OxdnaVector cen; OxdnaVector norm; OxdnaVector forw;
                     OxdnaNucleotide oxdnaNucleotide;
 
-                    string sequence;
-
-                    // If the sequence is empty, use the default base.
-                    if (string.IsNullOrEmpty(nd.Sequence))
-                        sequence = new string(DEFAULT_BASE, nd.Insertion + 1);
-                    else
-                        sequence = new string(nd.Sequence.Reverse().ToArray());
-
-                    var sequenceIndex = 0;
-
-                    cen = origin + forward * (nd.Id + mod) * RISE_PER_BASE_PAIR * NM_TO_OX_UNITS;
-                    norm = normal.Rotate(STEP_ROTATION * (nd.Id + mod), forward);
-                    forw = isDomainForward ? -forward : forward;
-                    oxdnaNucleotide = new OxdnaNucleotide(cen, norm, forw, nd, sequence[sequenceIndex].ToString());
-                    strandDomain.Nucleotides.Add(oxdnaNucleotide);
-
-                    sequenceIndex++;
-
                     // Handle insertion logic.
                     if (nd.IsInsertion)
                     {
@@ -117,92 +104,100 @@ public class OxDNASystem
                         var insertionLength = nd.Insertion;
                         for (int i = 0; i < insertionLength; i++) // NOTE: DY changed 4/18
                         {
-                            int idx = !isDomainForward ? (insertionLength - i) : i;
+                            //int idx = !isDomainForward ? (insertionLength - i) : i;
 
-                            cen = origin + forward * (nd.Id + mod + idx - insertionLength) * RISE_PER_BASE_PAIR * NM_TO_OX_UNITS;
-                            norm = normal.Rotate(STEP_ROTATION * (nd.Id + mod + idx - insertionLength), forward);
+                            cen = origin + forward * (nd.Id + mod - insertionLength + i) * RISE_PER_BASE_PAIR * NM_TO_OX_UNITS;
+                            norm = normal.Rotate(STEP_ROTATION * (nd.Id + mod + - insertionLength + i), forward);
                             forw = isDomainForward ? -forward : forward;
-                            oxdnaNucleotide = new OxdnaNucleotide(cen, norm, forw, null, sequence[sequenceIndex].ToString());
+                            oxdnaNucleotide = new OxdnaNucleotide(cen, norm, forw, null, seq[index].ToString());
                             strandDomain.Nucleotides.Add(oxdnaNucleotide);
-                            sequenceIndex++;
+                            index++;
                         }
-//                        continue; NOTE: DY changed 4/18
+                        //                        continue; NOTE: DY changed 4/18
                     }
+
+                    cen = origin + forward * (nd.Id + mod) * RISE_PER_BASE_PAIR * NM_TO_OX_UNITS;
+                    norm = normal.Rotate(STEP_ROTATION * (nd.Id + mod), forward);
+                    forw = isDomainForward ? -forward : forward;
+                    oxdnaNucleotide = new OxdnaNucleotide(cen, norm, forw, nd, seq[index].ToString());
+                    strandDomain.Nucleotides.Add(oxdnaNucleotide);
+
+                    index++;                    
                 }
 
                 strandDomains.Add((strandDomain, false));
 
                 // TODO: Add reversing and loopout logic here: 
 
-                //if (domain.NextXover != null)
-                //{
-                //    //Debug.Log("Found oxDNASystem xover/loopout");
-                //    var xover = domain.NextXover;
-                //    if (xover.IsLoopout)
-                //    {
-                //        Debug.Log("First pass of oxdna loopouts");
-                //        var loopoutDomain = new OxdnaStrand();
-                //        var loopout = (LoopoutComponent)xover;
-                //        string sequence;
+                if (domain.NextXover != null)
+                {
+                    //Debug.Log("Found oxDNASystem xover/loopout");
+                    var xover = domain.NextXover;
+                    if (xover.IsLoopout)
+                    {
+                        Debug.Log("First pass of oxdna loopouts");
+                        var loopoutDomain = new OxdnaStrand();
+                        var loopout = (LoopoutComponent)xover;
+                        string sequence;
 
-                //        // If the sequence is empty, use the default base.
-                //        if (string.IsNullOrEmpty(loopout.Sequence))
-                //            sequence = new string(DEFAULT_BASE, loopout.SequenceLength);
-                //        else
-                //            sequence = new string(loopout.Sequence.Reverse().ToArray());
+                        // If the sequence is empty, use the default base.
+                        if (string.IsNullOrEmpty(loopout.Sequence))
+                            sequence = new string(DEFAULT_BASE, loopout.SequenceLength);
+                        else
+                            sequence = new string(loopout.Sequence.Reverse().ToArray());
 
-                //        for (int i = 0; i < loopout.SequenceLength; i++)
-                //        {
-                //            var oxdNANucleotide = new OxdnaNucleotide(
-                //                new OxdnaVector(0, 0, 0), new OxdnaVector(0, -1, 0), new OxdnaVector(0, 0, 1), null, sequence[i].ToString()
-                //            );
-                //            loopoutDomain.Nucleotides.Add(oxdNANucleotide);
-                //            //strandLoopouts.Add(oxdNANucleotide);
-                //        }
+                        for (int i = 0; i < loopout.SequenceLength; i++)
+                        {
+                            var oxdNANucleotide = new OxdnaNucleotide(
+                                new OxdnaVector(0, 0, 0), new OxdnaVector(0, -1, 0), new OxdnaVector(0, 0, 1), null, sequence[i].ToString()
+                            );
+                            loopoutDomain.Nucleotides.Add(oxdNANucleotide);
+                            //strandLoopouts.Add(oxdNANucleotide);
+                        }
 
-                //        if (domain.Direction == 0)
-                //        {
-                //            loopoutDomain.Nucleotides.Reverse();
-                //        }
-                //        strandDomains.Add((loopoutDomain, true));
-                //    }
-                //}
+                        if (domain.Direction == 0)
+                        {
+                            loopoutDomain.Nucleotides.Reverse();
+                        }
+                        strandDomains.Add((loopoutDomain, true));
+                    }
+                }
                 // https://github.com/UC-Davis-molecular-computing/scadnano/blob/4cb66f8ba6149f7320a3d81d952ebb86aad45d00/lib/src/middleware/oxdna_export.dart#L538C20-L538C21
             }
 
             // Handle loopout nucleotide positions.
-            //for (int i = 0; i < strandDomains.Count; i++)
-            //{
-            //    var tuple = strandDomains[i];
-            //    var domain = tuple.Item1;
-            //    var isLoopout = tuple.Item2;
-            //    if (isLoopout)
-            //    {
-            //        Debug.Log("Updating oxdna loopout positions");
-            //        var prev_nuc = strandDomains[i - 1].Item1.Nucleotides.Last();
-            //        var next_nuc = strandDomains[i + 1].Item1.Nucleotides[0];
+            for (int i = 0; i < strandDomains.Count; i++)
+            {
+                var tuple = strandDomains[i];
+                var domain = tuple.Item1;
+                var isLoopout = tuple.Item2;
+                if (isLoopout)
+                {
+                    Debug.Log("Updating oxdna loopout positions");
+                    var prev_nuc = strandDomains[i - 1].Item1.Nucleotides.Last();
+                    var next_nuc = strandDomains[i + 1].Item1.Nucleotides[0];
 
-            //        Debug.Log($"Prev nuc pos: {prev_nuc.Center}");
-            //        Debug.Log($"Next nc pos: {next_nuc.Center}");
+                    Debug.Log($"Prev nuc pos: {prev_nuc.Center}");
+                    Debug.Log($"Next nc pos: {next_nuc.Center}");
 
-            //        int length = domain.Nucleotides.Count;
+                    int length = domain.Nucleotides.Count;
 
-            //        var forward = next_nuc.Center - prev_nuc.Center;
-            //        var normal = GetNormalVectorTo(forward);
+                    var forward = next_nuc.Center - prev_nuc.Center;
+                    var normal = GetNormalVectorTo(forward);
 
-            //        for (int loopout_idx = 0; loopout_idx < length; loopout_idx++)
-            //        {
-            //            OxdnaVector pos = prev_nuc.Center + forward * ((float)(loopout_idx + 1) / (length + 1));
-            //            Debug.Log($"Loopout nc pos: {pos}");
+                    for (int loopout_idx = 0; loopout_idx < length; loopout_idx++)
+                    {
+                        OxdnaVector pos = prev_nuc.Center + forward * ((float)(loopout_idx + 1) / (length + 1));
+                        Debug.Log($"Loopout nc pos: {pos}");
 
-            //            var old_nuc = domain.Nucleotides[loopout_idx];
-            //            var new_nuc = new OxdnaNucleotide(pos, normal.Normalize(), forward.Normalize(), null, old_nuc.Base);
-            //            domain.Nucleotides[loopout_idx] = new_nuc;
-            //        }
-            //    }
+                        var old_nuc = domain.Nucleotides[loopout_idx];
+                        var new_nuc = new OxdnaNucleotide(pos, normal.Normalize(), forward.Normalize(), null, old_nuc.Base);
+                        domain.Nucleotides[loopout_idx] = new_nuc;
+                    }
+                }
 
-            //    oxdnaStrand.Nucleotides.AddRange(domain.Nucleotides);
-            //}
+                oxdnaStrand.Nucleotides.AddRange(domain.Nucleotides);
+            }
 
             _oxdnaStrands.Add(oxdnaStrand);
         }
@@ -268,7 +263,9 @@ public class OxDNASystem
 
         // Principal axes for computing rotation
         // See: https://en.wikipedia.org/wiki/Aircraft_principal_axes
-        var yawAxis = new OxdnaVector(0, 1, 0);    // (0, 1, 0)
+
+        // NOTE: Edited DY 6/4
+        /*var yawAxis = new OxdnaVector(0, 1, 0);    // (0, 1, 0)
         var pitchAxis = new OxdnaVector(1, 0, 0); // (1, 0, 0)
         var rollAxis = new OxdnaVector(0, 0, 1); // (0, 0, 1)
 
@@ -288,10 +285,46 @@ public class OxDNASystem
 
         // By convention, forward is the same as the roll axis, but negating to account for nanovr helix extension direction.
         // Normal is the negated yaw axis
-        var forward = -rollAxis;
-        var normal = -yawAxis;
+        var forward = rollAxis; // NOTE: Edited DY 6/4
+        var normal = yawAxis; // NOTE: Edited DY 6/4
         
-        var helixNativePosition = helix._gridComponent.transform.position;
+        var helixNativePosition = helix._gridComponent.transform.position;*/
+
+        Transform tf = helix.GridComponent.transform;
+
+        /* --------------------------------------------------------------------
+     * 1.  Get raw world-space directions from the quaternion.
+     *     (No parent scale is applied because we multiply by a pure
+     *      rotation quaternion.)
+     * ------------------------------------------------------------------ */
+        Vector3 f_raw = tf.rotation * Vector3.forward;   // local  Z+
+        Vector3 n_raw = tf.rotation * Vector3.right;     // local  X+
+
+        /* --------------------------------------------------------------------
+         * 2.  Re-orthonormalise.
+         *     Small FP errors or implicit parent scale can destroy perfect
+         *     orthogonality; we repair that here.
+         * ------------------------------------------------------------------ */
+        Vector3 f = f_raw.normalized;
+
+        // remove any component of n_raw that lies along f, then renormalise
+        Vector3 n = (n_raw - Vector3.Dot(n_raw, f) * f).normalized;
+
+        /* --------------------------------------------------------------------
+         * 3.  Ensure right-handedness:  (n × f) should point ~+Y in the helix
+         *     local frame.  We just make sure it’s not pointing opposite.
+         * ------------------------------------------------------------------ */
+        Vector3 cross = Vector3.Cross(n, f);
+        if (Vector3.Dot(cross, tf.rotation * Vector3.up) < 0f)
+            n = -n; // flip to maintain right-handed basis
+
+        /* --------------------------------------------------------------------
+         * 4.  Convert to OxdnaVector and origin to oxDNA length units.
+         * ------------------------------------------------------------------ */
+        var forward = new OxdnaVector(f.x, f.y, f.z);
+        var normal = new OxdnaVector(n.x, n.y, n.z);
+
+        var helixNativePosition = tf.position;
 
         // Convert position to oxDNA units.
         var origin = new OxdnaVector(helixNativePosition.x, helixNativePosition.y, helixNativePosition.z) * SCALE_FROM_NANOVR_TO_NM * NM_TO_OX_UNITS;
@@ -391,13 +424,12 @@ public class OxDNASystem
                 if (nucleotideIndex == oxdnaStrand.Nucleotides.Count - 1) n3 = -1;
                 nucleotideIndex++;
 
-                topFileStringBuilder.Append($"{strandCount} {oxdnaNucleotide.Base} {n3} {n5}" + Environment.NewLine);
-                datFileStringBuilder.Append($"{oxdnaNucleotide.R.X:F16} {oxdnaNucleotide.R.Y:F16} {oxdnaNucleotide.R.Z:F16} " +
+                topFileStringBuilder.AppendLine($"{strandCount} {oxdnaNucleotide.Base} {n3} {n5}");
+                datFileStringBuilder.AppendLine($"{oxdnaNucleotide.R.X:F16} {oxdnaNucleotide.R.Y:F16} {oxdnaNucleotide.R.Z:F16} " +
                                             $"{oxdnaNucleotide.B.X:F16} {oxdnaNucleotide.B.Y:F16} {oxdnaNucleotide.B.Z:F16} " +
                                             $"{oxdnaNucleotide.N.X:F16} {oxdnaNucleotide.N.Y:F16} {oxdnaNucleotide.N.Z:F16} " +
                                             $"{oxdnaNucleotide.V.X} {oxdnaNucleotide.V.Y} {oxdnaNucleotide.V.Z} " +
-                                            $"{oxdnaNucleotide.L.X} {oxdnaNucleotide.L.Y} {oxdnaNucleotide.L.Z} " +
-                                            Environment.NewLine); // F16's add precision to the file writes. Last two values should be zero.
+                                            $"{oxdnaNucleotide.L.X} {oxdnaNucleotide.L.Y} {oxdnaNucleotide.L.Z} "); // F16's add precision to the file writes. Last two values should be zero.
 
                 // Map native nucleotide to line number in .dat file.
                 oxDNAMapper.Add(lineIndex, oxdnaNucleotide.Nucleotide); // NOTE: DY changes in 4/18 could make nucleotide null.
@@ -498,7 +530,7 @@ public class OxDNASystem
                 nucleotideId++;
             }
 
-            Debug.Log($"oxviewstrand monomers count: {oxViewStrand.Monomers.Count}");
+            //Debug.Log($"oxviewstrand monomers count: {oxViewStrand.Monomers.Count}");
 
             oxViewStrand.End3 = nucleotideId; // End nucleotide index
             oxViewSystem.Strands.Add(oxViewStrand);

@@ -2,7 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
-using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -266,13 +266,13 @@ public class Domain
             if (insertions.ContainsKey(i))
             {
                 nucleotideData.Insertion = insertions[i];
-                Highlight.HighlightDeletion(nucleotideData);
+                Highlight.HighlightInsertion(nucleotideData);
             }
 
             if (deletions.Contains(i))
             {
                 nucleotideData.IsDeletion = true;
-                Highlight.HighlightInsertion(nucleotideData);
+                Highlight.HighlightDeletion(nucleotideData);
             }
         }
     }
@@ -292,6 +292,12 @@ public class Domain
                 sb.Append(nucleotideData.Sequence);
             }
         }
+        if (direction == 0)
+        {
+            char[] charArray = sb.ToString().ToCharArray();
+            Array.Reverse(charArray);
+            return new string(charArray);
+        }
         return sb.ToString();
     }
 
@@ -302,13 +308,19 @@ public class Domain
     public virtual void SetSequence(string sequence)
     {
         int seqIdx = 0;
+        if (direction == 0)
+        {
+            char[] charArray = sequence.ToCharArray();
+            Array.Reverse(charArray);
+            sequence = new string(charArray);
+        }
+
         for (int i = startId; i <= endId; i++)
         {
             NucleotideData nucleotideData = GetNucleotideData(i);
             if (nucleotideData.IsDeletion)
             {
                 nucleotideData.Sequence = "X";
-                
             }
             else
             {

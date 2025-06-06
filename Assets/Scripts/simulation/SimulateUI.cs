@@ -20,7 +20,7 @@ public class SimulateUI : MonoBehaviour
     private const string T_DEFAULT = "20";
     [SerializeField] private TMP_InputField _TInput;
 
-    private const string STEPS_DEFAULT = "1000000";
+    private const string STEPS_DEFAULT = "100000";
     [SerializeField] private TMP_InputField _stepsInput;
 
     private const string SALT_DEFAULT = "1";
@@ -78,7 +78,7 @@ public class SimulateUI : MonoBehaviour
         _diffCoeffInput.text = DIFF_COEFF_DEFAULT;
         _maxDensityMultiplierInput.text = MAX_DENSITY_MULTIPLIER_DEFAULT;
         _backboneForceInput.text = BACKBONE_FORCE_DEFAULT;
-        _backboneForceFarInput.text = BACKBONE_FORCE_DEFAULT;
+        _backboneForceFarInput.text = BACKBONE_FORCE_FAR_DEFAULT;
 
         // Add input field listeners
         _TInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
@@ -147,10 +147,14 @@ public class SimulateUI : MonoBehaviour
         if (s_simulating)
         {
             _simulateCanvas.enabled = false;
-            Debug.Log("before oxview connection");
-            Debug.Log($"oxview is null: {_oxViewConnect == null}");
+
+
+            // Before connecting, export the current structure to oxview and reimport it.
+            OxDNASystem oxDNASystem = new OxDNASystem();
+            var oxViewFile = oxDNASystem.OxViewFile();
+
+            FileImport.OxViewImport(oxViewFile);
             _oxViewConnect.Connect(ParseSettings());
-            Debug.Log("oxview connected");
         }
         else
         {

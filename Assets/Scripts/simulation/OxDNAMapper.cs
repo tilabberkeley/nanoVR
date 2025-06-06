@@ -24,6 +24,7 @@ public class OxDNAMapper
     {
         // NOTE: Changed by DY 4/18
         //nucleotide.Position = nucleotide.transform.position; // Save the current position of the nucleotide before simualation.
+        //nucleotide.SavedPosition = nucleotide.GetPosition();
         _lineIndexToNucleotide.Add(lineIndex, nucleotide);
     }
 
@@ -32,6 +33,7 @@ public class OxDNAMapper
     /// </summary>
     public void SimulationUpdate(string datFile)
     {
+        Debug.Log("Updating simulation");
         StringReader datFileReader = new StringReader(datFile);
 
         // Read metadata - not needed
@@ -49,6 +51,7 @@ public class OxDNAMapper
             Vector3 datFilePosition = new Vector3(float.Parse(updatedInfo[0]), float.Parse(updatedInfo[1]), float.Parse(updatedInfo[2]));
             Vector3 datFileA1 = new Vector3(float.Parse(updatedInfo[3]), float.Parse(updatedInfo[4]), float.Parse(updatedInfo[5]));
 
+            //Debug.Log($"Update line: {lineIndex}, position: {datFilePosition}, A1: {datFileA1}.");
             UpdateNucleotidePosition(lineIndex, datFilePosition, datFileA1);
 
             lineIndex++;

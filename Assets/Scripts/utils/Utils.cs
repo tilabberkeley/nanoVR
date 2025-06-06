@@ -145,7 +145,7 @@ public static class Utils
             DrawDeletion.Deletion(nucl);
         }
 
-        
+
         if (isScaffold)
         {
             strand.IsScaffold = isScaffold;
@@ -425,5 +425,17 @@ public static class Utils
         Quaternion rotation = Quaternion.FromToRotation(Vector3.up, direction.normalized);
         Vector3 scale = new Vector3(0.2f, length, 0.2f);
         return Matrix4x4.TRS(midpoint, rotation, scale);
+    }
+
+    public static void ShowHideAllHelix(bool show)
+    {
+        foreach (Helix h in s_helixDict.Values)
+        {
+            h.GridComponent.gameObject.SetActive(show);
+            foreach (XoverComponent xover in h.Xovers)
+            {
+                xover.gameObject.SetActive(show);
+            }
+        }
     }
 }

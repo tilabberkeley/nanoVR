@@ -59,8 +59,9 @@ public static class GlobalVariables
     public static int s_numGrids = 1;
     public static List<GameObject> allGameObjects = new List<GameObject>();
 
-    // OxView to keep track of all .oxview file imports
-    public static OxView s_oxView = new OxView();
+    // Dictionary to keep track of all .oxview file imports
+    public static Dictionary<int, OxView> s_oxViewDict = new Dictionary<int, OxView>();
+    public static int s_numOxViews = 0;
 
     // Simulating toggle.
     public static bool s_simulating = false;

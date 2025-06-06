@@ -100,8 +100,10 @@ public class EditOptionsManager : MonoBehaviour
 
         // Checks grab button to show edit menu.
         _device.TryGetFeatureValue(CommonUsages.gripButton, out bool gripValue);
-        if (gripValue && gripReleased
-                && rayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit s_hit))
+        _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
+        bool hit = rayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit s_hit);
+
+        if (gripValue && gripReleased && hit && !triggerValue)
         {
             gripReleased = false;
             if ((s_hit.collider.GetComponent<NucleotideColliderComponent>() != null

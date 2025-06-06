@@ -3,6 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
@@ -83,7 +84,12 @@ public class InfoDisplay : MonoBehaviour
         var comp = go.GetComponent<NucleotideColliderComponent>().Data;
         StringBuilder text = new StringBuilder();
         text.AppendLine("<b>Nucleotide</b>");
-        text.AppendLine(string.Format("DNA: {0}", comp.Sequence));
+        string seq = comp.Sequence;
+        if (comp.IsInsertion && comp.Direction == 0)
+        {
+            seq = new string(seq.Reverse().ToArray());
+        }
+        text.AppendLine(string.Format("DNA: {0}", seq));
         if (comp.IsInsertion) text.AppendLine(string.Format("Insertion Length: {0}", comp.Insertion));
         text.AppendLine(string.Format("Nucl Id: {0}", comp.Id));
         text.AppendLine(string.Format("Helix Id: {0}", comp.HelixId));

@@ -22,7 +22,7 @@ public class NucleotideData
     private bool isHighlighted = false;
     private bool inExtension;
 
-    private bool isOxView;
+    private int oxViewId = -1;
 
     // This is used to save the position of the nucleotide before simulations.
     // Also used for oxDNA nucleotides since they don't have helices to grab position from.
@@ -38,18 +38,21 @@ public class NucleotideData
         set 
         {
             color = value;
-            Helix helix = GetHelix();
-            if (direction == 1)
+            if (helixId != -1)
             {
-                helix.NucleotideColorAChanged = true;
-                helix.NucleotideHighlightAChanged = true;
-                helix.BackboneColorAChanged = true;
-            }
-            else
-            {
-                helix.NucleotideColorBChanged = true;
-                helix.NucleotideHighlightBChanged = true;
-                helix.BackboneColorBChanged = true;
+                Helix helix = GetHelix();
+                if (direction == 1)
+                {
+                    helix.NucleotideColorAChanged = true;
+                    helix.NucleotideHighlightAChanged = true;
+                    helix.BackboneColorAChanged = true;
+                }
+                else
+                {
+                    helix.NucleotideColorBChanged = true;
+                    helix.NucleotideHighlightBChanged = true;
+                    helix.BackboneColorBChanged = true;
+                }
             }
         } 
     }
@@ -105,16 +108,15 @@ public class NucleotideData
     }
 
     public bool InExtension { get => inExtension; set => inExtension = value; }
-    public bool IsOxView { get => isOxView; set => isOxView = value; }
+    public int OxViewId { get => oxViewId; set => oxViewId = value; }
     public Vector3 SavedPosition { get => savedPosition; set => savedPosition = value; }
 
-    public NucleotideData(int id, int helixId, int direction, bool inExtension = false, bool isOxView = false)
+    public NucleotideData(int id, int helixId, int direction, bool inExtension = false)
     {
         this.id = id;
         this.helixId = helixId;
         this.direction = direction;
         this.inExtension = inExtension;
-        this.isOxView = isOxView;
     }
 
     public Matrix4x4 GetMatrix()
@@ -123,7 +125,7 @@ public class NucleotideData
         {
             return GetDomain().GetNucleotideMesh(id);
         }
-        if (isOxView)
+        if (oxViewId != -1)
         {
             return Matrix4x4.identity;
         }
@@ -133,12 +135,11 @@ public class NucleotideData
 
     public Vector3 GetPosition()
     {
-        if (isOxView)
+        if (oxViewId != -1)
         {
             return savedPosition;
         }
-        Matrix4x4 worldMat = GetHelix().GetCurrentOffset() * GetMatrix();
-        return worldMat.GetColumn(3);
+        return (GetHelix().GetCurrentOffset() * GetMatrix()).MultiplyPoint3x4(Vector3.zero);
     }
 
     public Helix GetHelix()
@@ -202,15 +203,19 @@ public class NucleotideData
         return helix.GetNucleotideData(id, complementDirection);
     }
 
-    public void UpdatePosition(Vector3 newPosition)
+    public void UpdatePosition(Vector3 newPos)
     {
-        if (isOxView)
+        if (oxViewId != -1)
         {
-            GlobalVariables.s_oxView.Nucleotides[id].SetColumn(3, newPosition);
+            OxView oxView = GlobalVariables.s_oxViewDict[oxViewId];
+            Matrix4x4 mat = oxView.Nucleotides[id];
+            mat.SetColumn(3, new Vector4(newPos.x, newPos.y, newPos.z, 1f));
+            oxView.Nucleotides[id] = mat;
         }
-        Helix helix = GetHelix();
+        else
         {
-            helix.UpdatePosition(id, direction, newPosition);
+            Helix helix = GetHelix();
+            helix.UpdatePosition(id, direction, newPos);
         }
     }
 }

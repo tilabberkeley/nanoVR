@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
-using static GlobalVariables;
 using static Utils;
+using static Geometry;
 
 public class OxDNAMapping
 {
@@ -15,6 +15,30 @@ public class OxDNAMapping
     public int StrandId { get; set; }
     public string Base { get; set; }
     public Color Color { get; set; }
+    private int prevBackId = -1;
+    private int nextBackId = -1;
+    private int prevNuclId = -1;
+    private int nextNuclId = -1;
+    public int PrevBackId {
+        get => prevBackId;
+        set => prevBackId = value;
+    }
+
+    public int NextBackId
+    {
+        get => nextBackId;
+        set => nextBackId = value;
+    }
+    public int PrevNuclId
+    {
+        get => prevNuclId;
+        set => prevNuclId = value;
+    }
+    public int NextNuclId
+    {
+        get => nextNuclId;
+        set => nextNuclId = value;
+    }
 }
 
 public class StrandInfoMapping
@@ -25,6 +49,9 @@ public class StrandInfoMapping
 
 public class OxView
 {
+    private int oxViewId;
+    public int OxViewId { get => oxViewId; }
+
     private Dictionary<int, OxDNAMapping> _lineIndexToOxDNAMapping;
     private Dictionary<int, StrandInfoMapping> _strandIdToStrandInfo;
     private int _numStrands;
@@ -41,17 +68,28 @@ public class OxView
     private List<Vector3> nucleotidePositions;
     private List<Matrix4x4> nuclMatrices;
     private List<Matrix4x4> backboneMatrices;
+    private List<Color> nucleotideColors;
+    private List<Color> backboneColors;
 
     public List<Matrix4x4> Nucleotides { get => nuclMatrices; }
     public List<Matrix4x4> Backbones { get => backboneMatrices; }
+    public List<Color> NucleotideColors { get => nucleotideColors; }
+    public List<Color> BackboneColors { get => backboneColors; }
     public Dictionary<int, StrandInfoMapping> StrandIdToStrandInfo { get => _strandIdToStrandInfo; }
 
-    public OxView()
+    public OxView(int oxViewId)
     {
+        this.oxViewId = oxViewId;
         _lineIndexToOxDNAMapping = new Dictionary<int, OxDNAMapping>();
         _strandIdToStrandInfo = new Dictionary<int, StrandInfoMapping>();
         _topFileStringBuilder = new StringBuilder();
         _datFileStringBuilder = new StringBuilder();
+        nucleotides = new List<NucleotideData>();
+        nucleotidePositions = new List<Vector3>();
+        nuclMatrices = new List<Matrix4x4>();
+        backboneMatrices = new List<Matrix4x4>();
+        nucleotideColors = new List<Color>();
+        backboneColors = new List<Color>();
     }
 
     public void BuildStrands(List<OxViewStrand> strands, List<double> box)
@@ -101,8 +139,8 @@ public class OxView
                 OxViewMonomer monomer = strand.Monomers[i];
 
                 // Write file contents
-                _topFileStringBuilder.Append($"{strandCounter} {monomer.Type} {prime5} {prime3}" + Environment.NewLine);
-                _datFileStringBuilder.Append($"{string.Join(" ", monomer.P)} {string.Join(" ", monomer.A1)} {string.Join(" ", monomer.A3)}" + " 0 0 0 0 0 0" + Environment.NewLine);
+                _topFileStringBuilder.AppendLine($"{strandCounter} {monomer.Type} {prime5} {prime3}");
+                _datFileStringBuilder.AppendLine($"{string.Join(" ", monomer.P)} {string.Join(" ", monomer.A1)} {string.Join(" ", monomer.A3)} 0 0 0 0 0 0");
 
                 globalNucleotideIndex++;
 
@@ -159,7 +197,7 @@ public class OxView
         }
 
         // Generate Nucleotides
-        int numNucleotides = _lineIndexToOxDNAMapping.Count;
+        //int numNucleotides = _lineIndexToOxDNAMapping.Count;
 
         /*List<NucleotideData> newNucleotides = new List<NucleotideData>();
 
@@ -173,7 +211,6 @@ public class OxView
             throw new NotImplementedException("Object pool manager empty");
         }*/
 
-        int i = 0;
         foreach (KeyValuePair<int, OxDNAMapping> entry in _lineIndexToOxDNAMapping)
         {
             //NucleotideData newNucleotide = newNucleotides[i++];
@@ -181,12 +218,16 @@ public class OxView
             Vector3 pos = (entry.Value.Position - 0.4f * entry.Value.A1) / SCALE_FROM_NANOVR_TO_NM;
             nucleotidePositions.Add(pos);
             Matrix4x4 nuclMatrix = Matrix4x4.TRS(pos, Quaternion.identity, new Vector3(NUCL_RAD, NUCL_RAD, NUCL_RAD));
-            nuclMatrices.Add(nuclMatrix);
-            NucleotideData newNucleotide = new NucleotideData(i, -1, -1, inExtension: false, isOxView: true)
+            NucleotideData newNucleotide = new NucleotideData(entry.Key, -1, -1, inExtension: false)
             {
-                SavedPosition = nuclMatrix.GetColumn(3)
+                SavedPosition = nuclMatrix.GetColumn(3),
+                OxViewId = oxViewId,
+                Color = entry.Value.Color,
             };
+
+            nuclMatrices.Add(nuclMatrix);
             nucleotides.Add(newNucleotide);
+            nucleotideColors.Add(entry.Value.Color);
 
             entry.Value.Nucleotide = newNucleotide;
 
@@ -194,7 +235,6 @@ public class OxView
             _strandIdToStrandInfo.TryGetValue(entry.Value.StrandId, out StrandInfoMapping strandInfoMapping);
             strandInfoMapping.Nucleotides.Add(newNucleotide);
             strandInfoMapping.Color = entry.Value.Color; // This is repetive, potential refactor
-            i++;
         }
 
         BuildStrands();
@@ -202,6 +242,8 @@ public class OxView
 
     private void BuildStrands()
     {
+        int globalBackboneIndex = 0;
+
         foreach (KeyValuePair<int, StrandInfoMapping> entry in _strandIdToStrandInfo)
         {
             List<NucleotideData> nucleotides = entry.Value.Nucleotides;
@@ -225,131 +267,41 @@ public class OxView
                 // Move to next nucleotide
                 firstNucleotide = secondNucleotide;*/
 
-                Vector3 prevPos = nucleotides[i - 1].GetPosition();
-                Vector3 pos = nucleotides[i].GetPosition();
-                Matrix4x4 backboneMatrixA = GetBackboneMatrix(prevPos, pos, fiveToThree: true);
-                backboneMatrices.Add(backboneMatrixA);
+                NucleotideData prev = nucleotides[i - 1];
+                NucleotideData curr = nucleotides[i];
+
+                if (_lineIndexToOxDNAMapping.TryGetValue(prev.Id, out var prevMapping) &&
+                _lineIndexToOxDNAMapping.TryGetValue(curr.Id, out var currMapping))
+                {
+                    // Set references to shared backbone index
+                    prevMapping.NextBackId = globalBackboneIndex;
+                    currMapping.PrevBackId = globalBackboneIndex;
+
+                    prevMapping.NextNuclId = curr.Id;
+                    currMapping.PrevNuclId = prev.Id;
+
+                    // Compute and store backbone matrix
+                    Vector3 prevPos = prev.GetPosition();
+                    Vector3 currPos = curr.GetPosition();
+                    Matrix4x4 backboneMatrix = GetBackboneMatrix(prevPos, currPos, fiveToThree: true);
+                    backboneMatrices.Add(backboneMatrix);
+                    backboneColors.Add(entry.Value.Color);
+
+                    globalBackboneIndex++;
+                }
             }
 
             // Create strand
-            CreateStrand(nucleotides, entry.Key, entry.Value.Color, true);
+            // CreateStrand(nucleotides, entry.Key, entry.Value.Color, true);
 
             // TODO: set sequence
         }
     }
 
-    // TODO: Add generation of gameobjects when pool is emtpy.
-    //private async Task GenerateGameObjects(int length, bool hideGameObjects)
-    //{
-    //    //int num64nt = length / 64;
-    //    //length %= 64;
-    //    int num32nt = length / 32;
-    //    length %= 32;
-    //    int num16nt = length / 16;
-    //    length %= 16;
-    //    int num8nt = length / 8;
-    //    length %= 8;
-    //    int num4nt = length / 4;
-    //    length %= 4;
-    //    int num2nt = length / 2;
-    //    length %= 2;
-    //    int num1nt = length / 1;
-
-    //    //int numConnectingBackbones = num64nt + num32nt + num16nt + num8nt + num4nt + num2nt + num1nt - 1;
-    //    int numConnectingBackbones = num32nt + num16nt + num8nt + num4nt + num2nt + num1nt - 1;
-
-
-    //    /*for (int i = 0; i < num64nt; i++)
-    //    {
-    //        _nucleotidesA.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_64, hideGameObjects));
-    //        await Task.Yield();
-
-    //        _nucleotidesB.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_64, hideGameObjects));
-    //        await Task.Yield();
-
-    //        _backbonesA.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_63, hideGameObjects));
-    //        await Task.Yield();
-
-    //        _backbonesB.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_63, hideGameObjects));
-    //        await Task.Yield();
-
-    //    }*/
-    //    //await Task.Yield();
-    //    for (int i = 0; i < num32nt; i++)
-    //    {
-    //        nucleotides.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_32, hideGameObjects));
-    //        await Task.Yield();
-
-    //        //nucleotides.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_32, hideGameObjects));
-    //        //await Task.Yield();
-
-    //        backbones.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_31, hideGameObjects));
-    //        await Task.Yield();
-
-    //        //backbones.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_31, hideGameObjects));
-    //        //await Task.Yield();
-
-    //    }
-
-    //    for (int i = 0; i < num16nt; i++)
-    //    {
-    //        nucleotides.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_16, hideGameObjects));
-    //        //await Task.Yield();
-
-    //        //nucleotides.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_16, hideGameObjects));
-    //        //await Task.Yield();
-
-    //        backbones.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_15, hideGameObjects));
-    //        //await Task.Yield();
-
-    //        //backbones.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_15, hideGameObjects));
-    //        //await Task.Yield();
-    //    }
-
-
-    //    for (int i = 0; i < num8nt; i++)
-    //    {
-    //        nucleotides.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_8, hideGameObjects));
-    //        //nucleotides.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_8, hideGameObjects));
-    //        backbones.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_7, hideGameObjects));
-    //        //backbones.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_7, hideGameObjects));
-    //    }
-    //    await Task.Yield();
-
-    //    for (int i = 0; i < num4nt; i++)
-    //    {
-    //        nucleotides.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_4, hideGameObjects));
-    //        //nucleotides.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_4, hideGameObjects));
-    //        backbones.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_3, hideGameObjects));
-    //        //backbones.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_3, hideGameObjects));
-    //    }
-
-    //    for (int i = 0; i < num2nt; i++)
-    //    {
-    //        nucleotides.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_2, hideGameObjects));
-    //        //nucleotides.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_2, hideGameObjects));
-    //        backbones.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_1, hideGameObjects));
-    //        //backbones.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_1, hideGameObjects));
-    //    }
-
-    //    for (int i = 0; i < num1nt; i++)
-    //    {
-    //        nucleotides.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_1, hideGameObjects));
-    //        //nucleotides.AddRange(DrawPoint.MakeNucleotides(NucleotideSize.LENGTH_1, hideGameObjects));
-    //    }
-
-    //    for (int i = 0; i < numConnectingBackbones; i++)
-    //    {
-    //        backbones.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_1, hideGameObjects));
-    //        //backbones.AddRange(DrawPoint.MakeBackbones(BackboneSize.LENGTH_1, hideGameObjects));
-    //    }
-    //    await Task.Yield();
-    //}
-
     public void SimulationUpdate(string datFile)
     {
         StringReader datFileReader = new StringReader(datFile);
-
+        //Debug.Log($"datFile: {datFile}");
         // Read metadata - not needed
         datFileReader.ReadLine();
         datFileReader.ReadLine();
@@ -370,16 +322,59 @@ public class OxView
             mapping.Position = position;
             mapping.A1 = a1;
 
-            //SetNucleotidePosition(mapping);
+            UpdateNucleotidePosition(mapping);
 
             nextLine = datFileReader.ReadLine();
         }
     }
 
-    /*private void SetNucleotidePosition(OxDNAMapping mapping)
+    private void UpdateNucleotidePosition(OxDNAMapping mapping)
     {
         // r center of mass to backbone repulsion site.
-        Vector3 position = (mapping.Position - 0.4f * mapping.A1) / SCALE_FROM_NANOVR_TO_NM;
-        DrawPoint.SetNucleotide(mapping.Nucleotide, position, mapping.Id, -1, -1, false, true);
-    }*/
+        Vector3 position = (mapping.Position - 0.4f * mapping.A1) / SCALE_FROM_NANOVR_TO_NM / (float)NM_TO_OX_UNITS;
+        NucleotideData nucleotide = mapping.Nucleotide;
+        //nucleotide.UpdatePosition(position + nucleotide.GetPosition());
+        Matrix4x4 mat = nuclMatrices[nucleotide.Id];
+        mat.SetColumn(3, new Vector4(position.x, position.y, position.z, 1f));
+        nuclMatrices[nucleotide.Id] = mat;
+
+        // Update backbone connecting to previous nucleotide
+        if (mapping.PrevBackId >= 0 && _lineIndexToOxDNAMapping.TryGetValue(mapping.PrevNuclId, out var prevMapping))
+        {
+            Vector3 prevPos = (prevMapping.Position - 0.4f * prevMapping.A1) / SCALE_FROM_NANOVR_TO_NM / (float)NM_TO_OX_UNITS;
+            Matrix4x4 backboneMatrix = GetBackboneMatrix(prevPos, position, fiveToThree: true);
+            backboneMatrices[mapping.PrevBackId] = backboneMatrix;
+        }
+
+        // Update backbone connecting to next nucleotide
+        if (mapping.NextBackId >= 0 && _lineIndexToOxDNAMapping.TryGetValue(mapping.NextNuclId, out var nextMapping))
+        {
+            Vector3 nextPos = (nextMapping.Position - 0.4f * nextMapping.A1) / SCALE_FROM_NANOVR_TO_NM / (float)NM_TO_OX_UNITS;
+            Matrix4x4 backboneMatrix = GetBackboneMatrix(position, nextPos, fiveToThree: true);
+            backboneMatrices[mapping.NextBackId] = backboneMatrix;
+        }
+    }
+
+    public void Clear()
+    {
+        _lineIndexToOxDNAMapping.Clear();
+        _strandIdToStrandInfo.Clear();
+        _topFileStringBuilder.Clear();
+        _datFileStringBuilder.Clear();
+        nucleotides.Clear();
+        nucleotidePositions.Clear();
+        nuclMatrices.Clear();
+        backboneMatrices.Clear();
+        nucleotideColors.Clear();
+        backboneColors.Clear();
+    }
+
+    public void RestoreNucleotides()
+    {
+        foreach (OxDNAMapping ox in _lineIndexToOxDNAMapping.Values)
+        {
+            NucleotideData nd = ox.Nucleotide;
+            nd.UpdatePosition(nd.SavedPosition);
+        }
+    }
 }

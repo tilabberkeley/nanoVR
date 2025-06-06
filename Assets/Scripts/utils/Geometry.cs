@@ -9,7 +9,7 @@ public static class Geometry
     /// <summary>
     /// Constants related to oxDNA export.
     /// </summary>
-    public const double GROOVE_GAMME = 20.0;
+    public const double GROOVE_GAMMA = 20.0;
     public const double BASE_DIST = 0.6;
     public const double NM_TO_OX_UNITS = 1.0 / 0.8518;
     public const double STEP_ROTATION = -360.0 / BASES_PER_TURN;

@@ -1,5 +1,6 @@
 using Newtonsoft.Json.Linq;
 using System;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 using WebSocketSharp;
@@ -24,7 +25,13 @@ public class OxViewConnect : MonoBehaviour
     {
         _settings = settings;
 
-        _ws = new WebSocket(_connectionURL);
+        Utils.ShowHideAllHelix(show: false);
+
+        _ws = new WebSocket(_connectionURL, "json")
+        {
+            Origin = "https://sulcgroup.github.io"
+        };
+
         _ws.OnOpen += SendOrigami;
         _ws.OnOpen += (sender, e) =>
         {
@@ -64,9 +71,14 @@ public class OxViewConnect : MonoBehaviour
 
         // Use the synchronization context to ensure the SimulationUpdate runs on the main Unity thread
         // This is to ensure that unity API calls are not done outside of unity's sync context.
+        OxView oxView = GlobalVariables.s_oxViewDict.Values.First();
+
         _unityContext.Post(_ =>
         {
-            _oxDNAMapper.RestoreNucleotidesToEdit();
+            oxView.RestoreNucleotides();
+            oxView.Clear();
+            GlobalVariables.s_oxViewDict.Remove(oxView.OxViewId);
+            Utils.ShowHideAllHelix(show: true);
         }, null);
     }
 
@@ -76,35 +88,48 @@ public class OxViewConnect : MonoBehaviour
         {
             throw new ArgumentException("Missing simulation settings");
         }
+        if (GlobalVariables.s_oxViewDict.Count != 1)
+        {
+            throw new Exception("Need to simulate one structure at a time.");
+        }
 
         // Get file contents and mappings
         OxDNASystem oxDNAsystem = new OxDNASystem();
         var fileResults = oxDNAsystem.OxDNAFiles();
         _oxDNAMapper = fileResults.oxDNAMapper;
-        _oxDNAMapper.SaveNucleotidePositions();
+        //_oxDNAMapper.SaveNucleotidePositions();
+
+        OxView oxView = GlobalVariables.s_oxViewDict.Values.First();
 
         JObject initialMessage = new JObject(
-            new JProperty("top_file", fileResults.topFile),
-            new JProperty("dat_file", fileResults.datFile),
-            new JProperty("settings", _settings)
+            //new JProperty("dat_file", fileResults.datFile),
+            new JProperty("dat_file", oxView.DatFile),
+            new JProperty("settings", _settings),
+            //new JProperty("top_file", fileResults.topFile)
+            new JProperty("top_file", oxView.TopFile)
         );
 
         string message = initialMessage.ToString();
-
+        //Debug.Log("Final WebSocket message:\n" + initialMessage.ToString(Newtonsoft.Json.Formatting.Indented));
         _ws.Send(message);
+        Debug.Log("Origami sent!");
     }
 
     private void SimulationUpdate(object sender, MessageEventArgs e)
     {
+        Debug.Log("Received message");
         JObject message = JObject.Parse(e.Data);
 
         string datFile = message["dat_file"].ToString();
+        OxView oxView = GlobalVariables.s_oxViewDict.Values.First();
 
         // Use the synchronization context to ensure the SimulationUpdate runs on the main Unity thread
         // This is to ensure that unity API calls are not done outside of unity's sync context.
+        Debug.Log("Updating simulation");
         _unityContext.Post(_ =>
         {
-            _oxDNAMapper.SimulationUpdate(datFile);
+            oxView.SimulationUpdate(datFile);
         }, null);
+        Debug.Log("Simulation updated!");
     }
 }

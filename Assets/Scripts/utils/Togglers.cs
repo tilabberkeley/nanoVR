@@ -140,7 +140,7 @@ public class Togglers : MonoBehaviour
         s_hideStencils = !s_hideStencils;
     }
 
-    public void NucleotideViewToggled()
+    /*public void NucleotideViewToggled()
     {
         s_strandView = false;
         s_helixView = false;
@@ -162,7 +162,7 @@ public class Togglers : MonoBehaviour
         s_helixView = true;
         s_nucleotideView = false;
         UpdateView();
-    }
+    }*/
 
     /// <summary>
     /// Helper function to visually check-mark the strand toggle in scene.
@@ -205,7 +205,7 @@ public class Togglers : MonoBehaviour
     /// turned on then off because one toggler would turn them on and the other would turn them off.
     /// This way, the view change only happens when one of them is turned on.
     /// </summary>
-    private void UpdateView()
+    /*private void UpdateView()
     {
         ToggleGroup toggleGroup = GetComponent<ToggleGroup>();
 
@@ -226,5 +226,5 @@ public class Togglers : MonoBehaviour
             Debug.Log("Switching to helix view");
             CoRunner.Instance.Run(ViewingPerspective.ViewHelix());
         }
-    }
+    }*/
 }

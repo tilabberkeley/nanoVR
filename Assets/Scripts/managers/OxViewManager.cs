@@ -1,4 +1,4 @@
-﻿/*
+/*
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
@@ -8,18 +8,17 @@ using UnityEngine;
 using Unity.Jobs;
 using Unity.Burst;
 using Unity.Mathematics;
-using System.Linq;
 
 /// <summary>
-/// Manages rendering of DNAGrid helices in the nucleotide view.
+/// Manages rendering of OxView structures in the scene.
+/// Similar to HelixManager.cs
 /// </summary>
-public class HelixManager : MonoBehaviour
+public class OxViewManager : MonoBehaviour
 {
     [Header("Meshes & Materials")]
     public Material material;
     public Mesh nucleotideMesh;
     public Mesh backboneMesh;
-    public Mesh gcMesh;
 
     const int MATRIX_STRIDE = sizeof(float) * 4 * 4;
     const int COLOR_STRIDE = sizeof(float) * 4;
@@ -31,9 +30,6 @@ public class HelixManager : MonoBehaviour
     MaterialPropertyBlock _mpb;
     private Bounds bounds;
 
-    // Tracks whether or not helices need to update their xovers when transforming
-    Dictionary<DNAGrid, bool> updateXoverMap;
-
     void Awake()
     {
         _mpb = new MaterialPropertyBlock();
@@ -41,40 +37,22 @@ public class HelixManager : MonoBehaviour
 
         _nuclArgsCB = new ComputeBuffer(1, ARGS_STRIDE_BYTES, ComputeBufferType.IndirectArguments);
         _backArgsCB = new ComputeBuffer(1, ARGS_STRIDE_BYTES, ComputeBufferType.IndirectArguments);
-
-        updateXoverMap = new Dictionary<DNAGrid, bool>();
     }
 
     void Update()
     {
-        /*if (!GlobalVariables.s_nucleotideView)
+        // Do not render oxview structures when not simulating
+        // HelixMaanger will render DNAGrid helices instead.
+        /*if (!GlobalVariables.s_simulating)
         {
             return;
         }*/
 
-        // Do not render helices when running simulation
-        // OxViewManager will render oxView structures instead.
-        if (GlobalVariables.s_simulating)
-        {
-            return;
-        }
-
         int nucCount = 0, backCount = 0;
-        foreach (Helix h in GlobalVariables.s_helixDict.Values)
+        foreach (OxView oxView in GlobalVariables.s_oxViewDict.Values)
         {
-            foreach (Extension ext in h.Extensions)
-            {
-                nucCount += ext.Nucleotides.Count;
-                backCount += ext.Backbones.Count;
-            }
-
-            // Don't render helices in helix view; however, we still need to render non-helix-bound extensions above.
-            if (h.IsHelixView)
-            {
-                continue;
-            }
-            nucCount += h.NucleotideMatricesA.Count + h.NucleotideMatricesB.Count;
-            backCount += h.BackboneMatricesA.Count + h.BackboneMatricesB.Count;
+            nucCount += oxView.Nucleotides.Count;
+            backCount += oxView.Backbones.Count;
         }
 
         if (nucCount == 0 && backCount == 0) return;
@@ -97,63 +75,15 @@ public class HelixManager : MonoBehaviour
 
         int nIdx = 0, bIdx = 0;
 
-        foreach (DNAGrid g in GlobalVariables.s_gridDict.Values)
+        foreach (OxView oxView in GlobalVariables.s_oxViewDict.Values)
         {
-            bool updateXovers = UpdateCurrentOffset(g);
-            updateXoverMap[g] = updateXovers;
-        }
+            Matrix4x4 offset = Matrix4x4.identity;
 
-        foreach (Helix h in GlobalVariables.s_helixDict.Values)
-        {
-            Matrix4x4 offset = h.GetCurrentOffset();
+            FillNativeArrays(oxView.Nucleotides, oxView.NucleotideColors,
+                             null, localMats, colours, highlights, ref nIdx, offset);
 
-            List<Matrix4x4> extensionNucMats = new List<Matrix4x4>();
-            List<Color> extensionNucColors = new List<Color>();
-            List<Color> extensionNucHighlights = new List<Color>();
-            List<Matrix4x4> extensionBackboneMats = new List<Matrix4x4>();
-            List<Color> extensionBackboneColors = new List<Color>();
-
-            foreach (Extension ext in h.Extensions)
-            {
-                extensionNucMats.AddRange(ext.Nucleotides);
-                extensionNucColors.AddRange(ext.GetNucleotideColors());
-                extensionNucHighlights.AddRange(ext.GetNucleotideHighlights());
-                extensionBackboneMats.AddRange(ext.Backbones);
-                extensionBackboneColors.AddRange(ext.GetBackboneColors());
-            }
-
-            FillNativeArrays(extensionNucMats,
-                 extensionNucColors,
-                 extensionNucHighlights,
-                 localMats, colours, highlights, ref nIdx, offset);
-
-            FillNativeArrays(extensionBackboneMats,
-                             extensionBackboneColors,
-                             null, // if you don't track highlight for backbone
+            FillNativeArrays(oxView.Backbones, oxView.BackboneColors, null,
                              bLocal, bColor, bHighlight, ref bIdx, offset);
-
-            if (h.IsHelixView)
-            {
-                continue; // Skip rendering helices in helix view
-            }
-            if (updateXoverMap[h.GetGrid()])
-            {
-                h.UpdateXovers();
-            }    
-
-
-            FillNativeArrays(h.NucleotideMatricesA, h.GetNucleotideColors(1),
-                             h.GetNucleotideHighlights(1), localMats, colours, highlights, ref nIdx, offset);
-
-            FillNativeArrays(h.NucleotideMatricesB, h.GetNucleotideColors(0),
-                             h.GetNucleotideHighlights(0), localMats, colours, highlights, ref nIdx, offset);
-
-            FillNativeArrays(h.BackboneMatricesA, h.GetBackboneColors(1), null,
-                             bLocal, bColor, bHighlight, ref bIdx, offset);
-
-            FillNativeArrays(h.BackboneMatricesB, h.GetBackboneColors(0), null,
-                             bLocal, bColor, bHighlight, ref bIdx, offset);
-            
         }
 
         var gpuMats = _nuclMatCB.BeginWrite<float4x4>(0, nucCount);
@@ -235,7 +165,7 @@ public class HelixManager : MonoBehaviour
     {
         bool hasHlt = srcHls != null;
         for (int i = 0; i < srcMats.Count; ++i, ++idx)
-        {    
+        {
             dstLocal[idx] = math.mul(offset, srcMats[i]);
             dstCol[idx] = new float4(srcCols[i].r, srcCols[i].g, srcCols[i].b, srcCols[i].a);
             dstHlt[idx] = hasHlt
@@ -277,39 +207,5 @@ public class HelixManager : MonoBehaviour
             cb = new ComputeBuffer(count, stride, TYPE, MODE);
         }
         return cb;
-    }
-
-    private bool UpdateCurrentOffset(DNAGrid grid)
-    {
-        Matrix4x4 gizmo = Matrix4x4.TRS(TransformHandle.GizmosTransform.position,
-                                    TransformHandle.GizmosTransform.rotation,
-                                    Vector3.one);
-        Matrix4x4 delta = gizmo * TransformHandle.InitialGizmoMatrix.inverse;
-        Matrix4x4 offset = grid.OldTransformOffset;
-
-        if (grid.IsTransforming)
-        {
-            offset = delta * offset;
-            grid.CurrTransformOffset = offset;
-
-            foreach (GridComponent gc in grid.GridComponents)
-            {
-                // Update helix bounding box
-                Helix helix = gc.Helix;
-                if (helix != null)
-                {
-                    helix.BoundingBox.Reset();
-
-                    helix.BoundingBox.Extend(helix.NucleotideDataA[0].GetPosition());
-                    helix.BoundingBox.Extend(helix.NucleotideDataB[0].GetPosition());
-                    helix.BoundingBox.Extend(helix.NucleotideDataA.Last().GetPosition());
-                    helix.BoundingBox.Extend(helix.NucleotideDataB.Last().GetPosition());
-                }
-            }
-
-            if (offset != grid.OldTransformOffset)
-                return true;
-        }       
-        return false;
     }
 }

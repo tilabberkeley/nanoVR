@@ -670,7 +670,7 @@ public static class DrawPoint
         return domainComponent;
     }
 
-    public static GameObject MakeHelixCylinder(Helix helix, Vector3 startPos, Vector3 endPos, Color32 color)
+    public static HelixComponent MakeHelixCylinder(Helix helix, Vector3 startPos, Vector3 endPos, Color32 color)
     {
         GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         cylinder.AddComponent<XRSimpleInteractable>();
@@ -692,7 +692,7 @@ public static class DrawPoint
         float dist = Vector3.Distance(endPos, startPos);
         cylinder.transform.localScale = new Vector3(Utils.RADIUS * 2, dist / 2, Utils.RADIUS * 2);
         cylinder.GetComponent<Renderer>().material.SetColor("_Color", color);
-        return cylinder;
+        return helixComponent;
     }
 
     public static HelixComponent MakeHelixCollider(Helix helix, Vector3 startPos, Vector3 endPos)

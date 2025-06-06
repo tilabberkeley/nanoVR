@@ -1101,7 +1101,7 @@ public class Strand
     /// Returns this strand from the simplified bezier curve representation to
     /// the default nucleotide view.
     /// </summary>
-    public void ToNucleotideView()
+    /*public void ToNucleotideView()
     {
         //foreach (DomainComponent domain in _domains)
         //{
@@ -1110,6 +1110,8 @@ public class Strand
 
         foreach (Domain domain in domains)
         {
+            domain.GetHelix().DestroyCylinders();
+
             if (domain.PrevXover != null)
             {
                 domain.PrevXover.gameObject.SetActive(true);
@@ -1118,16 +1120,14 @@ public class Strand
             {
                 domain.NextXover.gameObject.SetActive(true);
             }
-
-            domain.GetHelix().DestroyCylinder();
         }
-    }
+    }*/
 
     /// <summary>
     /// Converts strand to Helix view by hiding all beziers and xovers.
     /// Hiding nucleotides/backbones are handled by individual Helices.
     /// </summary>
-    public void ToHelixView()
+    /*public void ToHelixView()
     {
         // Set domain component inactive with domain.SetActive(false);
         foreach (DomainComponent domain in _domains)
@@ -1139,7 +1139,7 @@ public class Strand
             xover.GetComponent<XoverComponent>().NucleotideView();
             xover.SetActive(false);
         }
-    }
+    }*/
 
     /// <summary>
     /// Provides a different strand color than the one inputted.
