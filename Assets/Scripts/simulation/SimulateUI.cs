@@ -16,7 +16,7 @@ public class SimulateUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _simulateButtonText;
     [SerializeField] private Button _cancelButton;
 
-    // Input fields for simulation
+    /* Shared input fields between compute modes */
     private const string T_DEFAULT = "20";
     [SerializeField] private TMP_InputField _TInput;
 
@@ -34,6 +34,14 @@ public class SimulateUI : MonoBehaviour
     private const string PRINT_ENERGY_INTERVAL_DEFAULT = "10000";
     [SerializeField] private TMP_InputField _printEnergyIntervalInput;
 
+    /* Input fields for CPU compute mode */
+    private const string DELTA_TRANSLATION_DEFAULT = "0.22";
+    [SerializeField] private TMP_InputField _deltaTranslationInput;
+
+    private const string DELTA_ROTATION_DEFAULT = "0.22";
+    [SerializeField] private TMP_InputField _deltaRotationInput;
+
+    /* Input fields for GPU compute mode */
     [SerializeField] private TMP_Dropdown _thermostatDropdown;
 
     private const string DT_DEFAULT = "0.003";
@@ -45,6 +53,7 @@ public class SimulateUI : MonoBehaviour
     private const string MAX_DENSITY_MULTIPLIER_DEFAULT = "10.0";
     [SerializeField] private TMP_InputField _maxDensityMultiplierInput;
 
+    /* Relax settings - shared between compute modes */
     // TODO: Add compatability to toggle relax settings. Need to remove backbone force fields from the JSON.
     [SerializeField] private Toggle _relaxSettingsInput;
 
@@ -63,32 +72,47 @@ public class SimulateUI : MonoBehaviour
         _simulateCanvas.enabled = false;
         _oxViewConnect = _oxserveConnectionManager.GetComponent<OxViewConnect>();
 
-        // Add button listeners
+        /* Add button listeners */
         _menuSimulateButton.onClick.AddListener(() => ShowSimulationUI());
         _simulateButton.onClick.AddListener(() => ToggleSimulate());
         _cancelButton.onClick.AddListener(() => Cancel());
 
-        // Fill default values for input fields
+        /* Fill default values for input fields */
+
+        // Shared inputs
         _TInput.text = T_DEFAULT;
         _stepsInput.text = STEPS_DEFAULT;
         _saltInput.text = SALT_DEFAULT;
         _printConfIntervalInput.text = PRINT_CONF_INTERVAL_DEFAULT;
         _printEnergyIntervalInput.text = PRINT_ENERGY_INTERVAL_DEFAULT;
+
+        // CPU inputs
+        _deltaTranslationInput.text = DELTA_TRANSLATION_DEFAULT;
+        _deltaRotationInput.text = DELTA_ROTATION_DEFAULT;
+
+        // GPU inputs
         _dtInput.text = DT_DEFAULT;
         _diffCoeffInput.text = DIFF_COEFF_DEFAULT;
         _maxDensityMultiplierInput.text = MAX_DENSITY_MULTIPLIER_DEFAULT;
+
+        // Relax settings
         _backboneForceInput.text = BACKBONE_FORCE_DEFAULT;
         _backboneForceFarInput.text = BACKBONE_FORCE_FAR_DEFAULT;
 
-        // Add input field listeners
+        /* Add input field listeners */
         _TInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
         _stepsInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
         _saltInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
         _printConfIntervalInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
         _printEnergyIntervalInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
+
+        _deltaTranslationInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
+        _deltaRotationInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
+
         _dtInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
         _diffCoeffInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
         _maxDensityMultiplierInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
+
         _backboneForceInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
         _backboneForceFarInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
     }
