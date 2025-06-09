@@ -63,6 +63,7 @@ GameObject:
   - component: {fileID: 2333582758016648231}
   - component: {fileID: 2333582758016648243}
   - component: {fileID: 4849642699004426345}
+  - component: {fileID: 2333582758712054270}
   m_Layer: 0
   m_Name: RightHand Controller
   m_TagString: Untagged
@@ -349,7 +350,7 @@ MonoBehaviour:
   m_AllowHoverHapticsWhileSelecting: 0
   m_LineType: 0
   m_BlendVisualLinePoints: 1
-  m_MaxRaycastDistance: 1
+  m_MaxRaycastDistance: 0.7
   m_RayOriginTransform: {fileID: 0}
   m_ReferenceFrame: {fileID: 0}
   m_Velocity: 16
@@ -620,7 +621,7 @@ MonoBehaviour:
   m_Reticle: {fileID: 0}
   m_BlockedReticle: {fileID: 0}
   m_StopLineAtFirstRaycastHit: 1
-  m_StopLineAtSelection: 1
+  m_StopLineAtSelection: 0
   m_SnapEndpointIfAvailable: 1
 --- !u!135 &2333582758016648246
 SphereCollider:
@@ -728,7 +729,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2333582758016648248}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 66ed58ec46028f544ae43672be708e98, type: 3}
   m_Name: 
@@ -813,7 +814,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2333582758016648248}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e0fad2963a881342ba7fdc3455f2b8d, type: 3}
   m_Name: 
@@ -865,7 +866,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2333582758016648248}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e53400cd07b4946f2bb1c2b12a9df100, type: 3}
   m_Name: 
@@ -899,7 +900,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2333582758016648248}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 162e1eacdae28df459d7af39591d72f6, type: 3}
   m_Name: 
@@ -940,6 +941,22 @@ MonoBehaviour:
   _backboneForceInput: {fileID: 0}
   _backboneForceFarInput: {fileID: 0}
   _oxserveConnectionManager: {fileID: 0}
+--- !u!114 &2333582758712054270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2333582758016648248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 323841045b3dc443db1885f5dd3ed704, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cpuToggle: {fileID: 0}
+  gpuToggle: {fileID: 0}
+  cpuOnlyPanel: {fileID: 0}
+  gpuOnlyPanel: {fileID: 0}
 --- !u!1 &2333582758512940838
 GameObject:
   m_ObjectHideFlags: 0
@@ -967,6 +984,7 @@ GameObject:
   - component: {fileID: 2333582758512940809}
   - component: {fileID: 2333582758512940815}
   - component: {fileID: 2333582758512940829}
+  - component: {fileID: 939721186}
   m_Layer: 0
   m_Name: LeftHand Controller
   m_TagString: Untagged
@@ -1253,7 +1271,7 @@ MonoBehaviour:
   m_AllowHoverHapticsWhileSelecting: 0
   m_LineType: 0
   m_BlendVisualLinePoints: 1
-  m_MaxRaycastDistance: 1
+  m_MaxRaycastDistance: 0.7
   m_RayOriginTransform: {fileID: 0}
   m_ReferenceFrame: {fileID: 0}
   m_Velocity: 16
@@ -1524,7 +1542,7 @@ MonoBehaviour:
   m_Reticle: {fileID: 0}
   m_BlockedReticle: {fileID: 0}
   m_StopLineAtFirstRaycastHit: 1
-  m_StopLineAtSelection: 1
+  m_StopLineAtSelection: 0
   m_SnapEndpointIfAvailable: 1
 --- !u!114 &2333582758512940824
 MonoBehaviour:
@@ -1533,7 +1551,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2333582758512940838}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 45d54a12edd786944b0e72fcce608e55, type: 3}
   m_Name: 
@@ -1616,7 +1634,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2333582758512940838}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 66ed58ec46028f544ae43672be708e98, type: 3}
   m_Name: 
@@ -1699,7 +1717,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2333582758512940838}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e0fad2963a881342ba7fdc3455f2b8d, type: 3}
   m_Name: 
@@ -1751,7 +1769,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2333582758512940838}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e53400cd07b4946f2bb1c2b12a9df100, type: 3}
   m_Name: 
@@ -1785,7 +1803,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2333582758512940838}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 162e1eacdae28df459d7af39591d72f6, type: 3}
   m_Name: 
@@ -1794,6 +1812,21 @@ MonoBehaviour:
   _rightXRNode: 5
   leftRayInteractor: {fileID: 2333582758512940836}
   rightRayInteractor: {fileID: 2333582758016648252}
+--- !u!114 &939721186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2333582758512940838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32b05b1e82eeae44f8e3c6fd47d27d9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _XRNode: 4
+  rayInteractor: {fileID: 2333582758512940836}
+  moveProvider: {fileID: 2333582759138269264}
 --- !u!1 &2333582759138269277
 GameObject:
   m_ObjectHideFlags: 0
@@ -1966,7 +1999,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.7830189, g: 0.7571645, b: 0.7571645, a: 0}
+  m_BackGroundColor: {r: 0.8, g: 0.7981043, b: 0.7981043, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1981,7 +2014,7 @@ Camera:
     height: 1
   near clip plane: 0.01
   far clip plane: 800
-  field of view: 60
+  field of view: 79.9
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -2246,7 +2279,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2333582759794358073}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b5d6e9690fbfb3f4288346cdd8d516e1, type: 3}
   m_Name: 
@@ -2268,6 +2301,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: bab79a71049899a4481a55d5fd4ec9e4, type: 2}
-  nucleotideMesh: {fileID: 4300000, guid: 5fb4fdcc23faa834b83d90a503bc0440, type: 2}
-  backboneMesh: {fileID: 4300000, guid: 05fa974bac93b704886d66be005c8e31, type: 2}
+  nucleotideMesh: {fileID: 4300000, guid: 8e5a99e69050fb84394402e06d0fd5aa, type: 2}
+  backboneMesh: {fileID: 4300000, guid: 533f24cdf8ce5e241a2d5d61d10712ae, type: 2}
   gcMesh: {fileID: 0}
