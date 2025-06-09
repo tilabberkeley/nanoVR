@@ -15,6 +15,7 @@ public class SimulateUI : MonoBehaviour
     [SerializeField] private Button _simulateButton;
     [SerializeField] private TextMeshProUGUI _simulateButtonText;
     [SerializeField] private Button _cancelButton;
+    [SerializeField] private Toggle _cpuMode;
 
     /* Shared input fields between compute modes */
     private const string T_DEFAULT = "20";
@@ -165,6 +166,55 @@ public class SimulateUI : MonoBehaviour
         );
     }
 
+    /// <summary>
+    /// Parsing settings based on the given compute mode.
+    /// </summary>
+    private JObject ParseSettings(bool useCPU)
+    {
+        var settings = new JObject(
+            new JProperty("T", _TInput.text + "C"),
+            new JProperty("steps", _stepsInput.text),
+            new JProperty("salt_concentration", _saltInput.text),
+            new JProperty("interaction_type", GetInteractionType()),
+            new JProperty("print_conf_interval", _printConfIntervalInput.text),
+            new JProperty("print_energy_every", _printEnergyIntervalInput.text),
+            new JProperty("sim_type", useCPU ? "MC" : "MD"),
+            new JProperty("backend", useCPU ? "CPU" : "CUDA"),
+            new JProperty("backend_precision", useCPU ? "double" : "mixed"),
+            new JProperty("time_scale", "linear"),
+            new JProperty("verlet_skin", useCPU ? 1 : 0.5),
+            new JProperty("use_average_seq", 0),
+            new JProperty("restart_step_counter", 1),
+            new JProperty("max_backbone_force", _backboneForceInput.text),
+            new JProperty("max_backbone_force_far", _backboneForceFarInput.text)
+        );
+
+        if (useCPU)
+        {
+            settings["delta_translation"] = _deltaTranslationInput.text;
+            settings["delta_rotation"] = _deltaRotationInput.text;
+            settings["ensemble"] = "NVT";
+        }
+        else
+        {
+            settings["thermostat"] = GetThermostatSetting();
+            settings["dt"] = _dtInput.text;
+            settings["diff_coeff"] = _diffCoeffInput.text;
+            settings["max_density_multiplier"] = _maxDensityMultiplierInput.text;
+            settings["T_units"] = "C";
+            settings["refresh_vel"] = 1;
+            settings["CUDA_list"] = "verlet";
+            settings["newtonian_steps"] = 103;
+            settings["CUDA_sort_every"] = 0;
+            settings["use_edge"] = 1;
+            settings["edge_n_forces"] = 1;
+            settings["cells_auto_optimisation"] = "true";
+            settings["reset_com_momentum"] = "true";
+        }
+
+        return settings;
+    }
+
     private void ToggleSimulate()
     {
         s_simulating = !s_simulating;
@@ -179,6 +229,9 @@ public class SimulateUI : MonoBehaviour
 
             FileImport.OxViewImport(oxViewFile);
             _oxViewConnect.Connect(ParseSettings());
+
+            // When CPU is working
+            // _oxViewConnect.Connect(ParseSettings(_cpuMode.isOn));
         }
         else
         {
