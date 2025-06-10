@@ -927,12 +927,15 @@ MonoBehaviour:
   _simulateButton: {fileID: 0}
   _simulateButtonText: {fileID: 0}
   _cancelButton: {fileID: 0}
+  _cpuMode: {fileID: 0}
   _TInput: {fileID: 0}
   _stepsInput: {fileID: 0}
   _saltInput: {fileID: 0}
   _interactionTypeDropdown: {fileID: 0}
   _printConfIntervalInput: {fileID: 0}
   _printEnergyIntervalInput: {fileID: 0}
+  _deltaTranslationInput: {fileID: 0}
+  _deltaRotationInput: {fileID: 0}
   _thermostatDropdown: {fileID: 0}
   _dtInput: {fileID: 0}
   _diffCoeffInput: {fileID: 0}
