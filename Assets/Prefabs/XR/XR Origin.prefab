@@ -2150,6 +2150,7 @@ GameObject:
   - component: {fileID: 2333582759794358070}
   - component: {fileID: 2333582759794358071}
   - component: {fileID: 2189970446442894090}
+  - component: {fileID: 4275044783865108807}
   m_Layer: 0
   m_Name: XR Origin
   m_TagString: Untagged
@@ -2307,3 +2308,18 @@ MonoBehaviour:
   nucleotideMesh: {fileID: 4300000, guid: 8e5a99e69050fb84394402e06d0fd5aa, type: 2}
   backboneMesh: {fileID: 4300000, guid: 533f24cdf8ce5e241a2d5d61d10712ae, type: 2}
   gcMesh: {fileID: 0}
+--- !u!114 &4275044783865108807
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2333582759794358073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b61f57a23140b449a789cba9d8efc0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  material: {fileID: 2100000, guid: bab79a71049899a4481a55d5fd4ec9e4, type: 2}
+  nucleotideMesh: {fileID: 4300000, guid: 8e5a99e69050fb84394402e06d0fd5aa, type: 2}
+  backboneMesh: {fileID: 4300000, guid: 533f24cdf8ce5e241a2d5d61d10712ae, type: 2}

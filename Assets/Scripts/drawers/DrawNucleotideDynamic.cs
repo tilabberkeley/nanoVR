@@ -232,6 +232,7 @@ public class DrawNucleotideDynamic : MonoBehaviour
     {
         if (!IsValidNucleotideSelection(start, end))
         {
+            Debug.Log($"Not valid nucleotide selection. startId: {start.Id}, startHelix: {start.HelixId}; endId: {end.Id}, endHelix: {end.HelixId}");
             return null;
         }
 

@@ -283,11 +283,7 @@ public class Domain
         for (int i = startId; i <= endId; i++)
         {
             NucleotideData nucleotideData = GetNucleotideData(i);
-            if (nucleotideData.IsDeletion)
-            {
-                sb.Append("X");
-            }
-            else
+            if (!nucleotideData.IsDeletion)
             {
                 sb.Append(nucleotideData.Sequence);
             }

@@ -9,16 +9,23 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Globalization;
 using System.Linq;
-using Oculus.Interaction.PoseDetection;
 
+/// <summary>
+/// Converts nanoVR grid structures into standard oxDNA system.
+/// </summary>
 public class OxDNASystem
 {
     private List<OxdnaStrand> _oxdnaStrands;
 
     private const char DEFAULT_BASE = 'T';
 
+    private bool IsValidDNA(string sequence)
+    {
+        return sequence.All(c => c == 'A' || c == 'C' || c == 'T' || c == 'G');
+    }
+
     /// <summary>
-    /// On construction, the entire scene will be converted to create an oxdna system - very expensive.
+    /// On construction, the entire scene will be converted to create an oxdna system.
     /// </summary>
     public OxDNASystem()
     {
@@ -75,6 +82,11 @@ public class OxDNASystem
                 if (string.IsNullOrEmpty(seq))
                     seq = new string(DEFAULT_BASE, domain.GetLength());
 
+                if (!IsValidDNA(seq))
+                {
+                    Debug.Log($"Unknown base in domain {domain.Id} of strand {strand.Id} on helix {domain.HelixId}. This will not simulate");
+                }
+
                 if (!isDomainForward)
                 {
                     normal = normal.Rotate(-MINOR_GROOVE_ANGLE, forward);
@@ -89,7 +101,7 @@ public class OxDNASystem
                 {
                     if (nd.IsDeletion)
                     {
-                        continue; // Deletion
+                        continue;
                     }
 
                     var mod = modMap[helixId][nd.Id];
@@ -104,16 +116,15 @@ public class OxDNASystem
                         var insertionLength = nd.Insertion;
                         for (int i = 0; i < insertionLength; i++) // NOTE: DY changed 4/18
                         {
-                            //int idx = !isDomainForward ? (insertionLength - i) : i;
-
-                            cen = origin + forward * (nd.Id + mod - insertionLength + i) * RISE_PER_BASE_PAIR * NM_TO_OX_UNITS;
-                            norm = normal.Rotate(STEP_ROTATION * (nd.Id + mod + - insertionLength + i), forward);
+                            int idx = !isDomainForward ? (insertionLength - i) : i;
+                            Debug.Log($"i: {i}, idx: {idx}, mod: {mod}, (nd.Id + mod - insertionLength + idx): {nd.Id + mod - insertionLength + idx}");
+                            cen = origin + forward * (nd.Id + mod - insertionLength + idx) * RISE_PER_BASE_PAIR * NM_TO_OX_UNITS;
+                            norm = normal.Rotate(STEP_ROTATION * (nd.Id + mod - insertionLength + idx), forward);
                             forw = isDomainForward ? -forward : forward;
                             oxdnaNucleotide = new OxdnaNucleotide(cen, norm, forw, null, seq[index].ToString());
                             strandDomain.Nucleotides.Add(oxdnaNucleotide);
                             index++;
                         }
-                        //                        continue; NOTE: DY changed 4/18
                     }
 
                     cen = origin + forward * (nd.Id + mod) * RISE_PER_BASE_PAIR * NM_TO_OX_UNITS;

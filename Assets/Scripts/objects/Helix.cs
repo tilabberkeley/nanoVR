@@ -329,7 +329,7 @@ public class Helix
     public void CalculateNextNucleotidePositions(int i, out Vector3 posA, out Vector3 posB)
     {
         float angleA = (float)(i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
-        float angleB = (float)((i + 4.5f) * (2 * Math.PI / NUM_BASE_PAIRS));
+        float angleB = (float)((i + 4.2f) * (2 * Math.PI / NUM_BASE_PAIRS)); // ~144° major/minor groove offset
         float axisOneChangeA = (float)(RADIUS * Mathf.Cos(angleA));
         float axisTwoChangeA = (float)(RADIUS * Mathf.Sin(angleA));
         float axisOneChangeB = (float)(RADIUS * Mathf.Cos(angleB));

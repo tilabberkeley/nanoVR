@@ -162,11 +162,13 @@ public class DrawInsertion : MonoBehaviour
         {
             nd.Insertion = 0;
             UnhighlightInsertion(nd);
+            nd.GetDomain().Insertions.Remove(nd.Id);
         }
         else
         {
             nd.Insertion = length;
             HighlightInsertion(nd);
+            nd.GetDomain().Insertions.Add(nd.Id, length);
         }
 
         // Update strand DNA sequence
