@@ -223,6 +223,7 @@ public class OxView
                 SavedPosition = nuclMatrix.GetColumn(3),
                 OxViewId = oxViewId,
                 Color = entry.Value.Color,
+                Sequence = entry.Value.Base,
             };
 
             nuclMatrices.Add(nuclMatrix);
@@ -237,10 +238,10 @@ public class OxView
             strandInfoMapping.Color = entry.Value.Color; // This is repetive, potential refactor
         }
 
-        BuildStrands();
+        BuildBackbones();
     }
 
-    private void BuildStrands()
+    private void BuildBackbones()
     {
         int globalBackboneIndex = 0;
 

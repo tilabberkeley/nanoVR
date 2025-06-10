@@ -133,7 +133,6 @@ public class FileImport : MonoBehaviour
                 {
                     //StartCoroutine(ParseSC(@fileContent, false));
                     DoFileImport(fileContent);
-                    loadingMenu.enabled = false;
                 }
                 else if (fileType.Equals(".oxview"))
                 {
@@ -709,8 +708,8 @@ public class FileImport : MonoBehaviour
             helix.Extend(actualLength - helix.Length);
         }
 
-        int startId = forward ? nextEndId - extensionLength : nextStartId;
-        int endId = forward ? nextEndId : nextStartId + extensionLength;
+        int startId = forward ? nextStartId : nextEndId - extensionLength + 1;
+        int endId = forward ? nextStartId + extensionLength - 1 : nextEndId;
 
         if (!Utils.IsValidDomain(helix, startId, endId, Convert.ToInt32(forward)))
             return false;
@@ -739,8 +738,8 @@ public class FileImport : MonoBehaviour
         int num64 = length / 64 + 1;
         int actualLength = num64 * 64;
 
-        int startId = forward ? nextEndId - extensionLength : nextStartId;
-        int endId = forward ? nextEndId : nextStartId + extensionLength;
+        int startId = forward ?  nextStartId : nextEndId - extensionLength + 1;
+        int endId = forward ? nextStartId + extensionLength - 1 : nextEndId;
 
         foreach (GridComponent gc in grid.GridComponents)
         {
@@ -812,8 +811,8 @@ public class FileImport : MonoBehaviour
             helix.Extend(actualLength - helix.Length);
         }
 
-        int startId = forward ? nextEndId - extensionLength : nextStartId;
-        int endId = forward ? nextEndId : nextStartId + extensionLength;
+        int startId = forward ? nextStartId : nextEndId - extensionLength + 1;
+        int endId = forward ? nextStartId + extensionLength - 1 : nextEndId;
 
         if (!Utils.IsValidDomain(helix, startId, endId, Convert.ToInt32(forward)))
             return false;
@@ -843,8 +842,8 @@ public class FileImport : MonoBehaviour
         int num64 = length / 64 + 1;
         int actualLength = num64 * 64;
 
-        int startId = forward ? nextEndId - extensionLength : nextStartId;
-        int endId = forward ? nextEndId : nextStartId + extensionLength;
+        int startId = forward ? nextStartId : nextEndId - extensionLength + 1;
+        int endId = forward ? nextStartId + extensionLength - 1 : nextEndId;
 
         // Try to find existing helix first
         foreach (GridComponent gc in grid.GridComponents)
