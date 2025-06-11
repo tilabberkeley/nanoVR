@@ -15,7 +15,6 @@ public class SimulateUI : MonoBehaviour
     [SerializeField] private Button _simulateButton;
     [SerializeField] private TextMeshProUGUI _simulateButtonText;
     [SerializeField] private Button _cancelButton;
-    [SerializeField] private Toggle _cpuMode;
 
     /* Shared input fields between compute modes */
     private const string T_DEFAULT = "20";
@@ -34,6 +33,13 @@ public class SimulateUI : MonoBehaviour
 
     private const string PRINT_ENERGY_INTERVAL_DEFAULT = "10000";
     [SerializeField] private TMP_InputField _printEnergyIntervalInput;
+
+    /* Compute mode */
+    [SerializeField] private Toggle _cpuToggle;
+    [SerializeField] private Toggle _gpuToggle;
+
+    [SerializeField] private GameObject _cpuOnlyPanel;
+    [SerializeField] private GameObject _gpuOnlyPanel;
 
     /* Input fields for CPU compute mode */
     private const string DELTA_TRANSLATION_DEFAULT = "0.22";
@@ -116,6 +122,20 @@ public class SimulateUI : MonoBehaviour
 
         _backboneForceInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
         _backboneForceFarInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
+
+        /* Set up compute mode toggles */
+        _cpuToggle.onValueChanged.AddListener(OnCPUToggle);
+        _gpuToggle.onValueChanged.AddListener(OnGPUToggle);
+
+        // Initialize correct panel on startup
+        if (_cpuToggle.isOn)
+        {
+            OnCPUToggle(true);
+        }
+        else
+        {
+            OnGPUToggle(true);
+        }
     }
 
     private void ShowSimulationUI()
@@ -286,6 +306,24 @@ public class SimulateUI : MonoBehaviour
                 return "RNANM";
             default:
                 return "DNA2";
+        }
+    }
+
+    void OnCPUToggle(bool isOn)
+    {
+        if (isOn)
+        {
+            _cpuOnlyPanel.SetActive(true);
+            _gpuOnlyPanel.SetActive(false);
+        }
+    }
+
+    void OnGPUToggle(bool isOn)
+    {
+        if (isOn)
+        {
+            _gpuOnlyPanel.SetActive(true);
+            _cpuOnlyPanel.SetActive(false);
         }
     }
 }

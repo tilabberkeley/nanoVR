@@ -63,7 +63,6 @@ GameObject:
   - component: {fileID: 2333582758016648231}
   - component: {fileID: 2333582758016648243}
   - component: {fileID: 4849642699004426345}
-  - component: {fileID: 2333582758712054270}
   m_Layer: 0
   m_Name: RightHand Controller
   m_TagString: Untagged
@@ -927,13 +926,16 @@ MonoBehaviour:
   _simulateButton: {fileID: 0}
   _simulateButtonText: {fileID: 0}
   _cancelButton: {fileID: 0}
-  _cpuMode: {fileID: 0}
   _TInput: {fileID: 0}
   _stepsInput: {fileID: 0}
   _saltInput: {fileID: 0}
   _interactionTypeDropdown: {fileID: 0}
   _printConfIntervalInput: {fileID: 0}
   _printEnergyIntervalInput: {fileID: 0}
+  _cpuToggle: {fileID: 0}
+  _gpuToggle: {fileID: 0}
+  _cpuOnlyPanel: {fileID: 0}
+  _gpuOnlyPanel: {fileID: 0}
   _deltaTranslationInput: {fileID: 0}
   _deltaRotationInput: {fileID: 0}
   _thermostatDropdown: {fileID: 0}
@@ -944,22 +946,6 @@ MonoBehaviour:
   _backboneForceInput: {fileID: 0}
   _backboneForceFarInput: {fileID: 0}
   _oxserveConnectionManager: {fileID: 0}
---- !u!114 &2333582758712054270
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2333582758016648248}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 323841045b3dc443db1885f5dd3ed704, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cpuToggle: {fileID: 0}
-  gpuToggle: {fileID: 0}
-  cpuOnlyPanel: {fileID: 0}
-  gpuOnlyPanel: {fileID: 0}
 --- !u!1 &2333582758512940838
 GameObject:
   m_ObjectHideFlags: 0

@@ -302,7 +302,6 @@ public class OxView
     public void SimulationUpdate(string datFile)
     {
         StringReader datFileReader = new StringReader(datFile);
-        //Debug.Log($"datFile: {datFile}");
         // Read metadata - not needed
         datFileReader.ReadLine();
         datFileReader.ReadLine();

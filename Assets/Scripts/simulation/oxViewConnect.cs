@@ -94,10 +94,10 @@ public class OxViewConnect : MonoBehaviour
         }
 
         // Get file contents and mappings
-        OxDNASystem oxDNAsystem = new OxDNASystem();
-        var fileResults = oxDNAsystem.OxDNAFiles();
-        _oxDNAMapper = fileResults.oxDNAMapper;
-        //_oxDNAMapper.SaveNucleotidePositions();
+        // OxDNASystem oxDNAsystem = new OxDNASystem();
+        // var fileResults = oxDNAsystem.OxDNAFiles();
+        // _oxDNAMapper = fileResults.oxDNAMapper;
+        // _oxDNAMapper.SaveNucleotidePositions();
 
         OxView oxView = GlobalVariables.s_oxViewDict.Values.First();
 
