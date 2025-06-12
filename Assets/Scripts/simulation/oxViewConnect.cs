@@ -5,7 +5,7 @@ using System.Threading;
 using UnityEngine;
 using WebSocketSharp;
 
-public class OxViewConnect : MonoBehaviour
+public class oxViewConnect : MonoBehaviour
 {
     [SerializeField] private const string _connectionURL = "wss://nanobase.org:8989/";
 

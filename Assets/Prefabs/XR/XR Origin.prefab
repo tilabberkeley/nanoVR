@@ -62,9 +62,6 @@ GameObject:
   - component: {fileID: 2333582758016648224}
   - component: {fileID: 2333582758016648231}
   - component: {fileID: 2333582758016648243}
-  - component: {fileID: 4849642699004426345}
-  - component: {fileID: 2333582758712054270}
-  - component: {fileID: 2333582758712054271}
   m_Layer: 0
   m_Name: RightHand Controller
   m_TagString: Untagged
@@ -692,7 +689,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _xrNode: 5
   rightRayInteractor: {fileID: 2333582758016648252}
-  nucleotidePickRadius: 0.1
 --- !u!114 &2333582758016648236
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -910,73 +906,6 @@ MonoBehaviour:
   _rightXRNode: 5
   leftRayInteractor: {fileID: 2333582758512940836}
   rightRayInteractor: {fileID: 2333582758016648252}
---- !u!114 &4849642699004426345
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2333582758016648248}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0f1e02d9ed895b043914bd5f72425743, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _menu: {fileID: 0}
-  _menuSimulateButton: {fileID: 0}
-  _simulateCanvas: {fileID: 0}
-  _simulateButton: {fileID: 0}
-  _simulateButtonText: {fileID: 0}
-  _cancelButton: {fileID: 0}
-  _TInput: {fileID: 0}
-  _stepsInput: {fileID: 0}
-  _saltInput: {fileID: 0}
-  _interactionTypeDropdown: {fileID: 0}
-  _printConfIntervalInput: {fileID: 0}
-  _printEnergyIntervalInput: {fileID: 0}
-  _cpuToggle: {fileID: 0}
-  _gpuToggle: {fileID: 0}
-  _cpuOnlyPanel: {fileID: 0}
-  _gpuOnlyPanel: {fileID: 0}
-  _deltaTranslationInput: {fileID: 0}
-  _deltaRotationInput: {fileID: 0}
-  _thermostatDropdown: {fileID: 0}
-  _dtInput: {fileID: 0}
-  _diffCoeffInput: {fileID: 0}
-  _maxDensityMultiplierInput: {fileID: 0}
-  _relaxSettingsInput: {fileID: 0}
-  _backboneForceInput: {fileID: 0}
-  _backboneForceFarInput: {fileID: 0}
-  _oxserveConnectionManager: {fileID: 0}
-  _togglers: {fileID: 2333582758712054271}
-  _viewChanger: {fileID: 2333582758712054270}
---- !u!114 &2333582758712054270
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2333582758016648248}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 860d9153e79197c40be07c154613633c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &2333582758712054271
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2333582758016648248}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 664a74fb0df36ce43aed0bcc454fe75a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  nuclTog: {fileID: 0}
-  strandTog: {fileID: 0}
-  helixTog: {fileID: 0}
 --- !u!1 &2333582758512940838
 GameObject:
   m_ObjectHideFlags: 0
@@ -1618,7 +1547,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _xrNode: 4
   rightRayInteractor: {fileID: 2333582758512940836}
-  nucleotidePickRadius: 0.1
 --- !u!114 &2333582758512940818
 MonoBehaviour:
   m_ObjectHideFlags: 0

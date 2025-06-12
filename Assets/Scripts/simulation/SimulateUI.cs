@@ -94,7 +94,7 @@ public class SimulateUI : MonoBehaviour
 
     /* Connect manager */
     [SerializeField] private GameObject _oxserveConnectionManager;
-    private OxViewConnect _oxViewConnect;
+    private oxViewConnect _oxViewConnect;
 
     /* Current oxview structure for simulation */
     private OxView _oxView;
@@ -109,7 +109,7 @@ public class SimulateUI : MonoBehaviour
     void Start()
     {
         _simulateCanvas.enabled = false;
-        _oxViewConnect = _oxserveConnectionManager.GetComponent<OxViewConnect>();
+        _oxViewConnect = _oxserveConnectionManager.GetComponent<oxViewConnect>();
 
         /* Add button listeners */
         _menuSimulateButton.onClick.AddListener(() => ShowSimulationUI());

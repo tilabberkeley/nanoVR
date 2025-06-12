@@ -9271,6 +9271,9 @@ GameObject:
   - component: {fileID: 5213593809597547281}
   - component: {fileID: 5213593809597547279}
   - component: {fileID: 5213593809597547280}
+  - component: {fileID: 5464129167453364625}
+  - component: {fileID: 6036021816561018151}
+  - component: {fileID: 8073747338382175443}
   m_Layer: 0
   m_Name: SimulationPanel
   m_TagString: Untagged
@@ -9339,6 +9342,74 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5464129167453364625
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5213593809597547282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f1e02d9ed895b043914bd5f72425743, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _menu: {fileID: 0}
+  _menuSimulateButton: {fileID: 0}
+  _simulateCanvas: {fileID: 5213593808879885343}
+  _simulateButton: {fileID: 5213593808955437847}
+  _simulateButtonText: {fileID: 5213593809606109605}
+  _cancelButton: {fileID: 5213593809741042446}
+  _TInput: {fileID: 5213593807824965695}
+  _stepsInput: {fileID: 5213593807871346233}
+  _saltInput: {fileID: 5213593809385889628}
+  _interactionTypeDropdown: {fileID: 7117453554601757189}
+  _printConfIntervalInput: {fileID: 5213593808803823860}
+  _printEnergyIntervalInput: {fileID: 5213593808824646444}
+  _cpuToggle: {fileID: 2812495992515908414}
+  _gpuToggle: {fileID: 8707853457912776552}
+  _cpuOnlyPanel: {fileID: 8907134448167485791}
+  _gpuOnlyPanel: {fileID: 4341888241818376579}
+  _deltaTranslationInput: {fileID: 5768765777261839280}
+  _deltaRotationInput: {fileID: 4182252588186629687}
+  _thermostatDropdown: {fileID: 4926424318481510527}
+  _dtInput: {fileID: 5213593807879840386}
+  _diffCoeffInput: {fileID: 5213593807932415428}
+  _maxDensityMultiplierInput: {fileID: 5213593809719083830}
+  _relaxSettingsInput: {fileID: 5213593809600660572}
+  _backboneForceInput: {fileID: 7279716210884247846}
+  _backboneForceFarInput: {fileID: 5213593808868076971}
+  _oxserveConnectionManager: {fileID: 0}
+  _togglers: {fileID: 6036021816561018151}
+  _viewChanger: {fileID: 8073747338382175443}
+  _simulationSummaryMessage: {fileID: 5257674628066456315}
+--- !u!114 &6036021816561018151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5213593809597547282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 664a74fb0df36ce43aed0bcc454fe75a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nuclTog: {fileID: 0}
+  strandTog: {fileID: 0}
+  helixTog: {fileID: 0}
+--- !u!114 &8073747338382175443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5213593809597547282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 860d9153e79197c40be07c154613633c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5213593809600660574
 GameObject:
   m_ObjectHideFlags: 0
