@@ -13,7 +13,7 @@ public class OxViewConnect : MonoBehaviour
     private WebSocket _ws;
     private JObject _settings;
     private SynchronizationContext _unityContext;
-    private OxDNAMapper _oxDNAMapper;
+    private OxView _oxView;
 
     private void Awake()
     {
@@ -21,9 +21,18 @@ public class OxViewConnect : MonoBehaviour
         _unityContext = SynchronizationContext.Current;
     }
 
-    public void Connect(JObject settings)
+    public void Connect(JObject settings, OxView oxview)
     {
         _settings = settings;
+        _oxView = oxview;
+
+        if (_ws != null && _ws.IsAlive)
+        {
+            // Connection is still alive, just send settings.
+            // Only way to get to this path if a previous simulation was aborted.
+            SendOrigami();
+            return;
+        }
 
         Utils.ShowHideAllHelix(show: false);
 
@@ -65,24 +74,41 @@ public class OxViewConnect : MonoBehaviour
         _ws.Connect();
     }
 
+    /// <summary>
+    /// Closes the websocket connection with oxview and restores scene back to edit mode
+    /// if the connection is open.
+    /// </summary>
     public void Disconnect()
     {
-        _ws.Close();
-
-        // Use the synchronization context to ensure the SimulationUpdate runs on the main Unity thread
-        // This is to ensure that unity API calls are not done outside of unity's sync context.
-        OxView oxView = GlobalVariables.s_oxViewDict.Values.First();
-
-        _unityContext.Post(_ =>
+        if (_ws != null && _ws.IsAlive)
         {
-            oxView.RestoreNucleotides();
-            oxView.Clear();
-            GlobalVariables.s_oxViewDict.Remove(oxView.OxViewId);
-            Utils.ShowHideAllHelix(show: true);
-        }, null);
+            _ws.Close();
+
+            // Use the synchronization context to ensure the Disconnect runs on the main Unity thread
+            // This is to ensure that unity API calls are not done outside of unity's sync context.
+            _unityContext.Post(_ =>
+            {
+                OxView oxView = GlobalVariables.s_oxViewDict.Values.First();
+                oxView.RestoreNucleotides();
+                oxView.Clear();
+                GlobalVariables.s_oxViewDict.Remove(oxView.OxViewId);
+                Utils.ShowHideAllHelix(show: true);
+            }, null);
+        }
     }
 
-    private void SendOrigami(object sender, EventArgs e)
+    /// <summary>
+    /// Tells oxview to stop sending the simulation updates.
+    /// </summary>
+    public void AbortCurrentSimulation()
+    {
+        // This tells nanobase to stop sending the simulation.
+        // The connection still remains up.
+        
+        _ws.Send("abort");
+    }
+
+    private void SendOrigami()
     {
         if (_settings == null)
         {
@@ -93,43 +119,42 @@ public class OxViewConnect : MonoBehaviour
             throw new Exception("Need to simulate one structure at a time.");
         }
 
-        // Get file contents and mappings
-        // OxDNASystem oxDNAsystem = new OxDNASystem();
-        // var fileResults = oxDNAsystem.OxDNAFiles();
-        // _oxDNAMapper = fileResults.oxDNAMapper;
-        // _oxDNAMapper.SaveNucleotidePositions();
-
-        OxView oxView = GlobalVariables.s_oxViewDict.Values.First();
-
         JObject initialMessage = new JObject(
             //new JProperty("dat_file", fileResults.datFile),
-            new JProperty("dat_file", oxView.DatFile),
+            new JProperty("dat_file", _oxView.DatFile),
             new JProperty("settings", _settings),
             //new JProperty("top_file", fileResults.topFile)
-            new JProperty("top_file", oxView.TopFile)
+            new JProperty("top_file", _oxView.TopFile)
         );
 
         string message = initialMessage.ToString();
-        //Debug.Log("Final WebSocket message:\n" + initialMessage.ToString(Newtonsoft.Json.Formatting.Indented));
         _ws.Send(message);
-        Debug.Log("Origami sent!");
+    }
+
+    private void SendOrigami(object sender, EventArgs e)
+    {
+        SendOrigami();
     }
 
     private void SimulationUpdate(object sender, MessageEventArgs e)
     {
-        Debug.Log("Received message");
         JObject message = JObject.Parse(e.Data);
 
         string datFile = message["dat_file"].ToString();
-        OxView oxView = GlobalVariables.s_oxViewDict.Values.First();
 
         // Use the synchronization context to ensure the SimulationUpdate runs on the main Unity thread
         // This is to ensure that unity API calls are not done outside of unity's sync context.
-        Debug.Log("Updating simulation");
         _unityContext.Post(_ =>
         {
+            if (!GlobalVariables.s_simulationRunning)
+            {
+                // Don't do a simulation update if we aborted the simulation
+                return;
+            }
+
+            OxView oxView = GlobalVariables.s_oxViewDict.Values.First();
             oxView.SimulationUpdate(datFile);
+            Debug.Log("Simulation updated!");
         }, null);
-        Debug.Log("Simulation updated!");
     }
 }

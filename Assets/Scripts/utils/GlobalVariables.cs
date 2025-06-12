@@ -63,8 +63,10 @@ public static class GlobalVariables
     public static Dictionary<int, OxView> s_oxViewDict = new Dictionary<int, OxView>();
     public static int s_numOxViews = 0;
 
-    // Simulating toggle.
+    // Simulating toggle - whether we are in simulation mode.
     public static bool s_simulating = false;
+    // Simulation running toggle - whether we are simulating (receiving messages from oxview)
+    public static bool s_simulationRunning = false;
 
     // Tracks all protein (PDB) imports
     public static List<GameObject> proteins = new List<GameObject>();

@@ -1,3 +1,4 @@
+using System.Linq;
 using Newtonsoft.Json.Linq;
 using TMPro;
 using UnityEngine;
@@ -17,22 +18,39 @@ public class SimulateUI : MonoBehaviour
     [SerializeField] private Button _cancelButton;
 
     /* Shared input fields between compute modes */
-    private const string T_DEFAULT = "20";
+    private const string T_DEFAULT_CPU = "30";
+    private const string T_DEFAULT_GPU = "20";
     [SerializeField] private TMP_InputField _TInput;
+    private string _TCPU = T_DEFAULT_CPU;
+    private string _TGPU = T_DEFAULT_GPU;
 
-    private const string STEPS_DEFAULT = "100000";
+    private const string STEPS_DEFAULT_CPU = "100000";
+    private const string STEPS_DEFAULT_GPU = "1000000";
     [SerializeField] private TMP_InputField _stepsInput;
+    private string _stepsCPU = STEPS_DEFAULT_CPU;
+    private string _stepsGPU = STEPS_DEFAULT_GPU;
 
     private const string SALT_DEFAULT = "1";
     [SerializeField] private TMP_InputField _saltInput;
+    private string _saltCPU = SALT_DEFAULT;
+    private string _saltGPU = SALT_DEFAULT;
 
+    private const int INTERACTION_TYPE_DEFAULT = 0; // Associated with DNA
     [SerializeField] private TMP_Dropdown _interactionTypeDropdown;
+    private int _interactionTypeCPU = INTERACTION_TYPE_DEFAULT;
+    private int _interactionTypeGPU = INTERACTION_TYPE_DEFAULT;
 
-    private const string PRINT_CONF_INTERVAL_DEFAULT = "10000";
+    private const string PRINT_CONF_INTERVAL_DEFAULT_CPU = "1000";
+    private const string PRINT_CONF_INTERVAL_DEFAULT_GPU = "10000";
     [SerializeField] private TMP_InputField _printConfIntervalInput;
+    private string _printConfIntervalCPU = PRINT_CONF_INTERVAL_DEFAULT_CPU;
+    private string _printConfIntervalGPU = PRINT_CONF_INTERVAL_DEFAULT_GPU;
 
-    private const string PRINT_ENERGY_INTERVAL_DEFAULT = "10000";
+    private const string PRINT_ENERGY_INTERVAL_DEFAULT_CPU = "1000";
+    private const string PRINT_ENERGY_INTERVAL_DEFAULT_GPU = "10000";
     [SerializeField] private TMP_InputField _printEnergyIntervalInput;
+    private string _printEnergyIntervalCPU = PRINT_ENERGY_INTERVAL_DEFAULT_CPU;
+    private string _printEnergyIntervalGPU = PRINT_ENERGY_INTERVAL_DEFAULT_GPU;
 
     /* Compute mode */
     [SerializeField] private Toggle _cpuToggle;
@@ -66,13 +84,24 @@ public class SimulateUI : MonoBehaviour
 
     private const string BACKBONE_FORCE_DEFAULT = "5.0";
     [SerializeField] private TMP_InputField _backboneForceInput;
+    private string _backboneForceCPU = BACKBONE_FORCE_DEFAULT;
+    private string _backboneForceGPU = BACKBONE_FORCE_DEFAULT;
 
     private const string BACKBONE_FORCE_FAR_DEFAULT = "10.0";
     [SerializeField] private TMP_InputField _backboneForceFarInput;
+    private string _backboneForceFarCPU = BACKBONE_FORCE_FAR_DEFAULT;
+    private string _backboneForceFarGPU = BACKBONE_FORCE_FAR_DEFAULT;
 
     /* Connect manager */
     [SerializeField] private GameObject _oxserveConnectionManager;
     private OxViewConnect _oxViewConnect;
+
+    /* Current oxview structure for simulation */
+    private OxView _oxView;
+
+    /* Components for managing views */
+    [SerializeField] private Togglers _togglers;
+    [SerializeField] private ViewChanger _viewChanger;
 
     void Start()
     {
@@ -84,15 +113,10 @@ public class SimulateUI : MonoBehaviour
         _simulateButton.onClick.AddListener(() => ToggleSimulate());
         _cancelButton.onClick.AddListener(() => Cancel());
 
-        /* Fill default values for input fields */
+        _backboneForceInput.text = _backboneForceCPU;
+        _backboneForceFarInput.text = _backboneForceFarCPU;
 
-        // Shared inputs
-        _TInput.text = T_DEFAULT;
-        _stepsInput.text = STEPS_DEFAULT;
-        _saltInput.text = SALT_DEFAULT;
-        _printConfIntervalInput.text = PRINT_CONF_INTERVAL_DEFAULT;
-        _printEnergyIntervalInput.text = PRINT_ENERGY_INTERVAL_DEFAULT;
-
+        /* Fill in default values for non-shared inputs between compute modes */
         // CPU inputs
         _deltaTranslationInput.text = DELTA_TRANSLATION_DEFAULT;
         _deltaRotationInput.text = DELTA_ROTATION_DEFAULT;
@@ -101,10 +125,6 @@ public class SimulateUI : MonoBehaviour
         _dtInput.text = DT_DEFAULT;
         _diffCoeffInput.text = DIFF_COEFF_DEFAULT;
         _maxDensityMultiplierInput.text = MAX_DENSITY_MULTIPLIER_DEFAULT;
-
-        // Relax settings
-        _backboneForceInput.text = BACKBONE_FORCE_DEFAULT;
-        _backboneForceFarInput.text = BACKBONE_FORCE_FAR_DEFAULT;
 
         /* Add input field listeners */
         _TInput.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
@@ -142,48 +162,6 @@ public class SimulateUI : MonoBehaviour
     {
         _simulateCanvas.enabled = true;
         _menu.enabled = false;
-    }
-
-    private void Cancel()
-    {
-        _simulateCanvas.enabled = false;
-
-        // TODO: break oxserve connection.
-    }
-
-    private JObject ParseSettings()
-    {
-        // UI copied form oxview, so other settings are hardcoded as they are in oxview.
-        return new JObject(
-            new JProperty("T", _TInput.text + "C"),
-            new JProperty("steps", _stepsInput.text),
-            new JProperty("salt_concentration", _saltInput.text),
-            new JProperty("interaction_type", GetInteractionType()),
-            new JProperty("print_conf_interval", _printConfIntervalInput.text),
-            new JProperty("print_energy_every", _printEnergyIntervalInput.text),
-            new JProperty("thermostat", GetThermostatSetting()),
-            new JProperty("dt", _dtInput.text),
-            new JProperty("diff_coeff", _diffCoeffInput.text),
-            new JProperty("max_density_multiplier", _maxDensityMultiplierInput.text),
-            new JProperty("sim_type", "MD"),
-            new JProperty("T_units", "C"),
-            new JProperty("backend", "CUDA"),
-            new JProperty("backend_precision", "mixed"),
-            new JProperty("time_scale", "linear"),
-            new JProperty("verlet_skin", 0.5),
-            new JProperty("use_average_seq", 0),
-            new JProperty("refresh_vel", 1),
-            new JProperty("CUDA_list", "verlet"),
-            new JProperty("restart_step_counter", 1),
-            new JProperty("newtonian_steps", 103),
-            new JProperty("CUDA_sort_every", 0),
-            new JProperty("use_edge", 1),
-            new JProperty("edge_n_forces", 1),
-            new JProperty("cells_auto_optimisation", "true"),
-            new JProperty("reset_com_momentum", "true"),
-            new JProperty("max_backbone_force", _backboneForceInput.text),
-            new JProperty("max_backbone_force_far", _backboneForceFarInput.text)
-        );
     }
 
     /// <summary>
@@ -235,29 +213,57 @@ public class SimulateUI : MonoBehaviour
         return settings;
     }
 
+    private void Cancel()
+    {
+        s_simulating = false;
+        s_simulationRunning = false;
+
+        _simulateCanvas.enabled = false;
+
+        _togglers.StencilsToggled();
+        _viewChanger.ChangeStencilsView();
+
+        _oxViewConnect.Disconnect();
+    }
+
     private void ToggleSimulate()
     {
-        s_simulating = !s_simulating;
-        if (s_simulating)
+        s_simulationRunning = !s_simulationRunning;
+
+        if (s_simulationRunning)
         {
-            _simulateCanvas.enabled = false;
+            if (!s_simulating)
+            {
+                // First time pressing simulate
+                // Before connecting, export the current structure to oxview and reimport it.
+                OxDNASystem oxDNASystem = new OxDNASystem();
+                var oxViewFile = oxDNASystem.OxViewFile();
 
+                FileImport.OxViewImport(oxViewFile);
+                _oxView = s_oxViewDict.Values.First();
 
-            // Before connecting, export the current structure to oxview and reimport it.
-            OxDNASystem oxDNASystem = new OxDNASystem();
-            var oxViewFile = oxDNASystem.OxViewFile();
+                _oxViewConnect.Connect(ParseSettings(_cpuToggle.isOn), _oxView);
 
-            FileImport.OxViewImport(oxViewFile);
-            _oxViewConnect.Connect(ParseSettings());
+                // We are now in simulation mode.
+                s_simulating = true;
 
-            // When CPU is working
-            // _oxViewConnect.Connect(ParseSettings(_cpuMode.isOn));
+                _togglers.StencilsToggled();
+                _viewChanger.ChangeStencilsView();
+            }
+            else
+            {
+                // Redoing the simulation, use the same oxview structure
+                _oxViewConnect.Connect(ParseSettings(_cpuToggle.isOn), _oxView);
+            }
         }
         else
         {
-            _oxViewConnect.Disconnect();
+            _oxViewConnect.AbortCurrentSimulation();
         }
-        SetSimulateButton(s_simulating);
+
+        _simulateCanvas.enabled = false;
+
+        SetSimulateButton(s_simulationRunning);
     }
 
     private void SetSimulateButton(bool simulating)
@@ -266,7 +272,7 @@ public class SimulateUI : MonoBehaviour
         {
             if (simulating)
             {
-                _simulateButtonText.text = "Stop";
+                _simulateButtonText.text = "Abort";
             }
             else
             {
@@ -313,6 +319,29 @@ public class SimulateUI : MonoBehaviour
     {
         if (isOn)
         {
+            // Store GPU values (UI → *_GPU)
+            // Null check is for first situation where input fields are empty by default.
+            _TGPU = string.IsNullOrWhiteSpace(_TInput.text) ? T_DEFAULT_GPU : _TInput.text;
+            _stepsGPU = string.IsNullOrWhiteSpace(_stepsInput.text) ? STEPS_DEFAULT_GPU : _stepsInput.text;
+            _saltGPU = string.IsNullOrWhiteSpace(_saltInput.text) ? SALT_DEFAULT : _saltInput.text;
+            _interactionTypeGPU = _interactionTypeDropdown.value;
+            _printConfIntervalGPU = string.IsNullOrWhiteSpace(_printConfIntervalInput.text) ? PRINT_CONF_INTERVAL_DEFAULT_GPU : _printConfIntervalInput.text;
+            _printEnergyIntervalGPU = string.IsNullOrWhiteSpace(_printEnergyIntervalInput.text) ? PRINT_ENERGY_INTERVAL_DEFAULT_GPU : _printEnergyIntervalInput.text;
+
+            _backboneForceGPU = _backboneForceInput.text;
+            _backboneForceFarGPU = _backboneForceFarInput.text;
+
+            // Restore CPU values (saved earlier in *_CPU → UI)
+            _TInput.text = _TCPU;
+            _stepsInput.text = _stepsCPU;
+            _saltInput.text = _saltCPU;
+            _interactionTypeDropdown.value = _interactionTypeCPU;
+            _printConfIntervalInput.text = _printConfIntervalCPU;
+            _printEnergyIntervalInput.text = _printEnergyIntervalCPU;
+
+            _backboneForceInput.text = _backboneForceCPU;
+            _backboneForceFarInput.text = _backboneForceFarCPU;
+
             _cpuOnlyPanel.SetActive(true);
             _gpuOnlyPanel.SetActive(false);
         }
@@ -322,6 +351,28 @@ public class SimulateUI : MonoBehaviour
     {
         if (isOn)
         {
+            // Store CPU values (current UI → *_CPU)
+            _TCPU = _TInput.text;
+            _stepsCPU = _stepsInput.text;
+            _saltCPU = _saltInput.text;
+            _interactionTypeCPU = _interactionTypeDropdown.value;
+            _printConfIntervalCPU = _printConfIntervalInput.text;
+            _printEnergyIntervalCPU = _printEnergyIntervalInput.text;
+
+            _backboneForceCPU = _backboneForceInput.text;
+            _backboneForceFarCPU = _backboneForceFarInput.text;
+
+            // Restore GPU values (saved earlier in *_GPU → UI)
+            _TInput.text = _TGPU;
+            _stepsInput.text = _stepsGPU;
+            _saltInput.text = _saltGPU;
+            _interactionTypeDropdown.value = _interactionTypeGPU;
+            _printConfIntervalInput.text = _printConfIntervalGPU;
+            _printEnergyIntervalInput.text = _printEnergyIntervalGPU;
+
+            _backboneForceInput.text = _backboneForceGPU;
+            _backboneForceFarInput.text = _backboneForceFarGPU;
+
             _gpuOnlyPanel.SetActive(true);
             _cpuOnlyPanel.SetActive(false);
         }

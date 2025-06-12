@@ -63,6 +63,8 @@ GameObject:
   - component: {fileID: 2333582758016648231}
   - component: {fileID: 2333582758016648243}
   - component: {fileID: 4849642699004426345}
+  - component: {fileID: 2333582758712054270}
+  - component: {fileID: 2333582758712054271}
   m_Layer: 0
   m_Name: RightHand Controller
   m_TagString: Untagged
@@ -946,6 +948,35 @@ MonoBehaviour:
   _backboneForceInput: {fileID: 0}
   _backboneForceFarInput: {fileID: 0}
   _oxserveConnectionManager: {fileID: 0}
+  _togglers: {fileID: 2333582758712054271}
+  _viewChanger: {fileID: 2333582758712054270}
+--- !u!114 &2333582758712054270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2333582758016648248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 860d9153e79197c40be07c154613633c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2333582758712054271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2333582758016648248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 664a74fb0df36ce43aed0bcc454fe75a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nuclTog: {fileID: 0}
+  strandTog: {fileID: 0}
+  helixTog: {fileID: 0}
 --- !u!1 &2333582758512940838
 GameObject:
   m_ObjectHideFlags: 0

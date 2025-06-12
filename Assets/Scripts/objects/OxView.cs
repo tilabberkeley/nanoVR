@@ -326,6 +326,8 @@ public class OxView
 
             nextLine = datFileReader.ReadLine();
         }
+
+        _datFile = datFile;
     }
 
     private void UpdateNucleotidePosition(OxDNAMapping mapping)
