@@ -708,8 +708,8 @@ public class FileImport : MonoBehaviour
             helix.Extend(actualLength - helix.Length);
         }
 
-        int startId = forward ? nextStartId : nextEndId - extensionLength + 1;
-        int endId = forward ? nextStartId + extensionLength - 1 : nextEndId;
+        int startId = forward ? nextEndId - extensionLength + 1 : nextStartId;
+        int endId = forward ? nextEndId : nextStartId + extensionLength - 1;
 
         if (!Utils.IsValidDomain(helix, startId, endId, Convert.ToInt32(forward)))
             return false;
@@ -738,8 +738,8 @@ public class FileImport : MonoBehaviour
         int num64 = length / 64 + 1;
         int actualLength = num64 * 64;
 
-        int startId = forward ?  nextStartId : nextEndId - extensionLength + 1;
-        int endId = forward ? nextStartId + extensionLength - 1 : nextEndId;
+        int startId = forward ? nextEndId - extensionLength + 1 : nextStartId;
+        int endId = forward ? nextEndId : nextStartId + extensionLength - 1;
 
         foreach (GridComponent gc in grid.GridComponents)
         {

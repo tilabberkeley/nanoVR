@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using static GlobalVariables;
+using static Geometry;
 
 /// <summary>
 /// Useful methods and constants for multiple files.
@@ -17,14 +18,14 @@ public static class Utils
     public const float SCALE_FROM_NM_TO_NANOVR = 1f / SCALE_FROM_NANOVR_TO_NM; // Divide nanovr coordinate to get to nm scale.
     public const float RADIUS = 1f / SCALE_FROM_NANOVR_TO_NM;
     public const float HELIX_GAP = 3f / SCALE_FROM_NANOVR_TO_NM;
-    public const float RISE = .34f / SCALE_FROM_NANOVR_TO_NM;
-    public const float NUM_BASE_PAIRS = 10.5f;
-    public const float CROSSOVER_LENGTH = 7 * .34f / SCALE_FROM_NANOVR_TO_NM; // Ideal xover length of 7 base pairs??
+    public const float RISE = RISE_PER_BASE_PAIR / SCALE_FROM_NANOVR_TO_NM;
+    public const float NUM_BASE_PAIRS = BASES_PER_TURN;
+    public const float MINOR_GROOVE_OFFSET = (float)(MINOR_GROOVE_ANGLE / (360f / NUM_BASE_PAIRS)); // Offset for minor groove angle in radians per base pair
+    public const float CROSSOVER_LENGTH = 7 * RISE_PER_BASE_PAIR / SCALE_FROM_NANOVR_TO_NM; // Ideal xover length of 7 base pairs??
     public const float NUCL_RAD = 0.008f; // Radius of nucleotide sphere
 
     public const float XOVER_RAD = 0.2f;
     public const float LOOPOUT_RAD = 0.4f;
-
 
     public const float ATOM_SCALE = 10f;
 
@@ -54,7 +55,7 @@ public static class Utils
 
     /// <summary>
     /// Create strand without crossovers or loopouts.
-    /// Used by strand splitting since xovers/loopouts already exist.
+    /// Used by strand splitting and deleting xovers since xovers/loopouts already exist.
     /// </summary>
     public static Strand CreateStrandWithoutXovers(List<Domain> domains)
     {

@@ -582,6 +582,14 @@ public class Strand
         return newStrandDomains;
     }
 
+    public List<Domain> Split(NucleotideData nd)
+    {
+        List<Domain> newStrandDomains = new List<Domain>();
+        newStrandDomains.AddRange(domains.GetRange(nd.DomainIdx + 1, domains.Count - (nd.DomainIdx + 1)));
+        domains.RemoveRange(nd.DomainIdx + 1, domains.Count - (nd.DomainIdx + 1));
+        return newStrandDomains;
+    }
+
     public void SplitCircularBefore(GameObject go)
     {
         //TODO: Add DomainCollider logic
