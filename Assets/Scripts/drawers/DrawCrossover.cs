@@ -18,18 +18,13 @@ public class DrawCrossover : MonoBehaviour
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rightRayInteractor;
+
     private bool triggerReleased = true;
     private static bool drawTempXover = false;
-
-    // Instead of storing nucleotide GameObjects, we now store virtual nucleotides.
     private static NucleotideData s_startNuc = null;
     private static NucleotideData s_endNuc = null;
-    // The helix collider GameObject that was hit.
     private static GameObject s_hitHelixGO;
     private static GameObject tempXover = null;
-
-    // Radius for the ray-sphere test on nucleotides.
-    [SerializeField] private float nucleotidePickRadius = 0.1f;
 
     private void GetDevice()
     {
@@ -74,8 +69,7 @@ public class DrawCrossover : MonoBehaviour
             s_hitHelixGO = hit.collider.gameObject;
 
             // Check for nucleotide collider.
-            NucleotideColliderComponent nucComp = s_hitHelixGO.GetComponent<NucleotideColliderComponent>();
-            if (nucComp != null)
+            if (s_hitHelixGO.TryGetComponent<NucleotideColliderComponent>(out var nucComp))
             {
                 //Debug.Log("Hit nucleotide collider");
                 NucleotideData nd = nucComp.Data;
@@ -102,7 +96,7 @@ public class DrawCrossover : MonoBehaviour
                      s_eraseTogOn)
             {
                 // If the hit is on an existing crossover (and not a loopout), erase it.
-                DoEraseXover(hit.collider.gameObject);
+                EraseXover(hit.collider.GetComponent<XoverComponent>());
             }
             else
             {
@@ -279,7 +273,7 @@ public class DrawCrossover : MonoBehaviour
         return xover;
     }
 
-    private static bool IsValid(NucleotideData nd1, NucleotideData nd2)
+    public static bool IsValid(NucleotideData nd1, NucleotideData nd2)
     {
         if (nd1.StrandId == -1 || nd2.StrandId == -1)
             return false;
@@ -354,8 +348,8 @@ public class DrawCrossover : MonoBehaviour
         prevDomain.GetTailData().Xover = xoverComponent;
         nextDomain.GetHeadData().Xover = xoverComponent;
 
-        xoverComponent.Color = color;
-        xoverComponent.SavedColor = savedColor;
+        xoverComponent.Color = prevDomain.Color;
+        xoverComponent.SavedColor = nextDomain.Color;
 
         // Adds xover to each endpoint's helix
         prevDomain.GetHelix().AddXover(xoverComponent);
@@ -365,7 +359,7 @@ public class DrawCrossover : MonoBehaviour
         return xoverComponent;
     }
 
-    private static void CalcPrevNextDomains(NucleotideData nd1, NucleotideData nd2, out Domain prevDomain, out Domain nextDomain)
+    public static void CalcPrevNextDomains(NucleotideData nd1, NucleotideData nd2, out Domain prevDomain, out Domain nextDomain)
     {
         Domain d1 = nd1.GetDomain();
         Domain d2 = nd2.GetDomain();
@@ -411,6 +405,26 @@ public class DrawCrossover : MonoBehaviour
         Strand strand = s_strandDict[xoverComp.StrandId];
         strand.DeleteXover(xover);
         DrawSplit.SplitStrand(nucleotide, strandId, color, !splitBefore); // CHECK THIS
+    }
+
+    public static void EraseXover(XoverComponent xover)
+    {
+        NucleotideData prevNucl = xover.PrevNucl;
+        NucleotideData nextNucl = xover.NextNucl;
+        Domain prevDomain = prevNucl.GetDomain();
+        Domain nextDomain = nextNucl.GetDomain();
+        prevDomain.NextXover = null;
+        nextDomain.PrevXover = null;
+        prevNucl.Xover = null;
+        nextNucl.Xover = null;
+
+        prevDomain.GetHelix().RemoveXover(xover);
+        nextDomain.GetHelix().RemoveXover(xover);
+
+        Strand strand = prevNucl.GetStrand();
+        Utils.CreateStrandWithoutXovers(strand.Split(prevNucl));
+
+        GameObject.Destroy(xover.gameObject);
     }
 
     /* public static void SplitStrand(GameObject go, int id, Color color, bool splitAfter)

@@ -109,7 +109,7 @@ public class Helix
     public HelixComponent HelixCollider { get { return helixCollider; } }
 
     private List<XoverComponent> xovers = new List<XoverComponent>();
-    public List<XoverComponent> Xovers { get { return xovers; } set { xovers = value; } }
+    public List<XoverComponent> Xovers { get { return xovers; } }
 
     private List<Color> nucleotideColorA;
     private List<Color> nucleotideColorB;
@@ -329,7 +329,7 @@ public class Helix
     public void CalculateNextNucleotidePositions(int i, out Vector3 posA, out Vector3 posB)
     {
         float angleA = (float)(i * (2 * Math.PI / NUM_BASE_PAIRS)); // rotation per bp in radians
-        float angleB = (float)((i + 4.2f) * (2 * Math.PI / NUM_BASE_PAIRS)); // ~144° major/minor groove offset
+        float angleB = (float)((i + MINOR_GROOVE_OFFSET) * (2 * Math.PI / NUM_BASE_PAIRS)); // 150° minor groove offset
         float axisOneChangeA = (float)(RADIUS * Mathf.Cos(angleA));
         float axisTwoChangeA = (float)(RADIUS * Mathf.Sin(angleA));
         float axisOneChangeB = (float)(RADIUS * Mathf.Cos(angleB));
@@ -659,6 +659,11 @@ public class Helix
     public void AddXover(XoverComponent xover)
     {
         xovers.Add(xover);
+    }
+
+    public void RemoveXover(XoverComponent xover)
+    {
+        xovers.Remove(xover);
     }
 
     /// <summary>
@@ -1373,6 +1378,14 @@ public class Helix
     public Matrix4x4 GetOldOffset()
     {
         return GetGrid().OldTransformOffset;
+    }
+
+    public void SetCylinderParents(Transform parent)
+    {
+        foreach (HelixComponent cylinder in _helixViewCylinders)
+        {
+            cylinder.transform.SetParent(parent, true);
+        }
     }
 }
 

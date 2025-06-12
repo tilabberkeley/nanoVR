@@ -118,8 +118,8 @@ public class OxDNASystem
                         {
                             int idx = !isDomainForward ? (insertionLength - i) : i;
                             Debug.Log($"i: {i}, idx: {idx}, mod: {mod}, (nd.Id + mod - insertionLength + idx): {nd.Id + mod - insertionLength + idx}");
-                            cen = origin + forward * (nd.Id + mod - insertionLength + idx) * RISE_PER_BASE_PAIR * NM_TO_OX_UNITS;
-                            norm = normal.Rotate(STEP_ROTATION * (nd.Id + mod - insertionLength + idx), forward);
+                            cen = origin + forward * (nd.Id + mod - insertionLength + i) * RISE_PER_BASE_PAIR * NM_TO_OX_UNITS;
+                            norm = normal.Rotate(STEP_ROTATION * (nd.Id + mod - insertionLength + i), forward);
                             forw = isDomainForward ? -forward : forward;
                             oxdnaNucleotide = new OxdnaNucleotide(cen, norm, forw, null, seq[index].ToString());
                             strandDomain.Nucleotides.Add(oxdnaNucleotide);
@@ -184,7 +184,6 @@ public class OxDNASystem
                 var isLoopout = tuple.Item2;
                 if (isLoopout)
                 {
-                    Debug.Log("Updating oxdna loopout positions");
                     var prev_nuc = strandDomains[i - 1].Item1.Nucleotides.Last();
                     var next_nuc = strandDomains[i + 1].Item1.Nucleotides[0];
 
@@ -192,6 +191,7 @@ public class OxDNASystem
                     Debug.Log($"Next nc pos: {next_nuc.Center}");
 
                     int length = domain.Nucleotides.Count;
+                    Debug.Log($"Loopout length: {length}");
 
                     var forward = next_nuc.Center - prev_nuc.Center;
                     var normal = GetNormalVectorTo(forward);

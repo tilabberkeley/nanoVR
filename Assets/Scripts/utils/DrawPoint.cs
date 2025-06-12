@@ -220,6 +220,10 @@ public static class DrawPoint
         }
         else
         {
+            /*if (plane.Equals("XY"))
+            {
+                gridCircle.transform.Rotate(0f, 180f, 0f, 0);
+            }*/
             if (plane.Equals("XZ"))
             {
                 gridCircle.transform.Rotate(90f, 0f, 0f, 0);

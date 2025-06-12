@@ -25929,7 +25929,7 @@ PrefabInstance:
       objectReference: {fileID: 174573269}
     - target: {fileID: 2333582758016648224, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2333582758016648224, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _editPanel
@@ -26109,7 +26109,7 @@ PrefabInstance:
       objectReference: {fileID: 174573269}
     - target: {fileID: 2333582758512940809, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2333582758512940809, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _editPanel

@@ -181,6 +181,7 @@ public class TransformHandle : MonoBehaviour
         foreach (GridComponent gc in grid.GridComponents)
         {
             gc.transform.SetParent(gizmosTransform, true);
+            gc.Helix?.SetCylinderParents(gizmosTransform);
             //gc.GetComponent<Collider>().enabled = false;
         }
     }
@@ -210,11 +211,12 @@ public class TransformHandle : MonoBehaviour
                 if (helix != null)
                 {
                     helix.BoundingBox.Reset();
-
                     helix.BoundingBox.Extend(helix.NucleotideDataA[0].GetPosition());
                     helix.BoundingBox.Extend(helix.NucleotideDataB[0].GetPosition());
                     helix.BoundingBox.Extend(helix.NucleotideDataA.Last().GetPosition());
                     helix.BoundingBox.Extend(helix.NucleotideDataB.Last().GetPosition());
+
+                    helix.SetCylinderParents(null);
                 }
             }
         }

@@ -2,8 +2,8 @@
 
 public static class Geometry
 {
-    public const double RISE_PER_BASE_PAIR = 0.332;
-    public const double BASES_PER_TURN = 10.5;
+    public const float RISE_PER_BASE_PAIR = 0.332f;
+    public const float BASES_PER_TURN = 10.5f;
     public const double MINOR_GROOVE_ANGLE = 150.0;
 
     /// <summary>

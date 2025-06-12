@@ -172,7 +172,10 @@ public class DrawNucleotideDynamic : MonoBehaviour
         bool endSelected = s_endGO.IsSelected();
         if (!startSelected && !endSelected)
         {
-            CreateStrand(s_startGO, s_endGO);
+            if (s_startGO.Id < s_endGO.Id)
+                CreateStrand(s_startGO, s_endGO);
+            else
+                CreateStrand(s_endGO, s_startGO);
         }
         else if ((startSelected && !endSelected) || (!startSelected && endSelected))
         {

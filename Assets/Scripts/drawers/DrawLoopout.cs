@@ -15,6 +15,7 @@ public class DrawLoopout : MonoBehaviour
     private const int DEFAULT_LENGTH = 1;
     private const string CURRENT_LENGTH_PREFIX = "Current Loopout Length: ";
 
+    // Device and UI fields
     [SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
@@ -25,15 +26,17 @@ public class DrawLoopout : MonoBehaviour
     [SerializeField] private TMP_Text _currLengthText;
     [SerializeField] private Button _OKButton;
     [SerializeField] private Button _cancelButton;
+
     private bool triggerReleased = true;
     private bool gripReleased = true;
-    private static GameObject s_startGO = null;
-    private static GameObject s_endGO = null;
     public static GameObject s_loopout = null;
     private static bool s_menuEnabled;
     private static RaycastHit s_hit;
-
-    private static GameObject s_loopoutCheck;
+    private static bool drawTempXover = false;
+    private static NucleotideData s_startNuc = null;
+    private static NucleotideData s_endNuc = null;
+    private static GameObject s_hitHelixGO;
+    private static GameObject tempXover = null;
 
     private void GetDevice()
     {
@@ -50,6 +53,12 @@ public class DrawLoopout : MonoBehaviour
         {
             GetDevice();
         }
+    }
+
+    private void Awake()
+    {
+        tempXover = Instantiate(Xover, Vector3.zero, Quaternion.identity) as GameObject;
+        tempXover.SetActive(false);
     }
 
     private void Start()
@@ -73,31 +82,41 @@ public class DrawLoopout : MonoBehaviour
             GetDevice();
         }
 
-        // Trigger on and there's a ray interaction
+        // Get trigger state.
         _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
-        if (triggerValue && triggerReleased
-            && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+
+        // Check if trigger is pressed and was previously released and if we have a valid raycast hit.
+        if (triggerValue && triggerReleased && rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit hit))
         {
             triggerReleased = false;
-            if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
+            s_hitHelixGO = hit.collider.gameObject;
+
+            // Check for nucleotide collider.
+            if (s_hitHelixGO.TryGetComponent<NucleotideColliderComponent>(out var nucComp))
             {
-                if (s_startGO == null)
+                //Debug.Log("Hit nucleotide collider");
+                NucleotideData nd = nucComp.Data;
+                if (nd == null)
                 {
-                    s_startGO = s_hit.collider.gameObject;
-                    //Highlight(s_startGO);
+                    ResetNucleotides();
+                }
+                else if (s_startNuc == null)
+                {
+                    s_startNuc = nd;
                 }
                 else
                 {
-                    s_endGO = s_hit.collider.gameObject;
-                    //Unhighlight(s_startGO);
-
-                    DoCreateLoopout(s_startGO, s_endGO);
+                    s_endNuc = nd;
+                    CreateLoopout(s_startNuc, s_endNuc);
                     ResetNucleotides();
                 }
             }
-            else if (s_hit.collider.GetComponent<LoopoutComponent>() != null && s_eraseTogOn)
+            else if (hit.collider.GetComponent<XoverComponent>() == null &&
+                     hit.collider.GetComponent<LoopoutComponent>()!= null &&
+                     s_eraseTogOn)
             {
-                DoEraseLoopout(s_hit.collider.gameObject);
+                // If the hit is on an existing crossover (and not a loopout), erase it.
+                DrawCrossover.EraseXover(hit.collider.GetComponent<LoopoutComponent>());
             }
             else
             {
@@ -105,14 +124,32 @@ public class DrawLoopout : MonoBehaviour
             }
         }
 
-        // Resets triggers do avoid multiple selections.                                              
+        // Update the temporary xover visualization when trigger is not pressed.
+        bool isHit = rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit hit2);
+        if (triggerReleased && !triggerValue && s_startNuc != null && isHit && hit2.collider.gameObject == s_hitHelixGO)
+        {
+            Domain domain = s_startNuc.GetDomain();
+            if (s_startNuc == domain.GetHeadData() || s_startNuc == domain.GetTailData())
+            {
+                tempXover.SetActive(true);
+                drawTempXover = true;
+            }
+        }
+
+        if (drawTempXover)
+        {
+            Vector3 startPos = s_startNuc.GetPosition();
+            Vector3 currentPos = rightRayInteractor.transform.position + rightRayInteractor.transform.forward * 0.7f; // Use hit point or recalc from helix data.
+            UpdateXover(startPos, currentPos);
+        }
+
         if (!triggerValue)
         {
             triggerReleased = true;
         }
 
-        // Resets start and end nucleotide.
-        if (triggerValue && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        // If trigger is pressed but there is no valid raycast hit, reset nucleotides.
+        if (triggerValue && !rightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit _))
         {
             triggerReleased = false;
             ResetNucleotides();
@@ -120,13 +157,26 @@ public class DrawLoopout : MonoBehaviour
     }
 
     /// <summary>
-    /// Resets the start and end nucleotides.
+    /// Updates the temporary crossover object's position, rotation, and scale.
     /// </summary>
-    public static void ResetNucleotides()
+    private void UpdateXover(Vector3 start, Vector3 end)
     {
-        //Unhighlight(s_startGO);
-        s_startGO = null;
-        s_endGO = null;
+        tempXover.transform.position = (start + end) / 2.0f;
+        Vector3 dirV = Vector3.Normalize(end - start);
+        tempXover.transform.rotation = Quaternion.FromToRotation(Vector3.up, dirV);
+        float dist = Vector3.Distance(start, end);
+        tempXover.transform.localScale = new Vector3(XOVER_RAD, dist, XOVER_RAD);
+    }
+
+    /// <summary>
+    /// Resets the virtual nucleotide selections and hides the temporary crossover visualization.
+    /// </summary>
+    private static void ResetNucleotides()
+    {
+        s_startNuc = null;
+        s_endNuc = null;
+        tempXover.SetActive(false);
+        drawTempXover = false;
     }
 
     /// <summary>
@@ -259,6 +309,16 @@ public class DrawLoopout : MonoBehaviour
         loopoutComponent.IsLoopout = true;
 
         loopout.SetActive(showXover);
+    }
+
+    public static void CreateLoopout(NucleotideData nd1, NucleotideData nd2)
+    {
+        if (!DrawCrossover.IsValid(nd1, nd2))
+            return;
+
+        DrawCrossover.CalcPrevNextDomains(nd1, nd2, out Domain prevDomain, out Domain nextDomain);
+        CreateLoopoutHelper(prevDomain, nextDomain, nd1.StrandId, DEFAULT_LENGTH, prevStrandId: nd2.StrandId);
+        DrawCrossover.MergeStrand(nd1, nd2);       
     }
 
     /// <summary>
