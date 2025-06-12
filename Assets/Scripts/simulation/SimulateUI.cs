@@ -103,6 +103,9 @@ public class SimulateUI : MonoBehaviour
     [SerializeField] private Togglers _togglers;
     [SerializeField] private ViewChanger _viewChanger;
 
+    /* Text to update for simulation summary messages */
+    [SerializeField] private TextMeshProUGUI _simulationSummaryMessage;
+
     void Start()
     {
         _simulateCanvas.enabled = false;
@@ -376,5 +379,10 @@ public class SimulateUI : MonoBehaviour
             _gpuOnlyPanel.SetActive(true);
             _cpuOnlyPanel.SetActive(false);
         }
+    }
+
+    public void SetSimulationSummaryMessage(string simulationSummaryMessage)
+    {
+        _simulationSummaryMessage.text = simulationSummaryMessage;
     }
 }

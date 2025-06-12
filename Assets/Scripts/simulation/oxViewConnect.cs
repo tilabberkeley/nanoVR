@@ -7,8 +7,9 @@ using WebSocketSharp;
 
 public class OxViewConnect : MonoBehaviour
 {
-    [SerializeField]
-    private const string _connectionURL = "wss://nanobase.org:8989/";
+    [SerializeField] private const string _connectionURL = "wss://nanobase.org:8989/";
+
+    [SerializeField] private SimulateUI _simulateUI;
 
     private WebSocket _ws;
     private JObject _settings;
@@ -140,6 +141,7 @@ public class OxViewConnect : MonoBehaviour
     {
         JObject message = JObject.Parse(e.Data);
 
+        string simulationSummaryMessage = message["console_log"].ToString();
         string datFile = message["dat_file"].ToString();
 
         // Use the synchronization context to ensure the SimulationUpdate runs on the main Unity thread
@@ -154,7 +156,7 @@ public class OxViewConnect : MonoBehaviour
 
             OxView oxView = GlobalVariables.s_oxViewDict.Values.First();
             oxView.SimulationUpdate(datFile);
-            Debug.Log("Simulation updated!");
+            _simulateUI.SetSimulationSummaryMessage(simulationSummaryMessage);
         }, null);
     }
 }
