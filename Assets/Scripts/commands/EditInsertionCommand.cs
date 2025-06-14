@@ -16,13 +16,13 @@ public class EditInsertionCommand : ICommand
 
     public EditInsertionCommand(GameObject go, int newLength)
     {
-        var ntc = go.GetComponent<NucleotideComponent>();
+        //var ntc = go.GetComponent<NucleotideComponent>();
         _go = go;
         _length = newLength;
-        _id = ntc.Id;
-        _helixId = ntc.HelixId;
-        _direction = ntc.Direction;
-        _oldLength = ntc.Insertion;
+        //_id = ntc.Id;
+        //_helixId = ntc.HelixId;
+        //_direction = ntc.Direction;
+        //_oldLength = ntc.Insertion;
     }
 
     public void Do()
@@ -35,7 +35,7 @@ public class EditInsertionCommand : ICommand
         GameObject go = FindNucleotide(_id, _helixId, _direction);
         DrawInsertion.EditInsertion(go, _oldLength);
         _oldLength = _length;
-        _length = go.GetComponent<NucleotideComponent>().Insertion;
+        //_length = go.GetComponent<NucleotideComponent>().Insertion;
     }
 
     public void Undo()
@@ -43,6 +43,6 @@ public class EditInsertionCommand : ICommand
         GameObject go = FindNucleotide(_id, _helixId, _direction);
         DrawInsertion.EditInsertion(go, _oldLength);
         _oldLength = _length;
-        _length = go.GetComponent<NucleotideComponent>().Insertion;
+        //_length = go.GetComponent<NucleotideComponent>().Insertion;
     }
 }

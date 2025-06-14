@@ -1,7 +1,7 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
- */
+ *//*
 using UnityEngine;
 
 /// <summary>
@@ -9,7 +9,7 @@ using UnityEngine;
 /// </summary>
 public class EditNucleotideCommand : ICommand
 {
-    private NucleotideComponent _ntc;
+   // private NucleotideComponent _ntc;
     private int _id;
     private int _helixId;
     private int _direction;
@@ -37,14 +37,15 @@ public class EditNucleotideCommand : ICommand
     public void Redo()
     {
         GameObject nucleotide = Utils.FindNucleotide(_id, _helixId, _direction);
-        _ntc = nucleotide.GetComponent<NucleotideComponent>();
-        NucleotideEdit.SetNucleotide(_ntc, _newSequence, _changedComplement);
+        //_ntc = nucleotide.GetComponent<NucleotideComponent>();
+        //NucleotideEdit.SetNucleotide(_ntc, _newSequence, _changedComplement);
     }
 
     public void Undo()
     {
         GameObject nucleotide = Utils.FindNucleotide(_id, _helixId, _direction);
-        _ntc = nucleotide.GetComponent<NucleotideComponent>();
-        NucleotideEdit.SetNucleotide(_ntc, _prevSequence, _changedComplement);
+        //_ntc = nucleotide.GetComponent<NucleotideComponent>();
+        //NucleotideEdit.SetNucleotide(_ntc, _prevSequence, _changedComplement);
     }
 }
+*/

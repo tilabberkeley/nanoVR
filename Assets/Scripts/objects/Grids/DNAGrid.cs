@@ -3,7 +3,6 @@
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
-using Unity.XR.CoreUtils;
 using UnityEngine;
 using static GlobalVariables;
 
@@ -410,36 +409,6 @@ public abstract class DNAGrid
         }
     }
 
-    /*private void Tilt(List<GameObject> gridCircles)
-    {
-        GameObject bottomLeftCorner = _grid2D[0, 0].gameObject;
-        GameObject gizmos = Transform.Instantiate(GlobalVariables.Gizmos,
-                   bottomLeftCorner.transform.position + 0.2f * Vector3.back,
-                   gridCircles[0].transform.rotation);
-
-        for (int i = 0; i < gridCircles.Count; i++)
-        {
-            gridCircles[i].transform.parent = gizmos.transform;
-            if (gridCircles[i].GetComponent<GridComponent>().Helix != null)
-            {
-                gridCircles[i].GetComponent<GridComponent>().Helix.SetParent(gizmos);
-            }
-        }
-
-        gizmos.transform.rotation = bottomLeftCorner.transform.rotation;
-
-        for (int i = 0; i < gridCircles.Count; i++)
-        {
-            gridCircles[i].transform.parent = null;
-            if (gridCircles[i].GetComponent<GridComponent>().Helix != null)
-            {
-                gridCircles[i].GetComponent<GridComponent>().Helix.ResetParent();
-            }
-        }
-
-        GameObject.Destroy(gizmos);
-    }*/
-
     /// <summary>
     /// Returns neighboring grid components of provided grid component.
     /// </summary>
@@ -458,16 +427,8 @@ public abstract class DNAGrid
         Helix helix = new Helix(id, orientation, length, gridComponent);
         gridComponent.Helix = helix;
         gridComponent.Selected = true;
-        if (s_visualMode)
-        {
-            s_visHelixDict.Add(id, helix);
-            s_numVisHelices += 1;
-        }
-        else
-        {
-            s_helixDict.Add(id, helix);
-            s_numHelices += 1;
-        }
+        s_helixDict.Add(id, helix);
+        s_numHelices += 1;
         return helix;
      }
 
@@ -550,26 +511,6 @@ public abstract class DNAGrid
         {
             s_gridCopies.Remove(_id);
         }
-    }
-
-    /// <summary>
-    /// Returns true if grid is empty (has no strands on it).
-    /// </summary>
-    public bool IsEmpty()
-    {
-        //return false;
-        for (int i = 0; i < _length; i++)
-        {
-            for (int j = 0; j < _width; j++)
-            {
-                GridComponent gc = _grid2D[i, j];
-                if (gc.Helix != null && !gc.Helix.IsEmpty())
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     protected void StaticBatchGridGO(GameObject gridGO)

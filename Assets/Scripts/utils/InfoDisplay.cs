@@ -145,15 +145,8 @@ public class InfoDisplay : MonoBehaviour
             textBox.text = text.ToString();
             return;
         }
-        Strand strand;
-        if (s_visualMode)
-        {
-            s_visStrandDict.TryGetValue(strandId, out strand);
-        }
-        else
-        {
-            s_strandDict.TryGetValue(strandId, out strand);
-        }
+
+        s_strandDict.TryGetValue(strandId, out Strand strand);
         text.AppendLine("<b>Strand</b>");
         text.AppendLine(string.Format("Strand Id: {0}", strand.Id));
         text.AppendLine(string.Format("Length: {0}", strand.GetLength()));

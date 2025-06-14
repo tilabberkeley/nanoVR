@@ -161,11 +161,6 @@ public class SelectHelix : MonoBehaviour
     public static void DeleteHelix(int id)
     {
         s_helixDict.TryGetValue(id, out Helix helix);
-        if (!helix.IsEmpty())
-        {
-            Debug.Log("Helix not empty. Cannot delete");
-            return;
-        }
         helix.DeleteHelix();
     }
 

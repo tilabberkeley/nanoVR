@@ -243,11 +243,11 @@ public class NucleotideData
 
     public bool IsHead()
     {
-        return this.id == GetStrand().GetHead().Id;
+        return this == GetStrand().GetHead();
     }
 
     public bool IsTail()
     {
-        return this.id == GetStrand().GetTail().Id;
+        return this == GetStrand().GetTail();
     }
 }

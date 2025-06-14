@@ -349,4 +349,13 @@ public class Domain
             GetNucleotideData(i).Reset();
         }
     }
+
+    public void SetColor(Color color)
+    {
+        for (int i = startId; i <= endId; i++)
+        {
+            NucleotideData nucleotideData = GetNucleotideData(i);          
+            nucleotideData.Color = color;
+        }
+    }
 }

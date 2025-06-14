@@ -3,13 +3,9 @@
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.XR;
-using UnityEngine.XR.Interaction.Toolkit;
 using TMPro;
-using static GlobalVariables;
 using static Highlight;
 
 /// <summary>
@@ -17,31 +13,16 @@ using static Highlight;
 /// </summary>
 public class DrawInsertion : MonoBehaviour
 {
-    /*[SerializeField] private XRNode _xrNode;
-    private List<InputDevice> _devices = new List<InputDevice>();
-    private InputDevice _device;
-    [SerializeField] private XRRayInteractor rightRayInteractor;*/
     [SerializeField] private Canvas _menu;
     [SerializeField] private Canvas _editPanel;
     [SerializeField] private TMP_InputField _inputField;
     [SerializeField] private Button _OKButton;
     [SerializeField] private Button _cancelButton;
     private TouchScreenKeyboard _keyboard;
-    //private bool triggerReleased = true;
-    //private bool gripReleased = true;
+
     private static GameObject s_GO = null;
-    //private static RaycastHit s_hit;
     private static bool s_menuEnabled;
     private const int DEFAULT_LENGTH = 1;
-
-    /*void GetDevice()
-    {
-        InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
-        if (_devices.Count > 0)
-        {
-            _device = _devices[0];
-        }
-    }*/
 
     private void Start()
     {
@@ -66,44 +47,6 @@ public class DrawInsertion : MonoBehaviour
     /// <summary>
     /// Actual method that creates insertion.
     /// </summary>
-    /// <param name="go">Gameobject nucleotide of insertion.</param>
-    /// <param name="length">Length of insertion.</param>
-    public static void Insertion(GameObject go, int length)
-    {
-        var ntc = go.GetComponent<NucleotideComponent>();
-        if (ntc.IsDeletion)
-        {
-            Debug.Log("Cannot draw insertion over deletion.");
-            return;
-        }
-        if (!ntc.Selected)
-        {
-            Debug.Log("Cannot draw insertion on unbound nucleotide.");
-            return;
-        }
-
-        Strand strand = Utils.GetStrand(go);
-
-        if (ntc.IsInsertion)
-        {
-            ntc.Insertion = 0;
-            //UnhighlightInsertion(go);
-        }
-        else
-        {
-            ntc.Insertion = length;
-            //HighlightInsertion(go);
-        }
-
-        // Update strand DNA sequence
-        if (strand != null)
-        {
-            string sequence = strand.Sequence;
-            strand.Sequence = sequence;
-            Utils.CheckMismatch(strand);
-        }
-    }
-
     public static void Insertion(NucleotideData nd, int length)
     {
         if (nd.IsDeletion)
@@ -186,12 +129,12 @@ public class DrawInsertion : MonoBehaviour
     /// <param name="length">New length of insertion.</param>
     public static void EditInsertion(GameObject go, int length)
     {
-        var ntc = go.GetComponent<NucleotideComponent>();
+       /* var ntc = go.GetComponent<NucleotideComponent>();
         if (ntc.IsInsertion)
         {
             ntc.Insertion = length;
         }
-        Debug.Log(ntc.Insertion);
+        Debug.Log(ntc.Insertion);*/
     }
 
     private void ShowEditPanel()

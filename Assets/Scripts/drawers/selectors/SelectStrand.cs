@@ -138,15 +138,6 @@ public class SelectStrand : MonoBehaviour
         strand.DeleteStrand();
     }
 
-    public static void RemoveStrand(GameObject go)
-    {
-        int strandId = go.GetComponent<NucleotideComponent>().StrandId;
-        s_strandDict.TryGetValue(strandId, out Strand strand);
-        //DeleteStrandFromHelix(go);
-        ObjectListManager.DeleteStrandButton(strandId);
-        strand.RemoveStrand();
-    }
-
     public static void RemoveStrand(int strandId)
     {
         ObjectListManager.DeleteStrandButton(strandId);

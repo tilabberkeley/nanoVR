@@ -1,6 +1,6 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkely.edu>
  */
 using UnityEngine;
 
@@ -108,37 +108,5 @@ public class XoverComponent : MonoBehaviour
         //_outline = gameObject.GetComponent<Outline>();
         //_outline.enabled = false;
         _mpb = new MaterialPropertyBlock();
-    }
-
-    private Bezier? _bezier;
-    public Bezier Bezier { get => _bezier; }
-
-    /// <summary>
-    /// Returns xover back from simplified strand view (nucleotide view).
-    /// </summary>
-    public void NucleotideView()
-    {
-        _ntRenderer.enabled = true;
-        if (_bezier == null)
-        {
-            return;
-        }
-
-        _bezier.Destroy();
-        _bezier = null;
-    }
-
-    /// <summary>
-    /// Puts xover in simplified strand view.
-    /// </summary>
-    /// <param name="color">Color to make simplified version.</param>
-    public void StrandView(Color color)
-    {
-        if (_bezier == null)
-        {
-            //Debug.Log("creating xover bezier");
-            _bezier = DrawPoint.MakeXoverBezier(this, color);
-            _ntRenderer.enabled = false;
-        }
     }
 }

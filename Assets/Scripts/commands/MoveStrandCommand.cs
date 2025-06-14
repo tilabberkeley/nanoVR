@@ -1,7 +1,7 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
- */
+ *//*
 using UnityEngine;
 using static Utils;
 
@@ -48,3 +48,4 @@ public class MoveStrandCommand : ICommand
         MoveStrand.Move(newNucl, oldNucl);
     }
 }
+*/

@@ -553,11 +553,8 @@ public class FileImport : MonoBehaviour
 
             Strand strand = CreateStrand(strandDomains, strandId, color, isScaffold, loopouts);
             if (isCircular)
-            //{
                 strand.IsCircular = true;
-            //    // strand.ShowHideCone(false);
-            //    // Debug.Log("Show Hide cone");
-            //}
+
             if (!extensionStrands.ContainsKey(i))
             {
                 strand.SetSequenceRevamp(sequence);
@@ -615,6 +612,7 @@ public class FileImport : MonoBehaviour
             }
 
             strand.SetSequenceRevamp(CleanSlash(sequence));
+            Utils.CheckMismatch(strand); // Check for mismatches after setting sequence
             yield return null;
         }
 

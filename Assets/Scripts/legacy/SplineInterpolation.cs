@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualBasic;
+﻿/*using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -268,12 +268,12 @@ public static class SplineInterpolation
         Vector3 nextNuceotidePosition;
         Vector3 nextBackbonePosition;
 
-        /* For the first curve, we need the position of the dnaComponent one before for a smooth spline.
+        *//* For the first curve, we need the position of the dnaComponent one before for a smooth spline.
          * So adjust the first point to be the midpoint of adjacent control points
          * This is needed for very large domains that have multiple bezier curves. If they're not adjusted,
          * the concatenation of the splines won't be smooth because the splines are adjusting to
          * midpoints as well as seen in GenerateIntermediatePointsBezier.
-         */
+         *//*
         NucleotideComponent firstNucleotideComponent = (NucleotideComponent)dnaComponents[0];
         GetAdjacentPositions(
             firstNucleotideComponent,
@@ -286,7 +286,7 @@ public static class SplineInterpolation
 
         if (pointsToAdd == 0)
         {
-            /* For the same reason as listed above we need to adjust the endpoint to be a mid point
+            *//* For the same reason as listed above we need to adjust the endpoint to be a mid point
              * for spline concatenation. To avoid complexity, this was only implemented when the spline doesn't
              * need to be extend. It is crucial the DomainComponent.BEZIER_COUNT is some multiple of 3 + 4 and odd
              * for this to work properly. Otherwise the splines that get concatenated are extended, and to avoid 
@@ -294,7 +294,7 @@ public static class SplineInterpolation
              * 
              * This isn't as crucial for the other strands that actually get extended because the slight differences 
              * in the the last point's position being adjusted to the midpoint isn't noticable when splines aren't concatenated.
-             */
+             *//*
             NucleotideComponent lastNucleotideComponent = (NucleotideComponent)dnaComponents[dnaComponents.Count - 1];
             GetAdjacentPositions(
                 lastNucleotideComponent,
@@ -348,12 +348,12 @@ public static class SplineInterpolation
             points[i] = dnaComponents[i].transform.position;
         }
 
-        /* For the first curve, we need the position of the dnaComponent one before for a smooth spline.
+        *//* For the first curve, we need the position of the dnaComponent one before for a smooth spline.
          * So adjust the first point to be the midpoint of adjacent control points
          * This is needed for very large domains that have multiple bezier curves. If they're not adjusted,
          * the concatenation of the splines won't be smooth because the splines are adjusting to
          * midpoints as well as seen in GenerateIntermediatePointsBezier.
-         */
+         *//*
         NucleotideComponent firstNucleotideComponent = (NucleotideComponent)dnaComponents[0];
         GetAdjacentPositions(
             firstNucleotideComponent,
@@ -391,3 +391,4 @@ public static class SplineInterpolation
     }
 }
 
+*/

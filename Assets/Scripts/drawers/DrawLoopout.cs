@@ -1,12 +1,16 @@
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
+ */
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
+using TMPro;
 using static GlobalVariables;
 using static Utils;
-using TMPro;
-using System;
 
 public class DrawLoopout : MonoBehaviour
 {
@@ -221,56 +225,6 @@ public class DrawLoopout : MonoBehaviour
         CommandManager.AddCommand(command);
     }
 
-    /// <summary>
-    /// Splits strands (if necessary), draws loopout, and merges strands connected by loopout
-    /// </summary>
-    /*public static GameObject CreateLoopout(GameObject startGO, GameObject endGO, int sequenceLength)
-    {
-        if (!DrawCrossover.IsValid(startGO, endGO))
-        {
-            return null;
-        }
-
-        NucleotideComponent firstNtc = startGO.GetComponent<NucleotideComponent>();
-        NucleotideComponent secondNtc = endGO.GetComponent<NucleotideComponent>();
-
-        DrawSplit.SplitStrand(startGO, s_numStrands, Strand.GetDifferentColor(firstNtc.Color), false);
-        DrawSplit.SplitStrand(endGO, s_numStrands, Strand.GetDifferentColor(secondNtc.Color), true);
-
-        GameObject loopout = CreateLoopoutHelper(startGO, endGO, sequenceLength);
-
-        // TODO: Handle circular loopouts (also should be able to be circular with xovers)
-
-        DrawCrossover.MergeStrand(startGO, endGO, loopout);
-        return loopout;
-    }*/
-
-    /// <summary>
-    /// Helper method to create a loopout between given nuleotides.
-    /// </summary>
-    public static GameObject CreateLoopoutHelper(GameObject startGO, GameObject endGO, int sequenceLength)
-    {
-        int strandId = startGO.GetComponent<NucleotideComponent>().StrandId;
-        int prevStrandId = endGO.GetComponent<NucleotideComponent>().StrandId;
-
-        // Create crossover, assign appropiate prev and next properties.
-        Strand startStr = Utils.GetStrand(startGO);
-        Strand endStr = Utils.GetStrand(endGO);
-        GameObject prevGO = startGO;
-        GameObject nextGO = endGO;
-        if (startGO == startStr.Head)
-        {
-            nextGO = startGO;
-        }
-        if (endGO == endStr.Tail)
-        {
-            prevGO = endGO;
-        }
-        GameObject loopout = DrawPoint.MakeLoopout(prevGO, nextGO, strandId, prevStrandId, sequenceLength);
-
-        return loopout;
-    }
-
     public static LoopoutComponent CreateLoopoutHelper(Domain prevDomain, Domain nextDomain, int strandId, int loopoutLength, int prevStrandId = -1, bool showXover = true)
     {
         // Create crossover, assign appropiate prev and next properties.
@@ -323,27 +277,6 @@ public class DrawLoopout : MonoBehaviour
     }
 
     /// <summary>
-    /// Removes given loopout and creates a new strand with given strand id and color due to loopout deletion.
-    /// </summary>
-    public static void EraseLoopout(GameObject loopout, int strandId, Color color, bool splitBefore)
-    {
-        XoverComponent xoverComp = loopout.GetComponent<XoverComponent>();
-        GameObject nucleotide;
-
-        if (splitBefore)
-        {
-            nucleotide = xoverComp.NextGO;
-        }
-        else
-        {
-            nucleotide = xoverComp.PrevGO;
-        }
-        Strand strand = s_strandDict[xoverComp.StrandId];
-        strand.DeleteXover(loopout);
-        DrawSplit.SplitStrand(nucleotide, strandId, color, !splitBefore); // CHECK THIS
-    }
-
-    /// <summary>
     /// Does an edit loopout command.
     /// </summary>
     private void DoEditLoopout()
@@ -351,7 +284,6 @@ public class DrawLoopout : MonoBehaviour
         int length = GetLengthFromText();
         EditLoopoutCommand command = new EditLoopoutCommand(s_loopout, length);
         CommandManager.AddCommand(command);
-        //command.Do();
     }
 
     /// <summary>

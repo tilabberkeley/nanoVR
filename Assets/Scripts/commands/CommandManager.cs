@@ -52,10 +52,10 @@ public static class CommandManager
     /// <summary>
     /// Whenever a command is done, undone, or redone, CommandUpdate will be called.
     /// </summary>
-    private static void CommandUpdate(List<Strand> updatedStrands)
+    /*private static void CommandUpdate(List<Strand> updatedStrands)
     {
         if (updatedStrands.Count == 0) { return; }
         DrawCrossoverSuggestion.ClearCrossoverSuggestions();
         DrawCrossoverSuggestion.CheckForCrossoverSuggestions();
-    }
+    }*/
 }

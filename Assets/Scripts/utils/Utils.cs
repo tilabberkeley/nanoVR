@@ -39,7 +39,8 @@ public static class Utils
     public static GameObject FindNucleotide(int id, int helixId, int direction)
     {
         s_helixDict.TryGetValue(helixId, out Helix helix);
-        return helix.GetNucleotide(id, direction);
+        return null;
+        //return helix.GetNucleotide(id, direction);
     }
 
     public static NucleotideData FindNucleotideData(int nucleotideId, int helixId, int direction)
@@ -76,50 +77,22 @@ public static class Utils
     public static Strand CreateStrandWithoutXovers(List<Domain> domains, int strandId, Color color)
     {
         Strand strand = new Strand(domains, strandId, color, isScaffold: false, isOxview: false);
-        //Debug.Log("Created strand " + strandId);
-        // Set strand domains
         strand.SetDomainsRevamp();
-        //Debug.Log("Set domains");
 
-        // Set cone
-        //strand.SetConeRevamp();
-
-        if (s_visualMode)
-        {
-            s_visStrandDict.Add(strandId, strand);
-            s_numVisStrands += 1;
-        }
-        else
-        {
-            s_strandDict.Add(strandId, strand);
-            ObjectListManager.CreateStrandButton(strandId);
-            s_numStrands += 1;
-        }
+        s_strandDict.Add(strandId, strand);
+        ObjectListManager.CreateStrandButton(strandId);
+        s_numStrands += 1;
         return strand;
     }
 
     public static Strand CreateStrand(List<Domain> domains, int strandId, Color color, bool isScaffold, Dictionary<int, int> loopouts, bool isOxview = false)
     {
         Strand strand = new Strand(domains, strandId, color, isScaffold, isOxview);
-        //Debug.Log("Created strand " + strandId);
-        // Set strand domains
         strand.SetDomainsRevamp();
-        //Debug.Log("Set domains");
 
-        // Set cone
-        //strand.SetConeRevamp();
-
-        if (s_visualMode)
-        {
-            s_visStrandDict.Add(strandId, strand);
-            s_numVisStrands += 1;
-        }
-        else
-        {
-            s_strandDict.Add(strandId, strand);
-            ObjectListManager.CreateStrandButton(strandId);
-            s_numStrands += 1;
-        }
+        s_strandDict.Add(strandId, strand);
+        ObjectListManager.CreateStrandButton(strandId);
+        s_numStrands += 1;
 
         // Draw and set xovers and loopouts
         for (int i = 1; i < domains.Count; i++)
@@ -134,52 +107,10 @@ public static class Utils
             }
         }
 
-        // Set sequence
-        //strand.SetSequenceRevamp(sequence);
-        //Debug.Log("Set sequence");
-
         // TODO: CheckMismatch(strand);
         return strand;
     }
-
-    // Create strand overloading methods.
-    public static Strand CreateStrand(List<GameObject> nucleotides, int strandId, bool isOxview = false) { return CreateStrand(nucleotides, strandId, Colors[s_numStrands % Colors.Length], new List<(GameObject, int)>(), new List<GameObject>(), "", false, isOxview); }
-    public static Strand CreateStrand(List<GameObject> nucleotides, int strandId, Color color, bool isOxView = false) { return CreateStrand(nucleotides, strandId, color, new List<(GameObject, int)>(), new List<GameObject>(), "", false, isOxView); }
-    public static Strand CreateStrand(List<GameObject> nucleotides, int strandId, Color color, List<(GameObject, int)> insertions,
-                                      List<GameObject> deletions, string sequence, bool isScaffold, bool isOxview = false)
-    {
-        Strand strand = new Strand(nucleotides, strandId, color, isOxview);
-        strand.SetComponents();
-
-        foreach ((GameObject, int) nucl in insertions)
-        {
-            DrawInsertion.Insertion(nucl.Item1, nucl.Item2);
-        }
-
-        foreach (GameObject nucl in deletions)
-        {
-            DrawDeletion.Deletion(nucl);
-        }
-
-
-        if (isScaffold)
-        {
-            strand.IsScaffold = isScaffold;
-        }
-        if (s_visualMode)
-        {
-            s_visStrandDict.Add(strandId, strand);
-            s_numVisStrands += 1;
-        }
-        else
-        {
-            s_strandDict.Add(strandId, strand);
-            ObjectListManager.CreateStrandButton(strandId);
-            s_numStrands += 1;
-        }
-        return strand;
-    }
-
+   
     public static void CheckMismatch(Strand strand)
     {
         foreach (Domain domain in strand.Domains)
@@ -191,52 +122,33 @@ public static class Utils
         }
     }
 
-    /*public static void CheckMismatch(NucleotideComponent ntc)
+    public static void CheckMismatch(NucleotideData nd)
     {
-        NucleotideComponent complementNtc = ntc.Complement.GetComponent<NucleotideComponent>();
+        NucleotideData complemenNucl = nd.GetComplement();
 
         // If complement nucleotide is not assigned a DNA sequence, there is no mismatch of DNA to check.
-        if (complementNtc.Sequence.Equals("")) return;
+        if (complemenNucl.Sequence.Equals("")) return;
 
-        string complementSequence = ComplementSequence(ntc.Sequence);
-        if (!complementNtc.Sequence.Equals(complementSequence))
+        string complementSequence = ComplementSequence(nd.Sequence);
+        if (!complemenNucl.Sequence.Equals(complementSequence))
         {
-            DrawMismatch(complementNtc);
+            DrawMismatch(complemenNucl);
         }
         else
         {
-            RemoveMismatch(complementNtc);
-            RemoveMismatch(ntc);
-        }
-    }*/
-
-    public static void CheckMismatch(NucleotideData ntc)
-    {
-        NucleotideData complementNtc = ntc.GetComplement();
-
-        // If complement nucleotide is not assigned a DNA sequence, there is no mismatch of DNA to check.
-        if (complementNtc.Sequence.Equals("")) return;
-
-        string complementSequence = ComplementSequence(ntc.Sequence);
-        if (!complementNtc.Sequence.Equals(complementSequence))
-        {
-            DrawMismatch(complementNtc);
-        }
-        else
-        {
-            RemoveMismatch(complementNtc);
-            RemoveMismatch(ntc);
+            RemoveMismatch(complemenNucl);
+            RemoveMismatch(nd);
         }
     }
 
-    private static void DrawMismatch(NucleotideData complementNtc)
+    private static void DrawMismatch(NucleotideData complemenNucl)
     {
-        Highlight.HighlightGO(complementNtc, Color.magenta);
+        Highlight.HighlightGO(complemenNucl, Color.magenta);
     }
 
-    private static void RemoveMismatch(NucleotideData complementNtc)
+    private static void RemoveMismatch(NucleotideData complemenNucl)
     {
-        Highlight.UnhighlightGO(complementNtc, false);
+        Highlight.UnhighlightGO(complemenNucl, false);
     }
 
     /// <summary>
@@ -295,17 +207,6 @@ public static class Utils
         return strand;
     }
 
-    public static void SetUnknownSequence(List<GameObject> nucls)
-    {
-        foreach (GameObject nucl in nucls)
-        {
-            NucleotideComponent ntc = nucl.GetComponent<NucleotideComponent>();
-            if (ntc != null)
-            {
-                ntc.Sequence = "?";
-            }
-        }
-    }
 
     public static Quaternion ToQuaternion(float roll, float pitch, float yaw) // roll (x), pitch (y), yaw (z), angles are in degrees, must convert to radians
     {
@@ -391,27 +292,6 @@ public static class Utils
     {
         matrix.SetColumn(3, new Vector4(position.x, position.y, position.z, 1));
         return matrix;
-    }
-
-
-    public static bool IsValidNucleotides(List<GameObject> nucleotides)
-    {
-        if (nucleotides == null) { Debug.Log("Is valid nucls are null"); return false; }
-
-        foreach (GameObject nucleotide in nucleotides)
-        {
-            if (nucleotide == null)
-            {
-                return false;
-            }
-
-            var ntc = nucleotide.GetComponent<DNAComponent>();
-            if (ntc.Selected)
-            {
-                return false;
-            }
-        }
-        return true;
     }
 
     public static bool IsValidDomain(Helix helix, int startId, int endId, int direction)

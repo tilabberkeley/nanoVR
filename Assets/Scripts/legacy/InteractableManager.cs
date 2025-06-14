@@ -1,7 +1,7 @@
 /*
  * nanoVR, a VR application for building DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
- */
+ *//*
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
@@ -35,3 +35,4 @@ public class InteractableManager : MonoBehaviour
         }
     }
 }
+*/

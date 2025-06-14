@@ -63,9 +63,9 @@ public class NucleotideEdit : MonoBehaviour
     /// <summary>
     /// Sets nucleotide DNA sequence.
     /// </summary>
-    public static void SetNucleotide(NucleotideComponent ntc, string sequence, bool changedComplement)
+    /* public static void SetNucleotide(NucleotideComponent ntc, string sequence, bool changedComplement)
     {
-        /*ntc.Sequence = sequence;
+        ntc.Sequence = sequence;
 
         if (changedComplement)
         {
@@ -73,8 +73,8 @@ public class NucleotideEdit : MonoBehaviour
             if (!ValidComplementary(ntc)) return;
             SetComplementary(ntc, sequence);
         }
-        Utils.CheckMismatch(s_ntc);*/
-    }
+        Utils.CheckMismatch(s_ntc);
+    }*/
 
     public static void SetNucleotide(NucleotideData nd, string sequence, bool changedComplement)
     {
@@ -125,7 +125,7 @@ public class NucleotideEdit : MonoBehaviour
     /// <summary>
     /// Sets given nucleotide with given DNA sequence.
     /// </summary>
-    public static void SetComplementary(NucleotideComponent ntc, string sequence)
+    /*public static void SetComplementary(NucleotideComponent ntc, string sequence)
     {
         if (ntc != null)
         {
@@ -143,7 +143,7 @@ public class NucleotideEdit : MonoBehaviour
                 Debug.Log("Finished setting complement of " + ntc.gameObject.name);
             }
         }
-    }
+    }*/
 
     public static void SetComplementary(NucleotideData nd, string sequence)
     {

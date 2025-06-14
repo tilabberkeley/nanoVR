@@ -1,17 +1,15 @@
-using System.Collections;
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
+ */
 using System.Collections.Generic;
-using System.Drawing;
 using UnityEngine;
-using Color = UnityEngine.Color;
-using static GlobalVariables;
 
 /// <summary>
 /// Static helper class to highlight gameobjects.
 /// </summary>
 public static class Highlight
 {
-    /* METHODS RELY ON ALL PASSED IN GAMEOBJECTS HAVING OUTLINE COMPONENT. */
-
     // Colors for highlighting.
     public static Color drawNucleotideHighlightColor = Color.green;
     public static Color eraseNucleotideHighlightColor = Color.red;
@@ -44,7 +42,7 @@ public static class Highlight
     /// <param name="unhighlightInsAndDel">If strand is being deleted, insertions/deletions should be unhighlighted.</param>
     public static void UnhighlightGO(GameObject go, bool unhighlightInsAndDel)
     {
-        if (go == null) { return; }
+        /*if (go == null) { return; }
         
         NucleotideComponent ntc = go.GetComponent<NucleotideComponent>(); 
         Outline outline = go.GetComponent<Outline>();
@@ -61,7 +59,7 @@ public static class Highlight
             }
             return;
         }
-        outline.enabled = false;
+        outline.enabled = false;*/
     }
 
     public static void UnhighlightGO(NucleotideData nd, bool unhighlightInsAndDel)
@@ -81,33 +79,9 @@ public static class Highlight
         nd.IsHighlighted = false;
     }
 
-    /// <summary>
-    /// Helper method to highlight an insertion nucleotide.
-    /// </summary>
-    /// <param name="go">GameObject nucleotide being highlighted.</param>
-    public static void HighlightInsertion(GameObject go)
-    {
-        if (go.GetComponent<NucleotideComponent>() != null)
-        {
-            HighlightGO(go, drawNucleotideHighlightColor);
-        }
-    }
     public static void HighlightInsertion(NucleotideData nd)
     {      
         HighlightGO(nd, drawNucleotideHighlightColor);
-    }
-
-
-    /// <summary>
-    /// Helper method to highlight a deletion nucleotide.
-    /// </summary>
-    /// <param name="go">GameObject nucleotide being highlighted.</param>
-    public static void HighlightDeletion(GameObject go)
-    {
-        if (go.GetComponent<NucleotideComponent>() != null)
-        {
-            HighlightGO(go, eraseNucleotideHighlightColor);
-        }
     }
 
     public static void HighlightDeletion(NucleotideData nd)
@@ -115,59 +89,14 @@ public static class Highlight
         HighlightGO(nd, eraseNucleotideHighlightColor);
     }
 
-    /// <summary>
-    /// Helper method to unhighlight an insertion nucleotide.
-    /// </summary>
-    /// <param name="go">GameObject nucleotide being unhighlighted.</param>
-    public static void UnhighlightInsertion(GameObject go)
-    {
-        if (go.GetComponent<NucleotideComponent>() != null)
-        {
-            UnhighlightGO(go, true);
-        }
-    }
-
     public static void UnhighlightInsertion(NucleotideData nd)
     {
         UnhighlightGO(nd, unhighlightInsAndDel: true);
     }
 
-    /// <summary>
-    /// Helper method to unhighlight a deletion nucleotide.
-    /// </summary>
-    /// <param name="go">GameObject nucleotide being unhighlighted.</param>
-    public static void UnhighlightDeletion(GameObject go)
-    {
-        if (go.GetComponent<NucleotideComponent>() != null)
-        {
-            UnhighlightGO(go, true);
-        }
-    }
-
     public static void UnhighlightDeletion(NucleotideData nd)
     {    
         UnhighlightGO(nd, unhighlightInsAndDel: true);
-    }
-
-    /// <summary>
-    /// Highlights given list of nucleotides and backbones. Highlights red if erase is on. Green otherwise.
-    /// </summary>
-    /// <param name="list">GameObject list of nucleotides and backbones.</param>
-    public static void HighlightNucleotideSelection(List<GameObject> list, bool draw)
-    {
-        Color color = drawNucleotideHighlightColor;
-        if (!draw)
-        {
-            color = eraseNucleotideHighlightColor;
-        }
-        if (list == null)
-        {
-            return;
-        }
-        for (int i = 0; i < list.Count; i++)
-        {
-            HighlightGO(list[i], color);
-        }
     }
 
     /// <summary>
@@ -188,22 +117,6 @@ public static class Highlight
         for (int i = 0; i < list.Count; i++)
         {
             HighlightGO(list[i], color);
-        }
-    }
-
-    /// <summary>
-    /// Unhighlights given list of nucleotides and backbones.
-    /// </summary>
-    /// <param name="list">GameObject list of nucleotides and backbones.</param>
-    public static void UnhighlightNucleotideSelection(List<GameObject> list, bool isDelete)
-    {
-        if (list == null)
-        {
-            return;
-        }
-        for (int i = 0; i < list.Count; i++)
-        {
-            UnhighlightGO(list[i], isDelete);
         }
     }
 
@@ -295,23 +208,5 @@ public static class Highlight
     public static void UnhighlightGridCircle(GridComponent gc)
     {
         UnhighlightGO(gc.gameObject, false);
-    }
-
-    /// <summary>
-    /// Highlights crossover suggestion.
-    /// </summary>
-    /// <param name="xoverSuggestionComponent">Crossover suggestion to highlight.</param>
-    public static void HighlightXoverSuggestion(XoverSuggestionComponent xoverSuggestionComponent)
-    {
-        HighlightGO(xoverSuggestionComponent.gameObject, xoverSuggestionColor);
-    }
-
-    /// <summary>
-    /// Unhighlights crossover suggestion.
-    /// </summary>
-    /// <param name="xoverSuggestionComponent">Crossover suggestion to unhighlight.</param>
-    public static void UnhighlightXoverSuggestion(XoverSuggestionComponent xoverSuggestionComponent)
-    {
-        UnhighlightGO(xoverSuggestionComponent.gameObject, false);
     }
 }

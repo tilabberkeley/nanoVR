@@ -1,7 +1,7 @@
 /*
  * nanoVR, a VR application for building DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
- */
+ *//*
 using System;
 using System.Linq;
 using System.Collections;
@@ -104,11 +104,11 @@ public class ExpandStrands : MonoBehaviour
             }
         }
 
-        /*else
+        *//*else
         {
             string gridType = CleanSlash(origami["grid"].ToString());
             DrawGrid.CreateGrid(s_numGrids.ToString(), "XY", rayInteractor.transform.position + new Vector3(0, 0, 0), gridType);
-        }*/
+        }*//*
 
         int prevNumHelices = s_numVisHelices;
         for (int i = 0; i < helices.Count; i++)
@@ -197,7 +197,7 @@ public class ExpandStrands : MonoBehaviour
 
             Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
 
-            /*// Add deletions and insertions.
+            *//*// Add deletions and insertions.
             for (int j = 0; j < sDeletions.Count; j++)
             {
                 DrawDeletion.Deletion(sDeletions[j]);
@@ -205,7 +205,7 @@ public class ExpandStrands : MonoBehaviour
             for (int j = 0; j < sInsertions.Count; j++)
             {
                 DrawInsertion.Insertion(sInsertions[j].Item1, sInsertions[j].Item2);
-            }*/
+            }*//*
 
             // Add xovers to strand object.
             xoverEndpoints.Reverse();
@@ -353,3 +353,4 @@ public class ExpandStrands : MonoBehaviour
         return scadnano.ToString();
     }
 }
+*/

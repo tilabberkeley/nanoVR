@@ -53,7 +53,7 @@ public static class GlobalVariables
     public static Dictionary<int, Strand> s_strandDict = new Dictionary<int, Strand>();
     public static Dictionary<string, DNAGrid> s_gridDict = new Dictionary<string, DNAGrid>();
     public static Dictionary<int, SubGrid> s_subGridDict = new Dictionary<int, SubGrid>();
-    public static HashSet<XoverSuggestionComponent> s_xoverSuggestions = new HashSet<XoverSuggestionComponent>();
+    //public static HashSet<XoverSuggestionComponent> s_xoverSuggestions = new HashSet<XoverSuggestionComponent>();
     public static int s_numStrands = 1;
     public static int s_numHelices = 0;
     public static int s_numGrids = 1;
@@ -74,14 +74,14 @@ public static class GlobalVariables
     // Tracks how many copies of each gridName have been made
     public static Dictionary<string, int> s_gridCopies = new Dictionary<string, int>();
 
-    // Dictionaries and counts to to keep track of alternate Strand, Helix, and DNAGrid objects when switching to visual mode
+    /*// Dictionaries and counts to to keep track of alternate Strand, Helix, and DNAGrid objects when switching to visual mode
     public static Dictionary<int, Helix> s_visHelixDict = new Dictionary<int, Helix>();
     public static Dictionary<int, Strand> s_visStrandDict = new Dictionary<int, Strand>();
     public static Dictionary<string, DNAGrid> s_visGridDict = new Dictionary<string, DNAGrid>();
     public static int s_numVisStrands = 1;
     public static int s_numVisHelices = 0;
     public static int s_numVisGrids = 1;
-    public static List<GameObject> allVisGameObjects = new List<GameObject>();
+    public static List<GameObject> allVisGameObjects = new List<GameObject>();*/
 
 
     // M13 DNA sequences

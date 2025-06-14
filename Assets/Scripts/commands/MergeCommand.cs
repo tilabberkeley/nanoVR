@@ -1,9 +1,9 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using UnityEngine;
-using static GlobalVariables;
+using static Utils;
 
 public class MergeCommand : ICommand
 {
@@ -25,25 +25,19 @@ public class MergeCommand : ICommand
 
     public void Do()
     {
-        NucleotideData nd = Utils.FindNucleotideData(_id, _helixId, _direction);
+        NucleotideData nd = FindNucleotideData(_id, _helixId, _direction);
         DrawMerge.MergeStrand(nd);
     }
 
     public void Undo()
     {
-        NucleotideData nd = Utils.FindNucleotideData(_id, _helixId, _direction);
+        NucleotideData nd = FindNucleotideData(_id, _helixId, _direction);
         DrawSplit.SplitStrand(nd, _neighborStrandId, _neighborColor);
     }
 
     public void Redo()
     {
-        NucleotideData nd = Utils.FindNucleotideData(_id, _helixId, _direction);
+        NucleotideData nd = FindNucleotideData(_id, _helixId, _direction);
         DrawMerge.MergeStrand(nd);
-    }
-
-    public GameObject FindNucleotide(int id, int helixId, int direction)
-    {
-        s_helixDict.TryGetValue(helixId, out Helix helix);
-        return helix.GetNucleotide(id, direction);
     }
 }

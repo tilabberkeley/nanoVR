@@ -1,7 +1,7 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
- */
+ *//*
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,9 +66,9 @@ public class DomainComponent : MonoBehaviour
                 if (nuclSubList.Count % BEZIER_COUNT == 0 || i == _dnaComponents.Count - 1)
                 {
                     Bezier bezier = DrawPoint.MakeDomainBezier(nuclSubList, _strand.Color, out GameObject bezierStartPoint, out GameObject bezierEndPoint);
-                    /*bezier.Tube.transform.SetParent(transform, true);
+                    *//*bezier.Tube.transform.SetParent(transform, true);
                     bezier.Endpoint0.transform.SetParent(transform, true);
-                    bezier.Endpoint1.transform.SetParent(transform, true);*/
+                    bezier.Endpoint1.transform.SetParent(transform, true);*//*
 
                     if (_beziers.Count == 0)
                     {
@@ -270,3 +270,4 @@ public class DomainComponent : MonoBehaviour
         gameObject.SetActive(false);
     }
 }
+*/

@@ -1,6 +1,6 @@
 /*
  * nanoVR, a VR application for building DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
 using UnityEngine;
@@ -51,8 +51,6 @@ public class SelectGrid : MonoBehaviour
         if (triggerValue && triggerReleased && !rayInteractor.TryGetCurrent3DRaycastHit(out _))
         {
             triggerReleased = false;
-            //UnhighlightGrid(s_grid);
-            //Reset();
         }
 
         // Resets trigger.                                          
@@ -61,48 +59,6 @@ public class SelectGrid : MonoBehaviour
             triggerReleased = true;
         }
     }
-
-    /// <summary>
-    /// Resets the grid.
-    /// </summary>
-    /*private static void Reset()
-    {
-        s_grid = null;
-    }*/
-
-    /*public static void HighlightGrid(string gridId)
-    {
-        UnhighlightGrid(s_grid);
-        s_gridDict.TryGetValue(gridId, out DNAGrid grid);
-        s_grid = grid;
-        foreach (GridComponent gc in grid.Grid2D)
-        {
-            Highlight.HighlightGridCircle(gc);
-            if (gc.Helix != null)
-            {
-                Highlight.HighlightHelix(gc.Helix);
-            }
-        }
-    }
-
-    public void UnhighlightGrid()
-    {
-        UnhighlightGrid(s_grid);
-    }
-
-    private static void UnhighlightGrid(DNAGrid grid)
-    {
-        if (grid == null) { return; }
-        foreach (GridComponent gc in grid.Grid2D)
-        {
-            Highlight.UnhighlightGridCircle(gc);
-            if (gc.Helix != null)
-            {
-                Highlight.UnhighlightHelix(gc.Helix);
-            }
-        }
-    }*/
-
 
     /// <summary>
     /// Shows grid circles of DNAGrid

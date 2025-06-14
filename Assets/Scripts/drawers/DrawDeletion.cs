@@ -22,42 +22,6 @@ public class DrawDeletion
     /// <summary>
     /// Actual method that creates deletion.
     /// </summary>
-    /// <param name="go">Gameobject nucleotide of deletion.</param>
-    public static void Deletion(GameObject go)
-    {
-        var ntc = go.GetComponent<NucleotideComponent>();
-        if (ntc.IsInsertion)
-        {
-            Debug.Log("Cannot draw deletion over insertion.");
-            return;
-        }
-        if (!ntc.Selected)
-        {
-            Debug.Log("Cannot draw insertion on unbound nucleotide.");
-            return;
-        }
-
-        Strand strand = Utils.GetStrand(go);
-
-        if (ntc.IsDeletion)
-        {
-            ntc.IsDeletion = false;
-            UnhighlightDeletion(go);
-        }
-        else
-        {
-            ntc.IsDeletion = true;
-            HighlightDeletion(go);
-        }
-
-        // Update strand DNA sequence
-        if (strand != null)
-        {
-            string sequence = strand.Sequence;
-            strand.Sequence = sequence;
-            Utils.CheckMismatch(strand);
-        }
-    }
 
     public static void Deletion(NucleotideData nd)
     {

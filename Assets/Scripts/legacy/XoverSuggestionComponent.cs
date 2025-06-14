@@ -1,4 +1,4 @@
-using System.Collections;
+/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static Highlight;
@@ -59,10 +59,10 @@ public class XoverSuggestionComponent : MonoBehaviour
     /// nucleotides (validity may change on some operations).
     /// </summary>
     /// <returns>True if valid. False otherwise.</returns>
-    public bool IsValid()
+    *//*public bool IsValid()
     {
         return DrawCrossoverSuggestion.IsValid(_nucleotideComponent0, _nucleotideComponent1);
-    }
+    }*//*
 
     /// <summary>
     /// Returns whether the given nucleotides have a crossover suggestion between them.
@@ -87,14 +87,14 @@ public class XoverSuggestionComponent : MonoBehaviour
     /// </summary>
     public void CreateXover()
     {
-        /*if (!_splitLeft)
+        *//*if (!_splitLeft)
         {
             DrawCrossover.DoCreateXover(_nucleotideComponent0.gameObject, _nucleotideComponent1.gameObject);
         }
         else
         {
             DrawCrossover.DoCreateXover(_nucleotideComponent1.gameObject, _nucleotideComponent0.gameObject);
-        }*/
+        }*//*
 
         _nucleotideComponent0.RemoveXoverSuggestions();
         _nucleotideComponent1.RemoveXoverSuggestions();
@@ -103,3 +103,4 @@ public class XoverSuggestionComponent : MonoBehaviour
         Destroy(gameObject);
     }
 }
+*/

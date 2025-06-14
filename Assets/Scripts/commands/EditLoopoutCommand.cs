@@ -7,12 +7,12 @@ public class EditLoopoutCommand : ICommand
 {
     GameObject _loopout;
 
-    private NucleotideComponent _first;
+    //private NucleotideComponent _first;
     private int _firstId;
     private int _firstHelixId;
     private int _firstDirection;
 
-    private NucleotideComponent _second;
+    //private NucleotideComponent _second;
     private int _secondId;
     private int _secondHelixId;
     private int _secondDirection;
@@ -26,15 +26,15 @@ public class EditLoopoutCommand : ICommand
         LoopoutComponent loopoutComponent = loopout.GetComponent<LoopoutComponent>();
         //SequenceComponent seqComp = loopout.GetComponent<SequenceComponent>();
 
-        _first = loopoutComponent.NextGO.GetComponent<NucleotideComponent>();
-        _firstId = _first.Id;
-        _firstHelixId = _first.HelixId;
-        _firstDirection = _first.Direction;
+        //_first = loopoutComponent.NextGO.GetComponent<NucleotideComponent>();
+        //_firstId = _first.Id;
+        //_firstHelixId = _first.HelixId;
+        //_firstDirection = _first.Direction;
 
-        _second = loopoutComponent.PrevGO.GetComponent<NucleotideComponent>();
-        _secondId = _second.Id;
-        _secondHelixId = _second.HelixId;
-        _secondDirection = _second.Direction;
+        //_second = loopoutComponent.PrevGO.GetComponent<NucleotideComponent>();
+        //_secondId = _second.Id;
+        //_secondHelixId = _second.HelixId;
+        //_secondDirection = _second.Direction;
 
         _newLength = newLength;
         _oldLength = loopoutComponent.SequenceLength;
@@ -49,17 +49,17 @@ public class EditLoopoutCommand : ICommand
     {
         GameObject startGO = FindNucleotide(_firstId, _firstHelixId, _firstDirection);
 
-        GameObject loopout = startGO.GetComponent<NucleotideComponent>().Xover;
+        //GameObject loopout = startGO.GetComponent<NucleotideComponent>().Xover;
 
-        DrawLoopout.EditLoopout(loopout, _newLength);
+        //DrawLoopout.EditLoopout(loopout, _newLength);
     }
 
     public void Undo()
     {
         GameObject startGO = FindNucleotide(_firstId, _firstHelixId, _firstDirection);
 
-        GameObject loopout = startGO.GetComponent<NucleotideComponent>().Xover;
+        //GameObject loopout = startGO.GetComponent<NucleotideComponent>().Xover;
 
-        DrawLoopout.EditLoopout(loopout, _oldLength);
+        //DrawLoopout.EditLoopout(loopout, _oldLength);
     }
 }

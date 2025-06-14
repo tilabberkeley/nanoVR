@@ -1,7 +1,7 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
- */
+ *//*
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -66,7 +66,7 @@ public class HelixColliderManager : MonoBehaviour
         bool leftRayInteractorHit = leftRayInteractor.TryGetCurrent3DRaycastHit(out s_hit);
         bool rightRayInteractorHit = rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit);
 
-        /*if (leftTriggerValue && _leftTriggerReleased && leftRayInteractorHit)
+        *//*if (leftTriggerValue && _leftTriggerReleased && leftRayInteractorHit)
         {
             _leftTriggerReleased = false;
             if (s_hit.collider.TryGetComponent<HelixComponent>(out var helixComp))
@@ -80,7 +80,7 @@ public class HelixColliderManager : MonoBehaviour
                 Debug.Log("Hit domain component in helix collider manager");
                 domain.Helix.ToHelixView();
             }
-        }*/
+        }*//*
 
         if (!rightGripValue && rightTriggerValue && _rightTriggerReleased && rightRayInteractorHit)
         {
@@ -120,3 +120,4 @@ public class HelixColliderManager : MonoBehaviour
         }
     }
 }
+*/

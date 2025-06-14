@@ -64,21 +64,14 @@ public class DrawGrid : MonoBehaviour
             grid = new NoneGrid(gridId, plane, position);
         }
 
-        if (s_visualMode)
-        {
-            s_visGridDict.Add(gridId, grid);
-            s_numVisGrids += 1;
-        }
-        else
-        {
-            s_gridDict.Add(gridId, grid); 
-            s_gridCopies.Add(gridId, 0);
-            ObjectListManager.CreateGridButton(gridId);
+     
+        s_gridDict.Add(gridId, grid); 
+        s_gridCopies.Add(gridId, 0);
+        ObjectListManager.CreateGridButton(gridId);
 
-            // Add newly created grid to selected grids
-            SelectGrid.ToggleGridCircles(grid.Id);
-            s_numGrids += 1;
-        }
+        // Add newly created grid to selected grids
+        SelectGrid.ToggleGridCircles(grid.Id);
+        s_numGrids += 1;
 
         return grid;
     }

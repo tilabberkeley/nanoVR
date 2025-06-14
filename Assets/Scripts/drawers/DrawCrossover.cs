@@ -160,43 +160,6 @@ public class DrawCrossover : MonoBehaviour
     }
 
     /// <summary>
-    /// Returns whether there can be a crossover between the two inputted nucleotides.
-    /// The nucleotides must be going in different directions and be apart of a strand.
-    /// Addiionally, there can't be a crossover or loopout already on either of the
-    /// nucleotides.
-    /// </summary>
-    /// <param name="startGO">First nucleotide game object.</param>
-    /// <param name="endGO">Second nucleotide game object.</param>
-    /// <returns>Whether there can be a crossover between the two nucleotide.</returns>
-    public static bool IsValid(GameObject startGO, GameObject endGO)
-    {
-        var startNtc = startGO.GetComponent<NucleotideComponent>();
-        int startId = startNtc.StrandId;
-        int startDir = startNtc.Direction;
-
-        var endNtc = endGO.GetComponent<NucleotideComponent>();
-        int endId = endNtc.StrandId;
-        int endDir = endNtc.Direction;
-
-        if (startId == -1 || endId == -1)
-        {
-            return false;
-        }
-
-        if (startDir == endDir)
-        {
-            return false;
-        }
-
-        if (startNtc.Xover != null || endNtc.Xover != null)
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    /// <summary>
     /// Does a xover command.
     /// </summary>
     public static void DoCreateXover(NucleotideData first, NucleotideData second)
@@ -207,62 +170,6 @@ public class DrawCrossover : MonoBehaviour
         }
         ICommand command = new XoverCommand(first, second);
         CommandManager.AddCommand(command);
-    }
-
-    /// <summary>
-    /// Splits strands (if necessary), draws xover, and merges strands connected by xover
-    /// </summary>
-    public static GameObject CreateXover(GameObject startGO, GameObject endGO)
-    {
-        if (!IsValid(startGO, endGO))
-        {
-            return null;
-        }
-
-        NucleotideComponent firstNtc = startGO.GetComponent<NucleotideComponent>();
-        NucleotideComponent secondNtc = endGO.GetComponent<NucleotideComponent>();
-
-        DrawSplit.SplitStrand(startGO, s_numStrands, Strand.GetDifferentColor(firstNtc.Color), false);
-        DrawSplit.SplitStrand(endGO, s_numStrands, Strand.GetDifferentColor(secondNtc.Color), true);
-
-        GameObject xover = CreateXoverHelper(startGO, endGO);
-
-        // Create circular strand
-        if (firstNtc.StrandId == secondNtc.StrandId)
-        {
-            HandleCycle(startGO);
-        }
-        else
-        {
-            MergeStrand(startGO, endGO, xover);
-        }
-        return xover;
-    }
-
-    /// <summary>
-    /// Helper method to create a crossover between given nuleotides.
-    /// </summary>
-    public static GameObject CreateXoverHelper(GameObject startGO, GameObject endGO, bool showXover = true)
-    {
-        int strandId = startGO.GetComponent<NucleotideComponent>().StrandId;
-        int prevStrandId = endGO.GetComponent<NucleotideComponent>().StrandId;
-
-        // Create crossover, assign appropiate prev and next properties.
-        Strand startStr = Utils.GetStrand(startGO);
-        Strand endStr = Utils.GetStrand(endGO);
-        GameObject prevGO = startGO;
-        GameObject nextGO = endGO;
-        if (startGO == startStr.Head)
-        {
-            nextGO = startGO;
-        }
-        if (endGO == endStr.Tail)
-        {
-            prevGO = endGO;
-        }
-        GameObject xover = DrawPoint.MakeXover(prevGO, nextGO, strandId, prevStrandId);
-        xover.SetActive(showXover);
-        return xover;
     }
 
     public static bool IsValid(NucleotideData nd1, NucleotideData nd2)
@@ -415,83 +322,6 @@ public class DrawCrossover : MonoBehaviour
         GameObject.Destroy(xover.gameObject);
     }
 
-    /* public static void SplitStrand(GameObject go, int id, Color color, bool splitAfter)
-     {
-         var startNtc = go.GetComponent<NucleotideComponent>();
-         int strandId = startNtc.StrandId;
-         s_strandDict.TryGetValue(strandId, out Strand strand);
-
-         if (splitAfter)
-         {
-             CreateStrand(strand.SplitAfter(go), id, color);
-         }
-         else
-         {
-             CreateStrand(strand.SplitBefore(go), id, color);
-         }
-     }*/
-
-    /// <summary>
-    /// Splits strand at given nucleotide.
-    /// </summary>
-    public static void SplitStrand(GameObject nucleotide, int id, Color color, bool splitAfter)
-    {
-        var startNtc = nucleotide.GetComponent<NucleotideComponent>();
-        int strandId = startNtc.StrandId;
-        s_strandDict.TryGetValue(strandId, out Strand strand);
-
-        if (splitAfter)
-        {
-            /*List<GameObject> xovers = strand.GetXoversBeforeIndex(goIndex);
-            strand.RemoveXovers(xovers);*/
-            CreateStrand(strand.SplitAfter(nucleotide), id, color);
-        }
-        else
-        {
-            /*List<GameObject> xovers = strand.GetXoversAfterIndex(goIndex);
-            strand.RemoveXovers(xovers);*/
-            /*List<GameObject> nucleotides = strand.SplitAfter(go);
-            if (nucleotides.Count % 2 == 0) // Remove the trailing backbone
-            {
-                nucleotides.RemoveAt(nucleotides.Count - 1);
-            }*/
-            CreateStrand(strand.SplitBefore(nucleotide), id, color);
-        }
-    }
-
-    /// <summary>
-    /// Merges two strands specificed by the two given nucleotide gameobjects along with the given xover.
-    /// (This differs from the standard merge by also considering a xover).
-    /// </summary>
-    public static void MergeStrand(GameObject firstGO, GameObject secondGO, GameObject xover)
-    {
-        var firstNtc = firstGO.GetComponent<NucleotideComponent>();
-        var secondNtc = secondGO.GetComponent<NucleotideComponent>();
-        var xoverComp = xover.GetComponent<XoverComponent>();
-        int firstStrandId = firstNtc.StrandId;
-        int secondStrandId = secondNtc.StrandId;
-        Strand firstStrand = s_strandDict[firstStrandId];
-        Strand secondStrand = s_strandDict[secondStrandId];
-
-        if (firstStrand.Head == firstGO && secondStrand.Tail == secondGO)
-        {
-            xoverComp.PrevGO = secondGO;
-            xoverComp.NextGO = firstGO;
-            List<GameObject> nucleotides = secondStrand.Nucleotides;
-            SelectStrand.RemoveStrand(nucleotides[0]);
-            firstStrand.AddToHead(nucleotides);
-        }
-        else if (firstStrand.Tail == firstGO && secondStrand.Head == secondGO)
-        {
-            xoverComp.PrevGO = firstGO;
-            xoverComp.NextGO = secondGO;
-            List<GameObject> nucleotides = secondStrand.Nucleotides;
-            SelectStrand.RemoveStrand(nucleotides[0]);
-            firstStrand.AddToTail(nucleotides);
-        }
-        firstStrand.SetComponents();
-    }
-
     public static void MergeStrand(NucleotideData nd1, NucleotideData nd2)
     {
         Strand s1 = nd1.GetStrand();
@@ -513,43 +343,11 @@ public class DrawCrossover : MonoBehaviour
         }
     }
 
-    private static void HandleCycle(GameObject go)
+    /*private static void HandleCycle(GameObject go)
     {
         var ntc = go.GetComponent<NucleotideComponent>();
         s_strandDict.TryGetValue(ntc.StrandId, out Strand strand);
         strand.ShowHideCone(false);
         strand.IsCircular = true;
-    }
-
-    /// <summary>
-    /// Given two nucleotide game objects, the out variables are set such that the start variables hold the respective
-    /// variables for the strand with the smallest strand id. The end variables hold the respective variables for the
-    /// strand with the largest strand id.
-    /// </summary>
-    public static void SetNucleotideDirection(GameObject firstGO, GameObject secondGO,
-        out GameObject startGO, out GameObject endGO, out Strand startStrand, out Strand endStrand)
-    {
-        NucleotideComponent firstNtc = firstGO.GetComponent<NucleotideComponent>();
-        NucleotideComponent secondNtc = secondGO.GetComponent<NucleotideComponent>();
-        int firstStrandId = firstNtc.StrandId;
-        int secondStrandId = secondNtc.StrandId;
-
-        // Strand with smallest id will be start GO. This strand will also be preserved with the merge.
-        if (firstStrandId < secondStrandId)
-        {
-            startStrand = s_strandDict[firstStrandId];
-            endStrand = s_strandDict[secondStrandId];
-
-            startGO = firstGO;
-            endGO = secondGO;
-        }
-        else
-        {
-            startStrand = s_strandDict[secondStrandId];
-            endStrand = s_strandDict[firstStrandId];
-
-            startGO = secondGO;
-            endGO = firstGO;
-        }
-    }
+    }*/
 }

@@ -35,7 +35,7 @@ public class ClearScene : MonoBehaviour
         s_helixDict = new Dictionary<int, Helix>();
         s_strandDict = new Dictionary<int, Strand>();
         s_gridDict = new Dictionary<string, DNAGrid>();
-        s_xoverSuggestions = new HashSet<XoverSuggestionComponent>();
+        //s_xoverSuggestions = new HashSet<XoverSuggestionComponent>();
         s_numStrands = 1;
         s_numHelices = 0;
         s_numGrids = 1;
