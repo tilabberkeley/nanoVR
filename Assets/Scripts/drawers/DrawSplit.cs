@@ -3,10 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.XR;
-using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
 using static Utils;
 
@@ -15,70 +12,11 @@ using static Utils;
 /// </summary>
 public class DrawSplit
 {
-    /*[SerializeField] private XRNode _xrNode;
-    private List<InputDevice> _devices = new List<InputDevice>();
-    private InputDevice _device;
-    [SerializeField] private XRRayInteractor rightRayInteractor;
-    private bool triggerReleased = true;
-    private static GameObject s_GO = null;
-    private static RaycastHit s_hit;*/
-
-/*    void GetDevice()
+    public static void DoSplitStrand(NucleotideData nd)
     {
-        InputDevices.GetDevicesAtXRNode(_xrNode, _devices);
-        if (_devices.Count > 0)
-        {
-            _device = _devices[0];
-        }
-    }
-
-    void OnEnable()
-    {
-        if (!_device.isValid)
-        {
-            GetDevice();
-        }
-    }
-
-    void Update()
-    {
-        if (!s_splitTogOn || s_hideStencils)
-        {
-            return;
-        }
-
-        if (!_device.isValid)
-        {
-            GetDevice();
-        }
-
-        // Handles start and end nucleotide selection.
-        _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
-        if (triggerValue && triggerReleased
-                && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
-        {
-            triggerReleased = false;
-            if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
-            {
-                s_GO = s_hit.collider.gameObject;
-                DoSplitStrand(s_GO);
-            }
-        }
-
-        // Resets triggers to avoid multiple selections.                                              
-        if (!triggerValue)
-        {
-            triggerReleased = true;
-        }
-    }*/
-
-    public static void DoSplitStrand(GameObject go)
-    {
-        if (!IsValid(go)) { return; }
-        Color color = Colors[s_numStrands % Colors.Length];
-        ICommand command = new SplitCommand(go, s_numStrands, color);
+        if (!IsValid(nd)) { return; }
+        ICommand command = new SplitCommand(nd);
         CommandManager.AddCommand(command);
-        //command.Do();
     }
 
     /// <summary>
@@ -119,13 +57,13 @@ public class DrawSplit
         }
     }
 
-    public static void SplitStrand(NucleotideData nd)
+    public static void SplitStrand(NucleotideData nd, int strandId, Color color)
     {
         if (!IsValid(nd)) { return; }
         Strand strand = nd.GetStrand();
 
         bool splitAfter = Convert.ToBoolean(nd.Direction);
-        CreateStrandWithoutXovers(strand.Split(nd, splitAfter));
+        CreateStrandWithoutXovers(strand.Split(nd, splitAfter), strandId, color);
     }
 
     public static bool IsValid(GameObject go)

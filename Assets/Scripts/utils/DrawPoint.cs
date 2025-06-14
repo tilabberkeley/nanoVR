@@ -413,7 +413,7 @@ public static class DrawPoint
         return xover;
     }
 
-    public static GameObject MakeXover(Domain prevDomain, Domain nextDomain, Transform gc)
+    public static XoverComponent MakeXover(Domain prevDomain, Domain nextDomain, Transform gc)
     {
         GameObject xover =
                    Instantiate(Xover,
@@ -460,7 +460,7 @@ public static class DrawPoint
             XOVER_RAD
         );        //Debug.Log(string.Format("Finished drawing xover: {0}", xover.transform.localScale));
 
-        return xover;
+        return xover.GetComponent<XoverComponent>();
     }
 
     /// <summary>

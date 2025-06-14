@@ -16,7 +16,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using static GlobalVariables;
 using static Utils;
-using System.Reflection; // Do not remove this, it is used to set FileBrowser to not use SAF on Android devices.
+using System.Reflection;
+using System.Runtime.InteropServices; // Do not remove this, it is used to set FileBrowser to not use SAF on Android devices.
 
 public class FileExport : MonoBehaviour
 {
@@ -173,7 +174,7 @@ public class FileExport : MonoBehaviour
         }
 
         // Creating strands data.
-        JArray strands = new JArray();
+        List<Strand> strands = new List<Strand>();
         foreach (var item in s_strandDict)
         {
             Strand strand = item.Value;
@@ -181,76 +182,14 @@ public class FileExport : MonoBehaviour
             {
                 continue;
             }
-
             // Skip strands that span multiple grids when we are copy/pasting a single grid
             else if (isCopyPaste && strand.MoreThanOneGrid())
             {
                 continue;
             }
-
-            JArray domains = new JArray();
-           
-            // Creating domains data for each strand.
-            foreach (Domain domain in strand.Domains)
-            {
-                
-                JObject domainObject;
-
-                if (domain.IsExtension && !domain.IsHelixBound) // true scadnano extension
-                {
-                    domainObject = new JObject
-                    {
-                        ["extension_num_bases"] = domain.GetLength(),
-                    };
-                }
-                else
-                {
-                    domainObject = new JObject
-                    {
-                        ["helix"] = domain.HelixId,
-                        ["forward"] = Convert.ToBoolean(domain.Direction),
-                        ["start"] = domain.StartId,
-                        ["end"] = domain.EndId + 1, // + 1 accounts for .sc endId being exclusive
-                    };
-                    if (domain.Insertions.Count > 0)
-                    {
-                        // insertions.Sort();
-                        domainObject["insertions"] = JArray.FromObject(domain.Insertions);
-                    }
-                    if (domain.Deletions.Count > 0)
-                    {
-                        domainObject["deletions"] = JArray.FromObject(domain.Deletions);
-                    }
-                }
-                    
-                domains.Add(domainObject);  
-                
-
-                // Adds loopout objects
-                if (domain.NextXover != null && domain.NextXover.IsLoopout)
-                {
-                    LoopoutComponent loopComp = (LoopoutComponent) domain.NextXover;
-                    JObject loopout = new JObject
-                    {
-                        ["loopout"] = loopComp.SequenceLength,
-                    };
-                    domains.Add(loopout);
-                }
-            }
-
-            JObject jsonStrand = new JObject
-            {
-                ["color"] = "#" + ColorUtility.ToHtmlStringRGB(strand.Color).ToLower(),
-                ["sequence"] = strand.Sequence,
-                ["is_scaffold"] = strand.IsScaffold,
-                ["domains"] = domains,
-            };
-            if (strand.IsCircular)
-            {
-                jsonStrand["circular"] = true;
-            }
-            strands.Add(jsonStrand);
+            strands.Add(strand);
         }
+        JArray jsonStrands = StrandsExport(strands);
 
         // Creating entire json file.
         JObject scadnano = new JObject
@@ -267,9 +206,86 @@ public class FileExport : MonoBehaviour
         }
 
         scadnano["helices"] = helices;
-        scadnano["strands"] = strands;
+        scadnano["strands"] = jsonStrands;
 
         return scadnano.ToString();
+    }
+
+    public static JArray StrandsExport(List<Strand> strands)
+    {
+        JArray jsonStrands = new JArray();
+        foreach (Strand strand in strands)
+        {
+            JObject jsonStrand = StrandExport(strand);
+            jsonStrands.Add(jsonStrand);
+        }
+        return jsonStrands;
+    }
+
+    private static JObject StrandExport(Strand strand)
+    {
+        JArray domains = new JArray();
+
+        // Creating domains data for each strand.
+        foreach (Domain domain in strand.Domains)
+        {
+
+            JObject domainObject;
+
+            if (domain.IsExtension && !domain.IsHelixBound) // true scadnano extension
+            {
+                domainObject = new JObject
+                {
+                    ["extension_num_bases"] = domain.GetLength(),
+                };
+            }
+            else
+            {
+                domainObject = new JObject
+                {
+                    ["helix"] = domain.HelixId,
+                    ["forward"] = Convert.ToBoolean(domain.Direction),
+                    ["start"] = domain.StartId,
+                    ["end"] = domain.EndId + 1, // + 1 accounts for .sc endId being exclusive
+                };
+                if (domain.Insertions.Count > 0)
+                {
+                    // insertions.Sort();
+                    domainObject["insertions"] = JArray.FromObject(domain.Insertions);
+                }
+                if (domain.Deletions.Count > 0)
+                {
+                    domainObject["deletions"] = JArray.FromObject(domain.Deletions);
+                }
+            }
+
+            domains.Add(domainObject);
+
+
+            // Adds loopout objects
+            if (domain.NextXover != null && domain.NextXover.IsLoopout)
+            {
+                LoopoutComponent loopComp = (LoopoutComponent)domain.NextXover;
+                JObject loopout = new JObject
+                {
+                    ["loopout"] = loopComp.SequenceLength,
+                };
+                domains.Add(loopout);
+            }
+        }
+
+        JObject jsonStrand = new JObject
+        {
+            ["color"] = "#" + ColorUtility.ToHtmlStringRGB(strand.Color).ToLower(),
+            ["sequence"] = strand.Sequence,
+            ["is_scaffold"] = strand.IsScaffold,
+            ["domains"] = domains,
+        };
+        if (strand.IsCircular)
+        {
+            jsonStrand["circular"] = true;
+        }
+        return jsonStrand;
     }
 
     private static JObject HelixExport(Helix helix, bool isOxDNA)

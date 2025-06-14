@@ -87,14 +87,14 @@ public class XoverSuggestionComponent : MonoBehaviour
     /// </summary>
     public void CreateXover()
     {
-        if (!_splitLeft)
+        /*if (!_splitLeft)
         {
             DrawCrossover.DoCreateXover(_nucleotideComponent0.gameObject, _nucleotideComponent1.gameObject);
         }
         else
         {
             DrawCrossover.DoCreateXover(_nucleotideComponent1.gameObject, _nucleotideComponent0.gameObject);
-        }
+        }*/
 
         _nucleotideComponent0.RemoveXoverSuggestions();
         _nucleotideComponent1.RemoveXoverSuggestions();

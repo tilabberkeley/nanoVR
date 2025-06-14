@@ -11,36 +11,34 @@ public class MergeCommand : ICommand
     private int _id;
     private int _helixId;
     private int _direction;
-    private int _strandId;
-    private Color _color;
-    private bool _splitAfter;
+    private int _neighborStrandId;
+    private Color _neighborColor;
 
-    public MergeCommand(GameObject go, int strandId, Color color, bool splitAfter)
+    public MergeCommand(NucleotideData nd, NucleotideData neighbor)
     {
-        _go = go;
-        _id = go.GetComponent<NucleotideComponent>().Id;
-        _helixId = go.GetComponent<NucleotideComponent>().HelixId;
-        _direction = go.GetComponent<NucleotideComponent>().Direction;
-        _strandId = strandId;
-        _color = color;
-        _splitAfter = splitAfter;
+        _id = nd.Id;
+        _helixId = nd.HelixId;
+        _direction = nd.Direction;
+        _neighborStrandId = neighbor.StrandId;
+        _neighborColor = neighbor.Color;
     }
 
     public void Do()
     {
-        DrawMerge.MergeStrand(_go);
+        NucleotideData nd = Utils.FindNucleotideData(_id, _helixId, _direction);
+        DrawMerge.MergeStrand(nd);
     }
 
     public void Undo()
     {
-        GameObject go = FindNucleotide(_id, _helixId, _direction);
-        DrawSplit.SplitStrand(go, _strandId, _color, _splitAfter);
+        NucleotideData nd = Utils.FindNucleotideData(_id, _helixId, _direction);
+        DrawSplit.SplitStrand(nd, _neighborStrandId, _neighborColor);
     }
 
     public void Redo()
     {
-        GameObject go = FindNucleotide(_id, _helixId, _direction);
-        DrawMerge.MergeStrand(go);
+        NucleotideData nd = Utils.FindNucleotideData(_id, _helixId, _direction);
+        DrawMerge.MergeStrand(nd);
     }
 
     public GameObject FindNucleotide(int id, int helixId, int direction)

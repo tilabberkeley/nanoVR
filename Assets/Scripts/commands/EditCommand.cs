@@ -3,50 +3,39 @@
  * author: David Yang <davidmyang@berkeley.edu>
  */
 
-using UnityEngine;
-using static GlobalVariables;
-
 public class EditCommand : ICommand
 {
-    private GameObject _startGO;
-    private GameObject _endGO;
     private int _startId;
     private int _endId;
     private int _helixId;
     private int _direction;
 
-    public EditCommand(GameObject startGO, GameObject endGO)
+    public EditCommand(NucleotideData start, NucleotideData end)
     {
-        _startGO = startGO;
-        _endGO = endGO;
-        _startId = startGO.GetComponent<NucleotideComponent>().Id;
-        _endId = endGO.GetComponent<NucleotideComponent>().Id;
-        _helixId = startGO.GetComponent<NucleotideComponent>().HelixId;
-        _direction = startGO.GetComponent<NucleotideComponent>().Direction;
+        _startId = start.Id;
+        _endId = end.Id;
+        _helixId = start.HelixId;
+        _direction = start.Direction;
     }
 
     public void Do()
     {
-        DrawNucleotideDynamic.EditStrand(_startGO, _endGO);
+        NucleotideData nd1 = Utils.FindNucleotideData(_startId, _helixId, _direction);
+        NucleotideData nd2 = Utils.FindNucleotideData(_endId, _helixId, _direction);
+        DrawNucleotideDynamic.EditStrand(nd1, nd2);
     }
 
     public void Undo()
     {
-        GameObject startGO = FindNucleotide(_startId, _helixId, _direction);
-        GameObject endGO = FindNucleotide(_endId, _helixId, _direction);
-        DrawNucleotideDynamic.EraseStrand(startGO, endGO);
+        NucleotideData nd1 = Utils.FindNucleotideData(_startId, _helixId, _direction);
+        NucleotideData nd2 = Utils.FindNucleotideData(_endId, _helixId, _direction);
+        DrawNucleotideDynamic.EraseStrand(nd2, nd1);
     }
 
     public void Redo()
     {
-        GameObject startGO = FindNucleotide(_startId, _helixId, _direction);
-        GameObject endGO = FindNucleotide(_endId, _helixId, _direction);
-        DrawNucleotideDynamic.EditStrand(startGO, endGO);
-    }
-
-    public GameObject FindNucleotide(int id, int helixId, int direction)
-    {
-        s_helixDict.TryGetValue(helixId, out Helix helix);
-        return helix.GetNucleotide(id, direction);
+        NucleotideData nd1 = Utils.FindNucleotideData(_startId, _helixId, _direction);
+        NucleotideData nd2 = Utils.FindNucleotideData(_endId, _helixId, _direction);
+        DrawNucleotideDynamic.EditStrand(nd1, nd2);
     }
 }

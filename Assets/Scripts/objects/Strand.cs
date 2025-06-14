@@ -518,14 +518,14 @@ public class Strand
     }
 
     /// <summary>
-    /// Completely deletes all strand objects and removes it from dictionary.
+    /// Reset strand domains.
     /// </summary>
     public void DeleteStrand()
     {
-        ResetComponents(_nucleotides);
-        DeleteXovers();
-        DeleteDomains();
-        RemoveStrand();
+        foreach (Domain domain in domains)
+        {
+            domain.Reset(domain.StartId, domain.EndId);
+        }
     }
 
     /// <summary>

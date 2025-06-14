@@ -1,3 +1,7 @@
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
+ */
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +13,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Globalization;
 using System.Linq;
+using System.Collections;
 
 /// <summary>
 /// Converts nanoVR grid structures into standard oxDNA system.
@@ -29,13 +34,13 @@ public class OxDNASystem
     /// </summary>
     public OxDNASystem()
     {
-        ConvertToOxdnaSystem();
+        CoRunner.Instance.Run(ConvertToOxdnaSystem());
     }
 
     /// <summary>
     /// Converts the nanoVR scene into an oxDNA system.
     /// </summary>
-    private void ConvertToOxdnaSystem()
+    private IEnumerator ConvertToOxdnaSystem()
     {
         _oxdnaStrands = new List<OxdnaStrand>();
 
@@ -211,6 +216,7 @@ public class OxDNASystem
             }
 
             _oxdnaStrands.Add(oxdnaStrand);
+            yield return null;
         }
     }
 
@@ -303,35 +309,16 @@ public class OxDNASystem
 
         Transform tf = helix.GridComponent.transform;
 
-        /* --------------------------------------------------------------------
-     * 1.  Get raw world-space directions from the quaternion.
-     *     (No parent scale is applied because we multiply by a pure
-     *      rotation quaternion.)
-     * ------------------------------------------------------------------ */
         Vector3 f_raw = tf.rotation * Vector3.forward;   // local  Z+
         Vector3 n_raw = tf.rotation * Vector3.right;     // local  X+
 
-        /* --------------------------------------------------------------------
-         * 2.  Re-orthonormalise.
-         *     Small FP errors or implicit parent scale can destroy perfect
-         *     orthogonality; we repair that here.
-         * ------------------------------------------------------------------ */
         Vector3 f = f_raw.normalized;
-
-        // remove any component of n_raw that lies along f, then renormalise
         Vector3 n = (n_raw - Vector3.Dot(n_raw, f) * f).normalized;
 
-        /* --------------------------------------------------------------------
-         * 3.  Ensure right-handedness:  (n × f) should point ~+Y in the helix
-         *     local frame.  We just make sure it’s not pointing opposite.
-         * ------------------------------------------------------------------ */
         Vector3 cross = Vector3.Cross(n, f);
         if (Vector3.Dot(cross, tf.rotation * Vector3.up) < 0f)
             n = -n; // flip to maintain right-handed basis
 
-        /* --------------------------------------------------------------------
-         * 4.  Convert to OxdnaVector and origin to oxDNA length units.
-         * ------------------------------------------------------------------ */
         var forward = new OxdnaVector(f.x, f.y, f.z);
         var normal = new OxdnaVector(n.x, n.y, n.z);
 

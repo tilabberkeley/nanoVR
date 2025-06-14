@@ -8,11 +8,9 @@ using SimpleFileBrowser;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -166,9 +164,8 @@ public class FileImport : MonoBehaviour
 
     private void DoFileImport(string json)
     {
-        /*ICommand command = new ImportCommand(json);
-        CommandManager.AddCommand(command);*/
-        ParseSC(json);
+        ICommand command = new ImportCommand(json);
+        CommandManager.AddCommand(command);
     }
 
     /// <summary>
@@ -281,7 +278,7 @@ public class FileImport : MonoBehaviour
         ParseHelices(helices, isMultiGrid, gridPosition);
 
         // Parse strands.
-        CoRunner.Instance.Run(ParseStrands(strands, lastHelixId));
+        CoRunner.Instance.Run(ParseStrands(strands, lastHelixId, new List<Strand>()));
         //ParseStrands(strands, lastHelixId);
 
         /* Unselect imported grids by default.
@@ -426,7 +423,7 @@ public class FileImport : MonoBehaviour
     /// here since Coroutines are async and we must wait for all Strands
     /// to be parsed before going to next steps.
     /// </summary>
-    private IEnumerator ParseStrands(JArray strands, int lastHelixId)
+    public IEnumerator ParseStrands(JArray strands, int lastHelixId, List<Strand> newStrands)
     {
         // Maps strand index in .sc file to strandId in nanoVR
         Dictionary<int, int> extensionStrands = new Dictionary<int, int>();
@@ -565,6 +562,7 @@ public class FileImport : MonoBehaviour
             {
                 strand.SetSequenceRevamp(sequence);
             }
+            newStrands.Add(strand);
 
             yield return null;
         }

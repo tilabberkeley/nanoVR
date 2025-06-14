@@ -237,13 +237,18 @@ public class Domain
         return endId - startId + 1 + insertionsLength - deletionsLength;
     }
 
+    public virtual void SetDomain(int id, int strandId, Color color)
+    {
+        SetDomain(id, strandId, color, startId, endId);
+    }
+
     /// <summary>
     /// Sets the domain's nucleotides properties.  Also handles insertion/deletion highlights.
     /// </summary>
     /// <param name="id"></param>
     /// <param name="strandId"></param>
     /// <param name="color"></param>
-    public virtual void SetDomain(int id, int strandId, Color color)
+    public void SetDomain(int id, int strandId, Color color, int startId, int endId)
     {
         this.strandId = strandId;
         this.id = id;
@@ -335,5 +340,13 @@ public class Domain
     public Helix GetHelix()
     {
         return GlobalVariables.s_helixDict[helixId];
+    }
+
+    public void Reset(int startId, int endId)
+    {
+        for (int i = startId; i <= endId; i++)
+        {
+            GetNucleotideData(i).Reset();
+        }
     }
 }

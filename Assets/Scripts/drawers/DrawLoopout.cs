@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,7 +7,6 @@ using static GlobalVariables;
 using static Utils;
 using TMPro;
 using System;
-using static OVRPlugin;
 
 public class DrawLoopout : MonoBehaviour
 {
@@ -107,7 +105,7 @@ public class DrawLoopout : MonoBehaviour
                 else
                 {
                     s_endNuc = nd;
-                    CreateLoopout(s_startNuc, s_endNuc);
+                    DoCreateLoopout(s_startNuc, s_endNuc);
                     ResetNucleotides();
                 }
             }
@@ -116,7 +114,7 @@ public class DrawLoopout : MonoBehaviour
                      s_eraseTogOn)
             {
                 // If the hit is on an existing crossover (and not a loopout), erase it.
-                DrawCrossover.EraseXover(hit.collider.GetComponent<LoopoutComponent>());
+                DoEraseLoopout(hit.collider.GetComponent<LoopoutComponent>());
             }
             else
             {
@@ -213,28 +211,20 @@ public class DrawLoopout : MonoBehaviour
     /// <summary>
     /// Does a loopout command.
     /// </summary>
-    public static void DoCreateLoopout(GameObject first, GameObject second)
+    public static void DoCreateLoopout(NucleotideData first, NucleotideData second)
     {
         if (!DrawCrossover.IsValid(first, second))
         {
             return;
         }
-        Strand firstStr = Utils.GetStrand(first);
-        Strand secondStr = Utils.GetStrand(second);
-
-        // Bools help check if strands should merge with neighbors when xover is deleted or undo.
-        bool firstIsEnd = first == firstStr.Head || first == firstStr.Tail;
-        bool secondIsEnd = second == secondStr.Head || second == secondStr.Tail;
-        bool firstIsHead = first == firstStr.Head;
-        ICommand command = new LoopoutCommand(first, second, firstIsEnd, secondIsEnd, firstIsHead, DEFAULT_LENGTH);
+        ICommand command = new LoopoutCommand(first, second, DEFAULT_LENGTH);
         CommandManager.AddCommand(command);
-        //command.Do();
     }
 
     /// <summary>
     /// Splits strands (if necessary), draws loopout, and merges strands connected by loopout
     /// </summary>
-    public static GameObject CreateLoopout(GameObject startGO, GameObject endGO, int sequenceLength)
+    /*public static GameObject CreateLoopout(GameObject startGO, GameObject endGO, int sequenceLength)
     {
         if (!DrawCrossover.IsValid(startGO, endGO))
         {
@@ -253,7 +243,7 @@ public class DrawLoopout : MonoBehaviour
 
         DrawCrossover.MergeStrand(startGO, endGO, loopout);
         return loopout;
-    }
+    }*/
 
     /// <summary>
     /// Helper method to create a loopout between given nuleotides.
@@ -281,7 +271,7 @@ public class DrawLoopout : MonoBehaviour
         return loopout;
     }
 
-    public static void CreateLoopoutHelper(Domain prevDomain, Domain nextDomain, int strandId, int loopoutLength, int prevStrandId = -1, bool showXover = true)
+    public static LoopoutComponent CreateLoopoutHelper(Domain prevDomain, Domain nextDomain, int strandId, int loopoutLength, int prevStrandId = -1, bool showXover = true)
     {
         // Create crossover, assign appropiate prev and next properties.
         GameObject loopout = DrawPoint.MakeLoopout(prevDomain, nextDomain);
@@ -309,26 +299,27 @@ public class DrawLoopout : MonoBehaviour
         loopoutComponent.IsLoopout = true;
 
         loopout.SetActive(showXover);
+        return loopoutComponent;
     }
 
-    public static void CreateLoopout(NucleotideData nd1, NucleotideData nd2)
+    public static LoopoutComponent CreateLoopout(NucleotideData nd1, NucleotideData nd2, int length)
     {
         if (!DrawCrossover.IsValid(nd1, nd2))
-            return;
+            return null;
 
         DrawCrossover.CalcPrevNextDomains(nd1, nd2, out Domain prevDomain, out Domain nextDomain);
-        CreateLoopoutHelper(prevDomain, nextDomain, nd1.StrandId, DEFAULT_LENGTH, prevStrandId: nd2.StrandId);
-        DrawCrossover.MergeStrand(nd1, nd2);       
+        LoopoutComponent loopComp = CreateLoopoutHelper(prevDomain, nextDomain, nd1.StrandId, length, prevStrandId: nd2.StrandId);
+        DrawCrossover.MergeStrand(nd1, nd2);
+        return loopComp;
     }
 
     /// <summary>
     /// Does a erase loopout command.
     /// </summary>
-    public static void DoEraseLoopout(GameObject loopout)
+    public static void DoEraseLoopout(LoopoutComponent loopout)
     {
-        ICommand command = new EraseLoopoutCommand(loopout, s_numStrands);
+        ICommand command = new EraseLoopoutCommand(loopout);
         CommandManager.AddCommand(command);
-        //command.Do();
     }
 
     /// <summary>

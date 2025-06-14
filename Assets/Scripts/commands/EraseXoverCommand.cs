@@ -3,13 +3,12 @@
  * author: David Yang <davidmyang@berkeley.edu>
  */
 using UnityEngine;
+using static GlobalVariables;
 using static Utils;
 
 public class EraseXoverCommand : ICommand
 {
-    private GameObject _xover;
-    private GameObject _startGO;
-    private GameObject _endGO;
+    private XoverComponent _xover;
     private int _strandId;
     private Color _color;
 
@@ -20,43 +19,38 @@ public class EraseXoverCommand : ICommand
     private int _endHelixId;
     private int _endDirection;
 
-    public EraseXoverCommand(GameObject xover, int strandId)
+    public EraseXoverCommand(XoverComponent xover)
     {
         _xover = xover;
-        var xoverComp = xover.GetComponent<XoverComponent>();
-        _startGO = xoverComp.PrevGO;
-        _endGO = xoverComp.NextGO;
-        _strandId = strandId;
-        _color = xoverComp.SavedColor;
+        _strandId = s_numStrands;
+        _color = xover.SavedColor;
 
-        var startNtc = _startGO.GetComponent<NucleotideComponent>();
-        _startId = startNtc.Id;
-        _startHelixId = startNtc.HelixId;
-        _startDirection = startNtc.Direction;
+        NucleotideData nd1 = xover.PrevNucl;
+        _startId = nd1.Id;
+        _startHelixId = nd1.HelixId;
+        _startDirection = nd1.Direction;
 
-        var endNtc = _endGO.GetComponent<NucleotideComponent>();
-        _endId = endNtc.Id;
-        _endHelixId = endNtc.HelixId;
-        _endDirection = endNtc.Direction;
+        NucleotideData nd2 = xover.NextNucl;
+        _endId = nd2.Id;
+        _endHelixId = nd2.HelixId;
+        _endDirection = nd2.Direction;
     }
 
     public void Do()
     {
-        DrawCrossover.EraseXover(_xover, _strandId, _color, false);
+        DrawCrossover.EraseXover(_xover, _strandId, _color);
     }
 
     public void Undo()
     {
-        GameObject prevGO = FindNucleotide(_startId, _startHelixId, _startDirection);
-        GameObject nextGO = FindNucleotide(_endId, _endHelixId, _endDirection);
-
-        DrawCrossover.CreateXover(prevGO, nextGO);
+        NucleotideData nd1 = FindNucleotideData(_startId, _startHelixId, _startDirection);
+        NucleotideData nd2 = FindNucleotideData(_endId, _endHelixId, _endDirection);
+        DrawCrossover.CreateXover(nd1, nd2);
     }
 
     public void Redo()
     {
-        _xover = FindNucleotide(_startId, _startHelixId, _startDirection).GetComponent<NucleotideComponent>().Xover;
-
-        DrawCrossover.EraseXover(_xover, _strandId, _color, false);
+        _xover = FindNucleotideData(_startId, _startHelixId, _startDirection).Xover;
+        DrawCrossover.EraseXover(_xover, _strandId, _color);
     }
 }

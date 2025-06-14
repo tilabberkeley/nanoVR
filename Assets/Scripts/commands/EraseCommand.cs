@@ -1,51 +1,67 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
-using UnityEngine;
-using static GlobalVariables;
 
-public class EraseCommand : MonoBehaviour, ICommand
+using System.Collections.Generic;
+using static Utils;
+
+public class EraseCommand : ICommand
 {
-    private GameObject _startGO;
-    private GameObject _endGO;
     private int _startId;
     private int _endId;
     private int _helixId;
     private int _direction;
 
-    public EraseCommand(GameObject startGO, GameObject endGO)
+    private string _domainSequence;
+    private Dictionary<int, int> _insertions;
+    private List<int> _deletions;
+
+    public EraseCommand(NucleotideData start, NucleotideData end)
     {
-        _startGO = startGO;
-        _endGO = endGO;
-        _startId = startGO.GetComponent<NucleotideComponent>().Id;
-        _endId = endGO.GetComponent<NucleotideComponent>().Id;
-        _helixId = startGO.GetComponent<NucleotideComponent>().HelixId;
-        _direction = startGO.GetComponent<NucleotideComponent>().Direction;
+        _startId = start.Id;
+        _endId = end.Id;
+        _helixId = start.HelixId;
+        _direction = start.Direction;
+
+        Domain domain = start.GetDomain();
+        _domainSequence = domain.GetSequence();
+        _insertions = new Dictionary<int, int>(domain.Insertions);
+        _deletions = new List<int>(domain.Deletions);
     }
 
     public void Do()
     {
-        DrawNucleotideDynamic.EraseStrand(_startGO, _endGO);
+        NucleotideData nd1 = FindNucleotideData(_startId, _helixId, _direction);
+        NucleotideData nd2 = FindNucleotideData(_endId, _helixId, _direction);
+        DrawNucleotideDynamic.EraseStrand(nd1, nd2);
     }
 
     public void Undo()
     {
-        GameObject startGO = FindNucleotide(_startId, _helixId, _direction);
-        GameObject endGO = FindNucleotide(_endId, _helixId, _direction);
-        DrawNucleotideDynamic.EditStrand(startGO, endGO);
+        NucleotideData nd1 = FindNucleotideData(_startId, _helixId, _direction);
+        NucleotideData nd2 = FindNucleotideData(_endId, _helixId, _direction);
+        DrawNucleotideDynamic.EditStrand(nd2, nd1);
+
+        // Add back domain sequence, insertions, and deletions.
+        Domain domain = nd1.GetDomain();
+        domain.SetSequence(_domainSequence);
+        foreach(var insertion in _insertions)
+        {
+            NucleotideData nd = FindNucleotideData(insertion.Key, _helixId, _direction);
+            DrawInsertion.Insertion(nd, insertion.Value);
+        }
+        foreach(int deletion in _deletions)
+        {
+            NucleotideData nd = FindNucleotideData(deletion, _helixId, _direction);
+            DrawDeletion.Deletion(nd);
+        }
     }
 
     public void Redo()
     {
-        GameObject startGO = FindNucleotide(_startId, _helixId, _direction);
-        GameObject endGO = FindNucleotide(_endId, _helixId, _direction);
-        DrawNucleotideDynamic.EraseStrand(startGO, endGO);
-    }
-
-    public GameObject FindNucleotide(int id, int helixId, int direction)
-    {
-        s_helixDict.TryGetValue(helixId, out Helix helix);
-        return helix.GetNucleotide(id, direction);
+        NucleotideData nd1 = FindNucleotideData(_startId, _helixId, _direction);
+        NucleotideData nd2 = FindNucleotideData(_endId, _helixId, _direction);
+        DrawNucleotideDynamic.EraseStrand(nd1, nd2);
     }
 }

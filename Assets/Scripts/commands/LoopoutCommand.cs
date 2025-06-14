@@ -1,16 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
+ */
 using UnityEngine;
 using static Utils;
 
 public class LoopoutCommand : ICommand
 {
-    private GameObject _first;
-    private GameObject _second;
-    private GameObject _loopout;
-    private bool _firstIsHead;
-    private bool _firstIsEnd;
-    private bool _secondIsEnd;
+    private LoopoutComponent _loopout;
     private Color _prevColor;
 
     private int _startId;
@@ -19,56 +16,40 @@ public class LoopoutCommand : ICommand
     private int _endId;
     private int _endHelixId;
     private int _endDirection;
+    private int _prevStrandId;
 
     private int _sequenceLength;
 
-    public LoopoutCommand(GameObject first, GameObject second, bool firstIsEnd, bool secondIsEnd, bool firstIsHead, int sequenceLength)
+    public LoopoutCommand(NucleotideData first, NucleotideData second, int sequenceLength)
     {
-        _first = first;
-        _second = second;
-        _prevColor = second.GetComponent<NucleotideComponent>().Color;
+        _prevColor = second.Color;
+        _prevStrandId = second.StrandId;
 
-        var startNtc = first.GetComponent<NucleotideComponent>();
-        _startId = startNtc.Id;
-        _startHelixId = startNtc.HelixId;
-        _startDirection = startNtc.Direction;
+        _startId = first.Id;
+        _startHelixId = first.HelixId;
+        _startDirection = first.Direction;
 
-        var endNtc = second.GetComponent<NucleotideComponent>();
-        _endId = endNtc.Id;
-        _endHelixId = endNtc.HelixId;
-        _endDirection = endNtc.Direction;
-
-        _firstIsEnd = firstIsEnd;
-        _secondIsEnd = secondIsEnd;
-        _firstIsHead = firstIsHead;
-
-        _sequenceLength = sequenceLength;
+        _endId = second.Id;
+        _endHelixId = second.HelixId;
+        _endDirection = second.Direction;
     }
 
     public void Do()
     {
-        _loopout = DrawLoopout.CreateLoopout(_first, _second, _sequenceLength);
+        NucleotideData nd1 = FindNucleotideData(_startId, _startHelixId, _startDirection);
+        NucleotideData nd2 = FindNucleotideData(_endId, _endHelixId, _endDirection);
+        _loopout = DrawLoopout.CreateLoopout(nd1, nd2, _sequenceLength);
     }
 
     public void Undo()
     {
-        GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
-        GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
-        _loopout = startGO.GetComponent<NucleotideComponent>().Xover;
-        int prevStrandId = _loopout.GetComponent<XoverComponent>().PrevStrandId;
-
-        // _prevColor = _loopout.GetComponent<XoverComponent>().SavedColor;
-
-        DrawLoopout.EraseLoopout(_loopout, prevStrandId, _prevColor, _firstIsHead);
-        if (!_firstIsEnd) { DrawMerge.MergeStrand(startGO); }
-        if (!_secondIsEnd) { DrawMerge.MergeStrand(endGO); }
+        DrawCrossover.EraseXover(_loopout, _prevStrandId, _prevColor);
     }
 
     public void Redo()
     {
-        GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
-        GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
-
-        _loopout = DrawLoopout.CreateLoopout(startGO, endGO, _sequenceLength);
+        NucleotideData nd1 = FindNucleotideData(_startId, _startHelixId, _startDirection);
+        NucleotideData nd2 = FindNucleotideData(_endId, _endHelixId, _endDirection);
+        _loopout = DrawLoopout.CreateLoopout(nd1, nd2, _sequenceLength);
     }
 }

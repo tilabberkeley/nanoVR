@@ -2,7 +2,6 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
-using System;
 using UnityEngine;
 using static GlobalVariables;
 
@@ -15,37 +14,30 @@ public class SplitCommand : ICommand
     private int _strandId;
     private Color _color;
 
-    public SplitCommand(GameObject go, int strandId, Color color)
+    public SplitCommand(NucleotideData nd)
     {
-        _id = go.GetComponent<NucleotideComponent>().Id;
-        _helixId = go.GetComponent<NucleotideComponent>().HelixId;
-        _direction = go.GetComponent<NucleotideComponent>().Direction;
-        _go = go;
-        _strandId = strandId;
-        _color = color;
+        _id = nd.Id;
+        _helixId = nd.HelixId;
+        _direction = nd.Direction;
+        _strandId = s_numStrands;
+        _color = Colors[s_numStrands % Colors.Length];
     }
 
     public void Do()
     {
-        var ntc = _go.GetComponent<NucleotideComponent>();
-        DrawSplit.SplitStrand(_go, _strandId, _color, Convert.ToBoolean(ntc.Direction));
+        NucleotideData nd = Utils.FindNucleotideData(_id, _helixId, _direction);
+        DrawSplit.SplitStrand(nd, _strandId, _color);
     }
+
     public void Undo()
     {
-        GameObject go = FindNucleotide(_id, _helixId, _direction);
-        DrawMerge.MergeStrand(go);
+        NucleotideData nd = Utils.FindNucleotideData(_id, _helixId, _direction);
+        DrawMerge.MergeStrand(nd);
     }
 
     public void Redo()
     {
-        GameObject go = FindNucleotide(_id, _helixId, _direction);
-        var ntc = go.GetComponent<NucleotideComponent>();
-        DrawSplit.SplitStrand(_go, _strandId, _color, Convert.ToBoolean(ntc.Direction));
-    }
-
-    public GameObject FindNucleotide(int id, int helixId, int direction)
-    {
-        s_helixDict.TryGetValue(helixId, out Helix helix);
-        return helix.GetNucleotide(id, direction);
+        NucleotideData nd = Utils.FindNucleotideData(_id, _helixId, _direction);
+        DrawSplit.SplitStrand(nd, _strandId, _color);
     }
 }

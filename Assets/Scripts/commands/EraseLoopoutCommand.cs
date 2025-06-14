@@ -1,15 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
+/*
+ * nanoVR, a VR application for DNA nanostructures.
+ * author: David Yang <davidmyang@berkeley.edu>
+ */
 using UnityEngine;
+using static GlobalVariables;
 using static Utils;
 
 public class EraseLoopoutCommand : ICommand
 {
-    private GameObject _loopout;
-    private GameObject _startGO;
-    private GameObject _endGO;
+    private LoopoutComponent _loopout;
     private int _strandId;
-    private Color _savedColor;
+    private Color _color;
 
     private int _startId;
     private int _startHelixId;
@@ -17,49 +18,44 @@ public class EraseLoopoutCommand : ICommand
     private int _endId;
     private int _endHelixId;
     private int _endDirection;
-
     private int _sequenceLength;
+    private string _sequence;
 
-    public EraseLoopoutCommand(GameObject loopout, int strandId)
+    public EraseLoopoutCommand(LoopoutComponent loopout)
     {
         _loopout = loopout;
-        LoopoutComponent loopoutComponent = loopout.GetComponent<LoopoutComponent>();
-        //SequenceComponent seqComp = loopout.GetComponent<SequenceComponent>();
-        _startGO = loopoutComponent.PrevGO;
-        _endGO = loopoutComponent.NextGO;
-        _strandId = strandId;
-        _savedColor = loopout.GetComponent<LoopoutComponent>().SavedColor;
+        _sequenceLength = loopout.SequenceLength;
+        _sequence = loopout.Sequence;
+        _strandId = s_numStrands;
+        _color = loopout.SavedColor;
 
-        NucleotideComponent startNtc = _startGO.GetComponent<NucleotideComponent>();
-        _startId = startNtc.Id;
-        _startHelixId = startNtc.HelixId;
-        _startDirection = startNtc.Direction;
+        NucleotideData nd1 = loopout.PrevNucl;
+        _startId = nd1.Id;
+        _startHelixId = nd1.HelixId;
+        _startDirection = nd1.Direction;
 
-        NucleotideComponent endNtc = _endGO.GetComponent<NucleotideComponent>();
-        _endId = endNtc.Id;
-        _endHelixId = endNtc.HelixId;
-        _endDirection = endNtc.Direction;
-
-        _sequenceLength = loopoutComponent.SequenceLength;
+        NucleotideData nd2 = loopout.NextNucl;
+        _endId = nd2.Id;
+        _endHelixId = nd2.HelixId;
+        _endDirection = nd2.Direction;
     }
 
     public void Do()
     {
-        DrawLoopout.EraseLoopout(_loopout, _strandId, _savedColor, false);
+        DrawCrossover.EraseXover(_loopout, _strandId, _color);
     }
 
     public void Undo()
     {
-        GameObject startGO = FindNucleotide(_startId, _startHelixId, _startDirection);
-        GameObject endGO = FindNucleotide(_endId, _endHelixId, _endDirection);
-
-        DrawLoopout.CreateLoopout(startGO, endGO, _sequenceLength);
+        NucleotideData nd1 = FindNucleotideData(_startId, _startHelixId, _startDirection);
+        NucleotideData nd2 = FindNucleotideData(_endId, _endHelixId, _endDirection);
+        _loopout = DrawLoopout.CreateLoopout(nd1, nd2, _sequenceLength);
+        _loopout.Sequence = _sequence;
     }
 
     public void Redo()
     {
-        _loopout = FindNucleotide(_startId, _startHelixId, _startDirection).GetComponent<NucleotideComponent>().Xover;
-
-        DrawLoopout.EraseLoopout(_loopout, _strandId, _savedColor, false);
+        _loopout = (LoopoutComponent) FindNucleotideData(_startId, _startHelixId, _startDirection).Xover;
+        DrawCrossover.EraseXover(_loopout, _strandId, _color);
     }
 }

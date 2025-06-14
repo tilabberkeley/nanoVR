@@ -1,6 +1,6 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,7 +19,6 @@ public class SelectStrand : MonoBehaviour
     private static RaycastHit s_hit;
     private static List<Strand> s_strands = new List<Strand>();
     public static List<Strand> Strands { get { return s_strands; } }
-    //private static List<Strand> s_highlightedStrands = new List<Strand>();
 
     private void GetDevice()
     {
@@ -40,11 +39,6 @@ public class SelectStrand : MonoBehaviour
 
     private void Update()
     {
-       /* if (!s_selectTogOn)
-        {
-            return;
-        }*/
-
         if (!_device.isValid)
         {
             GetDevice();
@@ -56,16 +50,16 @@ public class SelectStrand : MonoBehaviour
             triggerReleased = false;
 
             // Check that hit Gameobject is part of strand
-            DNAComponent dnaComp = s_hit.collider.GetComponent<DNAComponent>();
+            NucleotideColliderComponent comp = s_hit.collider.GetComponent<NucleotideColliderComponent>();
 
-            if (dnaComp != null && dnaComp.Selected)
+            if (comp != null && comp.Data.IsSelected())
             {
                 /*if (s_strand != null)
                 {
                     UnhighlightStrand(s_strand, false);
                 }*/ // Note: Chagned this DY 9/11
-                AddStrand(dnaComp.StrandId);
-                HighlightStrand(dnaComp.StrandId);
+                AddStrand(comp.Data.StrandId);
+                HighlightStrand(comp.Data.StrandId);
             }
         }
 
@@ -73,23 +67,19 @@ public class SelectStrand : MonoBehaviour
         if (axisClick && axisReleased)
         {
             axisReleased = false;
-            //UnhighlightStrand(s_strand, true);
-            //DoDeleteStrand(s_strand);
 
             foreach (Strand strand in s_strands)
             {
                 UnhighlightStrand(strand, true);
-                DeleteStrand(strand.Head);
             }
-            
+            DoDeleteStrands(s_strands);
+            s_strands.Clear();
         }
 
         // Resets selected strand.
         if (triggerValue && !rayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
         {
             triggerReleased = false;
-            //UnhighlightStrand(s_strand, false);
-            
             Reset();
         }
 
@@ -118,29 +108,12 @@ public class SelectStrand : MonoBehaviour
         s_strands.Clear();
     }
 
-    /*public static void HighlightStrand(GameObject go)
-    {
-        int strandId = -1;
-        if (go.GetComponent<DNAComponent>())
-        {
-            strandId = go.GetComponent<DNAComponent>().StrandId;
-        }
-        if (go.GetComponent<XoverComponent>())
-        {
-            strandId = go.GetComponent<XoverComponent>().PrevGO.GetComponent<NucleotideComponent>().StrandId;
-        }
-        
-        if (strandId == -1) { return; }
-        HighlightStrand(strandId);
-    }*/
-
     public static void AddStrand(int strandId)
     {
         s_strandDict.TryGetValue(strandId, out Strand strand);
         s_strands.Add(strand);
     }
 
-    // TEST
     public static void HighlightStrand(int strandId)
     {
         s_strandDict.TryGetValue(strandId, out Strand strand);
@@ -153,20 +126,15 @@ public class SelectStrand : MonoBehaviour
         Highlight.UnhighlightStrand(strand, isDelete);
     }
 
-    public static void DoDeleteStrand(Strand strand)
+    public static void DoDeleteStrands(List<Strand> strands)
     {
-        ICommand command = new DeleteCommand(strand.Id, strand.Nucleotides, strand.Color);
+        ICommand command = new DeleteCommand(strands);
         CommandManager.AddCommand(command);
     }
 
-    public static void DeleteStrand(GameObject go)
+    public static void DeleteStrand(Strand strand)
     {
-        int strandId = go.GetComponent<NucleotideComponent>().StrandId;
-        //Debug.Log("Strand Id of deleted strand: " + strandId);
-        //Debug.Log("Nucleotide head being deleted: " + go);
-        s_strandDict.TryGetValue(strandId, out Strand strand);
-        //DeleteStrandFromHelix(go);
-        ObjectListManager.DeleteStrandButton(strandId);
+        RemoveStrand(strand.Id);
         strand.DeleteStrand();
     }
 
@@ -184,18 +152,4 @@ public class SelectStrand : MonoBehaviour
         ObjectListManager.DeleteStrandButton(strandId);
         s_strandDict.Remove(strandId);
     }
-
-    /*
-    public static void DeleteStrandFromHelix(GameObject go)
-    {
-        int strandId = go.GetComponent<NucleotideComponent>().StrandId;
-        s_strandDict.TryGetValue(strandId, out Strand strand);
-        List<int> helixIds = strand.GetHelixIds();
-        foreach (int id in helixIds)
-        {
-            Debug.Log("Helix strand belongs to: " + id);
-            s_helixDict.TryGetValue(id, out Helix helix);
-            helix.DeleteStrandId(strandId);
-        }
-    }*/
 }

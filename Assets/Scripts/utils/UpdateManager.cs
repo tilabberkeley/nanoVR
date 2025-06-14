@@ -81,7 +81,7 @@ public class UpdateManager : MonoBehaviour
                 {
                     //s_GO = s_hit.collider.gameObject;
                     //DrawSplit.DoSplitStrand(s_GO);
-                    DrawSplit.SplitStrand(comp.Data);
+                    DrawSplit.DoSplitStrand(comp.Data);
                 }
             }
         }
@@ -101,7 +101,7 @@ public class UpdateManager : MonoBehaviour
                     //s_GO = s_hit.collider.gameObject;
                     //DrawMerge.DoMergeStrand(s_GO);
 
-                    DrawMerge.MergeStrand(comp.Data);
+                    DrawMerge.DoMergeStrand(comp.Data);
                 }
             }
         }
@@ -121,7 +121,7 @@ public class UpdateManager : MonoBehaviour
                 {
                     //s_GO = s_hit.collider.gameObject;
                     //DrawInsertion.DoInsertion(s_GO, INSERTION_LENGTH);
-                    DrawInsertion.Insertion(comp.Data, INSERTION_LENGTH);
+                    DrawInsertion.DoInsertion(comp.Data, INSERTION_LENGTH);
                 }
             }
         }
@@ -138,7 +138,7 @@ public class UpdateManager : MonoBehaviour
                 {
                     //s_GO = s_hit.collider.gameObject;
                     // DrawDeletion.DoDeletion(s_GO);
-                    DrawDeletion.Deletion(comp.Data);
+                    DrawDeletion.DoDeletion(comp.Data);
                 }
             }
         }

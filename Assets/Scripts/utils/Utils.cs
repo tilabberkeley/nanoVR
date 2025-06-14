@@ -42,9 +42,20 @@ public static class Utils
         return helix.GetNucleotide(id, direction);
     }
 
-    public static Strand CreateStrand(List<Domain> domains)
+    public static NucleotideData FindNucleotideData(int nucleotideId, int helixId, int direction)
     {
-        return CreateStrand(domains, s_numStrands, Colors[s_numStrands % Colors.Length], false, new Dictionary<int, int>(), isOxview: false); // TODO: Add sequence and isScaffold (if needed
+        s_helixDict.TryGetValue(helixId, out Helix helix);
+        if (helix == null)
+        {
+            Debug.LogError($"Helix with id {helixId} not found.");
+            return null;
+        }
+        return helix.GetNucleotideData(nucleotideId, direction);
+    }
+
+    public static Strand CreateStrand(List<Domain> domains, int strandId, Color color)
+    {
+        return CreateStrand(domains, strandId, color, false, new Dictionary<int, int>(), isOxview: false); // TODO: Add sequence and isScaffold (if needed
     }
 
     public static Strand CreateStrand(List<NucleotideData> nucleotides, int strandId, Color color, bool isOxView)
@@ -53,14 +64,18 @@ public static class Utils
         return null;
     }
 
+    public static void CreateStrandWithoutXovers(List<Domain> domains)
+    {
+        CreateStrandWithoutXovers(domains, s_numStrands, Colors[s_numStrands % Colors.Length]);
+    }
+
     /// <summary>
     /// Create strand without crossovers or loopouts.
     /// Used by strand splitting and deleting xovers since xovers/loopouts already exist.
     /// </summary>
-    public static Strand CreateStrandWithoutXovers(List<Domain> domains)
+    public static Strand CreateStrandWithoutXovers(List<Domain> domains, int strandId, Color color)
     {
-        int strandId = s_numStrands;
-        Strand strand = new Strand(domains, strandId, Colors[s_numStrands % Colors.Length], isScaffold: false, isOxview: false);
+        Strand strand = new Strand(domains, strandId, color, isScaffold: false, isOxview: false);
         //Debug.Log("Created strand " + strandId);
         // Set strand domains
         strand.SetDomainsRevamp();

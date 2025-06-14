@@ -52,53 +52,14 @@ public class DrawInsertion : MonoBehaviour
         _inputField.onSelect.AddListener(delegate {TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
     }
 
-    /*void OnEnable()
-    {
-        if (!_device.isValid)
-        {
-            GetDevice();
-        }
-    }
-
-    void Update()
-    {
-        if (s_hideStencils || !s_insTogOn)
-        {
-            return;
-        }
-
-        if (!_device.isValid)
-        {
-            GetDevice();
-        }
-
-        _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
-        if (triggerValue && triggerReleased
-                && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
-        {
-            triggerReleased = false;
-            if (s_hit.collider.GetComponent<NucleotideComponent>() != null)
-            {
-                s_GO = s_hit.collider.gameObject;
-                DoInsertion(s_GO, DEFAULT_LENGTH);
-            }
-        }
-
-        // Resets triggers to avoid multiple selections.                                              
-        if (!triggerValue)
-        {
-            triggerReleased = true;
-        }
-    }*/
-
     /// <summary>
     /// Command method to create insertion.
     /// </summary>
     /// <param name="go">Gameobject nucleotide of insertion.</param>
     /// <param name="length">Length of insertion.</param>
-    public static void DoInsertion(GameObject go, int length)
+    public static void DoInsertion(NucleotideData nd, int length)
     {
-        ICommand command = new InsertionCommand(go, length);
+        ICommand command = new InsertionCommand(nd, length);
         CommandManager.AddCommand(command);
     }
 

@@ -538,26 +538,10 @@ public abstract class DNAGrid
     /// </summary>
     public void DeleteGrid()
     {
-        // Delete Grid object
-        if (!IsEmpty())
+        foreach (GridComponent gc in _gridComponents)
         {
-            Debug.Log("Cannot delete grid while strands remain");
-            return;
-        }
-
-        for (int i = 0; i < _length; i++)
-        {
-            for (int j = 0; j < _width; j++)
-            {
-                GridComponent gc = _grid2D[i, j];
-                gc.Helix?.DeleteHelix();
-#if UNITY_EDITOR
-                GameObject.DestroyImmediate(gc.gameObject);
-#else
-                GameObject.Destroy(gc.gameObject);
-#endif
-
-            }
+            gc.Helix.DeleteHelix();
+            GameObject.Destroy(gc.gameObject);
         }
 
         s_gridDict.Remove(_id);

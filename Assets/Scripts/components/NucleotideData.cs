@@ -11,7 +11,7 @@ public class NucleotideData
     private readonly int helixId;
     private int strandId = -1;
     private readonly int direction;
-    private string sequence = "";
+    private string sequence = "?";
     private Color color = Color.white;
     private Color highlight = Color.white;
     private int insertion = 0;
@@ -20,7 +20,7 @@ public class NucleotideData
     private XoverComponent xover = null; // Gameobject of xover or loopout attached to this nucleotide. Null if there isn't a xover or loopout.
     private int domainIdx = -1;          // Index of the domain within Strand's domain list
     private bool isHighlighted = false;
-    private bool inExtension;
+    private bool inExtension = false;
 
     private int oxViewId = -1;
 
@@ -217,5 +217,37 @@ public class NucleotideData
             Helix helix = GetHelix();
             helix.UpdatePosition(id, direction, newPos);
         }
+    }
+
+    public void Reset()
+    {
+        if (xover != null)
+        {
+            DrawCrossover.DeleteXover(xover);
+        }
+
+        strandId = -1;
+        sequence = "?";
+        Color = Color.white;
+        Highlight = Color.white;
+        insertion = 0;
+        isDeletion = false;
+
+        xover = null; // Gameobject of xover or loopout attached to this nucleotide. Null if there isn't a xover or loopout.
+        domainIdx = -1;          // Index of the domain within Strand's domain list
+        isHighlighted = false;
+        inExtension = false;
+
+        oxViewId = -1;
+    }
+
+    public bool IsHead()
+    {
+        return this.id == GetStrand().GetHead().Id;
+    }
+
+    public bool IsTail()
+    {
+        return this.id == GetStrand().GetTail().Id;
     }
 }

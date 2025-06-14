@@ -1137,21 +1137,13 @@ public class Helix
         _gridComponent.Helix = null;
         _gridComponent.Selected = false;
         s_helixDict.Remove(_id);
-        foreach (GameObject nucleotide in NucleotidesA)
+        foreach (HelixComponent hc in _helixViewCylinders)
         {
-            GameObject.Destroy(nucleotide);
+            GameObject.Destroy(hc.gameObject);
         }
-        foreach (GameObject nucleotide in NucleotidesB)
+        foreach (XoverComponent xover in xovers)
         {
-            GameObject.Destroy(nucleotide);
-        }
-        foreach (GameObject nucleotide in BackbonesA)
-        {
-            GameObject.Destroy(nucleotide);
-        }
-        foreach (GameObject nucleotide in BackbonesB)
-        {
-            GameObject.Destroy(nucleotide);
+            DrawCrossover.DeleteXover(xover);
         }
     }
 

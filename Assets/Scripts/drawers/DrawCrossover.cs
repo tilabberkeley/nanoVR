@@ -86,7 +86,7 @@ public class DrawCrossover : MonoBehaviour
                     s_endNuc = nd;
                     if (s_drawTogOn)
                     {
-                        CreateXover(s_startNuc, s_endNuc);
+                        DoCreateXover(s_startNuc, s_endNuc);
                         ResetNucleotides();
                     }
                 }
@@ -96,7 +96,7 @@ public class DrawCrossover : MonoBehaviour
                      s_eraseTogOn)
             {
                 // If the hit is on an existing crossover (and not a loopout), erase it.
-                EraseXover(hit.collider.GetComponent<XoverComponent>());
+                DoEraseXover(hit.collider.GetComponent<XoverComponent>());
             }
             else
             {
@@ -199,22 +199,14 @@ public class DrawCrossover : MonoBehaviour
     /// <summary>
     /// Does a xover command.
     /// </summary>
-    public static void DoCreateXover(GameObject first, GameObject second)
+    public static void DoCreateXover(NucleotideData first, NucleotideData second)
     {
         if (!IsValid(first, second))
         {
             return;
         }
-        Strand firstStr = Utils.GetStrand(first);
-        Strand secondStr = Utils.GetStrand(second);
-
-        // Bools help check if strands should merge with neighbors when xover is deleted or undo.
-        bool firstIsEnd = first == firstStr.Head || first == firstStr.Tail;
-        bool secondIsEnd = second == secondStr.Head || second == secondStr.Tail;
-        bool firstIsHead = first == firstStr.Head;
-        ICommand command = new XoverCommand(first, second, firstIsEnd, secondIsEnd, firstIsHead);
+        ICommand command = new XoverCommand(first, second);
         CommandManager.AddCommand(command);
-        //command.Do();
     }
 
     /// <summary>
@@ -296,12 +288,12 @@ public class DrawCrossover : MonoBehaviour
         return false;
     }
 
-    public static void CreateXover(NucleotideData nd1, NucleotideData nd2)
+    public static XoverComponent CreateXover(NucleotideData nd1, NucleotideData nd2)
     {
         Debug.Log("create xover start");
         if (!IsValid(nd1, nd2))
         {
-            return;
+            return null;
         }
 
         Debug.Log("Can draw xover");
@@ -311,16 +303,17 @@ public class DrawCrossover : MonoBehaviour
 
         CalcPrevNextDomains(nd1, nd2, out Domain prevDomain, out Domain nextDomain);
         XoverComponent xover = CreateXoverHelper(prevDomain, nextDomain, nd1.StrandId, nd1.Color, nd2.Color, nd2.StrandId);
-
+        MergeStrand(nd1, nd2);
+        return xover;
         // Create circular strand
         //if (firstNtc.StrandId == secondNtc.StrandId)
         //{
         //    HandleCycle(startGO);
         //}
         //else
-        {
-            MergeStrand(nd1, nd2);
-        }
+        //{
+        //    MergeStrand(nd1, nd2);
+        //}
     }
 
     /// <summary>
@@ -335,8 +328,7 @@ public class DrawCrossover : MonoBehaviour
     {
         // Create crossover, assign appropiate prev and next properties.
         Transform gc = prevDomain.GetHelix()._gridComponent.transform;
-        GameObject xover = DrawPoint.MakeXover(prevDomain, nextDomain, gc);
-        XoverComponent xoverComponent = xover.GetComponent<XoverComponent>();
+        XoverComponent xoverComponent = DrawPoint.MakeXover(prevDomain, nextDomain, gc);
         xoverComponent.PrevNucl = prevDomain.GetTailData();
         xoverComponent.NextNucl = nextDomain.GetHeadData();
         xoverComponent.StrandId = strandId;
@@ -355,7 +347,7 @@ public class DrawCrossover : MonoBehaviour
         prevDomain.GetHelix().AddXover(xoverComponent);
         nextDomain.GetHelix().AddXover(xoverComponent);
 
-        xover.SetActive(showXover);
+        xoverComponent.gameObject.SetActive(showXover);
         return xoverComponent;
     }
 
@@ -377,37 +369,18 @@ public class DrawCrossover : MonoBehaviour
     }
 
     /// <summary>
-    /// Does a erase crossover command.
+    /// Does an erase crossover command.
     /// </summary>
-    public static void DoEraseXover(GameObject xover)
+    public static void DoEraseXover(XoverComponent xover)
     {
-        ICommand command = new EraseXoverCommand(xover, s_numStrands);
+        ICommand command = new EraseXoverCommand(xover);
         CommandManager.AddCommand(command);
-        //command.Do();
     }
 
     /// <summary>
     /// Removes given crossover and creates a new strand with given strand id and color due to crossover deletion.
     /// </summary>
-    public static void EraseXover(GameObject xover, int strandId, Color color, bool splitBefore)
-    {
-        XoverComponent xoverComp = xover.GetComponent<XoverComponent>();
-        GameObject nucleotide;
-
-        if (splitBefore)
-        {
-            nucleotide = xoverComp.NextGO;
-        }
-        else
-        {
-            nucleotide = xoverComp.PrevGO;
-        }
-        Strand strand = s_strandDict[xoverComp.StrandId];
-        strand.DeleteXover(xover);
-        DrawSplit.SplitStrand(nucleotide, strandId, color, !splitBefore); // CHECK THIS
-    }
-
-    public static void EraseXover(XoverComponent xover)
+    public static void EraseXover(XoverComponent xover, int strandId, Color color)
     {
         NucleotideData prevNucl = xover.PrevNucl;
         NucleotideData nextNucl = xover.NextNucl;
@@ -422,7 +395,22 @@ public class DrawCrossover : MonoBehaviour
         nextDomain.GetHelix().RemoveXover(xover);
 
         Strand strand = prevNucl.GetStrand();
-        Utils.CreateStrandWithoutXovers(strand.Split(prevNucl));
+        Utils.CreateStrandWithoutXovers(strand.Split(prevNucl), strandId, color);
+    }
+
+    public static void DeleteXover(XoverComponent xover)
+    {
+        NucleotideData prevNucl = xover.PrevNucl;
+        NucleotideData nextNucl = xover.NextNucl;
+        Domain prevDomain = prevNucl.GetDomain();
+        Domain nextDomain = nextNucl.GetDomain();
+        prevDomain.NextXover = null;
+        nextDomain.PrevXover = null;
+        prevNucl.Xover = null;
+        nextNucl.Xover = null;
+
+        prevDomain.GetHelix().RemoveXover(xover);
+        nextDomain.GetHelix().RemoveXover(xover);
 
         GameObject.Destroy(xover.gameObject);
     }
