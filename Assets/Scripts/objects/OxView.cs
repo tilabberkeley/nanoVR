@@ -302,7 +302,6 @@ public class OxView
     public void SimulationUpdate(string datFile)
     {
         StringReader datFileReader = new StringReader(datFile);
-        //Debug.Log($"datFile: {datFile}");
         // Read metadata - not needed
         datFileReader.ReadLine();
         datFileReader.ReadLine();
@@ -327,6 +326,8 @@ public class OxView
 
             nextLine = datFileReader.ReadLine();
         }
+
+        _datFile = datFile;
     }
 
     private void UpdateNucleotidePosition(OxDNAMapping mapping)
