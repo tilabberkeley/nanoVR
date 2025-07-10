@@ -169,7 +169,6 @@ public class StrandSettings : MonoBehaviour
     /// </summary>
     private void SetComplementary(string sequence)
     {
-       /* List<GameObject> nucleotides = s_strand.Nucleotides;
         int seqCount = 0;
 
         for (int i = 0; i < s_strand.Domains.Count; i++)
@@ -182,14 +181,11 @@ public class StrandSettings : MonoBehaviour
                 {
                     CheckTrailingNucls(nd);
                 }
-                
+
                 NucleotideEdit.SetComplementary(nd, sequence.Substring(seqCount, nd.Insertion + 1));
                 if (!nd.IsDeletion) seqCount += nd.Insertion + 1;
-
             }
-            
         }
-        Debug.Log("Finished setting complementary bases");*/
     }
 
     /// <summary>
@@ -249,6 +245,6 @@ public class StrandSettings : MonoBehaviour
     {
         _menu.enabled = true;
         _strandSettings.enabled = false;
-        Highlight.UnhighlightGO(EditOptionsManager.s_GO, false);
+        //Highlight.UnhighlightGO(EditOptionsManager.s_GO, false);
     }
 }

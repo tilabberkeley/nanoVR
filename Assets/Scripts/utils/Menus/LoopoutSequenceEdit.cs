@@ -74,6 +74,6 @@ public class LoopoutSequenceEdit : MonoBehaviour
     public void HideMenu()
     {
         _loopoutSequenceEditMenu.enabled = false;
-        Highlight.UnhighlightGO(EditOptionsManager.s_GO, false);
+        //Highlight.UnhighlightGO(EditOptionsManager.s_GO, false);
     }
 }

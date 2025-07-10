@@ -92,8 +92,7 @@ public class DrawCrossover : MonoBehaviour
                 }
             }
             else if (hit.collider.GetComponent<XoverComponent>() != null &&
-                     hit.collider.GetComponent<LoopoutComponent>() == null &&
-                     s_eraseTogOn)
+                     hit.collider.GetComponent<LoopoutComponent>() == null)
             {
                 // If the hit is on an existing crossover (and not a loopout), erase it.
                 DoEraseXover(hit.collider.GetComponent<XoverComponent>());

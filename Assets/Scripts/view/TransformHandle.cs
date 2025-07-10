@@ -88,7 +88,6 @@ public class TransformHandle : MonoBehaviour
             leftGripReleased = false;
             rightGripReleased = false;
 
-            //Debug.Log("Hitting GridComponent");
             translatedGrids = SelectGrid.Grids;
             if (translatedGrids.Count == 0)
             {
@@ -106,10 +105,7 @@ public class TransformHandle : MonoBehaviour
             leftTriggerReleased = false;
             rightTriggerReleased = false;
 
-            //Debug.Log("Detach children");
             DetachChildren();
-
-            //Debug.Log("done hiding transform");
         }
 
         if (!leftGripValue)
@@ -155,7 +151,6 @@ public class TransformHandle : MonoBehaviour
     /// </summary>
     private static void HideTransform()
     {
-        //Debug.Log("Hide transform");
         gizmos.SetActive(false);
     }
 
@@ -169,28 +164,16 @@ public class TransformHandle : MonoBehaviour
 
     private static void AttachChildren(DNAGrid grid)
     {
-        /*for (int i = 0; i < grid.Length; i++)
-        {            
-            for (int j = 0; j < grid.Width; j++)
-            {
-                grid.Grid2D[i, j].transform.SetParent(gizmosTransform, true);
-                grid.Grid2D[i, j].GetComponent<Collider>().enabled = false;
-            }
-        }*/
         grid.IsTransforming = true;
         foreach (GridComponent gc in grid.GridComponents)
         {
             gc.transform.SetParent(gizmosTransform, true);
             gc.Helix?.SetCylinderParents(gizmosTransform);
-            //gc.GetComponent<Collider>().enabled = false;
         }
     }
 
     public static void DetachChildren()
     {   
-        //Debug.Log("Num children: " + gizmos.transform.childCount);
-        //int n = gizmos.transform.childCount;
-
         Matrix4x4 gizmosMatrix = Matrix4x4.TRS(
                                     gizmosTransform.position,
                                     gizmosTransform.rotation,
@@ -199,12 +182,12 @@ public class TransformHandle : MonoBehaviour
         foreach (DNAGrid grid in translatedGrids)
         {
             grid.IsTransforming = false;
+            grid.CurrTransformOffset = delta * grid.OldTransformOffset;
             grid.OldTransformOffset = delta * grid.OldTransformOffset;
 
             foreach (GridComponent gc in grid.GridComponents)
             {
                 gc.transform.SetParent(null);
-                //gc.GetComponent<Collider>().enabled = true;
 
                 // Update helix bounding box
                 Helix helix = gc.Helix;
@@ -217,10 +200,10 @@ public class TransformHandle : MonoBehaviour
                     helix.BoundingBox.Extend(helix.NucleotideDataB.Last().GetPosition());
 
                     helix.SetCylinderParents(null);
+                    helix.UpdateXovers();
                 }
             }
         }
-        //translatedGrids.Clear();
         initialGizmoMatrix = Matrix4x4.identity;
         HideTransform();
     }

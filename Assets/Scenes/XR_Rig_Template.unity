@@ -5734,6 +5734,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &430197236 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6596179253812601303, guid: f9503200539b243419babf6ef6c3ad07, type: 3}
+  m_PrefabInstance: {fileID: 6596179253259671293}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &433890444
 GameObject:
   m_ObjectHideFlags: 0
@@ -12662,6 +12673,17 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RaycastTriggerInteraction: 1
+--- !u!114 &1017436622 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6596179252642488556, guid: f9503200539b243419babf6ef6c3ad07, type: 3}
+  m_PrefabInstance: {fileID: 6596179253259671293}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1027401688 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1516939903047420560, guid: a0aa724faf5c0e94f934a7c3c7053e09, type: 3}
@@ -13097,7 +13119,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a738fd08411677a46afdc77a8ac5af75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  toggle: {fileID: 1045675759}
 --- !u!114 &1045675759
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14377,6 +14398,17 @@ RectTransform:
   m_AnchoredPosition: {x: 113, y: -66.999954}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1154849138 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6596179253385861714, guid: f9503200539b243419babf6ef6c3ad07, type: 3}
+  m_PrefabInstance: {fileID: 6596179253259671293}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1165316794 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5006981897241083873, guid: ec51f00dcd8ed5b47bcf8333ab462a1a, type: 3}
@@ -25989,6 +26021,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1084492209}
     - target: {fileID: 2333582758016648230, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: _insertionOKButton
+      value: 
+      objectReference: {fileID: 1154849138}
+    - target: {fileID: 2333582758016648230, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _strandSettingsBtn
       value: 
       objectReference: {fileID: 1165316794}
@@ -25997,13 +26033,29 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 401479751}
     - target: {fileID: 2333582758016648230, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: _loopCurrLengthText
+      value: 
+      objectReference: {fileID: 1609957155}
+    - target: {fileID: 2333582758016648230, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: _loopLengthOKButton
+      value: 
+      objectReference: {fileID: 174573269}
+    - target: {fileID: 2333582758016648230, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _nucleotideInfoText
       value: 
       objectReference: {fileID: 485878320}
     - target: {fileID: 2333582758016648230, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: _insertionInputField
+      value: 
+      objectReference: {fileID: 1017436622}
+    - target: {fileID: 2333582758016648230, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _strandSequenceInput
       value: 
       objectReference: {fileID: 3535006}
+    - target: {fileID: 2333582758016648230, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: _loopLengthInputField
+      value: 
+      objectReference: {fileID: 416425463}
     - target: {fileID: 2333582758016648230, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _loopoutLengthEditBtn
       value: 
@@ -26013,9 +26065,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 3365575}
     - target: {fileID: 2333582758016648230, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: _insertionCancelButton
+      value: 
+      objectReference: {fileID: 430197236}
+    - target: {fileID: 2333582758016648230, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _loopoutLengthEditMenu
       value: 
       objectReference: {fileID: 445020823}
+    - target: {fileID: 2333582758016648230, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: _loopLengthCancelButton
+      value: 
+      objectReference: {fileID: 178394716}
     - target: {fileID: 2333582758016648230, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _loopoutSequenceEditBtn
       value: 
@@ -26225,6 +26285,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1084492209}
     - target: {fileID: 2333582758512940828, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: _insertionOKButton
+      value: 
+      objectReference: {fileID: 1154849138}
+    - target: {fileID: 2333582758512940828, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _strandSettingsBtn
       value: 
       objectReference: {fileID: 1165316794}
@@ -26233,13 +26297,29 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 401479751}
     - target: {fileID: 2333582758512940828, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: _loopCurrLengthText
+      value: 
+      objectReference: {fileID: 1609957155}
+    - target: {fileID: 2333582758512940828, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: _loopLengthOKButton
+      value: 
+      objectReference: {fileID: 174573269}
+    - target: {fileID: 2333582758512940828, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _nucleotideInfoText
       value: 
       objectReference: {fileID: 485878320}
     - target: {fileID: 2333582758512940828, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: _insertionInputField
+      value: 
+      objectReference: {fileID: 1017436622}
+    - target: {fileID: 2333582758512940828, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _strandSequenceInput
       value: 
       objectReference: {fileID: 3535006}
+    - target: {fileID: 2333582758512940828, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: _loopLengthInputField
+      value: 
+      objectReference: {fileID: 416425463}
     - target: {fileID: 2333582758512940828, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _loopoutLengthEditBtn
       value: 
@@ -26249,9 +26329,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 3365575}
     - target: {fileID: 2333582758512940828, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: _insertionCancelButton
+      value: 
+      objectReference: {fileID: 430197236}
+    - target: {fileID: 2333582758512940828, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _loopoutLengthEditMenu
       value: 
       objectReference: {fileID: 445020823}
+    - target: {fileID: 2333582758512940828, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+      propertyPath: _loopLengthCancelButton
+      value: 
+      objectReference: {fileID: 178394716}
     - target: {fileID: 2333582758512940828, guid: e8a85e603f224244e8976d18f1949705, type: 3}
       propertyPath: _loopoutSequenceEditBtn
       value: 
@@ -26469,6 +26557,7 @@ PrefabInstance:
     - {fileID: 2333582758512940830, guid: e8a85e603f224244e8976d18f1949705, type: 3}
     - {fileID: 2333582758016648243, guid: e8a85e603f224244e8976d18f1949705, type: 3}
     - {fileID: 2333582758016648240, guid: e8a85e603f224244e8976d18f1949705, type: 3}
+    - {fileID: 2333582759794358071, guid: e8a85e603f224244e8976d18f1949705, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: e8a85e603f224244e8976d18f1949705, type: 3}
 --- !u!4 &2333582758712054267 stripped
 Transform:
@@ -26736,10 +26825,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 6596179253569276157, guid: f9503200539b243419babf6ef6c3ad07, type: 3}
-      propertyPath: _menu
-      value: 
-      objectReference: {fileID: 1010908918}
     - target: {fileID: 6596179253569276674, guid: f9503200539b243419babf6ef6c3ad07, type: 3}
       propertyPath: m_Pivot.x
       value: 0

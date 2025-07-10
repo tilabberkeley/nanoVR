@@ -30,19 +30,12 @@ public static class Utils
     public const float ATOM_SCALE = 10f;
 
     /// <summary>
-    /// Returns nucleotide Gameobject given id, helixId, and direction.
+    /// Returns nucleotide data given id, helixId, and direction.
     /// </summary>
     /// <param name="id">Id of nucleotide.</param>
     /// <param name="helixId">Id of helix that nucleotide is on.</param>
     /// <param name="direction">Direction of strand that nucleotide is on.</param>
     /// <returns></returns>
-    public static GameObject FindNucleotide(int id, int helixId, int direction)
-    {
-        s_helixDict.TryGetValue(helixId, out Helix helix);
-        return null;
-        //return helix.GetNucleotide(id, direction);
-    }
-
     public static NucleotideData FindNucleotideData(int nucleotideId, int helixId, int direction)
     {
         s_helixDict.TryGetValue(helixId, out Helix helix);
@@ -124,19 +117,19 @@ public static class Utils
 
     public static void CheckMismatch(NucleotideData nd)
     {
-        NucleotideData complemenNucl = nd.GetComplement();
+        NucleotideData complementNucl = nd.GetComplement();
 
         // If complement nucleotide is not assigned a DNA sequence, there is no mismatch of DNA to check.
-        if (complemenNucl.Sequence.Equals("")) return;
+        if (complementNucl.Sequence.Equals("")) return;
 
         string complementSequence = ComplementSequence(nd.Sequence);
-        if (!complemenNucl.Sequence.Equals(complementSequence))
+        if (!complementNucl.Sequence.Equals(complementSequence))
         {
-            DrawMismatch(complemenNucl);
+            DrawMismatch(complementNucl);
         }
         else
         {
-            RemoveMismatch(complemenNucl);
+            RemoveMismatch(complementNucl);
             RemoveMismatch(nd);
         }
     }

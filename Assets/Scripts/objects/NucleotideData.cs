@@ -11,7 +11,7 @@ public class NucleotideData
     private readonly int helixId;
     private int strandId = -1;
     private readonly int direction;
-    private string sequence = "?";
+    private string sequence = "";
     private Color color = Color.white;
     private Color highlight = Color.white;
     private int insertion = 0;
@@ -227,7 +227,7 @@ public class NucleotideData
         }
 
         strandId = -1;
-        sequence = "?";
+        sequence = "";
         Color = Color.white;
         Highlight = Color.white;
         insertion = 0;

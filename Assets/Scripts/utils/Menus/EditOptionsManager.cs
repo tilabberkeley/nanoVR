@@ -2,6 +2,7 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -14,12 +15,15 @@ using UnityEngine.XR.Interaction.Toolkit;
 /// </summary>
 public class EditOptionsManager : MonoBehaviour
 {
+    private const string CURRENT_LENGTH_PREFIX = "Current Loopout Length: ";
+
     // XR Controller elements
     [SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rayInteractor;
-    public static GameObject s_GO;
+    private static LoopoutComponent loopComp;
+    private static NucleotideData nd;
     private bool gripReleased = true;
 
     // Edit Options UI elements
@@ -51,9 +55,20 @@ public class EditOptionsManager : MonoBehaviour
     [SerializeField] private Toggle _nucleotideComplementaryTog;
     [SerializeField] private TMP_InputField _nucleotideSequenceInput;
 
+    // Loopout Length Edit UI
+    [SerializeField] private TMP_InputField _loopLengthInputField;
+    [SerializeField] private TMP_Text _loopCurrLengthText;
+    [SerializeField] private Button _loopLengthOKButton;
+    [SerializeField] private Button _loopLengthCancelButton;
+
     // Loopout Sequence Edit UI
     [SerializeField] private TMP_Text _loopoutInfoText;
     [SerializeField] private TMP_InputField _loopoutSequenceInput;
+
+    // Insertion Edit UI
+    [SerializeField] private TMP_InputField _insertionInputField;
+    [SerializeField] private Button _insertionOKButton;
+    [SerializeField] private Button _insertionCancelButton;
 
 
     private void Start()
@@ -72,6 +87,16 @@ public class EditOptionsManager : MonoBehaviour
         _loopoutSequenceEditBtn.onClick.AddListener(() => ShowLoopoutSequenceEdit());
         _domainExtensionBtn.onClick.AddListener(() => MakeDomainExtension());
         _cancelButton.onClick.AddListener(() => HideEditMenu());
+
+        _loopLengthOKButton.onClick.AddListener(() => HideLoopLengthMenu());
+        _loopLengthOKButton.onClick.AddListener(() => DoEditLoopout());
+        _loopLengthCancelButton.onClick.AddListener(() => HideLoopLengthMenu());
+        _loopLengthInputField.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
+
+        _insertionOKButton.onClick.AddListener(() => HideInsertionMenu());
+        _insertionOKButton.onClick.AddListener(() => DoEditInsertion());
+        _insertionCancelButton.onClick.AddListener(() => HideInsertionMenu());
+        _insertionInputField.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
     }
 
     private void GetDevice()
@@ -106,12 +131,18 @@ public class EditOptionsManager : MonoBehaviour
         if (gripValue && gripReleased && hit && !triggerValue)
         {
             gripReleased = false;
-            if ((s_hit.collider.GetComponent<NucleotideColliderComponent>() != null
+            if (s_hit.collider.GetComponent<NucleotideColliderComponent>() != null
                 && s_hit.collider.GetComponent<NucleotideColliderComponent>().Data.IsSelected())
-                || s_hit.collider.GetComponent<LoopoutComponent>() != null)
             {
-                s_GO = s_hit.collider.gameObject;
                 ShowEditMenu();
+                nd = s_hit.collider.GetComponent<NucleotideColliderComponent>().Data;
+                ShowNuclOptions(nd);
+            }
+            else if (s_hit.collider.GetComponent<LoopoutComponent>() != null)
+            {
+                ShowEditMenu();
+                loopComp = s_hit.collider.GetComponent<LoopoutComponent>();
+                ShowLoopoutOptions(loopComp);
             }
         }
 
@@ -124,9 +155,6 @@ public class EditOptionsManager : MonoBehaviour
 
     private void ShowEditMenu()
     {
-        ShowCorrectButtons();
-        Highlight.UnhighlightGO(s_GO, false);
-        Highlight.HighlightGO(s_GO, Color.yellow);
         _menu.enabled = false;
         _editMenu.enabled = true;
     }
@@ -135,27 +163,26 @@ public class EditOptionsManager : MonoBehaviour
     {
         _menu.enabled = true;
         _editMenu.enabled = false;
-        Highlight.UnhighlightGO(s_GO, false);
+        //Highlight.UnhighlightGO(s_GO, false);
     }
 
-    private void ShowCorrectButtons()
+    private void ShowLoopoutOptions(LoopoutComponent loopoutComp)
     {
-        NucleotideColliderComponent ntc = s_GO.GetComponent<NucleotideColliderComponent>();
-        LoopoutComponent loopoutComp = s_GO.GetComponent<LoopoutComponent>();
-        if (loopoutComp != null)
-        {
-            _loopoutLengthEditBtn.interactable = true;
-            _insEditBtn.interactable = false;
-            _loopoutSequenceEditBtn.interactable = true;
-            _insEditBtn.interactable = false;
-            _nuclEditBtn.interactable = false;
-            return;
-        }
+        //Highlight.UnhighlightGO(s_GO, false);
+        //Highlight.HighlightGO(s_GO, Color.yellow);
+        _loopoutLengthEditBtn.interactable = true;
+        _insEditBtn.interactable = false;
+        _loopoutSequenceEditBtn.interactable = true;
+        _insEditBtn.interactable = false;
+        _nuclEditBtn.interactable = false;
+    }
 
+    private void ShowNuclOptions(NucleotideData nd)
+    {
         _loopoutLengthEditBtn.interactable = false;
         _loopoutSequenceEditBtn.interactable = false;
 
-        if (ntc.Data.IsInsertion)
+        if (nd.IsInsertion)
         {
             _insEditBtn.interactable = true;
         }
@@ -164,7 +191,7 @@ public class EditOptionsManager : MonoBehaviour
             _insEditBtn.interactable = false;
         }
 
-        if (ntc.Data.IsDeletion)
+        if (nd.IsDeletion)
         {
             _nuclEditBtn.interactable = false;
         }
@@ -180,7 +207,7 @@ public class EditOptionsManager : MonoBehaviour
         ToggleInputFields();
         _menu.enabled = false;
         _strandSettings.enabled = true;
-        StrandSettings.Strand = Utils.GetStrand(s_GO);
+        StrandSettings.Strand = nd.GetStrand();
         _strandComplementaryTog.isOn = true; // Always default to automatically assign complementary strand.
                                              // User needs to manually unselect this toggle to get DNA complement mismatch.
         _scaffoldTog.isOn = StrandSettings.Strand.IsScaffold;
@@ -198,15 +225,14 @@ public class EditOptionsManager : MonoBehaviour
     private void ShowNuclEdit()
     {
         _editMenu.enabled = false;
-        var ntc = s_GO.GetComponent<NucleotideColliderComponent>().Data;
         _nuclEditMenu.enabled = true;
-        NucleotideEdit.Nucleotide = ntc;
+        NucleotideEdit.Nucleotide = nd;
 
         // Set UI info
-        int numberofBases = ntc.Insertion + 1;
+        int numberofBases = nd.Insertion + 1;
         string text = "Number of bases: " + numberofBases;
         _nucleotideInfoText.text = text;
-        _nucleotideSequenceInput.text = ntc.Sequence;
+        _nucleotideSequenceInput.text = nd.Sequence;
         _nucleotideComplementaryTog.isOn = true; // Default is to set complementary base. User must manually untoggle this.
     }
 
@@ -220,15 +246,13 @@ public class EditOptionsManager : MonoBehaviour
     {
         _editMenu.enabled = false;
         _loopoutLengthEditMenu.enabled = true;
-        DrawLoopout.s_loopout = s_GO;
-        GetComponent<DrawLoopout>().ShowEditPanel();
+        _loopCurrLengthText.SetText(CURRENT_LENGTH_PREFIX + loopComp.SequenceLength);
     }
 
     private void ShowLoopoutSequenceEdit()
     {
         _editMenu.enabled = false;
         _loopoutSequenceEditMenu.enabled = true;
-        LoopoutComponent loopComp = s_GO.GetComponent<LoopoutComponent>();
         LoopoutSequenceEdit.Loopout = loopComp;
 
         // Set UI info
@@ -240,7 +264,6 @@ public class EditOptionsManager : MonoBehaviour
 
     private void MakeDomainExtension()
     {
-        NucleotideData nd = s_GO.GetComponent<NucleotideColliderComponent>().Data;
         int numDomains = nd.GetStrand().Domains.Count;
         if (numDomains > 1 && (nd.GetDomain().Id == 0 || nd.GetDomain().Id == numDomains - 1))
         {
@@ -250,5 +273,121 @@ public class EditOptionsManager : MonoBehaviour
         {
             Debug.Log("Cannot make domain extension. Strand must have more than one domain."); 
         }
+    }
+
+    private void HideInsertionMenu()
+    {
+        _menu.enabled = true;
+        _insEditMenu.enabled = false;
+        //Highlight.UnhighlightGO(EditOptionsManager.nd, false);
+    }
+
+    /// <summary>
+    /// Returns whether new insertion length is valid.
+    /// </summary>
+    private bool ValidEdit()
+    {
+        try
+        {
+            int newLength = Int32.Parse(_insertionInputField.text);
+            if (newLength <= 0)
+            {
+                Debug.Log("Insertion length must be positive.");
+                return false;
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.Log(e.Message);
+            return false;
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Edits insertion length to something other than default of 1.
+    /// </summary>
+    private void DoEditInsertion()
+    {
+        if (ValidEdit())
+        {
+            int newLength = Int32.Parse(_insertionInputField.text);
+            ICommand command = new EditInsertionCommand(nd, newLength);
+            CommandManager.AddCommand(command);
+        }
+    }
+
+    /// <summary>
+    /// Actual method that edits insertion.
+    /// </summary>
+    /// <param name="go">Gameobject that is being edited.</param>
+    /// <param name="length">New length of insertion.</param>
+    public static void EditInsertion(NucleotideData nd, int length)
+    {
+        if (nd.IsInsertion)
+        {
+            nd.Insertion = length;
+            string sequence = nd.GetStrand().Sequence;
+            nd.GetStrand().SetSequenceRevamp(sequence);
+        }
+    }
+
+    /// <summary>
+    /// Returns whether the loopout length is valid. A valid length is strictly positive.
+    /// </summary>
+    /// <param name="length"></param>
+    /// <returns>True if length is valid. Throws exception otherwise.</returns>
+    private bool ValidLoopoutLength(int length)
+    {
+        if (length <= 0)
+        {
+            throw new Exception("Loopout length must be positive");
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Returns inputted loopout length. Additionally, the input text is cleared.
+    /// </summary>
+    /// <returns>Loopout length. 0 if invalid.</returns>
+    private int GetLengthFromText()
+    {
+        int length = int.Parse(_loopLengthInputField.text);
+        // Clears input field.
+        _loopLengthInputField.Select();
+        _loopLengthInputField.text = "";
+        if (ValidLoopoutLength(length))
+        {
+            return length;
+        }
+        return 0;
+    }
+
+    /// <summary>
+    /// Does an edit loopout command.
+    /// </summary>
+    private void DoEditLoopout()
+    {
+        int length = GetLengthFromText();
+        EditLoopoutCommand command = new EditLoopoutCommand(loopComp, length);
+        CommandManager.AddCommand(command);
+    }
+
+    /// <summary>
+    /// Edits given loopout to the given length.
+    /// </summary>
+    public static void EditLoopout(LoopoutComponent loopout, int length)
+    {
+        loopout.SequenceLength = length;
+    }
+
+    /// <summary>
+    /// Hides edit panel for loopout editting.
+    /// </summary>
+    private void HideLoopLengthMenu()
+    {
+        _menu.enabled = true;
+        _loopoutLengthEditMenu.enabled = false;
+        //Highlight.UnhighlightGO(EditOptionsManager.s_GO, false);
     }
 }

@@ -69,12 +69,11 @@ public class HelixManager : MonoBehaviour
             }
 
             // Don't render helices in helix view; however, we still need to render non-helix-bound extensions above.
-            if (h.IsHelixView)
+            if (!h.IsHelixView)
             {
-                continue;
-            }
-            nucCount += h.NucleotideMatricesA.Count + h.NucleotideMatricesB.Count;
-            backCount += h.BackboneMatricesA.Count + h.BackboneMatricesB.Count;
+                nucCount += h.NucleotideMatricesA.Count + h.NucleotideMatricesB.Count;
+                backCount += h.BackboneMatricesA.Count + h.BackboneMatricesB.Count;
+            } 
         }
 
         if (nucCount == 0 && backCount == 0) return;
@@ -132,28 +131,25 @@ public class HelixManager : MonoBehaviour
                              null, // if you don't track highlight for backbone
                              bLocal, bColor, bHighlight, ref bIdx, offset);
 
-            if (h.IsHelixView)
-            {
-                continue; // Skip rendering helices in helix view
-            }
             if (updateXoverMap[h.GetGrid()])
             {
                 h.UpdateXovers();
-            }    
+            }
 
-
-            FillNativeArrays(h.NucleotideMatricesA, h.GetNucleotideColors(1),
+            if (!h.IsHelixView)
+            {
+                FillNativeArrays(h.NucleotideMatricesA, h.GetNucleotideColors(1),
                              h.GetNucleotideHighlights(1), localMats, colours, highlights, ref nIdx, offset);
 
-            FillNativeArrays(h.NucleotideMatricesB, h.GetNucleotideColors(0),
-                             h.GetNucleotideHighlights(0), localMats, colours, highlights, ref nIdx, offset);
+                FillNativeArrays(h.NucleotideMatricesB, h.GetNucleotideColors(0),
+                                 h.GetNucleotideHighlights(0), localMats, colours, highlights, ref nIdx, offset);
 
-            FillNativeArrays(h.BackboneMatricesA, h.GetBackboneColors(1), null,
-                             bLocal, bColor, bHighlight, ref bIdx, offset);
+                FillNativeArrays(h.BackboneMatricesA, h.GetBackboneColors(1), null,
+                                 bLocal, bColor, bHighlight, ref bIdx, offset);
 
-            FillNativeArrays(h.BackboneMatricesB, h.GetBackboneColors(0), null,
-                             bLocal, bColor, bHighlight, ref bIdx, offset);
-            
+                FillNativeArrays(h.BackboneMatricesB, h.GetBackboneColors(0), null,
+                                 bLocal, bColor, bHighlight, ref bIdx, offset);
+            }
         }
 
         var gpuMats = _nuclMatCB.BeginWrite<float4x4>(0, nucCount);

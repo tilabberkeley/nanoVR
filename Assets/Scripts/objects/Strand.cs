@@ -295,4 +295,18 @@ public class Strand
         }
         return false;
     }
+
+    public Dictionary<int, int> GetLoopouts()
+    {
+        Dictionary<int, int> loopouts = new Dictionary<int, int>();
+        foreach (Domain domain in domains)
+        {
+            if (domain.NextXover != null && domain.NextXover.IsLoopout)
+            {
+                LoopoutComponent loopout = (LoopoutComponent)domain.NextXover;
+                loopouts.Add(domain.Id, loopout.SequenceLength);
+            }
+        }
+        return loopouts;
+    }
 }

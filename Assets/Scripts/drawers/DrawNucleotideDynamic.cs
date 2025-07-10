@@ -3,13 +3,11 @@
  * authors: David Yang <davidmyang@berkeley.edu and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR;
 using static GlobalVariables;
 using static Highlight;
-using UltimateProceduralPrimitivesFREE;
 
 public class DrawNucleotideDynamic : MonoBehaviour
 {
@@ -127,10 +125,6 @@ public class DrawNucleotideDynamic : MonoBehaviour
                     {
                         BuildStrand();
                     }
-                    else if (s_eraseTogOn)
-                    {
-                        DoEraseStrand(s_startGO, s_endGO);
-                    }
                 }
                 ResetNucleotides();
                 creatingStrand = false;
@@ -182,6 +176,10 @@ public class DrawNucleotideDynamic : MonoBehaviour
         {
             DoEditStrand(s_startGO, s_endGO);
         }
+        else if (startSelected && endSelected)
+        {
+            DoEraseStrand(s_startGO, s_endGO);
+        }
     }
 
     /// <summary>
@@ -231,8 +229,12 @@ public class DrawNucleotideDynamic : MonoBehaviour
 
     public void DoEditStrand(NucleotideData start, NucleotideData end)
     {
-        ICommand command = new EditCommand(start, end);
-        CommandManager.AddCommand(command);
+        if (start.IsSelected() && !end.IsSelected()
+            && (start.IsHead() || start.IsTail()))
+        {
+            ICommand command = new EditCommand(start, end);
+            CommandManager.AddCommand(command);
+        }
     }
 
     /// <summary>

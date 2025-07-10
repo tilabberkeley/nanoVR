@@ -174,11 +174,13 @@ public static class DrawPoint
 
     public static HelixComponent MakeHelixCylinder(Helix helix, Vector3 startPos, Vector3 endPos, Color32 color)
     {
-        GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        cylinder.AddComponent<XRSimpleInteractable>();
-        var helixComponent = cylinder.AddComponent<HelixComponent>();
-        helixComponent.Helix = helix;
+        GameObject cylinder = Instantiate(HelixCylinder,
+                              Vector3.zero,
+                              Quaternion.identity);
         cylinder.name = "helixCylinder";
+
+        var helixComponent = cylinder.GetComponent<HelixComponent>();
+        helixComponent.Helix = helix;
         Vector3 cylDefaultOrientation = new Vector3(0, 1, 0);
 
         // Position
@@ -186,9 +188,7 @@ public static class DrawPoint
 
         // Rotation
         Vector3 dirV = Vector3.Normalize(endPos - startPos);
-        Vector3 rotAxisV = dirV + cylDefaultOrientation;
-        rotAxisV = Vector3.Normalize(rotAxisV);
-        cylinder.transform.rotation = new Quaternion(rotAxisV.x, rotAxisV.y, rotAxisV.z, 0);
+        cylinder.transform.rotation = Quaternion.FromToRotation(Vector3.up, dirV);
 
         // Scale        
         float dist = Vector3.Distance(endPos, startPos);

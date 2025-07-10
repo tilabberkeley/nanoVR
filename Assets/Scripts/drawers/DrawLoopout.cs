@@ -2,37 +2,25 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
-using TMPro;
 using static GlobalVariables;
 using static Utils;
 
 public class DrawLoopout : MonoBehaviour
 {
     private const int DEFAULT_LENGTH = 1;
-    private const string CURRENT_LENGTH_PREFIX = "Current Loopout Length: ";
 
     // Device and UI fields
     [SerializeField] private XRNode _xrNode;
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rightRayInteractor;
-    [SerializeField] private Canvas _menu;
-    [SerializeField] private Canvas _editPanel;
-    [SerializeField] private TMP_InputField _inputField;
-    [SerializeField] private TMP_Text _currLengthText;
-    [SerializeField] private Button _OKButton;
-    [SerializeField] private Button _cancelButton;
 
     private bool triggerReleased = true;
     private bool gripReleased = true;
-    public static GameObject s_loopout = null;
-    private static bool s_menuEnabled;
     private static RaycastHit s_hit;
     private static bool drawTempXover = false;
     private static NucleotideData s_startNuc = null;
@@ -61,15 +49,6 @@ public class DrawLoopout : MonoBehaviour
     {
         tempXover = Instantiate(Xover, Vector3.zero, Quaternion.identity) as GameObject;
         tempXover.SetActive(false);
-    }
-
-    private void Start()
-    {
-        _editPanel.enabled = false;
-        _OKButton.onClick.AddListener(() => HideEditPanel());
-        _OKButton.onClick.AddListener(() => DoEditLoopout());
-        _cancelButton.onClick.AddListener(() => HideEditPanel());
-        _inputField.onSelect.AddListener(delegate { TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad); });
     }
 
     private void Update()
@@ -113,9 +92,7 @@ public class DrawLoopout : MonoBehaviour
                     ResetNucleotides();
                 }
             }
-            else if (hit.collider.GetComponent<XoverComponent>() == null &&
-                     hit.collider.GetComponent<LoopoutComponent>()!= null &&
-                     s_eraseTogOn)
+            else if (hit.collider.GetComponent<LoopoutComponent>()!= null)
             {
                 // If the hit is on an existing crossover (and not a loopout), erase it.
                 DoEraseLoopout(hit.collider.GetComponent<LoopoutComponent>());
@@ -182,37 +159,6 @@ public class DrawLoopout : MonoBehaviour
     }
 
     /// <summary>
-    /// Returns whether the loopout length is valid. A valid length is strictly positive.
-    /// </summary>
-    /// <param name="length"></param>
-    /// <returns>True if length is valid. Throws exception otherwise.</returns>
-    private bool ValidLoopoutLength(int length)
-    {
-        if (length <= 0)
-        {
-            throw new Exception("Loopout length must be positive");
-        }
-        return true;
-    }
-
-    /// <summary>
-    /// Returns inputted loopout length. Additionally, the input text is cleared.
-    /// </summary>
-    /// <returns>Loopout length. 0 if invalid.</returns>
-    private int GetLengthFromText()
-    {
-        int length = int.Parse(_inputField.text);
-        // Clears input field.
-        _inputField.Select();
-        _inputField.text = "";
-        if (ValidLoopoutLength(length))
-        {
-            return length;
-        }
-        return 0;
-    }
-
-    /// <summary>
     /// Does a loopout command.
     /// </summary>
     public static void DoCreateLoopout(NucleotideData first, NucleotideData second)
@@ -274,41 +220,5 @@ public class DrawLoopout : MonoBehaviour
     {
         ICommand command = new EraseLoopoutCommand(loopout);
         CommandManager.AddCommand(command);
-    }
-
-    /// <summary>
-    /// Does an edit loopout command.
-    /// </summary>
-    private void DoEditLoopout()
-    {
-        int length = GetLengthFromText();
-        EditLoopoutCommand command = new EditLoopoutCommand(s_loopout, length);
-        CommandManager.AddCommand(command);
-    }
-
-    /// <summary>
-    /// Edits given loopout to the given length.
-    /// </summary>
-    public static void EditLoopout(GameObject loopout, int length)
-    {
-        loopout.GetComponent<LoopoutComponent>().SequenceLength = length;
-    }
-
-    /// <summary>
-    /// Displays edit panel for loopout editting.
-    /// </summary>
-    public void ShowEditPanel()
-    {
-        _currLengthText.SetText(CURRENT_LENGTH_PREFIX + s_loopout.GetComponent<LoopoutComponent>().SequenceLength);
-    }
-
-    /// <summary>
-    /// Hides edit panel for loopout editting.
-    /// </summary>
-    private void HideEditPanel()
-    {
-        _menu.enabled = s_menuEnabled;
-        _editPanel.enabled = false;
-        Highlight.UnhighlightGO(EditOptionsManager.s_GO, false);
     }
 }

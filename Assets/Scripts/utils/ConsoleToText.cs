@@ -23,10 +23,10 @@ public class ConsoleToText : MonoBehaviour
         Application.logMessageReceived += HandleLog;
     }
 
-    //private void OnDisable()
-    //{
-    //    Application.logMessageReceived -= HandleLog;
-    //}
+    private void OnDisable()
+    {
+        Application.logMessageReceived -= HandleLog;
+    }
 
     // This method captures log messages as they come in.
     private void HandleLog(string logString, string stackTrace, LogType type)
@@ -35,10 +35,10 @@ public class ConsoleToText : MonoBehaviour
         logQueue.Enqueue(logString);
 
         // Ensure we don't retain more than maxLogCount entries.
-        //if (logQueue.Count > maxLogCount)
-        //{
-        //    logQueue.Dequeue();
-        //}
+        if (logQueue.Count > maxLogCount)
+        {
+            logQueue.Dequeue();
+        }
 
         // Always update the latest stack trace.
         latestStackTrace = stackTrace;

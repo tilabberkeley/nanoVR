@@ -2,6 +2,8 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -38,28 +40,11 @@ public static class Highlight
     /// <summary>
     /// Unhighlights given gameobject.
     /// </summary>
-    /// <param name="go">GameObject to unhighlight.</param>
-    /// <param name="unhighlightInsAndDel">If strand is being deleted, insertions/deletions should be unhighlighted.</param>
     public static void UnhighlightGO(GameObject go, bool unhighlightInsAndDel)
     {
-        /*if (go == null) { return; }
-        
-        NucleotideComponent ntc = go.GetComponent<NucleotideComponent>(); 
+        if (go == null) { return; }
         Outline outline = go.GetComponent<Outline>();
-
-        if (!unhighlightInsAndDel && ntc != null && (ntc.IsInsertion || ntc.IsDeletion))
-        {
-            if (ntc.IsInsertion)
-            {
-                outline.OutlineColor = drawNucleotideHighlightColor;
-            } 
-            else if (ntc.IsDeletion)
-            {
-                outline.OutlineColor = eraseNucleotideHighlightColor;
-            }
-            return;
-        }
-        outline.enabled = false;*/
+        outline.enabled = false;
     }
 
     public static void UnhighlightGO(NucleotideData nd, bool unhighlightInsAndDel)
@@ -86,6 +71,8 @@ public static class Highlight
 
     public static void HighlightDeletion(NucleotideData nd)
     {
+        Debug.Log("Highlighting deletion");
+
         HighlightGO(nd, eraseNucleotideHighlightColor);
     }
 
@@ -105,6 +92,7 @@ public static class Highlight
     /// <param name="list">GameObject list of nucleotides and backbones.</param>
     public static void HighlightNucleotideSelection(List<NucleotideData> list, bool draw)
     {
+        Debug.Log("Highlighting nucl seelection");
         Color color = drawNucleotideHighlightColor;
         if (!draw)
         {
@@ -138,9 +126,11 @@ public static class Highlight
     /// <param name="strand">Strand to highlight.</param>
     public static void HighlightStrand(Strand strand)
     {
+        Debug.Log("Highlighting strand");
+
         for (int i = 0; i < strand.Domains.Count; i++)
         {
-            HighlightNucleotideSelection(strand.Domains[i].GetDomainData(), true);
+            HighlightDomain(strand.Domains[i], draw: true);
         }
     }
 
@@ -152,52 +142,18 @@ public static class Highlight
     {
         for (int i = 0; i < strand.Domains.Count; i++)
         {
-            HighlightNucleotideSelection(strand.Domains[i].GetDomainData(), isDelete);
-        }
-    }
-    
-    /// <summary>
-    /// Highlights given helix.
-    /// </summary>
-    /// <param name="helix">Helix to highlight.</param>
-    public static void HighlightHelix(Helix helix)
-    {
-        List<GameObject> nucleotidesA = helix.NucleotidesA;
-        List<GameObject> nucleotidesB = helix.NucleotidesB;
-        List<GameObject> backbonesA = helix.BackbonesA;
-        List<GameObject> backbonesB = helix.BackbonesB;
-        for (int i = 0; i < nucleotidesA.Count; i++)
-        {
-            HighlightGO(nucleotidesA[i], helixHighlightColor);
-            HighlightGO(nucleotidesB[i], helixHighlightColor);
-        }
-        for (int i = 0; i < backbonesA.Count; i++)
-        {
-            HighlightGO(backbonesA[i], helixHighlightColor);
-            HighlightGO(backbonesB[i], helixHighlightColor);
+            UnhighlightDomain(strand.Domains[i], isDelete);
         }
     }
 
-    /// <summary>
-    /// Unhighlights given helix.
-    /// </summary>
-    /// <param name="helix">Helix to unhighlight.</param>
-    public static void UnhighlightHelix(Helix helix)
+    public static void HighlightDomain(Domain domain, bool draw)
     {
-        List<GameObject> nucleotidesA = helix.NucleotidesA;
-        List<GameObject> nucleotidesB = helix.NucleotidesB;
-        List<GameObject> backbonesA = helix.BackbonesA;
-        List<GameObject> backbonesB = helix.BackbonesB;
-        for (int i = 0; i < nucleotidesA.Count; i++)
-        {
-            UnhighlightGO(nucleotidesA[i], false);
-            UnhighlightGO(nucleotidesB[i], false);
-        }
-        for (int i = 0; i < backbonesA.Count; i++)
-        {
-            UnhighlightGO(backbonesA[i], false);
-            UnhighlightGO(backbonesB[i], false);
-        }
+        HighlightNucleotideSelection(domain.GetDomainData(), draw);
+    }
+
+    public static void UnhighlightDomain(Domain domain, bool isDelete)
+    {
+        UnhighlightNucleotideSelection(domain.GetDomainData(), isDelete);
     }
 
     public static void HighlightGridCircle(GridComponent gc)

@@ -2,7 +2,6 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu>
  */
-using UnityEngine;
 using static GlobalVariables;
 
 /// <summary>
