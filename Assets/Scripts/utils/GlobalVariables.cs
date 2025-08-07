@@ -3,6 +3,7 @@
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 /// <summary>
@@ -10,27 +11,6 @@ using UnityEngine;
 /// </summary>
 public static class GlobalVariables
 {
-    public enum NucleotideSize
-    {
-        LENGTH_1,
-        LENGTH_2,
-        LENGTH_4,
-        LENGTH_8,
-        LENGTH_16,
-        LENGTH_32,
-        LENGTH_64
-    }
-
-    public enum BackboneSize
-    {
-        LENGTH_1,
-        LENGTH_3,
-        LENGTH_7,
-        LENGTH_15,
-        LENGTH_31,
-        LENGTH_63
-    }
-
     // Toggle bools for Draw panel
     public static bool s_selectTogOn = false;
     public static bool s_drawTogOn = true;
@@ -89,10 +69,16 @@ public static class GlobalVariables
     private static TextAsset _DNA7560 = Resources.Load("Sequences/dna7560") as TextAsset;
     private static TextAsset _DNA8064 = Resources.Load("Sequences/dna8064") as TextAsset;
     private static TextAsset _DNA8634 = Resources.Load("Sequences/dna78634") as TextAsset; // Special sequence that can be ordered from tilibit
-    public static string DNA7249 { get { return _DNA7249.text; } }
-    public static string DNA7560 { get { return _DNA7560.text; } }
-    public static string DNA8064 { get { return _DNA8064.text; } }
-    public static string DNA8634 { get { return _DNA8634.text; } }
+
+    private static string DNA7249_string = Regex.Replace(_DNA7249.text, @"\s+", "");
+    private static string DNA7560_string = Regex.Replace(_DNA7560.text, @"\s+", "");
+    private static string DNA8064_string = Regex.Replace(_DNA8064.text, @"\s+", "");
+    private static string DNA8634_string = Regex.Replace(_DNA8634.text, @"\s+", "");
+
+    public static string DNA7249 { get { return DNA7249_string; } }
+    public static string DNA7560 { get { return DNA7560_string; } }
+    public static string DNA8064 { get { return DNA8064_string; } }
+    public static string DNA8634 { get { return DNA8634_string; } }
 
     // Premade scadnano shapes
     private static TextAsset _square = Resources.Load("ShapeFiles/square") as TextAsset;
@@ -105,42 +91,6 @@ public static class GlobalVariables
 
 
     /* GameObjects to build structures */
-
-    // Nucleotide prefabs with counts 1, 2, 4, 8, 16, 32, and 64
-    private static GameObject _nucleotide64 = Resources.Load("Nucleotides/64nt") as GameObject;
-    private static GameObject _nucleotide32 = Resources.Load("Nucleotides/32nt") as GameObject;
-    private static GameObject _nucleotide16 = Resources.Load("Nucleotides/16nt") as GameObject;
-    private static GameObject _nucleotide8 = Resources.Load("Nucleotides/8nt") as GameObject;
-    private static GameObject _nucleotide4 = Resources.Load("Nucleotides/4nt") as GameObject;
-    private static GameObject _nucleotide2 = Resources.Load("Nucleotides/2nt") as GameObject;
-    private static GameObject _nucleotide = Resources.Load("Icosphere") as GameObject;
-
-    public static GameObject Nucleotide64 { get { return _nucleotide64; } }
-    public static GameObject Nucleotide32 { get { return _nucleotide32; } }
-    public static GameObject Nucleotide16 { get { return _nucleotide16; } }
-    public static GameObject Nucleotide8 { get { return _nucleotide8; } }
-    public static GameObject Nucleotide4 { get { return _nucleotide4; } }
-    public static GameObject Nucleotide2 { get { return _nucleotide2; } }
-    public static GameObject Nucleotide { get { return _nucleotide; } }
-
-
-    // Backbone prefabs with counts 1, 2, 4, 8, 16, 32, and 64
-    private static GameObject _backbone63 = Resources.Load("Backbones/63bb") as GameObject;
-    private static GameObject _backbone31 = Resources.Load("Backbones/31bb") as GameObject;
-    private static GameObject _backbone15 = Resources.Load("Backbones/15bb") as GameObject;
-    private static GameObject _backbone7 = Resources.Load("Backbones/7bb") as GameObject;
-    private static GameObject _backbone3 = Resources.Load("Backbones/3bb") as GameObject;
-    private static GameObject _backbone = Resources.Load("Cylinder") as GameObject;
-
-    public static GameObject Backbone63 { get { return _backbone63; } }
-    public static GameObject Backbone31 { get { return _backbone31; } }
-    public static GameObject Backbone15 { get { return _backbone15; } }
-    public static GameObject Backbone7 { get { return _backbone7; } }
-    public static GameObject Backbone3 { get { return _backbone3; } }
-    public static GameObject Backbone { get { return _backbone; } }
-
-
-
     private static GameObject _cone = Resources.Load("HexCone") as GameObject;
     private static GameObject _xover = Resources.Load("Xover") as GameObject;
     private static GameObject _xoverSuggestion = Resources.Load("XoverSuggestion") as GameObject;
@@ -154,7 +104,6 @@ public static class GlobalVariables
     private static GameObject _domainBezier = Resources.Load("Domains/DomainBezier") as GameObject;
     private static GameObject _bezierEndpoint = Resources.Load("Domains/BezierEndpoint") as GameObject;
 
-    public static GameObject Cone { get { return _cone; } }
     public static GameObject Xover { get { return _xover; } }
     public static GameObject XoverSuggestion { get { return _xoverSuggestion; } }
     public static GameObject GridCircle { get { return _gridCircle; } }

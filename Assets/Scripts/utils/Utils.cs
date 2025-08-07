@@ -180,111 +180,12 @@ public static class Utils
         return complementary.ToString();
     }
 
-    /// <summary>
-    /// Returns Strand object of any GameObject (nucleotide, backbone, xover, or loopout).
-    /// </summary>
-    public static Strand GetStrand(GameObject nucl)
+    public static (float roll, float pitch, float yaw) MatrixToYawPitchRoll(Matrix4x4 m)
     {
-        var dnaComp = nucl.GetComponent<NucleotideColliderComponent>();
-        var nd = dnaComp.Data;
-        var xoverComp = nucl.GetComponent<XoverComponent>();
-        Strand strand = null;
-        if (dnaComp != null && nd.IsSelected())
-        {
-            nd.GetStrand();
-        }
-        if (xoverComp != null)
-        {
-            s_strandDict.TryGetValue(xoverComp.StrandId, out strand);
-        }
-        return strand;
-    }
+        Quaternion q = m.rotation;
+        Vector3 e = q.eulerAngles;
 
-
-    public static Quaternion ToQuaternion(float roll, float pitch, float yaw) // roll (x), pitch (y), yaw (z), angles are in degrees, must convert to radians
-    {
-        // Abbreviations for the various angular functions
-        float roll_r = Mathf.Deg2Rad * roll;
-        float pitch_r = Mathf.Deg2Rad * pitch;
-        float yaw_r = Mathf.Deg2Rad * yaw;
-
-        float cr = Mathf.Cos(roll_r * 0.5f);
-        float sr = Mathf.Sin(roll_r * 0.5f);
-        float cp = Mathf.Cos(pitch_r * 0.5f);
-        float sp = Mathf.Sin(pitch_r * 0.5f);
-        float cy = Mathf.Cos(yaw_r * 0.5f);
-        float sy = Mathf.Sin(yaw_r * 0.5f);
-
-        Quaternion q;
-        q.w = cr * cp * cy + sr * sp * sy;
-        q.x = sr * cp * cy - cr * sp * sy;
-        q.y = cr * sp * cy + sr * cp * sy;
-        q.z = cr * cp * sy - sr * sp * cy;
-
-        return q;
-    }
-
-    public static float ToRoll(Quaternion q)
-    {
-        // roll (x-axis rotation)
-        /*float sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
-        float cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
-        float roll = Mathf.Rad2Deg * Mathf.Atan2(sinr_cosp, cosr_cosp);*/
-        float roll = Mathf.Rad2Deg * Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w);
-        return roll;
-    }
-
-    public static float ToPitch(Quaternion q)
-    {
-        // pitch (y-axis rotation)
-        /*float sinp = Mathf.Sqrt(1 + 2 * (q.w * q.y - q.x * q.z));
-        float cosp = Mathf.Sqrt(1 - 2 * (q.w * q.y - q.x * q.z));
-        float pitch = Mathf.Rad2Deg * 2 * Mathf.Atan2(sinp, cosp) - Mathf.PI / 2;*/
-        float pitch = Mathf.Rad2Deg * Mathf.Atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z);
-        return pitch;
-    }
-
-    public static float ToYaw(Quaternion q)
-    {
-        // yaw (z-axis rotation)
-        /*float siny_cosp = 2 * (q.w * q.z + q.x * q.y);
-        float cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
-        float yaw = Mathf.Rad2Deg * Mathf.Atan2(siny_cosp, cosy_cosp);*/
-        float yaw = Mathf.Rad2Deg * Mathf.Atan2(2 * q.y * q.w - 2 * q.x * q.z, 1 - 2 * q.y * q.y - 2 * q.z * q.z);
-        return yaw;
-    }
-
-    public static Matrix4x4 YawPitchRollToMatrix(float yaw, float pitch, float roll)
-    {
-        Quaternion qz = Quaternion.AngleAxis(yaw * Mathf.Rad2Deg, Vector3.forward);  // yaw (Z)
-        Quaternion qy = Quaternion.AngleAxis(pitch * Mathf.Rad2Deg, Vector3.up);     // pitch (Y)
-        Quaternion qx = Quaternion.AngleAxis(roll * Mathf.Rad2Deg, Vector3.right);   // roll (X)
-
-        Quaternion finalRotation = qz * qy * qx; // ZYX intrinsic order
-        return Matrix4x4.Rotate(finalRotation);
-    }
-
-    public static (float, float, float) MatrixToYawPitchRoll(Matrix4x4 m)
-    {
-        Quaternion q = Quaternion.LookRotation(m.GetColumn(2), m.GetColumn(1));
-        Vector3 euler = q.eulerAngles;
-
-        float yaw = euler.y; // around Y in Unity, but Z in scadnano's ZYX
-        float pitch = euler.x; // around X in Unity, but Y in scadnano's ZYX
-        float roll = euler.z; // around Z in Unity, but X in scadnano's ZYX
-
-        return (roll, pitch, yaw); // (X, Y, Z) => (roll, pitch, yaw)
-    }
-
-    public static Vector3 GetPosition(Matrix4x4 matrix)
-    {
-        return matrix.GetColumn(3);
-    }
-
-    public static Matrix4x4 PositionToMatrix(Matrix4x4 matrix, Vector3 position)
-    {
-        matrix.SetColumn(3, new Vector4(position.x, position.y, position.z, 1));
-        return matrix;
+        return (e.y, e.x, e.z);
     }
 
     public static bool IsValidDomain(Helix helix, int startId, int endId, int direction)

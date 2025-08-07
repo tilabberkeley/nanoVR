@@ -13,11 +13,11 @@ using UnityEngine;
 public static class Highlight
 {
     // Colors for highlighting.
-    public static Color drawNucleotideHighlightColor = Color.green;
-    public static Color eraseNucleotideHighlightColor = Color.red;
-    public static Color strandHighlightColor = Color.blue;
-    public static Color helixHighlightColor = Color.yellow;
-    public static Color xoverSuggestionColor = Color.cyan;
+    private static Color DRAW_NUCL_COLOR = Color.green;
+    private static Color ERASE_NUCL_COLOR = Color.red;
+    //private static Color STRAND_COLOR = Color.blue;
+    private static Color HELIX_COLOR = Color.blue;
+    //private static Color xoverSuggestionColor = Color.cyan;
 
     /// <summary>
     /// Highlights given gameobject.
@@ -53,11 +53,11 @@ public static class Highlight
         {
             if (nd.IsInsertion)
             {
-                nd.Highlight = drawNucleotideHighlightColor;
+                nd.Highlight = DRAW_NUCL_COLOR;
             }
             else if (nd.IsDeletion)
             {
-                nd.Highlight = eraseNucleotideHighlightColor;
+                nd.Highlight = ERASE_NUCL_COLOR;
             }
             return;
         }
@@ -66,14 +66,12 @@ public static class Highlight
 
     public static void HighlightInsertion(NucleotideData nd)
     {      
-        HighlightGO(nd, drawNucleotideHighlightColor);
+        HighlightGO(nd, DRAW_NUCL_COLOR);
     }
 
     public static void HighlightDeletion(NucleotideData nd)
     {
-        Debug.Log("Highlighting deletion");
-
-        HighlightGO(nd, eraseNucleotideHighlightColor);
+        HighlightGO(nd, ERASE_NUCL_COLOR);
     }
 
     public static void UnhighlightInsertion(NucleotideData nd)
@@ -93,10 +91,10 @@ public static class Highlight
     public static void HighlightNucleotideSelection(List<NucleotideData> list, bool draw)
     {
         Debug.Log("Highlighting nucl seelection");
-        Color color = drawNucleotideHighlightColor;
+        Color color = DRAW_NUCL_COLOR;
         if (!draw)
         {
-            color = eraseNucleotideHighlightColor;
+            color = ERASE_NUCL_COLOR;
         }
         if (list == null)
         {
@@ -158,7 +156,7 @@ public static class Highlight
 
     public static void HighlightGridCircle(GridComponent gc)
     {
-        HighlightGO(gc.gameObject, helixHighlightColor);
+        HighlightGO(gc.gameObject, HELIX_COLOR);
     }
 
     public static void UnhighlightGridCircle(GridComponent gc)

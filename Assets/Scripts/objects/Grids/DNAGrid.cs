@@ -4,6 +4,7 @@
  */
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static GlobalVariables;
 
 /// <summary>
@@ -94,6 +95,8 @@ public abstract class DNAGrid
     public Matrix4x4 CurrTransformOffset { get { return currTransformOffset; } set { currTransformOffset = value; } }
     public Matrix4x4 OldTransformOffset { get { return oldTransformOffset; } set { oldTransformOffset = value; } }
 
+    public GameObject GridRoot; // NEW — parent for all grid circle GameObjects
+
     /// <summary>
     /// Grid constructor. 
     /// </summary>
@@ -106,6 +109,10 @@ public abstract class DNAGrid
         _plane = plane;
         _size = 0;
         _position = startPos;
+
+        //GridRoot = new GameObject($"Grid_{id}"); // optionally add to scene root
+        //GridRoot.transform.position = startPos;
+
         SetBounds();
         // 2D array with _length rows and _width columns
         _grid2D = new GridComponent[_length, _width];
@@ -114,7 +121,7 @@ public abstract class DNAGrid
     }
 
     /// <summary>
-    /// Sets fields for bounds and expansions.
+    /// Sets fields for bounds and expansions.  
     /// </summary>
     protected virtual void SetBounds()
     {
@@ -445,10 +452,10 @@ public abstract class DNAGrid
     public void Rotate(float pitch, float roll, float yaw)
     {
         // Attach parent transforms
-        TransformHandle.ShowTransform(this);
+        //TransformHandle.ShowTransform(this);
         TransformHandle.AttachChildren(new List<DNAGrid> { this });
         TransformHandle.Gizmos.transform.rotation = Quaternion.Euler(yaw, pitch, roll);
-        TransformHandle.DetachChildren();
+        //TransformHandle.DetachChildren();
 
         // haven't tested yet?
         //gridStartTransform.rotation = Quaternion.Euler(roll, yaw, pitch);
@@ -501,7 +508,7 @@ public abstract class DNAGrid
     {
         foreach (GridComponent gc in _gridComponents)
         {
-            gc.Helix.DeleteHelix();
+            gc.Helix?.DeleteHelix();
             GameObject.Destroy(gc.gameObject);
         }
 
@@ -525,6 +532,8 @@ public abstract class DNAGrid
     /// <returns></returns>
     public Transform GetTransform()
     {
-        return _gridComponents[0].transform;
+        int centerI = _length / 2;
+        int centerJ = _width / 2;
+        return Grid2D[centerI, centerJ].transform;
     }
 }

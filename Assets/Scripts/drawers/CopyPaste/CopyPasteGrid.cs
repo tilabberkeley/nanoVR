@@ -122,7 +122,7 @@ public class CopyPasteGrid : MonoBehaviour
         }
 
         string json = FileExport.GetSCJSON(gridIds, true);
-        //Debug.Log(json);
+        Debug.Log(json);
         return json;
     }
 

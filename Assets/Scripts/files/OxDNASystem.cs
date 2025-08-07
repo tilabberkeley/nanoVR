@@ -14,6 +14,7 @@ using Newtonsoft.Json.Serialization;
 using System.Globalization;
 using System.Linq;
 using System.Collections;
+using WebSocketSharp;
 
 /// <summary>
 /// Converts nanoVR grid structures into standard oxDNA system.
@@ -444,7 +445,7 @@ public class OxDNASystem
     /// <summary>
     /// Generates the oxview file based on this oxDNA system.
     /// </summary>
-    public string OxViewFile()
+    public string OxViewFile(bool isSimulation = false)
     {
         var oxViewFile = new OxViewFile
         {
@@ -495,6 +496,12 @@ public class OxDNASystem
             for (int i = 0; i < oxdnaStrand.Nucleotides.Count; i++) //NOTE: Changed by DY 4/18
             {
                 var nucleotide = oxdnaStrand.Nucleotides[i];
+
+                if (isSimulation && (nucleotide.Base.Equals("?") || nucleotide.Base.IsNullOrEmpty()))
+                {
+                    Debug.Log("Need to assign DNA sequence to simulate.");
+                    return null;
+                }
 
                 var oxViewMonomer = new OxViewMonomer
                 {

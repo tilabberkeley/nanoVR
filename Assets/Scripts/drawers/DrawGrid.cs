@@ -70,7 +70,7 @@ public class DrawGrid : MonoBehaviour
         ObjectListManager.CreateGridButton(gridId);
 
         // Add newly created grid to selected grids
-        SelectGrid.ToggleGridCircles(grid.Id);
+        ObjectListManager.SelGrid(gridId);
         s_numGrids += 1;
 
         return grid;

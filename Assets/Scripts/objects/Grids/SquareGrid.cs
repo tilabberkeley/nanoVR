@@ -42,6 +42,8 @@ public class SquareGrid : DNAGrid
         _grid2D[i, j] = gridComponent;
         _gridComponents.Add(gridComponent);
 
+        //gridGO.transform.SetParent(GridRoot.transform, worldPositionStays: true);
+
         StaticBatchGridGO(gridGO);
 
         return gridGO;

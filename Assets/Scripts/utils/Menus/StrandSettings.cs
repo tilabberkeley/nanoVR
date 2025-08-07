@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 using static GlobalVariables;
+using System.Text;
 
 /// <summary>
 /// Controls all logic for strand settings UI. This includes setting strand as scaffold and assigning DNA sequence.
@@ -28,6 +29,8 @@ public class StrandSettings : MonoBehaviour
     [SerializeField] private Button _cancelButton;
     [SerializeField] private TMP_InputField _sequenceInput;
     [SerializeField] private TMP_InputField _rotationInput;
+
+    private const char UNKNOWN_BASE = '?';
 
     // Static variables
     private static Strand s_strand;
@@ -66,7 +69,8 @@ public class StrandSettings : MonoBehaviour
 
         // Assigning DNA sequence to strand
         int length = s_strand.Length;
-        string sequence = "";
+        StringBuilder sb = new StringBuilder();
+        string sequence;
         if (_tog7249.isOn)
         {
             if (rotation + length > DNA7249.Length)
@@ -74,7 +78,7 @@ public class StrandSettings : MonoBehaviour
                 Debug.Log("Rotation of DNA sequence out of bounds for strand length. DNA sequence not assigned.");
                 return;
             }
-            sequence = DNA7249.Substring(rotation, length);
+            sb.Append(DNA7249.Substring(rotation, length));
         }
         else if (_tog7560.isOn)
         {
@@ -83,7 +87,7 @@ public class StrandSettings : MonoBehaviour
                 Debug.Log("Rotation of DNA sequence out of bounds for strand length. DNA sequence not assigned.");
                 return;
             }
-            sequence = DNA7560.Substring(rotation, length);
+            sb.Append(DNA7560.Substring(rotation, length));
         }
         else if (_tog8064.isOn)
         {
@@ -92,7 +96,7 @@ public class StrandSettings : MonoBehaviour
                 Debug.Log("Rotation of DNA sequence out of bounds for strand length. DNA sequence not assigned.");
                 return;
             }
-            sequence = DNA8064.Substring(rotation, length);
+            sb.Append(DNA8064.Substring(rotation, length));
         }
         else if (_tog8634.isOn)
         {
@@ -101,11 +105,12 @@ public class StrandSettings : MonoBehaviour
                 Debug.Log("Rotation of DNA sequence out of bounds for strand length. DNA sequence not assigned.");
                 return;
             }
-            sequence = DNA8634.Substring(rotation, length);
+            sb.Append(DNA8634.Substring(rotation, length));
         }
         else if (_customTog.isOn)
         {
-            sequence = _sequenceInput.text;
+            sb.Append(_sequenceInput.text);
+            sequence = sb.ToString();
 
             if (!NucleotideEdit.ValidateSequence(sequence))
             {
@@ -115,10 +120,7 @@ public class StrandSettings : MonoBehaviour
             if (sequence.Length < length)
             {
                 Debug.Log("Input sequence not long enough. Appending ? until correct length.");
-                for (int i = 0; i < length - sequence.Length; i++)
-                {
-                    sequence += "?";
-                }
+                sb.Append(new string(UNKNOWN_BASE, length - sequence.Length));              
             }
             else if (sequence.Length > length)
             {
@@ -126,7 +128,7 @@ public class StrandSettings : MonoBehaviour
                 sequence = sequence.Substring(0, length);
             }
         }
-        sequence = sequence.ToUpper();
+        sequence = sb.ToString().ToUpper();
         s_strand.SetSequenceRevamp(sequence);
         Debug.Log("Finished setting this strand's sequence");
         if (_complementaryTog.isOn)
@@ -171,12 +173,10 @@ public class StrandSettings : MonoBehaviour
     {
         int seqCount = 0;
 
-        for (int i = 0; i < s_strand.Domains.Count; i++)
+        foreach (Domain domain in s_strand.Domains)
         {
-            Domain domain = s_strand.Domains[i];
-            for (int j = 0; j < domain.GetDomainData().Count; j++)
+            foreach (NucleotideData nd in domain.GetDomainData())
             {
-                NucleotideData nd = domain.GetNucleotideData(i);
                 if (nd == s_strand.GetHead() || nd == s_strand.GetTail())
                 {
                     CheckTrailingNucls(nd);

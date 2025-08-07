@@ -97,7 +97,7 @@ public class NucleotideEdit : MonoBehaviour
     public static bool ValidComplementary(NucleotideData nucleotide)
     {
         var compNtc = nucleotide.GetComplement();
-        if (!compNtc.IsSelected()) return false;
+        //if (!compNtc.IsSelected()) return false;
     
         if (nucleotide.IsDeletion && !compNtc.IsDeletion) return false;
         if (!nucleotide.IsDeletion && compNtc.IsDeletion) return false;

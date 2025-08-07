@@ -51,6 +51,7 @@ public class HoneycombGrid : DNAGrid
         gridComponent.GridPoint = gridPoint;
         _grid2D[i, j] = gridComponent;
         _gridComponents.Add(gridComponent);
+        //gridGO.transform.SetParent(GridRoot.transform, worldPositionStays: true);
 
         StaticBatchGridGO(gridGO);
 

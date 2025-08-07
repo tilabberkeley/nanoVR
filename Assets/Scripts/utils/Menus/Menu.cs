@@ -63,11 +63,11 @@ public class Menu : MonoBehaviour
             }*/
             panels[i].SetActive(false);
             int buttonIndex = i; // Store the index in a separate variable to avoid closure issues
-            tabButtons[i].onClick.AddListener(() => SelectTab(buttonIndex));
+            tabButtons[i].onClick.AddListener(() => TogglePanel(buttonIndex));
         }
     }
 
-    public void SelectTab(int selectedButtonIndex)
+    public void TogglePanel(int selectedButtonIndex)
     {
         // Disable all other buttons
         for (int i = 0; i < panels.Length; i++)
@@ -78,7 +78,14 @@ public class Menu : MonoBehaviour
             }
         }
 
-        panels[selectedButtonIndex].SetActive(true);
+        if (panels[selectedButtonIndex].activeSelf)
+        {
+            panels[selectedButtonIndex].SetActive(false);
+        }
+        else
+        {
+            panels[selectedButtonIndex].SetActive(true);
+        }
     }
 
     void Update()
@@ -101,7 +108,7 @@ public class Menu : MonoBehaviour
             ToggleMenu();
         }
 
-        if (leftTriggerValue && leftTriggerReleased && !leftRayInteractorHit)
+        /*if (leftTriggerValue && leftTriggerReleased && !leftRayInteractorHit)
         {
             leftTriggerReleased = false;
             for (int i = 0; i < panels.Length; i++)
@@ -117,7 +124,7 @@ public class Menu : MonoBehaviour
             {
                 panels[i].SetActive(false);
             }
-        }
+        }*/
 
         // Reset primary button
         if (!primaryValue)

@@ -240,7 +240,9 @@ public class SimulateUI : MonoBehaviour
                 // First time pressing simulate
                 // Before connecting, export the current structure to oxview and reimport it.
                 OxDNASystem oxDNASystem = new OxDNASystem();
-                var oxViewFile = oxDNASystem.OxViewFile();
+                var oxViewFile = oxDNASystem.OxViewFile(isSimulation: true);
+
+                if (oxViewFile == null) return;
 
                 FileImport.OxViewImport(oxViewFile);
                 _oxView = s_oxViewDict.Values.First();

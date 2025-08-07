@@ -95,7 +95,7 @@ public class TransformHandle : MonoBehaviour
             }
             else
             {
-                ShowTransform(translatedGrids[0]);
+                ShowTransform(translatedGrids[0], Camera.main.transform.position + Camera.main.transform.forward * 0.5f);
                 AttachChildren(translatedGrids);
             }
         }
@@ -105,7 +105,7 @@ public class TransformHandle : MonoBehaviour
             leftTriggerReleased = false;
             rightTriggerReleased = false;
 
-            DetachChildren();
+            DetachChildren(translatedGrids);
         }
 
         if (!leftGripValue)
@@ -132,12 +132,11 @@ public class TransformHandle : MonoBehaviour
     /// <summary>
     /// Shows transform gizmo at the lower left corner of selected grid.
     /// </summary>
-    public static void ShowTransform(DNAGrid grid)
+    public static void ShowTransform(DNAGrid grid, Vector3 position)
     {
         //Debug.Log("Show transform");
         gizmos.SetActive(true);
         Transform transform = grid.GetTransform();
-        Vector3 position = Camera.main.transform.position + Camera.main.transform.forward * 0.5f;
         gizmosTransform.SetPositionAndRotation(position, transform.rotation);
 
         initialGizmoMatrix = Matrix4x4.TRS(
@@ -172,14 +171,14 @@ public class TransformHandle : MonoBehaviour
         }
     }
 
-    public static void DetachChildren()
+    public static void DetachChildren(List<DNAGrid> grids)
     {   
         Matrix4x4 gizmosMatrix = Matrix4x4.TRS(
                                     gizmosTransform.position,
                                     gizmosTransform.rotation,
                                     Vector3.one);
         Matrix4x4 delta = gizmosMatrix * initialGizmoMatrix.inverse;
-        foreach (DNAGrid grid in translatedGrids)
+        foreach (DNAGrid grid in grids)
         {
             grid.IsTransforming = false;
             grid.CurrTransformOffset = delta * grid.OldTransformOffset;

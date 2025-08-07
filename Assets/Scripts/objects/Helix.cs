@@ -4,7 +4,6 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 using static GlobalVariables;
 using static Utils;
@@ -16,6 +15,8 @@ using Debug = UnityEngine.Debug;
 public class Helix
 {
     private const float ADJUSTMENT = 0.05f; // Accounts for Icosphere prefab's weird positioning 
+    private const string LIGHT_GRAY = "#A9A9A9";
+    private const string MAGENTA = "#C75B7A";
 
     // Helix id.
     private int _id;
@@ -231,14 +232,14 @@ public class Helix
         Vector3 positionB = StartPoint + new Vector3(axisOneChangeB, axisTwoChangeB, i * RISE);
 
         // Create a quaternion from the Euler angles of the grid component's transform
-        Quaternion rotation = Quaternion.Euler(_gridComponent.transform.eulerAngles);
+        Quaternion rotation = _gridComponent.transform.rotation;
 
         // Apply the rotation to positionA and positionB relative to the start point. 
         Vector3 rotatedPositionA = rotation * (positionA - StartPoint) + StartPoint;
         Vector3 rotatedPositionB = rotation * (positionB - StartPoint) + StartPoint;
 
-        posA = rotatedPositionA;
-        posB = rotatedPositionB;
+        posA = positionA;
+        posB = positionB;
     }
 
     public List<NucleotideData> GetSubHelix(int sIndex, int eIndex, int direction)
@@ -643,11 +644,11 @@ public class Helix
         Color color;
         if (singleStrandRegion)
         {
-            ColorUtility.TryParseHtmlString("#C75B7A", out color);
+            ColorUtility.TryParseHtmlString(MAGENTA, out color);
         }
         else
         {
-            ColorUtility.TryParseHtmlString("#7FA1C3", out color);
+            ColorUtility.TryParseHtmlString(LIGHT_GRAY, out color);
         }
         _helixViewCylinders.Add(DrawPoint.MakeHelixCylinder(this, startPos, endPos, color));
     }

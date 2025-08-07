@@ -4,9 +4,7 @@
  */
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
-using UnityEngine;
 using static GlobalVariables;
-using static Utils;
 
 public class DeleteCommand : ICommand
 {
@@ -37,6 +35,6 @@ public class DeleteCommand : ICommand
 
     public void Undo()
     {
-        CoRunner.Instance.Run(FileImport.Instance.ParseStrands(_jsonStrands, s_numHelices, _strands));
+        CoRunner.Instance.Run(FileImport.Instance.ParseStrands(_jsonStrands, s_numHelices, _strands, new Dictionary<int, int>()));
     }
 }

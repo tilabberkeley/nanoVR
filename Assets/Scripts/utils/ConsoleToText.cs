@@ -23,10 +23,10 @@ public class ConsoleToText : MonoBehaviour
         Application.logMessageReceived += HandleLog;
     }
 
-    private void OnDisable()
+    /*private void OnDisable()
     {
         Application.logMessageReceived -= HandleLog;
-    }
+    }*/
 
     // This method captures log messages as they come in.
     private void HandleLog(string logString, string stackTrace, LogType type)
@@ -47,11 +47,16 @@ public class ConsoleToText : MonoBehaviour
     private void Update()
     {
         // Update on a fixed interval to reduce performance overhead.
-        timeSinceLastUpdate += Time.deltaTime;
+        /*timeSinceLastUpdate += Time.deltaTime;
         if (timeSinceLastUpdate >= updateInterval)
         {
             UpdateDebugText();
             timeSinceLastUpdate = 0f;
+        }*/
+
+        if (logQueue.Count > 0)
+        {
+            UpdateDebugText();
         }
     }
 
@@ -70,7 +75,10 @@ public class ConsoleToText : MonoBehaviour
             sb.AppendLine(log);
         }
 
+        sb.AppendLine(debugText.text);
         debugText.text = sb.ToString();
+
+        logQueue.Clear();
     }
 
     /// <summary>

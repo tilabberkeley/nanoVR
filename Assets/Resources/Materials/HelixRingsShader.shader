@@ -3,8 +3,8 @@ Shader "Custom/HelixRingsShader"
     Properties
     {
         _Color ("Color", Color) = (1,1,1,1)
-        _RingSpacing ("Ring Spacing", Float) = 0.5
-        _RingThickness ("Ring Thickness", Float) = 0.07
+        _RingSpacing ("Ring Spacing", Float) = 0.3333
+        _RingThickness ("Ring Thickness", Float) = 0.05
     }
     SubShader
     {

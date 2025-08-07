@@ -74,10 +74,6 @@ public class FileExport : MonoBehaviour
     /// </summary>
     public void Export()
     {
-        // enable file browser, disable menu
-        /*fileBrowser.gameObject.SetActive(true);
-        Menu.enabled = false;*/
-
         string exportType = exportTypeDropdown.options[exportTypeDropdown.value].text;
 
         if (exportType.Equals("scadnano"))
@@ -123,25 +119,17 @@ public class FileExport : MonoBehaviour
             DNAGrid grid = s_gridDict[gridId];
             
             JObject position = new JObject();
-            //if (isCopyPaste)
-            //{
-            //    position["x"] = 0.0;
-            //    position["y"] = 0.0;
-            //    position["z"] = 0.0;
-            //}
-            //else
-            //{
-                position["x"] = grid.Position.x * SCALE_FROM_NANOVR_TO_NM * -1; // TODO: Check this is right
-                position["y"] = grid.Position.y * SCALE_FROM_NANOVR_TO_NM;
-                position["z"] = grid.Position.z * SCALE_FROM_NANOVR_TO_NM;
-            //}
+            position["x"] = grid.Position.x * SCALE_FROM_NANOVR_TO_NM * -1; // TODO: Check this is right
+            position["y"] = grid.Position.y * SCALE_FROM_NANOVR_TO_NM;
+            position["z"] = grid.Position.z * SCALE_FROM_NANOVR_TO_NM;
+            
 
             (float roll, float pitch, float yaw) = MatrixToYawPitchRoll(grid.CurrTransformOffset);
             JObject group = new JObject
             {
                 ["pitch"] = pitch,
                 ["roll"] = roll,
-                ["yaw"] = yaw,
+                ["yaw"] = -yaw,
                 ["grid"] = grid.Type,
             };
 
@@ -178,12 +166,14 @@ public class FileExport : MonoBehaviour
         foreach (var item in s_strandDict)
         {
             Strand strand = item.Value;
+            bool spansOutsideSelection = strand.Domains.Any(d => !gridIds.Contains(d.GetGridId()));
+
             if (!gridIds.Contains(strand.GetHeadDomain().GetGridId()))
             {
                 continue;
             }
             // Skip strands that span multiple grids when we are copy/pasting a single grid
-            else if (isCopyPaste && strand.MoreThanOneGrid())
+            else if (isCopyPaste && spansOutsideSelection)
             {
                 continue;
             }

@@ -2,14 +2,14 @@
  * nanoVR, a VR application for DNA nanostructures.
  * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using static GlobalVariables;
 
 public class ObjectListManager : MonoBehaviour
 {
-
-    // public GameObject content;
+    private static Dictionary<string, Button> gridToButtonMap = new Dictionary<string, Button>();
 
     /// <summary>
     /// Creates button in Strand List UI whenever new strand is created. Button and Strand
@@ -34,6 +34,7 @@ public class ObjectListManager : MonoBehaviour
         button.name = "GridButton" + gridId;
         button.GetComponent<Button>().onClick.AddListener(() => SelGrid(gridId));
         button.transform.SetSiblingIndex(s_numGrids);
+        gridToButtonMap.Add(gridId, button.GetComponent<Button>());
     }
 
     /*public static void SelectAll()
@@ -52,8 +53,7 @@ public class ObjectListManager : MonoBehaviour
 
     public static void SelGrid(string gridId)
     {
-        //SelectGrid.HighlightGrid(gridId);
-        SelectGrid.ToggleGridCircles(gridId);
+        SelectGrid.ToggleGridSelection(gridId, gridToButtonMap[gridId]);
     }
 
     public static void DeleteStrandButton(int strandId)

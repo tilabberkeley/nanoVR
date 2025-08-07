@@ -16,8 +16,8 @@ public class GridComponent : MonoBehaviour
     // Helix on grid component.
     public Helix Helix { get; set; }
     // 3D position of grid component.
-    //private Vector3 _position;
-    public Vector3 Position { get { return gameObject.transform.position; }}
+    private Vector3 _position;
+    public Vector3 Position { get { return _position; }}
     // 2D point of grid component on grid.
     public GridPoint GridPoint { get; set; }
     // Grid that this grid component is apart of.
@@ -37,7 +37,8 @@ public class GridComponent : MonoBehaviour
     protected virtual void Awake()
     {
         _ntRenderer = GetComponent<Renderer>();
-        //_outline = GetComponent<Outline>();
-        //_outline.enabled = false;
+        _outline = GetComponent<Outline>();
+        _outline.enabled = false;
+        _position = gameObject.transform.position;
     }
 }

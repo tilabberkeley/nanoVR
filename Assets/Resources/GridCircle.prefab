@@ -199,14 +199,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4289800104734842996}
-  m_LocalRotation: {x: -0, y: -0.54590744, z: -0, w: 0.8378455}
-  m_LocalPosition: {x: 0.27543575, y: 0, z: -0.42323142}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.27543575, y: 0, z: 0}
   m_LocalScale: {x: 0.05, y: 0.05, z: 0.001}
   m_Children:
   - {fileID: 4901967306163173747}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: -66.173, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4289800104734842997
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -214,7 +214,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4289800104734842996}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8a35f6cfbfba9b548aaa00d52cfe8a50, type: 3}
   m_Name: 
@@ -315,14 +315,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4289800104734842996}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   outlineMode: 1
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineWidth: 2
+  outlineWidth: 4
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
@@ -366,7 +366,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bd0bb729cb6159b4ab21c5f62cad24ee, type: 3}
+  - {fileID: 2100000, guid: c2ded7645929e1746befa52ddd920fbb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

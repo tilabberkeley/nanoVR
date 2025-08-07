@@ -93,7 +93,6 @@ public class FileImport : MonoBehaviour
     {
         fileBrowser = FileBrowser.Instance.GetComponent<Canvas>();
         fileBrowser.gameObject.SetActive(false);
-        //rayInteractor = GameObject.Find("RightHand Controller").GetComponent<XRRayInteractor>();
     }
 
     public void OpenFile()
@@ -129,7 +128,6 @@ public class FileImport : MonoBehaviour
             {
                 if (fileType.Equals(".sc") || fileType.Equals(".sc.txt"))
                 {
-                    //StartCoroutine(ParseSC(@fileContent, false));
                     DoFileImport(fileContent);
                 }
                 else if (fileType.Equals(".oxview"))
@@ -185,10 +183,9 @@ public class FileImport : MonoBehaviour
         JArray strands = JArray.Parse(origami["strands"].ToString());
         bool isMultiGrid = false;
         Vector3 gridPosition = rayInteractor.transform.position;
+        Dictionary<DNAGrid, Vector3> gridRotations = new Dictionary<DNAGrid, Vector3>();
 
-        /**
-         * Parse grids
-         */
+        // Parse grids
         if (origami["groups"] != null)
         {
             JObject groupObject = JObject.Parse(origami["groups"].ToString());
@@ -206,7 +203,6 @@ public class FileImport : MonoBehaviour
                         gridName = GetGridName(origName);
                         UpdateGridCopies(origName);
                     }
-                    //Debug.Log("gridname" + gridName);
                     JObject info = item.Value;
                     float x = 0;
                     float y = 0;
@@ -222,18 +218,15 @@ public class FileImport : MonoBehaviour
                     Vector3 startPos;
                     startPos = new Vector3(x, y, z);
 
-                    /*if (isCopyPaste)
+                    if (isCopyPaste)
                     {
-                        //Debug.Log("Is Copypaste");
                         startPos = rayInteractor.transform.position;
                     }
                     else
                     {
                         startPos = new Vector3(x, y, z);
-                    }*/
-                    //Debug.Log("startPos: " + startPos);
+                    }
                     DNAGrid grid = DrawGrid.CreateGrid(gridName, PLANE, startPos, gridType);
-                    //Debug.Log("Created grid");
                     grids.Add(grid);
 
                     // Handle rotation
@@ -242,7 +235,7 @@ public class FileImport : MonoBehaviour
                     float yaw = 0f;
                     if (info["pitch"] != null)
                     {
-                        yaw = (float)info["pitch"];
+                        pitch = (float)info["pitch"];
                     }
                     if (info["roll"] != null)
                     {
@@ -250,15 +243,13 @@ public class FileImport : MonoBehaviour
                     }
                     if (info["yaw"] != null)
                     {
-                        pitch = (float)info["yaw"];
+                        yaw = (float)info["yaw"];
                     }
-                    if (pitch > 0 || roll > 0 || yaw > 0)
+                    if (pitch != 0f || roll != 0f || yaw != 0f)
                     {
-                        Matrix4x4 offset = Utils.YawPitchRollToMatrix(yaw, pitch, roll);
-
-                        grid.CurrTransformOffset = offset;
+                        //Quaternion q = ScadnanoRPYToUnity(roll, pitch, yaw);
+                        gridRotations.Add(grid, new Vector3(pitch, -yaw, roll));
                     }
-                    //Debug.Log("Fnish rotations");
                 }
                 catch (Exception e)
                 {
@@ -275,35 +266,59 @@ public class FileImport : MonoBehaviour
         
         // Parse helices.
         int lastHelixId = s_numHelices;
-        ParseHelices(helices, isMultiGrid, gridPosition);
+        Dictionary<int, int> oldHelixToNewHelixMap = new Dictionary<int, int>();
+        ParseHelices(helices, isMultiGrid, gridPosition, oldHelixToNewHelixMap);
+
+        // Rotate grid circles and helices
+        RotateGrids(gridRotations);
 
         // Parse strands.
-        CoRunner.Instance.Run(ParseStrands(strands, lastHelixId, new List<Strand>()));
-        //ParseStrands(strands, lastHelixId);
-
-        /* Unselect imported grids by default.
-         * We choose to do this so that imp
-        *//*
-        foreach (DNAGrid grid in grids)
-        {
-            SelectGrid.ToggleGridCircles(grid.Id);
-        }*/
-
+        CoRunner.Instance.Run(ParseStrands(strands, lastHelixId, new List<Strand>(), oldHelixToNewHelixMap));
         return grids;
     }
 
-    private void ParseHelices(JArray helices, bool isMultiGrid, Vector3 gridPosition)
+    private static Quaternion ScadnanoRPYToUnity(float rollDeg, float pitchDeg, float yawDeg)
+    {
+        Quaternion z = Quaternion.AngleAxis(-rollDeg, Vector3.forward);
+        Quaternion x = Quaternion.AngleAxis(-pitchDeg, z * Vector3.right);
+        Quaternion y = Quaternion.AngleAxis(yawDeg, (z * x) * Vector3.up);
+        Debug.Log($"roll: {rollDeg}, pitch: {pitchDeg}, yaw: {yawDeg}");
+        Debug.Log($"z: {z}, x: {x}, y: {y}");
+        Debug.Log($"final: {z * x * y}");
+        return Quaternion.Euler(-pitchDeg, 0, 0);
+        //return y * x * z;
+    }
+
+    private void RotateGrids(Dictionary<DNAGrid, Vector3> gridRotations)
+    {
+        if (gridRotations.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var item in gridRotations)
+        {
+            DNAGrid grid = item.Key;
+            Vector3 q = item.Value;
+            TransformHandle.ShowTransform(grid, grid.GetTransform().position);
+            TransformHandle.AttachChildren(new List<DNAGrid> { grid });
+            TransformHandle.GizmosTransform.Rotate(q, Space.World); 
+            TransformHandle.DetachChildren(new List<DNAGrid> { grid });
+        }
+    }
+
+    private void ParseHelices(JArray helices, bool isMultiGrid, Vector3 gridPosition, Dictionary<int, int> oldHelixToNewHelixMap)
     {
         int startHelixId = s_numHelices;
         for (int i = 0; i < helices.Count; i++)
         {
             if (helices[i]["grid_position"] != null)
             {
-                ParseHelix(helices[i], isMultiGrid, startHelixId);
+                ParseHelix(helices[i], isMultiGrid, startHelixId, oldHelixToNewHelixMap);
             }
             else
             {
-                ParseNoneHelix(helices[i], isMultiGrid, gridPosition);
+                ParseNoneHelix(helices[i], isMultiGrid, gridPosition, oldHelixToNewHelixMap);
             }
         }
     }
@@ -311,16 +326,17 @@ public class FileImport : MonoBehaviour
     /// <summary>
     /// Parse and draw Helices from scadnano file
     /// </summary>
-    private void ParseHelix(JToken fileHelix, bool isMultiGrid, int startHelixId)
+    private void ParseHelix(JToken fileHelix, bool isMultiGrid, int startHelixId, Dictionary<int, int> oldHelixToNewHelixMap)
     {
         JArray coord = JArray.Parse(fileHelix["grid_position"].ToString());
         int length = (int)fileHelix["max_offset"];
         int helixId = s_numHelices;
 
-        // Read helixId from file if available
+        // Map helixId from file if available
         if (fileHelix["idx"] != null)
         {
-            helixId = (int) fileHelix["idx"] + startHelixId;
+            int oldHelixId = (int)fileHelix["idx"];
+            oldHelixToNewHelixMap.Add(oldHelixId, helixId);
         }
 
         string gridName;
@@ -343,9 +359,7 @@ public class FileImport : MonoBehaviour
         int xGrid = (int) coord[0];
         int yGrid = (int) coord[1] * -1;
 
-        /**
-        * Expands grid if necessary so that helix coordinates exist.
-        */
+        // Expands grid if necessary so that helix coordinates exist.
         GridPoint minBound = grid.MinimumBound;
         GridPoint maxBound = grid.MaximumBound;
         while (xGrid <= minBound.X)
@@ -372,7 +386,6 @@ public class FileImport : MonoBehaviour
             GridComponent gc = grid.Grid2D[xInd, yInd];
             Helix helix = grid.AddHelix(helixId, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), length, PLANE, gc);
             helix.Extend(length);
-            //Debug.Log("Finished extending helix");
         }
         catch (Exception e)
         {
@@ -380,7 +393,7 @@ public class FileImport : MonoBehaviour
         }
     }
 
-    private void ParseNoneHelix(JToken fileHelix, bool isMultiGrid, Vector3 gridPosition)
+    private void ParseNoneHelix(JToken fileHelix, bool isMultiGrid, Vector3 gridPosition, Dictionary<int, int> oldHelixToNewHelixMap)
     {
         int length = (int)fileHelix["max_offset"];
 
@@ -423,12 +436,11 @@ public class FileImport : MonoBehaviour
     /// here since Coroutines are async and we must wait for all Strands
     /// to be parsed before going to next steps.
     /// </summary>
-    public IEnumerator ParseStrands(JArray strands, int lastHelixId, List<Strand> newStrands)
+    public IEnumerator ParseStrands(JArray strands, int lastHelixId, List<Strand> newStrands, Dictionary<int, int> oldHelixToNewHelixMap)
     {
         // Maps strand index in .sc file to strandId in nanoVR
         Dictionary<int, int> extensionStrands = new Dictionary<int, int>();
 
-        //Debug.Log($"Num imported strands: {strands.Count}");
         // Drawing strands
         for (int i = 0; i < strands.Count; i++)
         {
@@ -459,7 +471,16 @@ public class FileImport : MonoBehaviour
             {
                 if (domains[j]["helix"] != null)
                 {
-                    int helixId = (int) domains[j]["helix"] + lastHelixId;
+                    int helixId = (int)domains[j]["helix"];// + lastHelixId;
+                    if (oldHelixToNewHelixMap.ContainsKey(helixId))
+                    {
+                        helixId = oldHelixToNewHelixMap[helixId];
+                    }
+                    else
+                    {
+                        helixId += lastHelixId;
+                    }
+
                     bool forward = (bool) domains[j]["forward"];
                     int startId = (int) domains[j]["start"];
                     int endId = (int) domains[j]["end"] - 1; // End id is exclusive in .sc file
@@ -549,8 +570,6 @@ public class FileImport : MonoBehaviour
             }
 
             //Strand strand = CreateStrand(nucleotides, strandId, color, sInsertions, sDeletions, sequence, isScaffold);
-
-
             Strand strand = CreateStrand(strandDomains, strandId, color, isScaffold, loopouts);
             if (isCircular)
                 strand.IsCircular = true;
@@ -615,25 +634,6 @@ public class FileImport : MonoBehaviour
             Utils.CheckMismatch(strand); // Check for mismatches after setting sequence
             yield return null;
         }
-
-
-        // Abstracts to Helix or Strand Views if there are more than MAX_NUCLEOTIDES in scene.
-        // This helps with performance.
-        //if (GlobalVariables.allGameObjects.Count > MAX_HELIX_NUCLEOTIDES || s_helixView)
-        //{
-        //    //Togglers.Instance.CheckHelixToggle();
-        //    CoRunner.Instance.Run(ViewingPerspective.ViewHelix());
-        //}
-        //else if (GlobalVariables.allGameObjects.Count > MAX_STRAND_NUCLEOTIDES || s_strandView)
-        //{
-        //    //Togglers.Instance.CheckStrandToggle();
-        //    CoRunner.Instance.Run(ViewingPerspective.ViewStrand());
-        //}
-        //else
-        //{
-        //    CoRunner.Instance.Run(ViewingPerspective.ViewNucleotide());
-        //}
-
         loadingMenu.enabled = false;
     }
 
@@ -896,213 +896,8 @@ public class FileImport : MonoBehaviour
         }
     }
 
-    /*private bool DrawHeadExtension(DNAGrid grid, GridComponent domainGC, Strand strand, int nextStartId, int nextEndId, bool forward, int extensionLength, int dx, int dy)
-    {
-        int newX = domainGC.GridPoint.X + dx;
-        int newY = domainGC.GridPoint.Y + dy;
-        int xIndex = grid.GridXToIndex(newX);
-        int yIndex = grid.GridYToIndex(newY);
-        if (xIndex == -1 || yIndex == -1) { return false; }
-        GridComponent gc = grid.Grid2D[xIndex, yIndex];
-
-        // We have found a neighbor Grid circle with no helix.
-        if (gc != null)
-        {
-            Helix helix;
-            int length = Math.Max(nextStartId + extensionLength, nextEndId + 1);
-            int num64 = length / 64 + 1;
-            int actualLength = num64 * 64;
-
-            if (gc.Helix == null)
-            {
-                helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), actualLength, PLANE, gc);
-                helix.Extend(actualLength);
-                grid.CheckExpansion(gc);
-            }
-            else
-            {
-                helix = gc.Helix;
-                if (length > helix.Length)
-                {
-                    helix.Extend(actualLength - helix.Length);
-                }
-            }
-
-            // Calculate startId/endId to correct values.
-            int startId, endId;
-            if (!forward)
-            {
-                startId = nextStartId;
-                endId = startId + extensionLength;
-            }
-            else
-            {
-                endId = nextEndId;
-                startId = endId - extensionLength;
-            }
-
-            if (Utils.IsValidDomain(helix, startId, endId, Convert.ToInt32(forward)))
-            {
-                Domain domain = new Domain(helix.Id, Convert.ToInt32(forward), startId, endId, new Dictionary<int, int>(), new List<int>())
-                {
-                    IsExtension = true
-                };
-
-                strand.AddToHead(domain);
-                strand.SetDomainsRevamp();
-                //Debug.Log("Drawing head domain extension crossover");
-                DrawCrossover.CreateXoverHelper(domain, strand.GetDomain(1), strand.Id, strand.Color, savedColor: strand.Color);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private bool DrawTailExtension(DNAGrid grid, GridComponent domainGC, Strand strand, int prevStartId, int prevEndId, bool forward, int extensionLength, int dx, int dy)
-    {
-        int newX = domainGC.GridPoint.X + dx;
-        int newY = domainGC.GridPoint.Y + dy;
-        int xIndex = grid.GridXToIndex(newX);
-        int yIndex = grid.GridYToIndex(newY);
-        if (xIndex == -1 || yIndex == -1) { return false; }
-
-        GridComponent gc = grid.Grid2D[xIndex, yIndex];
-
-        // We have found a neighbor Grid circle with no helix.
-        if (gc != null)
-        {
-            Helix helix;
-            int length = Math.Max(prevStartId + extensionLength, prevEndId + 1);
-            int num64 = length / 64 + 1;
-            int actualLength = num64 * 64;
-
-            if (gc.Helix == null)
-            {
-                helix = grid.AddHelix(s_numHelices, new Vector3(gc.GridPoint.X, gc.GridPoint.Y, 0), actualLength, PLANE, gc);
-                //Debug.Log("Drew helix for extension domain");
-                helix.Extend(actualLength);
-                grid.CheckExpansion(gc);
-            }
-            else
-            {
-                helix = gc.Helix;
-                if (length > helix.Length)
-                {
-                    helix.Extend(actualLength - helix.Length);
-                }
-            }
-
-            // Calculate startId/endId to correct values.
-            int startId, endId;
-            if (!forward)
-            {
-                endId = prevEndId;
-                startId = endId - extensionLength;
-            }
-            else
-            {
-                startId = prevStartId;
-                endId = startId + extensionLength;
-            }
-
-            if (Utils.IsValidDomain(helix, startId, endId, Convert.ToInt32(forward)))
-            {
-                Domain domain = new Domain(helix.Id, Convert.ToInt32(forward), startId, endId, new Dictionary<int, int>(), new List<int>())
-                {
-                    IsExtension = true
-                };
-                strand.AddToTail(domain);
-                strand.SetDomainsRevamp();
-                //Debug.Log("Drawing tail domain extension crossover. domainId " + domain.Id);
-
-                DrawCrossover.CreateXoverHelper(strand.GetDomain(strand.Domains.Count - 2), domain, strand.Id, strand.Color, savedColor: strand.Color);
-                return true;
-            }
-        }
-
-        return false;
-    }*/
-
-    /*private void DrawOxViewExtension(int extensionLength, int domainIndex, List<GameObject> xoverEndpoints, List<GameObject> nucleotides)
-    {
-        // Handle extensions
-        // 1. Get extension length n
-        // 2. Generate n # of nucleotides/backbones
-        // 3. Calculate the vector they will lie on
-        // 4. Add these to the strand sequence
-        // 5. Mark these nucleotides/backbones with isExtension = true flag, so domain is also marked as isExtension = true
-        // 6. Update FileExport code to handle extensions (when isExtension = true)
-        List<GameObject> domain = new List<GameObject>();
-        NucleotideComponent currHead = xoverEndpoints[0].GetComponent<NucleotideComponent>();
-        int currHeadDirection = currHead.Direction;
-        GridComponent gc = s_helixDict[currHead.HelixId].GridComponent;
-        Vector3 direction;
-        if (currHeadDirection == 0)
-        {
-            direction = gc.transform.right;
-        }
-        else
-        {
-            direction = -gc.transform.right;
-        }
-
-
-        if (ObjectPoolManager.Instance.CanGetNucleotides(extensionLength) && ObjectPoolManager.Instance.CanGetBackbones(extensionLength - 1))
-        {
-            List<GameObject> nucls = ObjectPoolManager.Instance.GetNucleotides(extensionLength);
-            List<GameObject> backs = ObjectPoolManager.Instance.GetBackbones(extensionLength - 1);
-
-            for (int k = 0; k < nucls.Count; k++)
-            {
-                // TODO: Correctly set a1/a3 values
-                DrawPoint.SetNucleotide(nucls[k], (k + 1) * Utils.RISE * 2 * direction + currHead.transform.position, -1, -1, -1, false, false, isExtension: true);
-
-                if (k == 0)
-                {
-                    DrawPoint.SetBackbone(backs[k], -1, -1, -1, nucls[k].transform.position, currHead.transform.position);
-                }
-                if (k > 0)
-                {
-                    DrawPoint.SetBackbone(backs[k - 1], -1, -1, -1, nucls[k].transform.position, nucls[k - 1].transform.position);
-                }
-            }
-
-            for (int k = 0; k < backs.Count; k++)
-            {
-                domain.Add(nucls[k]);
-                domain.Add(backs[k]);
-            }
-            domain.Add(nucls.Last());
-        }
-
-        if (domainIndex == 0)
-        {
-            xoverEndpoints.Add(domain[0]);
-        }
-
-        // If extension is on 3' end (front of nanoVR strand), we reverse the domain to ensure correct ordering.
-        else
-        {
-            domain.Reverse();
-            xoverEndpoints.Insert(0, domain.Last());
-        }
-        nucleotides.InsertRange(0, domain);
-    }*/
-
-    /*private void SetExtensions(List<GameObject> domain)
-    {
-        foreach (GameObject go in domain)
-        {
-            DNAComponent dna = go.GetComponent<DNAComponent>();
-            dna.IsExtension = true;
-        }
-    }*/
-
     public static void OxViewImport(string fileContents)
     {
-        //Stopwatch sw = new Stopwatch();
-        //sw.Start();
         JObject origami = JObject.Parse(fileContents);
         List<double> box = JsonConvert.DeserializeObject<List<double>>(origami["box"].ToString());
         JArray systems = JArray.Parse(origami["systems"].ToString());
@@ -1115,9 +910,6 @@ public class FileImport : MonoBehaviour
             s_oxViewDict.Add(oxViewId, oxView);
             s_numOxViews++;
         }
-        //sw.Stop();
-        //loadingMenu.enabled = false;
-        // Debug.Log(string.Format("OxView import took {0} ms to complete", sw.ElapsedMilliseconds));
     }
 
     /// <summary>
@@ -1158,27 +950,9 @@ public class FileImport : MonoBehaviour
 
     private static void UpdateGridCopies(string origName)
     {
-        /*int numCopies = s_gridCopies.ContainsKey(origName) ? s_gridCopies[origName] : 0;
-        if (numCopies > 0)
-        {
-            s_gridCopies[origName] = numCopies + 1;
-        }*/
         if (s_gridCopies.ContainsKey(origName))
         {
             s_gridCopies[origName] += 1;
         }
     }
-
-    /* private static int CountDuplicates(string gridName)
-     {
-         int count = 0;
-         foreach (string gridId in s_gridDict.Keys)
-         {
-             if (gridId.StartsWith(gridName + " ("))
-             {
-                 count += 1;
-             }
-         }
-         return count;
-     }*/
 }

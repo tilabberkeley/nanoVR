@@ -4,6 +4,7 @@
  */
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static GlobalVariables;
@@ -18,8 +19,9 @@ public class SelectGrid : MonoBehaviour
     private List<InputDevice> _devices = new List<InputDevice>();
     private InputDevice _device;
     [SerializeField] private XRRayInteractor rayInteractor;
-    private bool triggerReleased = true;
-    //private bool axisReleased = true;
+    //private bool triggerReleased = true;
+    private bool axisReleased = true;
+    private static string BLUE = "#00F4FF";
 
     private void GetDevice()
     {
@@ -45,18 +47,27 @@ public class SelectGrid : MonoBehaviour
             GetDevice();
         }
 
-        _device.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerValue);
+        _device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out bool axisValue);
 
         // Resets selected grid.
-        if (triggerValue && triggerReleased && !rayInteractor.TryGetCurrent3DRaycastHit(out _))
+        if (axisValue && axisReleased)
         {
-            triggerReleased = false;
+            axisReleased = false;
+            DeleteGrids();
         }
 
-        // Resets trigger.                                          
-        if (!triggerValue)
+        // Resets axis click.                                          
+        if (!axisValue)
         {
-            triggerReleased = true;
+            axisReleased = true;
+        }
+    }
+
+    private void DeleteGrids()
+    {
+        foreach (DNAGrid grid in s_grids)
+        {
+            grid.DeleteGrid();
         }
     }
 
@@ -64,22 +75,33 @@ public class SelectGrid : MonoBehaviour
     /// Shows grid circles of DNAGrid
     /// </summary>
     /// <param name="gridId">id of DNAGrid</param>
-    public static void ToggleGridCircles(string gridId)
+    public static void ToggleGridSelection(string gridId, Button button)
     {
         // First hide current selected grid's circles
         //HideGridCircles(s_grid);
-
+        ColorUtility.TryParseHtmlString(BLUE, out Color blue);
         s_gridDict.TryGetValue(gridId, out DNAGrid grid);
         if (!s_grids.Contains(grid))
         {
             s_grids.Add(grid);
             grid.ToggleGridCircles(true);
+            SetButtonColor(button, blue);
         }
         else
         {
             s_grids.Remove(grid);
             grid.ToggleGridCircles(false);
+            SetButtonColor(button, Color.gray);
         }
+    }
+
+    private static void SetButtonColor(Button button, Color color)
+    {
+        ColorBlock colors = button.colors;
+        colors.normalColor = color;
+        colors.highlightedColor = color;
+        colors.selectedColor = color;
+        button.colors = colors;
     }
 
     /// <summary>

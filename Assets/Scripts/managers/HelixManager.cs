@@ -255,10 +255,13 @@ public class HelixManager : MonoBehaviour
         };
         argsCB.SetData(args);
 
+        float hideStencil = GlobalVariables.s_hideStencils ? 1f : 0f;
+
         _mpb.Clear();
         _mpb.SetBuffer("_Matrices", matCB);
         _mpb.SetBuffer("_Colors", colCB);
         _mpb.SetBuffer("_Highlights", hltCB);
+        _mpb.SetFloat("_HideStencil", hideStencil);
 
         Graphics.DrawMeshInstancedIndirect(mesh, 0, material, bounds, argsCB, 0, _mpb);
     }

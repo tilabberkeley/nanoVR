@@ -67,8 +67,8 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _RingSpacing: 0.5
-    - _RingThickness: 0.07
+    - _RingSpacing: 0.33333334
+    - _RingThickness: 0.05
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1

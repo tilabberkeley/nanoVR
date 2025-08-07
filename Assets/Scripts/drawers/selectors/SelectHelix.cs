@@ -1,6 +1,6 @@
 /*
  * nanoVR, a VR application for DNA nanostructures.
- * author: David Yang <davidmyang@berkeley.edu>
+ * author: David Yang <davidmyang@berkeley.edu> and Oliver Petrick <odpetrick@berkeley.edu>
  */
 using System.Linq;
 using System.Collections.Generic;
@@ -24,6 +24,7 @@ public class SelectHelix : MonoBehaviour
     private bool selectMultiple = false;
     private static RaycastHit s_hit;
     public static List<GridComponent> selectedHelices = new List<GridComponent>();
+    private static GridComponent prevGC = null;
 
     private void GetDevice()
     {
@@ -64,32 +65,35 @@ public class SelectHelix : MonoBehaviour
         _rightDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool rightTriggerValue);
         _rightDevice.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out bool axisClick);
 
-        /*if (leftTriggerValue)
+        if (rightTriggerValue && rightTriggerReleased && !rightRayInteractor.TryGetCurrent3DRaycastHit(out _)
+            && leftTriggerValue && leftTriggerReleased && !leftRayInteractor.TryGetCurrent3DRaycastHit(out _))
         {
             leftTriggerReleased = false;
-            selectMultiple = true;
-        }*/
-
-        if (rightTriggerValue && !rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
-        {
             rightTriggerReleased = false;
             ResetHelices();
         }
 
-        if (rightTriggerReleased && rightTriggerValue
-           && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+        if ((rightTriggerValue && rightRayInteractor.TryGetCurrent3DRaycastHit(out s_hit))
+           || (leftTriggerValue && leftRayInteractor.TryGetCurrent3DRaycastHit(out s_hit)))
         {
-            rightTriggerReleased = false;
             GridComponent gc = s_hit.collider.gameObject.GetComponent<GridComponent>();
-            if (gc != null && gc.Selected)
+            if (gc == null || prevGC == gc)
             {
-/*                if (!selectMultiple)
-                {
-                    ResetHelices();
-                }*/
+                return;
+            }
+
+            if (!selectedHelices.Contains(gc) && gc.Helix != null)
+            {
                 HighlightHelix(gc.gameObject);
                 selectedHelices.Add(gc);
             }
+            else if (selectedHelices.Contains(gc))
+            {
+                UnhighlightHelix(gc.gameObject);
+                selectedHelices.Remove(gc);
+            }
+
+            prevGC = gc;
         }
 
         if (axisClick && axisReleased)
@@ -113,11 +117,10 @@ public class SelectHelix : MonoBehaviour
             rightTriggerReleased = true;
         }
 
-/*        if (!leftTriggerValue)
+        if (!leftTriggerValue)
         {
             leftTriggerReleased = true;
-            selectMultiple = false;
-        }*/
+        }
 
     }
 
@@ -141,7 +144,6 @@ public class SelectHelix : MonoBehaviour
         foreach (GridComponent gc in selectedHelices)
         {
             UnhighlightHelix(gc.gameObject);
-
         }
     }
 
@@ -177,7 +179,7 @@ public class SelectHelix : MonoBehaviour
          * 4. Build a Grid with these selected helices, expand as needed (similar to file import).
          * 5. Assign selected helices to new Grid's grid circles.
          * 6. If necessary, remove Helix objects from old Grid's grid circles.
-        */
+         */
 
         // Check selected helices are from same grid
         bool valid = CheckHelicesFromSameGrid(selectedHelices);
@@ -216,8 +218,12 @@ public class SelectHelix : MonoBehaviour
             newCoordinates.Add(gp, gc);
         }
 
+        // Find the GridComponent that corresponds to closestCoordinate
+        GridComponent originGC = selectedHelices.First(gc => gc.GridPoint.X == (int)closestCoordinate.x && gc.GridPoint.Y == (int)closestCoordinate.y);
+        Vector3 newGridPosition = originGC.transform.position;
+
         // Step 4/5
-        DNAGrid grid = DrawGrid.CreateGrid(s_numGrids.ToString(), selectedHelices[0].Grid.Plane, selectedHelices[0].Grid.Position, selectedHelices[0].Grid.Type);
+        DNAGrid grid = DrawGrid.CreateGrid(s_numGrids.ToString(), selectedHelices[0].Grid.Plane, newGridPosition, selectedHelices[0].Grid.Type);
 
         foreach (var pair in newCoordinates)
         {
@@ -250,7 +256,16 @@ public class SelectHelix : MonoBehaviour
             int yInd = grid.GridYToIndex(yGrid);
             GridComponent gc = grid.Grid2D[xInd, yInd];
             gc.Helix = pair.Value.Helix;
+            gc.Selected = true;
+            gc.Helix._gridComponent = gc;
+
+            // Reset old grid's grid component
+            pair.Value.Helix = null;
+            pair.Value.Selected = false;
+
         }
+
+        ResetHelices();
     }
 
     private static bool CheckHelicesFromSameGrid(List<GridComponent> selectedHelices)
@@ -258,7 +273,7 @@ public class SelectHelix : MonoBehaviour
         string gridId = selectedHelices[0].GridId;
         foreach(GridComponent gc in selectedHelices)
         {
-            if (gc.GridId.Equals(gridId))
+            if (!gc.GridId.Equals(gridId))
             {
                 return false;
             }
