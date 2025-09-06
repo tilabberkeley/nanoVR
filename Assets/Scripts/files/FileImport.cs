@@ -174,7 +174,7 @@ public class FileImport : MonoBehaviour
     /// <param name="isCopyPaste">Whether this is being called for copy/pasting a grid</param>
     /// <param name="visualMode">Whether this is being called for converting to visual mode</param>
     /// <returns>List of grids created</returns>
-    public List<DNAGrid> ParseSC(string fileContents, bool isCopyPaste = false, bool visualMode = false)
+    public List<DNAGrid> ParseSC(string fileContents, bool isCopyPaste = false)
     {
         loadingMenu.enabled = true;
         List<DNAGrid> grids = new List<DNAGrid>();
@@ -198,11 +198,9 @@ public class FileImport : MonoBehaviour
                 {
                     string origName = CleanSlash(item.Key);
                     string gridName = origName;
-                    if (!visualMode)
-                    {
-                        gridName = GetGridName(origName);
-                        UpdateGridCopies(origName);
-                    }
+                    gridName = GetGridName(origName);
+                    UpdateGridCopies(origName);
+                    
                     JObject info = item.Value;
                     float x = 0;
                     float y = 0;
@@ -275,18 +273,6 @@ public class FileImport : MonoBehaviour
         // Parse strands.
         CoRunner.Instance.Run(ParseStrands(strands, lastHelixId, new List<Strand>(), oldHelixToNewHelixMap));
         return grids;
-    }
-
-    private static Quaternion ScadnanoRPYToUnity(float rollDeg, float pitchDeg, float yawDeg)
-    {
-        Quaternion z = Quaternion.AngleAxis(-rollDeg, Vector3.forward);
-        Quaternion x = Quaternion.AngleAxis(-pitchDeg, z * Vector3.right);
-        Quaternion y = Quaternion.AngleAxis(yawDeg, (z * x) * Vector3.up);
-        Debug.Log($"roll: {rollDeg}, pitch: {pitchDeg}, yaw: {yawDeg}");
-        Debug.Log($"z: {z}, x: {x}, y: {y}");
-        Debug.Log($"final: {z * x * y}");
-        return Quaternion.Euler(-pitchDeg, 0, 0);
-        //return y * x * z;
     }
 
     private void RotateGrids(Dictionary<DNAGrid, Vector3> gridRotations)

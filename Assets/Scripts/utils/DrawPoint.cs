@@ -54,8 +54,7 @@ public static class DrawPoint
             {
                 position = new Vector3(startPosition.x + xOffset, startPosition.y, startPosition.z + yOffset);
             }
-        }
-
+        }        
 
         GameObject gridCircle = Instantiate(GridCircle,
                    position,

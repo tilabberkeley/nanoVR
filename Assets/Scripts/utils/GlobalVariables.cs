@@ -54,21 +54,11 @@ public static class GlobalVariables
     // Tracks how many copies of each gridName have been made
     public static Dictionary<string, int> s_gridCopies = new Dictionary<string, int>();
 
-    /*// Dictionaries and counts to to keep track of alternate Strand, Helix, and DNAGrid objects when switching to visual mode
-    public static Dictionary<int, Helix> s_visHelixDict = new Dictionary<int, Helix>();
-    public static Dictionary<int, Strand> s_visStrandDict = new Dictionary<int, Strand>();
-    public static Dictionary<string, DNAGrid> s_visGridDict = new Dictionary<string, DNAGrid>();
-    public static int s_numVisStrands = 1;
-    public static int s_numVisHelices = 0;
-    public static int s_numVisGrids = 1;
-    public static List<GameObject> allVisGameObjects = new List<GameObject>();*/
-
-
     // M13 DNA sequences
     private static TextAsset _DNA7249 = Resources.Load("Sequences/dna7249") as TextAsset;
     private static TextAsset _DNA7560 = Resources.Load("Sequences/dna7560") as TextAsset;
     private static TextAsset _DNA8064 = Resources.Load("Sequences/dna8064") as TextAsset;
-    private static TextAsset _DNA8634 = Resources.Load("Sequences/dna78634") as TextAsset; // Special sequence that can be ordered from tilibit
+    private static TextAsset _DNA8634 = Resources.Load("Sequences/dna8634") as TextAsset; // Special sequence that can be ordered from tilibit
 
     private static string DNA7249_string = Regex.Replace(_DNA7249.text, @"\s+", "");
     private static string DNA7560_string = Regex.Replace(_DNA7560.text, @"\s+", "");
@@ -91,7 +81,6 @@ public static class GlobalVariables
 
 
     /* GameObjects to build structures */
-    private static GameObject _cone = Resources.Load("HexCone") as GameObject;
     private static GameObject _xover = Resources.Load("Xover") as GameObject;
     private static GameObject _xoverSuggestion = Resources.Load("XoverSuggestion") as GameObject;
     private static GameObject _gridCircle = Resources.Load("GridCircle") as GameObject;
@@ -99,10 +88,6 @@ public static class GlobalVariables
     private static GameObject _loopout = Resources.Load("Loopout") as GameObject;
     private static GameObject _helixCollider = Resources.Load("HelixCollider") as GameObject;
     private static GameObject _helixCylinder = Resources.Load("HelixCylinder") as GameObject;
-
-    private static GameObject _domainInteractable = Resources.Load("Domains/DomainInteractable") as GameObject;
-    private static GameObject _domainBezier = Resources.Load("Domains/DomainBezier") as GameObject;
-    private static GameObject _bezierEndpoint = Resources.Load("Domains/BezierEndpoint") as GameObject;
 
     public static GameObject Xover { get { return _xover; } }
     public static GameObject XoverSuggestion { get { return _xoverSuggestion; } }
